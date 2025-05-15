@@ -117,6 +117,16 @@ const NavbarComponent = () => {
             >
               Contacto
             </Nav.Link>
+
+            <Nav.Link 
+              as={Link} 
+              to="/galeria" 
+              onClick={() => setExpanded(false)}
+              className="mx-2"
+              style={{ color: colors.primaryMedium }}
+            >
+              Galería
+            </Nav.Link>
           </Nav>
 
           {/* Barra de búsqueda y botón de inicio de sesión - alineados a la derecha */}
