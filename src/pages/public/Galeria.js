@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container} from 'react-bootstrap';
-import { colors, textStyles} from '../../styles/styles';
+import { Container } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
 import { closeOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 
@@ -79,15 +78,15 @@ const Galeria = () => {
 
   const styles = {
     pageContainer: {
-      backgroundColor: colors.warmWhite,
+      backgroundColor: '#FFF5F0',
       minHeight: '100vh',
       paddingTop: '30px',
       paddingBottom: '60px',
     },
     hero: {
-      background: `linear-gradient(135deg, ${colors.pinkBerry} 0%, ${colors.pinkDeep} 100%)`,
+      background: `linear-gradient(135deg, #FF6F61 0%, #D83A56 100%)`,
       padding: '80px 0',
-      color: colors.warmWhite,
+      color: '#FFF5F0',
       marginBottom: '50px',
       position: 'relative',
       overflow: 'hidden',
@@ -99,29 +98,27 @@ const Galeria = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundImage: `radial-gradient(${colors.warmWhite} 1px, transparent 1px)`,
+      backgroundImage: `radial-gradient(#FFF5F0 1px, transparent 1px)`,
       backgroundSize: '20px 20px',
       opacity: 0.1,
     },
     title: {
-      ...textStyles.title,
-      color: colors.warmWhite,
       fontSize: '48px',
       marginBottom: '25px',
       fontWeight: 800,
       opacity: animate ? 1 : 0,
       transform: animate ? 'translateY(0)' : 'translateY(20px)',
       transition: 'opacity 0.8s ease, transform 0.8s ease',
+      color: '#FFF5F0',
     },
     subtitle: {
-      ...textStyles.paragraph,
-      color: colors.warmWhite,
       fontSize: '20px',
       maxWidth: '700px',
       margin: '0 auto',
       opacity: animate ? 0.9 : 0,
       transform: animate ? 'translateY(0)' : 'translateY(20px)',
       transition: 'opacity 1s ease 0.2s, transform 1s ease 0.2s',
+      color: '#FFF5F0',
     },
     galleryGrid: {
       display: 'grid',
@@ -138,7 +135,6 @@ const Galeria = () => {
       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       opacity: animate ? 1 : 0,
       transform: animate ? 'translateY(0)' : 'translateY(20px)',
-      transition: `opacity 0.8s ease, transform 0.8s ease`,
     },
     galleryImage: {
       width: '100%',
@@ -152,7 +148,7 @@ const Galeria = () => {
       left: 0,
       right: 0,
       background: `linear-gradient(to top, rgba(0,0,0,0.7), transparent)`,
-      color: colors.warmWhite,
+      color: '#FFF5F0',
       padding: '15px',
       opacity: 0,
       transform: 'translateY(20px)',
@@ -175,9 +171,14 @@ const Galeria = () => {
       zIndex: 1000,
       padding: '20px',
     },
+    lightboxImageWrapper: {
+      position: 'relative',
+      maxWidth: '70%', // Reducido de 90%
+      maxHeight: '70%', // Reducido de 80%
+    },
     lightboxImage: {
-      maxWidth: '90%',
-      maxHeight: '80%',
+      maxWidth: '100%',
+      maxHeight: '70vh', // Añadido límite de altura relativo a la ventana
       objectFit: 'contain',
       borderRadius: '8px',
       boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
@@ -185,7 +186,7 @@ const Galeria = () => {
     lightboxCaption: {
       position: 'absolute',
       bottom: '30px',
-      color: colors.warmWhite,
+      color: '#FFF5F0',
       fontSize: '18px',
       textAlign: 'center',
       background: 'rgba(0, 0, 0, 0.5)',
@@ -196,8 +197,8 @@ const Galeria = () => {
       position: 'absolute',
       top: '50%',
       transform: 'translateY(-50%)',
-      background: colors.pinkBerry,
-      color: colors.warmWhite,
+      background: '#FF6F61',
+      color: '#FFF5F0',
       border: 'none',
       borderRadius: '50%',
       width: '40px',
@@ -207,16 +208,13 @@ const Galeria = () => {
       alignItems: 'center',
       cursor: 'pointer',
       transition: 'background 0.3s ease',
-      '&:hover': {
-        background: colors.pinkDeep,
-      },
     },
     closeButton: {
       position: 'absolute',
-      top: '20px',
-      right: '20px',
-      background: colors.pinkBerry,
-      color: colors.warmWhite,
+      top: '10px',
+      right: '10px',
+      background: '#FF6F61',
+      color: '#FFF5F0',
       border: 'none',
       borderRadius: '50%',
       width: '40px',
@@ -226,9 +224,6 @@ const Galeria = () => {
       alignItems: 'center',
       cursor: 'pointer',
       transition: 'background 0.3s ease',
-      '&:hover': {
-        background: colors.pinkDeep,
-      },
     }
   };
 
@@ -253,7 +248,7 @@ const Galeria = () => {
               key={image.id}
               style={{
                 ...styles.galleryItem,
-                transitionDelay: `${index * 0.1}s`
+                transition: `opacity 0.8s ease ${index * 0.1}s, transform 0.8s ease ${index * 0.1}s`
               }}
               onClick={() => openLightbox(image)}
               onMouseEnter={(e) => {
@@ -288,20 +283,22 @@ const Galeria = () => {
       {/* Lightbox Modal */}
       {selectedImage && (
         <div style={styles.lightbox}>
-          <button style={styles.closeButton} onClick={closeLightbox}>
-            <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
-          </button>
           <button
             style={{ ...styles.lightboxButton, left: '20px' }}
             onClick={() => navigateImage('prev')}
           >
             <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
           </button>
-          <img
-            src={selectedImage.src}
-            alt={selectedImage.alt}
-            style={styles.lightboxImage}
-          />
+          <div style={styles.lightboxImageWrapper}>
+            <button style={styles.closeButton} onClick={closeLightbox}>
+              <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
+            </button>
+            <img
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              style={styles.lightboxImage}
+            />
+          </div>
           <button
             style={{ ...styles.lightboxButton, right: '20px' }}
             onClick={() => navigateImage('next')}
