@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
-import { colors, textStyles, layout } from '../../styles/styles';
+import { useState, useEffect } from 'react';
+import { Container} from 'react-bootstrap';
+import { colors, textStyles} from '../../styles/styles';
 import { IonIcon } from '@ionic/react';
 import { closeOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 
