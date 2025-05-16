@@ -60,17 +60,27 @@ const Productos = () => {
     setVistaGrilla(!vistaGrilla);
   };
 
-  // Aplicar filtros cuando cambien
-  useEffect(() => {
-    let resultado = [...productosState];
+  const handleProductClick = (productoId, event) => {
+    // Prevenir la propagación del evento
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    navigate(`/producto/${productoId}`);
+  };
+
+  // Memoización de funciones de filtrado
+  const filtrarProductos = React.useCallback((productos, filtros) => {
+    let resultado = [...productos];
     let contadorFiltros = 0;
 
     // Filtro de búsqueda
     if (filtros.busqueda) {
+      const searchTerm = filtros.busqueda.toLowerCase();
       resultado = resultado.filter((producto) =>
-        producto.title.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
-        producto.description.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
-        producto.category.toLowerCase().includes(filtros.busqueda.toLowerCase())
+        producto.title.toLowerCase().includes(searchTerm) ||
+        producto.description.toLowerCase().includes(searchTerm) ||
+        producto.category.toLowerCase().includes(searchTerm)
       );
       contadorFiltros++;
     }
@@ -141,13 +151,15 @@ const Productos = () => {
       contadorFiltros++;
     }
 
+    return { resultado, contadorFiltros };
+  }, []);
+
+  // Aplicar filtros cuando cambien
+  useEffect(() => {
+    const { resultado, contadorFiltros } = filtrarProductos(productosState, filtros);
     setProductosFiltrados(resultado);
     setFiltrosActivos(contadorFiltros);
-  }, [filtros, productosState]);
-
-  const handleProductClick = (productoId) => {
-    navigate(`/producto/${productoId}`);
-  };
+  }, [filtros, productosState, filtrarProductos]);
 
   const styles = {
     pageContainer: {
@@ -556,7 +568,7 @@ const Productos = () => {
                 <div
                   key={producto._id}
                   style={styles.productCard}
-                  onClick={() => handleProductClick(producto._id)}
+                  onClick={(e) => handleProductClick(producto._id, e)}
                 >
                   <div
                     style={{
