@@ -17,6 +17,13 @@ const Productos = () => {
     busqueda: "",
   });
 
+  // Estado para el carrito
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+  const [showCartModal, setShowCartModal] = useState(false);
+
   // Estado para controlar si el panel de filtros está expandido
   const [filtrosExpandidos, setFiltrosExpandidos] = useState(false);
   // Estado para productos filtrados
@@ -33,6 +40,11 @@ const Productos = () => {
     setProductosState(productos);
     setProductosFiltrados(productos);
   }, []);
+
+  // Guardar el carrito en localStorage cuando cambie
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const handleChange = (e) => {
     setFiltros({ ...filtros, [e.target.name]: e.target.value });
@@ -61,7 +73,6 @@ const Productos = () => {
   };
 
   const handleProductClick = (productoId, event) => {
-    // Prevenir la propagación del evento
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -69,23 +80,66 @@ const Productos = () => {
     navigate(`/producto/${productoId}`);
   };
 
+  // Función para agregar al carrito
+  const addToCart = (producto, event) => {
+    event.stopPropagation();
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item._id === producto._id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          item._id === producto._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prevCart, { ...producto, quantity: 1 }];
+    });
+  };
+
+  // Función para remover del carrito
+  const removeFromCart = (productoId) => {
+    setCart((prevCart) => prevCart.filter((item) => item._id !== productoId));
+  };
+
+  // Función para actualizar la cantidad en el carrito
+  const updateQuantity = (productoId, quantity) => {
+    if (quantity < 1) {
+      removeFromCart(productoId);
+      return;
+    }
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item._id === productoId ? { ...item, quantity } : item
+      )
+    );
+  };
+
+  // Calcular el total del carrito
+  const calculateTotal = () => {
+    return cart
+      .reduce((total, item) => {
+        const price = item.price * (1 - (item.discount || 0) / 100);
+        return total + price * item.quantity;
+      }, 0)
+      .toFixed(2);
+  };
+
   // Memoización de funciones de filtrado
   const filtrarProductos = React.useCallback((productos, filtros) => {
     let resultado = [...productos];
     let contadorFiltros = 0;
 
-    // Filtro de búsqueda
     if (filtros.busqueda) {
       const searchTerm = filtros.busqueda.toLowerCase();
-      resultado = resultado.filter((producto) =>
-        producto.title.toLowerCase().includes(searchTerm) ||
-        producto.description.toLowerCase().includes(searchTerm) ||
-        producto.category.toLowerCase().includes(searchTerm)
+      resultado = resultado.filter(
+        (producto) =>
+          producto.title.toLowerCase().includes(searchTerm) ||
+          producto.description.toLowerCase().includes(searchTerm) ||
+          producto.category.toLowerCase().includes(searchTerm)
       );
       contadorFiltros++;
     }
 
-    // Filtro por categoría
     if (filtros.categoria) {
       resultado = resultado.filter(
         (producto) => producto.category.toLowerCase() === filtros.categoria.toLowerCase()
@@ -93,7 +147,6 @@ const Productos = () => {
       contadorFiltros++;
     }
 
-    // Filtro por color
     if (filtros.color) {
       resultado = resultado.filter(
         (producto) => producto.color.toLowerCase() === filtros.color.toLowerCase()
@@ -101,7 +154,6 @@ const Productos = () => {
       contadorFiltros++;
     }
 
-    // Filtro por material
     if (filtros.material) {
       resultado = resultado.filter(
         (producto) => producto.material.toLowerCase().includes(filtros.material.toLowerCase())
@@ -109,7 +161,6 @@ const Productos = () => {
       contadorFiltros++;
     }
 
-    // Filtro por talla
     if (filtros.talla) {
       resultado = resultado.filter((producto) =>
         producto.talla.includes(filtros.talla)
@@ -117,7 +168,6 @@ const Productos = () => {
       contadorFiltros++;
     }
 
-    // Filtro por precio
     if (filtros.precio) {
       switch (filtros.precio) {
         case "low":
@@ -137,7 +187,6 @@ const Productos = () => {
       contadorFiltros++;
     }
 
-    // Ordenamiento
     if (filtros.ordenar) {
       if (filtros.ordenar === "asc") {
         resultado.sort((a, b) => a.price - b.price);
@@ -154,7 +203,6 @@ const Productos = () => {
     return { resultado, contadorFiltros };
   }, []);
 
-  // Aplicar filtros cuando cambien
   useEffect(() => {
     const { resultado, contadorFiltros } = filtrarProductos(productosState, filtros);
     setProductosFiltrados(resultado);
@@ -266,6 +314,33 @@ const Productos = () => {
       backgroundColor: "#e9ecef",
       color: colors.pinkBerry,
     },
+    cartButton: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "40px",
+      height: "40px",
+      borderRadius: "8px",
+      backgroundColor: colors.pinkBerry,
+      color: colors.warmWhite,
+      cursor: "pointer",
+      position: "relative",
+    },
+    cartBadge: {
+      position: "absolute",
+      top: "-5px",
+      right: "-5px",
+      backgroundColor: "#ffe607",
+      color: colors.pinkBerry,
+      borderRadius: "50%",
+      width: "20px",
+      height: "20px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "12px",
+      fontWeight: "bold",
+    },
     filterPanel: {
       backgroundColor: colors.warmWhite,
       padding: "20px",
@@ -365,12 +440,120 @@ const Productos = () => {
       fontSize: "15px",
       color: colors.darkGrey,
     },
+    cartModal: {
+      position: "fixed",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 1000,
+    },
+    cartModalContent: {
+      backgroundColor: colors.warmWhite,
+      borderRadius: "12px",
+      width: "90%",
+      maxWidth: "600px",
+      maxHeight: "80vh",
+      overflowY: "auto",
+      padding: "20px",
+      position: "relative",
+    },
+    cartModalHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "20px",
+    },
+    cartModalTitle: {
+      fontSize: "20px",
+      fontWeight: "600",
+      color: colors.pinkBerry,
+    },
+    cartModalClose: {
+      background: "none",
+      border: "none",
+      fontSize: "20px",
+      cursor: "pointer",
+      color: colors.pinkBerry,
+    },
+    cartItem: {
+      display: "flex",
+      alignItems: "center",
+      padding: "10px 0",
+      borderBottom: `1px solid ${colors.pinkLight}`,
+    },
+    cartItemImage: {
+      width: "80px",
+      height: "80px",
+      objectFit: "cover",
+      borderRadius: "8px",
+      marginRight: "15px",
+    },
+    cartItemDetails: {
+      flex: 1,
+    },
+    cartItemTitle: {
+      fontSize: "16px",
+      fontWeight: "500",
+      color: colors.pinkBerry,
+      marginBottom: "5px",
+    },
+    cartItemPrice: {
+      fontSize: "14px",
+      color: colors.darkGrey,
+    },
+    cartItemQuantity: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      marginTop: "5px",
+    },
+    quantityButton: {
+      width: "30px",
+      height: "30px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: `1px solid ${colors.pinkLight}`,
+      backgroundColor: colors.warmWhite,
+      borderRadius: "4px",
+      cursor: "pointer",
+    },
+    cartItemRemove: {
+      background: "none",
+      border: "none",
+      color: "#dc3545",
+      cursor: "pointer",
+      fontSize: "14px",
+    },
+    cartTotal: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: "16px",
+      fontWeight: "600",
+      color: colors.pinkBerry,
+      marginTop: "20px",
+    },
+    checkoutButton: {
+      width: "100%",
+      padding: "10px",
+      backgroundColor: colors.pinkBerry,
+      color: colors.warmWhite,
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontWeight: "500",
+      marginTop: "20px",
+    },
   };
 
   return (
     <div style={styles.pageContainer}>
       <div className="container">
-        {/* Encabezado de la página */}
         <div style={styles.header}>
           <h1 style={styles.title}>Productos de Danza</h1>
           <p style={styles.subtitle}>
@@ -378,7 +561,6 @@ const Productos = () => {
           </p>
         </div>
 
-        {/* Barra de búsqueda y acciones de filtro */}
         <div style={styles.filterBar}>
           <div style={styles.searchContainer}>
             <i className="bi bi-search" style={styles.searchIcon}></i>
@@ -418,11 +600,21 @@ const Productos = () => {
               >
                 <i className="bi bi-list-ul"></i>
               </div>
+              <div
+                style={styles.cartButton}
+                onClick={() => setShowCartModal(true)}
+              >
+                <i className="bi bi-cart"></i>
+                {cart.length > 0 && (
+                  <span style={styles.cartBadge}>
+                    {cart.reduce((total, item) => total + item.quantity, 0)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Panel de filtros expandible */}
         <div style={styles.filterPanel}>
           <div style={styles.filterGrid}>
             <div style={styles.filterGroup}>
@@ -542,7 +734,6 @@ const Productos = () => {
             </div>
           </div>
 
-          {/* Botones de acción */}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "15px", marginTop: "20px" }}>
             <button style={styles.clearButton} onClick={limpiarFiltros}>
               <i className="bi bi-trash3"></i>
@@ -555,12 +746,10 @@ const Productos = () => {
           </div>
         </div>
 
-        {/* Información de resultados */}
         <div style={styles.resultsInfo}>
           Mostrando {productosFiltrados.length} productos {filtrosActivos > 0 ? "filtrados" : ""}
         </div>
 
-        {/* Resultados */}
         {productosFiltrados.length > 0 ? (
           <div className="productResults">
             <div style={styles.productGrid}>
@@ -719,6 +908,22 @@ const Productos = () => {
                           >
                             Ver Más
                           </button>
+                          <button
+                            style={{
+                              backgroundColor: "#28a745",
+                              color: colors.warmWhite,
+                              border: "none",
+                              borderRadius: "8px",
+                              padding: "8px 15px",
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              cursor: "pointer",
+                              transition: "all 0.2s",
+                            }}
+                            onClick={(e) => addToCart(producto, e)}
+                          >
+                            Añadir al Carrito
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -747,6 +952,80 @@ const Productos = () => {
               <i className="bi bi-arrow-repeat"></i>
               Restablecer filtros
             </button>
+          </div>
+        )}
+
+        {/* Modal del carrito */}
+        {showCartModal && (
+          <div style={styles.cartModal} onClick={() => setShowCartModal(false)}>
+            <div
+              style={styles.cartModalContent}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={styles.cartModalHeader}>
+                <h2 style={styles.cartModalTitle}>Tu Carrito</h2>
+                <button
+                  style={styles.cartModalClose}
+                  onClick={() => setShowCartModal(false)}
+                >
+                  <i className="bi bi-x"></i>
+                </button>
+              </div>
+              {cart.length === 0 ? (
+                <p style={{ textAlign: "center", color: colors.darkGrey }}>
+                  Tu carrito está vacío.
+                </p>
+              ) : (
+                <>
+                  {cart.map((item) => (
+                    <div key={item._id} style={styles.cartItem}>
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        style={styles.cartItemImage}
+                      />
+                      <div style={styles.cartItemDetails}>
+                        <h3 style={styles.cartItemTitle}>{item.title}</h3>
+                        <p style={styles.cartItemPrice}>
+                          ${(item.price * (1 - (item.discount || 0) / 100)).toFixed(2)} x {item.quantity}
+                        </p>
+                        <div style={styles.cartItemQuantity}>
+                          <button
+                            style={styles.quantityButton}
+                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                          >
+                            -
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button
+                            style={styles.quantityButton}
+                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <button
+                        style={styles.cartItemRemove}
+                        onClick={() => removeFromCart(item._id)}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  ))}
+                  <div style={styles.cartTotal}>
+                    <span>Total:</span>
+                    <span>${calculateTotal()}</span>
+                  </div>
+                  <button
+                    style={styles.checkoutButton}
+                    onClick={() => alert("Proceder al pago (funcionalidad no implementada)")}
+                  >
+                    Proceder al Pago
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
