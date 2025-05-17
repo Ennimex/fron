@@ -772,7 +772,7 @@ const Inicio = () => {
             <Button
               style={customStyles.ctaPinkButton}
               className="px-5 py-3 cta-button"
-              onClick={() => navigate("/registro")}
+              onClick={() => navigate("/login?register=true")}
             >
               Regístrate
             </Button>

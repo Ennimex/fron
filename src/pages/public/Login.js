@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
 import { eyeOffOutline, eyeOutline, mailOutline, lockClosedOutline, callOutline } from 'ionicons/icons';
-import { Link } from 'react-router-dom';
-import { colors, textStyles } from '../../styles/styles';
+import { Link, useSearchParams } from 'react-router-dom';
+import { colors } from '../../styles/styles';
 
 const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(!searchParams.get('register'));
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -27,17 +28,22 @@ const Login = () => {
   const [loginPassword, setLoginPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Imágenes de fondo
-  const backgroundImages = [
+  // Mover backgroundImages dentro del componente y usar useMemo para memoizarlo
+  const backgroundImages = useMemo(() => [
     'https://vidauniversitaria.uanl.mx/wp-content/uploads/2019/09/muestra-de-danza-folklorica-uanl-3.jpg',
     'https://vidauniversitaria.uanl.mx/wp-content/uploads/2019/09/muestra-de-danza-folklorica-uanl-2.jpg'
-  ];
+  ], []); // Array vacío porque las URLs son constantes
 
   // Cambiar imagen de fondo al cargar la página
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
     setCurrentImageIndex(randomIndex);
-  }, []); // Se ejecuta solo al montar el componente
+    
+    // Mostrar el formulario de registro si viene el parámetro register=true
+    if (searchParams.get('register')) {
+      setIsLogin(false);
+    }
+  }, [searchParams, backgroundImages.length]); // Agregar backgroundImages.length como dependencia
 
   // Manejo de animación al cambiar entre login y registro
   useEffect(() => {
