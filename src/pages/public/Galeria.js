@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Table } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
 import { closeOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 
@@ -44,6 +44,38 @@ const Galeria = () => {
       src: 'https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=2940',
       alt: 'Danza Jazz',
       caption: 'Dinamismo en una rutina de jazz.'
+    }
+  ];
+
+  // Static events data (sin infoLink)
+  const events = [
+    {
+      id: 1,
+      date: '20/06/2025',
+      name: 'Recital de Ballet Clásico',
+      location: 'Teatro Municipal, Buenos Aires',
+      description: 'Presentación anual de nuestras alumnas de ballet.'
+    },
+    {
+      id: 2,
+      date: '15/07/2025',
+      name: 'Noche de Salsa',
+      location: 'Club Cultural, Rosario',
+      description: 'Una noche de baile y música latina abierta al público.'
+    },
+    {
+      id: 3,
+      date: '10/08/2025',
+      name: 'Festival de Flamenco',
+      location: 'Centro Cultural, Córdoba',
+      description: 'Espectáculo de flamenco con artistas invitados.'
+    },
+    {
+      id: 4,
+      date: '05/09/2025',
+      name: 'Taller de Danza Jazz',
+      location: 'Estudio JADA, Mendoza',
+      description: 'Clase intensiva para todos los niveles.'
     }
   ];
 
@@ -120,11 +152,19 @@ const Galeria = () => {
       transition: 'opacity 1s ease 0.2s, transform 1s ease 0.2s',
       color: '#FFF5F0',
     },
+    contentGrid: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 3fr', // Tabla a la izquierda (1fr), galería a la derecha (3fr)
+      gap: '30px',
+      padding: '0 20px',
+      '@media (max-width: 992px)': {
+        gridTemplateColumns: '1fr', // En móviles, una columna
+      }
+    },
     galleryGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
       gap: '20px',
-      padding: '0 20px',
     },
     galleryItem: {
       position: 'relative',
@@ -146,7 +186,7 @@ const Galeria = () => {
       position: 'absolute',
       bottom: 0,
       left: 0,
-      right: 0,
+      right: '0',
       background: `linear-gradient(to top, rgba(0,0,0,0.7), transparent)`,
       color: '#FFF5F0',
       padding: '15px',
@@ -173,12 +213,12 @@ const Galeria = () => {
     },
     lightboxImageWrapper: {
       position: 'relative',
-      maxWidth: '70%', // Reducido de 90%
-      maxHeight: '70%', // Reducido de 80%
+      maxWidth: '70%',
+      maxHeight: '70%',
     },
     lightboxImage: {
       maxWidth: '100%',
-      maxHeight: '70vh', // Añadido límite de altura relativo a la ventana
+      maxHeight: '70vh',
       objectFit: 'contain',
       borderRadius: '8px',
       boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
@@ -224,6 +264,46 @@ const Galeria = () => {
       alignItems: 'center',
       cursor: 'pointer',
       transition: 'background 0.3s ease',
+    },
+    eventsSection: {
+      maxWidth: '400px', // Mantiene la tabla compacta
+    },
+    eventsTitle: {
+      fontSize: '28px',
+      fontWeight: 700,
+      color: '#FF6F61',
+      textAlign: 'center',
+      marginBottom: '20px',
+      opacity: animate ? 1 : 0,
+      transform: animate ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s',
+    },
+    eventsTable: {
+      backgroundColor: '#FFF5F0',
+      borderRadius: '12px',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+      border: '2px solid #FF6F61', // Borde resaltado para la tabla
+      overflow: 'hidden',
+    },
+    tableHeader: {
+      background: `linear-gradient(135deg, #FF6F61 0%, #D83A56 100%)`,
+      color: '#FFF5F0',
+      fontWeight: 600,
+      borderBottom: '2px solid #FF6F61', // Borde resaltado para el encabezado
+    },
+    tableRow: {
+      transition: 'background 0.3s ease',
+      borderBottom: '1px solid #FF6F61', // Borde entre filas
+    },
+    tableCell: {
+      verticalAlign: 'middle',
+      color: '#333',
+      fontSize: '14px',
+      padding: '10px',
+      borderRight: '1px solid #FF6F61', // Borde entre celdas
+      ':last-child': {
+        borderRight: 'none' // Sin borde en la última celda
+      }
     }
   };
 
@@ -240,43 +320,79 @@ const Galeria = () => {
         </Container>
       </div>
 
-      {/* Gallery Grid */}
+      {/* Content Grid: Eventos y Galería */}
       <Container>
-        <div style={styles.galleryGrid}>
-          {images.map((image, index) => (
-            <div
-              key={image.id}
-              style={{
-                ...styles.galleryItem,
-                transition: `opacity 0.8s ease ${index * 0.1}s, transform 0.8s ease ${index * 0.1}s`
-              }}
-              onClick={() => openLightbox(image)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = `0 6px 20px rgba(0, 0, 0, 0.2)`;
-                e.currentTarget.querySelector('.caption').style.opacity = 1;
-                e.currentTarget.querySelector('.caption').style.transform = 'translateY(0)';
-                e.currentTarget.querySelector('.image').style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = `0 4px 15px rgba(0, 0, 0, 0.1)`;
-                e.currentTarget.querySelector('.caption').style.opacity = 0;
-                e.currentTarget.querySelector('.caption').style.transform = 'translateY(20px)';
-                e.currentTarget.querySelector('.image').style.transform = 'scale(1)';
-              }}
-            >
-              <img
-                src={image.src}
-                alt={image.alt}
-                style={styles.galleryImage}
-                className="image"
-              />
-              <div style={styles.captionOverlay} className="caption">
-                <p style={styles.captionText}>{image.caption}</p>
+        <div style={styles.contentGrid}>
+          {/* Events Section */}
+          <div style={styles.eventsSection}>
+            <h2 style={styles.eventsTitle}>Próximos Eventos</h2>
+            <Table responsive style={styles.eventsTable}>
+              <thead style={styles.tableHeader}>
+                <tr>
+                  <th style={{ padding: '10px' }}>Fecha</th>
+                  <th style={{ padding: '10px' }}>Evento</th>
+                  <th style={{ padding: '10px' }}>Lugar</th>
+                  <th style={{ padding: '10px' }}>Descripción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.map((event, index) => (
+                  <tr
+                    key={event.id}
+                    style={{
+                      ...styles.tableRow,
+                      opacity: animate ? 1 : 0,
+                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
+                      transition: `opacity 0.8s ease ${0.6 + index * 0.1}s, transform 0.8s ease ${0.6 + index * 0.1}s`
+                    }}
+                  >
+                    <td style={styles.tableCell}>{event.date}</td>
+                    <td style={styles.tableCell}>{event.name}</td>
+                    <td style={styles.tableCell}>{event.location}</td>
+                    <td style={styles.tableCell}>{event.description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+
+          {/* Gallery Grid */}
+          <div style={styles.galleryGrid}>
+            {images.map((image, index) => (
+              <div
+                key={image.id}
+                style={{
+                  ...styles.galleryItem,
+                  transition: `opacity 0.8s ease ${index * 0.1}s, transform 0.8s ease ${index * 0.1}s`
+                }}
+                onClick={() => openLightbox(image)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = `0 6px 20px rgba(0, 0, 0, 0.2)`;
+                  e.currentTarget.querySelector('.caption').style.opacity = 1;
+                  e.currentTarget.querySelector('.caption').style.transform = 'translateY(0)';
+                  e.currentTarget.querySelector('.image').style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = `0 4px 15px rgba(0, 0, 0, 0.1)`;
+                  e.currentTarget.querySelector('.caption').style.opacity = 0;
+                  e.currentTarget.querySelector('.caption').style.transform = 'translateY(20px)';
+                  e.currentTarget.querySelector('.image').style.transform = 'scale(1)';
+                }}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  style={styles.galleryImage}
+                  className="image"
+                />
+                <div style={styles.captionOverlay} className="caption">
+                  <p style={styles.captionText}>{image.caption}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </Container>
 

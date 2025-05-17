@@ -1,25 +1,10 @@
 import React, { useState } from "react";
-import { Navbar, Container, Nav, Button, Form, FormControl, NavDropdown } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Navbar, Container, Nav, Button, Form, FormControl } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { colors } from "../styles/styles"; // Importamos estilos
 
 const NavbarComponent = () => {
   const [expanded, setExpanded] = useState(false);
-  const navigate = useNavigate();
-
-  // Categorías de productos para el menú desplegable
-  const productCategories = [
-    { name: "Domótica", slug: "domotica" },
-    { name: "Seguridad", slug: "seguridad" },
-    { name: "Energía", slug: "energia" },
-    { name: "Climatización", slug: "climatizacion" }
-  ];
-
-  // Función para manejar la selección de categorías
-  const handleCategorySelect = (categorySlug) => {
-    navigate(`/productos?categoria=${categorySlug}`);
-    setExpanded(false);
-  };
 
   return (
     <Navbar
@@ -61,32 +46,15 @@ const NavbarComponent = () => {
               Inicio
             </Nav.Link>
             
-            {/* Menú desplegable de productos */}
-            <NavDropdown 
-              title="Productos" 
-              id="products-dropdown"
+            <Nav.Link 
+              as={Link} 
+              to="/productos" 
+              onClick={() => setExpanded(false)}
               className="mx-2"
               style={{ color: colors.primaryMedium }}
             >
-              <NavDropdown.Item 
-                as={Link} 
-                to="/productos" 
-                onClick={() => setExpanded(false)}
-              >
-                Todos los productos
-              </NavDropdown.Item>
-              
-              <NavDropdown.Divider />
-              
-              {productCategories.map((category) => (
-                <NavDropdown.Item 
-                  key={category.slug} 
-                  onClick={() => handleCategorySelect(category.slug)}
-                >
-                  {category.name}
-                </NavDropdown.Item>
-              ))}
-            </NavDropdown>
+              Productos
+            </Nav.Link>
             
             <Nav.Link 
               as={Link} 
