@@ -23,6 +23,8 @@ const Productos = () => {
     return savedCart ? JSON.parse(savedCart) : [];
   });
   const [showCartModal, setShowCartModal] = useState(false);
+  const [isCartAnimating, setIsCartAnimating] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   // Estado para controlar si el panel de filtros está expandido
   const [filtrosExpandidos, setFiltrosExpandidos] = useState(false);
@@ -94,6 +96,14 @@ const Productos = () => {
       }
       return [...prevCart, { ...producto, quantity: 1 }];
     });
+
+    // Activar animación del carrito
+    setIsCartAnimating(true);
+    setTimeout(() => setIsCartAnimating(false), 500);
+
+    // Mostrar notificación
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 2000);
   };
 
   // Función para remover del carrito
@@ -325,6 +335,8 @@ const Productos = () => {
       color: colors.warmWhite,
       cursor: "pointer",
       position: "relative",
+      transition: "transform 0.3s ease",
+      transform: isCartAnimating ? "scale(1.2)" : "scale(1)",
     },
     cartBadge: {
       position: "absolute",
@@ -548,6 +560,21 @@ const Productos = () => {
       cursor: "pointer",
       fontWeight: "500",
       marginTop: "20px",
+    },
+    notification: {
+      position: "fixed",
+      right: "20px",
+      top: "70px",
+      backgroundColor: colors.pinkBerry,
+      color: colors.warmWhite,
+      padding: "15px 25px",
+      borderRadius: "8px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      zIndex: 1000,
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      animation: "slideInRight 0.3s ease-out",
     },
   };
 
@@ -1028,9 +1055,33 @@ const Productos = () => {
             </div>
           </div>
         )}
+
+        {/* Notificación */}
+        {showNotification && (
+          <div style={styles.notification}>
+            <i className="bi bi-check-circle-fill"></i>
+            Producto agregado al carrito
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
+// Agregar los keyframes para la animación al final del archivo
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+`;
+document.head.appendChild(style);
 
 export default Productos;
