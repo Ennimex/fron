@@ -12,6 +12,8 @@ import Contacto from './pages/public/Contacto.js';
 import Login from './pages/public/Login.js';
 import Galeria from './pages/public/Galeria.js';
 import ProductoDetalle from './pages/public/ProductoDetalle.js';
+import Carrito from "./pages/public/Carrito.js";
+import { CartProvider } from './context/CartContext';
 
 /*
 // Componentes Administrativos
@@ -60,21 +62,24 @@ const PublicRoute = ({ children }) => {
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Rutas Públicas */}
-          <Route path="/" element={<PublicRoute><Inicio /></PublicRoute>} />
-          <Route path="/productos" element={<PublicRoute><Productos /></PublicRoute>} />
-          <Route path="/producto/:id" element={<PublicRoute><ProductoDetalle /></PublicRoute>} />
-          <Route path="/servicios" element={<PublicRoute><Servicios /></PublicRoute>} />
-          <Route path="/nosotros" element={<PublicRoute><Nosotros /></PublicRoute>} />
-          <Route path="/contacto" element={<PublicRoute><Contacto /></PublicRoute>} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path='/galeria' element={<PublicRoute><Galeria /></PublicRoute>} />
-        </Routes>
-      </div>
-    </Router>
+    <CartProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Rutas Públicas */}
+            <Route path="/" element={<PublicRoute><Inicio /></PublicRoute>} />
+            <Route path="/productos" element={<PublicRoute><Productos /></PublicRoute>} />
+            <Route path="/producto/:id" element={<PublicRoute><ProductoDetalle /></PublicRoute>} />
+            <Route path="/servicios" element={<PublicRoute><Servicios /></PublicRoute>} />
+            <Route path="/nosotros" element={<PublicRoute><Nosotros /></PublicRoute>} />
+            <Route path="/contacto" element={<PublicRoute><Contacto /></PublicRoute>} />
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path='/galeria' element={<PublicRoute><Galeria /></PublicRoute>} />
+            <Route path='/carrito' element={<PublicRoute><Carrito /></PublicRoute>} />
+          </Routes>
+        </div>
+      </Router>
+    </CartProvider>
   );
 }
 

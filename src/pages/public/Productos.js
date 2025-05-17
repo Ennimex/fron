@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { colors, textStyles } from "../../styles/styles"; // Importando estilos del sistema
-import "bootstrap/dist/css/bootstrap.min.css"; // Importar Bootstrap
-import "bootstrap-icons/font/bootstrap-icons.min.css"; // Importar Bootstrap Icons
-import productos from "../../services/base"; // Importar la base de datos simulada
+import { useCart } from '../../context/CartContext';
+import { colors, textStyles } from "../../styles/styles";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.min.css";
+import productos from "../../services/base";
 
 const Productos = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [filtros, setFiltros] = useState({
     ordenar: "",
     talla: "",
@@ -17,24 +19,11 @@ const Productos = () => {
     busqueda: "",
   });
 
-  // Estado para el carrito
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-  const [showCartModal, setShowCartModal] = useState(false);
-  const [isCartAnimating, setIsCartAnimating] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-
-  // Estado para controlar si el panel de filtros está expandido
   const [filtrosExpandidos, setFiltrosExpandidos] = useState(false);
-  // Estado para productos filtrados
   const [productosFiltrados, setProductosFiltrados] = useState([]);
-  // Estado para contador de filtros activos
   const [filtrosActivos, setFiltrosActivos] = useState(0);
-  // Estado para vista de cuadrícula o lista
   const [vistaGrilla, setVistaGrilla] = useState(true);
-  // Estado para almacenar los productos
   const [productosState, setProductosState] = useState([]);
 
   // Cargar productos desde la base de datos simulada
@@ -42,11 +31,6 @@ const Productos = () => {
     setProductosState(productos);
     setProductosFiltrados(productos);
   }, []);
-
-  // Guardar el carrito en localStorage cuando cambie
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
 
   const handleChange = (e) => {
     setFiltros({ ...filtros, [e.target.name]: e.target.value });
@@ -82,59 +66,13 @@ const Productos = () => {
     navigate(`/producto/${productoId}`);
   };
 
-  // Función para agregar al carrito
-  const addToCart = (producto, event) => {
+  const handleAddToCart = (producto, event) => {
     event.stopPropagation();
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item._id === producto._id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item._id === producto._id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { ...producto, quantity: 1 }];
-    });
-
-    // Activar animación del carrito
-    setIsCartAnimating(true);
-    setTimeout(() => setIsCartAnimating(false), 500);
-
-    // Mostrar notificación
+    addToCart(producto);
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 2000);
   };
 
-  // Función para remover del carrito
-  const removeFromCart = (productoId) => {
-    setCart((prevCart) => prevCart.filter((item) => item._id !== productoId));
-  };
-
-  // Función para actualizar la cantidad en el carrito
-  const updateQuantity = (productoId, quantity) => {
-    if (quantity < 1) {
-      removeFromCart(productoId);
-      return;
-    }
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item._id === productoId ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  // Calcular el total del carrito
-  const calculateTotal = () => {
-    return cart
-      .reduce((total, item) => {
-        const price = item.price * (1 - (item.discount || 0) / 100);
-        return total + price * item.quantity;
-      }, 0)
-      .toFixed(2);
-  };
-
-  // Memoización de funciones de filtrado
   const filtrarProductos = React.useCallback((productos, filtros) => {
     let resultado = [...productos];
     let contadorFiltros = 0;
@@ -324,35 +262,6 @@ const Productos = () => {
       backgroundColor: "#e9ecef",
       color: colors.pinkBerry,
     },
-    cartButton: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "40px",
-      height: "40px",
-      borderRadius: "8px",
-      backgroundColor: colors.pinkBerry,
-      color: colors.warmWhite,
-      cursor: "pointer",
-      position: "relative",
-      transition: "transform 0.3s ease",
-      transform: isCartAnimating ? "scale(1.2)" : "scale(1)",
-    },
-    cartBadge: {
-      position: "absolute",
-      top: "-5px",
-      right: "-5px",
-      backgroundColor: "#ffe607",
-      color: colors.pinkBerry,
-      borderRadius: "50%",
-      width: "20px",
-      height: "20px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "12px",
-      fontWeight: "bold",
-    },
     filterPanel: {
       backgroundColor: colors.warmWhite,
       padding: "20px",
@@ -452,115 +361,6 @@ const Productos = () => {
       fontSize: "15px",
       color: colors.darkGrey,
     },
-    cartModal: {
-      position: "fixed",
-      top: "0",
-      left: "0",
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-    },
-    cartModalContent: {
-      backgroundColor: colors.warmWhite,
-      borderRadius: "12px",
-      width: "90%",
-      maxWidth: "600px",
-      maxHeight: "80vh",
-      overflowY: "auto",
-      padding: "20px",
-      position: "relative",
-    },
-    cartModalHeader: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "20px",
-    },
-    cartModalTitle: {
-      fontSize: "20px",
-      fontWeight: "600",
-      color: colors.pinkBerry,
-    },
-    cartModalClose: {
-      background: "none",
-      border: "none",
-      fontSize: "20px",
-      cursor: "pointer",
-      color: colors.pinkBerry,
-    },
-    cartItem: {
-      display: "flex",
-      alignItems: "center",
-      padding: "10px 0",
-      borderBottom: `1px solid ${colors.pinkLight}`,
-    },
-    cartItemImage: {
-      width: "80px",
-      height: "80px",
-      objectFit: "cover",
-      borderRadius: "8px",
-      marginRight: "15px",
-    },
-    cartItemDetails: {
-      flex: 1,
-    },
-    cartItemTitle: {
-      fontSize: "16px",
-      fontWeight: "500",
-      color: colors.pinkBerry,
-      marginBottom: "5px",
-    },
-    cartItemPrice: {
-      fontSize: "14px",
-      color: colors.darkGrey,
-    },
-    cartItemQuantity: {
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      marginTop: "5px",
-    },
-    quantityButton: {
-      width: "30px",
-      height: "30px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      border: `1px solid ${colors.pinkLight}`,
-      backgroundColor: colors.warmWhite,
-      borderRadius: "4px",
-      cursor: "pointer",
-    },
-    cartItemRemove: {
-      background: "none",
-      border: "none",
-      color: "#dc3545",
-      cursor: "pointer",
-      fontSize: "14px",
-    },
-    cartTotal: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: "16px",
-      fontWeight: "600",
-      color: colors.pinkBerry,
-      marginTop: "20px",
-    },
-    checkoutButton: {
-      width: "100%",
-      padding: "10px",
-      backgroundColor: colors.pinkBerry,
-      color: colors.warmWhite,
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      fontWeight: "500",
-      marginTop: "20px",
-    },
     notification: {
       position: "fixed",
       right: "20px",
@@ -626,17 +426,6 @@ const Productos = () => {
                 onClick={() => !vistaGrilla || toggleVistaGrilla()}
               >
                 <i className="bi bi-list-ul"></i>
-              </div>
-              <div
-                style={styles.cartButton}
-                onClick={() => setShowCartModal(true)}
-              >
-                <i className="bi bi-cart"></i>
-                {cart.length > 0 && (
-                  <span style={styles.cartBadge}>
-                    {cart.reduce((total, item) => total + item.quantity, 0)}
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -947,7 +736,7 @@ const Productos = () => {
                               cursor: "pointer",
                               transition: "all 0.2s",
                             }}
-                            onClick={(e) => addToCart(producto, e)}
+                            onClick={(e) => handleAddToCart(producto, e)}
                           >
                             Añadir al Carrito
                           </button>
@@ -982,81 +771,6 @@ const Productos = () => {
           </div>
         )}
 
-        {/* Modal del carrito */}
-        {showCartModal && (
-          <div style={styles.cartModal} onClick={() => setShowCartModal(false)}>
-            <div
-              style={styles.cartModalContent}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={styles.cartModalHeader}>
-                <h2 style={styles.cartModalTitle}>Tu Carrito</h2>
-                <button
-                  style={styles.cartModalClose}
-                  onClick={() => setShowCartModal(false)}
-                >
-                  <i className="bi bi-x"></i>
-                </button>
-              </div>
-              {cart.length === 0 ? (
-                <p style={{ textAlign: "center", color: colors.darkGrey }}>
-                  Tu carrito está vacío.
-                </p>
-              ) : (
-                <>
-                  {cart.map((item) => (
-                    <div key={item._id} style={styles.cartItem}>
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        style={styles.cartItemImage}
-                      />
-                      <div style={styles.cartItemDetails}>
-                        <h3 style={styles.cartItemTitle}>{item.title}</h3>
-                        <p style={styles.cartItemPrice}>
-                          ${(item.price * (1 - (item.discount || 0) / 100)).toFixed(2)} x {item.quantity}
-                        </p>
-                        <div style={styles.cartItemQuantity}>
-                          <button
-                            style={styles.quantityButton}
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                          >
-                            -
-                          </button>
-                          <span>{item.quantity}</span>
-                          <button
-                            style={styles.quantityButton}
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                      <button
-                        style={styles.cartItemRemove}
-                        onClick={() => removeFromCart(item._id)}
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  ))}
-                  <div style={styles.cartTotal}>
-                    <span>Total:</span>
-                    <span>${calculateTotal()}</span>
-                  </div>
-                  <button
-                    style={styles.checkoutButton}
-                    onClick={() => alert("Proceder al pago (funcionalidad no implementada)")}
-                  >
-                    Proceder al Pago
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Notificación */}
         {showNotification && (
           <div style={styles.notification}>
             <i className="bi bi-check-circle-fill"></i>
@@ -1068,7 +782,7 @@ const Productos = () => {
   );
 };
 
-// Agregar los keyframes para la animación al final del archivo
+// Agregar los keyframes para la animación
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideInRight {
