@@ -73,6 +73,12 @@ const Productos = () => {
     setTimeout(() => setShowNotification(false), 2000);
   };
 
+  const handleRent = (producto, event) => {
+    event.stopPropagation();
+    // Aquí puedes agregar la lógica para manejar la renta
+    console.log('Rentar:', producto);
+  };
+
   const filtrarProductos = React.useCallback((productos, filtros) => {
     let resultado = [...productos];
     let contadorFiltros = 0;
@@ -327,7 +333,7 @@ const Productos = () => {
     productGrid: {
       display: "grid",
       gridTemplateColumns: vistaGrilla
-        ? "repeat(auto-fill, minmax(280px, 1fr))"
+        ? "repeat(auto-fill, minmax(250px, 1fr))"
         : "1fr",
       gap: "20px",
     },
@@ -339,6 +345,7 @@ const Productos = () => {
       transition: "transform 0.3s, box-shadow 0.3s",
       cursor: "pointer",
       display: vistaGrilla ? "block" : "flex",
+      height: vistaGrilla ? "400px" : "180px",
     },
     noResults: {
       textAlign: "center",
@@ -365,16 +372,17 @@ const Productos = () => {
       position: "fixed",
       right: "20px",
       top: "70px",
-      backgroundColor: colors.pinkBerry,
+      backgroundColor: "rgba(232, 30, 99, 0.95)", // Cambiado de colors.pinkBerry a un rgba más opaco
       color: colors.warmWhite,
       padding: "15px 25px",
       borderRadius: "8px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.25)", // Aumentado la opacidad de la sombra
       zIndex: 1000,
       display: "flex",
       alignItems: "center",
       gap: "10px",
       animation: "slideInRight 0.3s ease-out",
+      backdropFilter: "blur(5px)", // Agregado efecto de desenfoque
     },
   };
 
@@ -580,12 +588,13 @@ const Productos = () => {
                       padding: vistaGrilla ? "0" : "15px",
                       display: "flex",
                       flexDirection: vistaGrilla ? "column" : "row",
+                      height: "100%",
                     }}
                   >
                     <div
                       style={{
                         width: vistaGrilla ? "100%" : "180px",
-                        height: vistaGrilla ? "200px" : "150px",
+                        height: vistaGrilla ? "220px" : "170px",
                         overflow: "hidden",
                         borderRadius: vistaGrilla ? "12px 12px 0 0" : "8px",
                       }}
@@ -637,37 +646,30 @@ const Productos = () => {
                           alignItems: "center",
                           fontSize: "14px",
                           marginBottom: "8px",
+                          gap: "3px",
                         }}
                       >
-                        <span
-                          style={{
-                            display: "inline-block",
-                            padding: "4px 8px",
-                            backgroundColor: "rgba(232, 30, 99, 0.1)",
-                            color: colors.pinkBerry,
-                            borderRadius: "4px",
-                            marginRight: "8px",
-                          }}
-                        >
-                          {producto.category}
-                        </span>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "3px",
-                            color: "#ffc107",
-                          }}
-                        >
+                        <div style={{ display: "flex", alignItems: "center", color: "#ffc107" }}>
                           <i className="bi bi-star-fill"></i>
-                          <span style={{ color: colors.pinkBerry, fontWeight: "600" }}>
+                          <span style={{ color: colors.pinkBerry, fontWeight: "600", marginLeft: "3px" }}>
                             {producto.rating}
                           </span>
-                          <span style={{ color: colors.darkGrey, fontSize: "12px" }}>
+                          <span style={{ color: colors.darkGrey, fontSize: "12px", marginLeft: "3px" }}>
                             ({producto.reviews})
                           </span>
                         </div>
+                        {producto.discount > 0 && (
+                          <span
+                            style={{
+                              textDecoration: "line-through",
+                              fontSize: "14px",
+                              color: colors.darkGrey,
+                              marginLeft: "15px",
+                            }}
+                          >
+                            ${producto.price.toFixed(2)}
+                          </span>
+                        )}
                       </div>
 
                       <div
@@ -679,18 +681,6 @@ const Productos = () => {
                         }}
                       >
                         <div>
-                          {producto.discount > 0 && (
-                            <span
-                              style={{
-                                textDecoration: "line-through",
-                                fontSize: "14px",
-                                color: colors.darkGrey,
-                                marginRight: "8px",
-                              }}
-                            >
-                              ${producto.price.toFixed(2)}
-                            </span>
-                          )}
                           <span
                             style={{
                               fontSize: vistaGrilla ? "18px" : "22px",
@@ -710,35 +700,45 @@ const Productos = () => {
                         >
                           <button
                             style={{
-                              backgroundColor: colors.pinkBerry,
+                              backgroundColor: "#f8b195",
                               color: colors.warmWhite,
                               border: "none",
-                              borderRadius: "8px",
-                              padding: "8px 15px",
-                              fontSize: "14px",
+                              borderRadius: "4px",
+                              padding: "6px 12px",
+                              fontSize: "12px",
                               fontWeight: "600",
                               cursor: "pointer",
                               transition: "all 0.2s",
+                              width: "70px",
+                              height: "28px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                             }}
-                            onClick={() => handleProductClick(producto._id)}
+                            onClick={(e) => handleRent(producto, e)}
                           >
-                            Ver Más
+                            Renta
                           </button>
                           <button
                             style={{
                               backgroundColor: "#28a745",
                               color: colors.warmWhite,
                               border: "none",
-                              borderRadius: "8px",
-                              padding: "8px 15px",
-                              fontSize: "14px",
+                              borderRadius: "4px",
+                              padding: "6px 12px",
+                              fontSize: "12px",
                               fontWeight: "600",
                               cursor: "pointer",
                               transition: "all 0.2s",
+                              width: "70px",
+                              height: "28px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                             }}
                             onClick={(e) => handleAddToCart(producto, e)}
                           >
-                            Añadir al Carrito
+                            Añadir
                           </button>
                         </div>
                       </div>
