@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { colors } from "../styles/styles";
+import { colors } from "../../styles/styles";
 
 const Footer = () => {
     const textStyle = {

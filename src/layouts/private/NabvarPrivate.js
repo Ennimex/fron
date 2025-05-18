@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Navbar, Container, Nav, Button, Form, FormControl } from "react-bootstrap";
+import { Navbar, Container, Nav, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { colors } from "../styles/styles";
-import { useCart } from "../context/CartContext";
+import { colors } from "../../styles/styles";
+import { useCart } from "../../context/CartContext";
 
-const NavbarComponent = () => {
+const NavbarPrivate = () => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const { cart } = useCart();
@@ -43,6 +43,12 @@ const NavbarComponent = () => {
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
+  const handleLogout = () => {
+    // Add logout logic here (e.g., clear session, redirect to login)
+    navigate("/login");
+    setExpanded(false);
+  };
+
   return (
     <Navbar
       bg="light"
@@ -52,7 +58,6 @@ const NavbarComponent = () => {
       sticky="top"
     >
       <Container fluid className="px-4">
-        {/* Logo de la empresa */}
         <Navbar.Brand 
           as={Link} 
           to="/" 
@@ -63,15 +68,12 @@ const NavbarComponent = () => {
           JADA Company
         </Navbar.Brand>
 
-        {/* Botón de toggle para móviles */}
         <Navbar.Toggle 
           aria-controls="navbar-nav" 
           onClick={() => setExpanded(!expanded)} 
         />
 
-        {/* Contenido del navbar colapsable */}
         <Navbar.Collapse id="navbar-nav">
-          {/* Enlaces principales - centrados */}
           <Nav className="mx-auto">
             <Nav.Link 
               as={Link} 
@@ -134,31 +136,7 @@ const NavbarComponent = () => {
             </Nav.Link>
           </Nav>
 
-          {/* Barra de búsqueda, carrito y botón de inicio de sesión - alineados a la derecha */}
           <div className="d-flex align-items-center mt-3 mt-lg-0">
-            {/* Barra de búsqueda */}
-            <Form className="d-flex me-2" onSubmit={(e) => e.preventDefault()}>
-              <FormControl 
-                type="search" 
-                placeholder="¿Qué estás buscando?" 
-                className="me-2 rounded-pill"
-                aria-label="Buscar"
-                style={{ borderColor: `${colors.primaryLight}50` }}
-              />
-              <Button 
-                style={{ 
-                  backgroundColor: colors.primaryDark, 
-                  borderColor: colors.primaryDark,
-                  borderRadius: "20px",
-                }}
-                type="submit"
-                className="rounded-pill px-3"
-              >
-                Buscar
-              </Button>
-            </Form>
-
-            {/* Botón del carrito */}
             <button
               style={styles.cartButton}
               onClick={() => {
@@ -174,20 +152,34 @@ const NavbarComponent = () => {
               )}
             </button>
 
-            {/* Botón de inicio de sesión */}
             <Button 
               as={Link} 
-              to="/login" 
+              to="/profile" 
               style={{ 
                 backgroundColor: colors.primaryDark, 
                 borderColor: colors.primaryDark,
                 whiteSpace: "nowrap",
-                borderRadius: "20px"
+                borderRadius: "20px",
+                marginLeft: "10px"
               }} 
               className="ms-2 px-3"
               onClick={() => setExpanded(false)}
             >
-              Iniciar Sesión
+              Profile
+            </Button>
+
+            <Button 
+              onClick={handleLogout}
+              style={{ 
+                backgroundColor: colors.primaryDark, 
+                borderColor: colors.primaryDark,
+                whiteSpace: "nowrap",
+                borderRadius: "20px",
+                marginLeft: "10px"
+              }} 
+              className="ms-2 px-3"
+            >
+              Logout
             </Button>
           </div>
         </Navbar.Collapse>
@@ -196,4 +188,4 @@ const NavbarComponent = () => {
   );
 };
 
-export default NavbarComponent;
+export default NavbarPrivate;
