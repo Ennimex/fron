@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Button, Row, Col, Container } from "react-bootstrap";
-import { colors } from "../styles/styles";
+import { colors } from "../../styles/styles";
 import { useNavigate } from "react-router-dom";
 
 const CardsV = ({ items }) => {

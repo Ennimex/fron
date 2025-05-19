@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 
 const Perfil = () => {
-  const navigate = useNavigate();
-
   // Estado inicial del usuario (simulado, en un caso real vendría de una API o contexto de autenticación)
   const [userInfo, setUserInfo] = useState({
     nombre: "Ana López",

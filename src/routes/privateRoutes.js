@@ -8,7 +8,7 @@ import PrivatePublicLayout from "../layouts/PublicLayout.js";
 // Páginas privadas (área de administración)
 import DashboardPrivado from "../pages/private/Dashboard.js";
 import Dispositivos from "../pages/private/Dispositivos.js";
-import Perfil from "../pages/private/Perfil.js";
+import Perfil from "../pages/Private/Perfil.js";
 import Configuracion from "../pages/private/Configuracion.js";
 import DashboardPersianas from "../pages/private/DashboardPersianas.js";
 import MisPedidos from "../pages/private/MisPedidos.js";

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useCart } from '../context/CartContext';
-import { colors } from '../styles/styles';
+import { useCart } from '../../context/CartContext';
+import { colors } from '../../styles/styles';
 
 const CartWidget = () => {
   const { cart } = useCart();
