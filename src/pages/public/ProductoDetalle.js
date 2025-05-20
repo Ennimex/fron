@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { colors, textStyles } from "../../styles/styles";
 import productos from "../../services/base";
 import "bootstrap-icons/font/bootstrap-icons.min.css";
 
@@ -26,128 +25,188 @@ const ProductoDetalle = () => {
 
   const styles = {
     container: {
-      padding: "40px 20px",
-      maxWidth: "1200px",
-      margin: "0 auto",
+      backgroundColor: '#F5E8C7', // Warm Beige
+      minHeight: '100vh',
+      padding: '40px 20px',
+    },
+    innerContainer: {
+      maxWidth: '1200px',
+      margin: '0 auto',
     },
     productGrid: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: "40px",
-      backgroundColor: colors.warmWhite,
-      borderRadius: "12px",
-      padding: "30px",
-      boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '40px',
+      backgroundColor: '#FFFFFF',
+      borderRadius: '15px',
+      padding: '30px',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
     },
     imageContainer: {
-      borderRadius: "8px",
-      overflow: "hidden",
+      borderRadius: '12px',
+      overflow: 'hidden',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
     },
     image: {
-      width: "100%",
-      height: "500px",
-      objectFit: "cover",
+      width: '100%',
+      height: '500px',
+      objectFit: 'cover',
+      transition: 'transform 0.3s ease',
+      '&:hover': {
+        transform: 'scale(1.05)',
+      },
     },
     details: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "20px",
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '25px',
     },
     title: {
-      ...textStyles.title,
-      color: colors.pinkBerry,
-      marginBottom: "10px",
+      fontSize: '2.5rem',
+      fontWeight: 'bold',
+      color: '#A91B0D', // Deep Red
+      marginBottom: '15px',
     },
     description: {
-      ...textStyles.paragraph,
-      color: colors.darkGrey,
+      fontSize: '1.1rem',
+      color: '#4A4A4A', // Dark Grey
+      lineHeight: '1.6',
+    },
+    priceContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '15px',
+      marginBottom: '20px',
     },
     price: {
-      fontSize: "28px",
-      fontWeight: "bold",
-      color: colors.pinkBerry,
+      fontSize: '32px',
+      fontWeight: 'bold',
+      color: '#2E7D32', // Emerald Green
     },
     oldPrice: {
-      textDecoration: "line-through",
-      color: colors.darkGrey,
-      marginRight: "10px",
+      textDecoration: 'line-through',
+      color: '#4A4A4A',
+      fontSize: '24px',
     },
     discount: {
-      backgroundColor: "#ffe607",
-      color: colors.pinkBerry,
-      padding: "4px 8px",
-      borderRadius: "4px",
-      fontSize: "14px",
-      fontWeight: "bold",
+      backgroundColor: '#A91B0D',
+      color: '#F5E8C7',
+      padding: '8px 15px',
+      borderRadius: '20px',
+      fontSize: '16px',
+      fontWeight: 'bold',
     },
     infoGrid: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: "15px",
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '20px',
     },
     infoItem: {
-      backgroundColor: "rgba(232, 30, 99, 0.1)",
-      padding: "10px 15px",
-      borderRadius: "8px",
+      backgroundColor: '#FFF8E1',
+      padding: '15px 20px',
+      borderRadius: '12px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+      transition: 'transform 0.3s ease',
+      '&:hover': {
+        transform: 'translateY(-3px)',
+      },
+    },
+    infoLabel: {
+      color: '#2E7D32',
+      fontWeight: 'bold',
+      marginBottom: '5px',
+    },
+    infoValue: {
+      color: '#4A4A4A',
     },
     backButton: {
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "8px",
-      color: colors.pinkBerry,
-      border: "none",
-      background: "none",
-      fontSize: "16px",
-      cursor: "pointer",
-      marginBottom: "20px",
-    }
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '10px',
+      color: '#A91B0D',
+      backgroundColor: 'transparent',
+      border: '2px solid #A91B0D',
+      borderRadius: '8px',
+      padding: '10px 20px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      marginBottom: '30px',
+      '&:hover': {
+        backgroundColor: '#A91B0D',
+        color: '#F5E8C7',
+        transform: 'translateY(-2px)',
+      },
+    },
+    rating: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      color: '#FFC107', // Vibrant Yellow
+      fontSize: '18px',
+    },
   };
 
   return (
     <div style={styles.container}>
-      <button style={styles.backButton} onClick={() => navigate('/productos')}>
-        <i className="bi bi-arrow-left"></i>
-        Volver a Productos
-      </button>
+      <div style={styles.innerContainer}>
+        <button style={styles.backButton} onClick={() => navigate('/productos')}>
+          <i className="bi bi-arrow-left"></i>
+          Volver a Productos
+        </button>
 
-      <div style={styles.productGrid}>
-        <div style={styles.imageContainer}>
-          <img src={producto.image} alt={producto.title} style={styles.image} />
-        </div>
-
-        <div style={styles.details}>
-          <h1 style={styles.title}>{producto.title}</h1>
-          
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {producto.discount > 0 && (
-              <span style={styles.oldPrice}>${producto.price.toFixed(2)}</span>
-            )}
-            <span style={styles.price}>${precioFinal.toFixed(2)}</span>
-            {producto.discount > 0 && (
-              <span style={styles.discount}>-{producto.discount}%</span>
-            )}
+        <div style={styles.productGrid}>
+          <div style={styles.imageContainer}>
+            <img src={producto.image} alt={producto.title} style={styles.image} />
           </div>
 
-          <p style={styles.description}>{producto.description}</p>
+          <div style={styles.details}>
+            <h1 style={styles.title}>{producto.title}</h1>
+            
+            <div style={styles.priceContainer}>
+              {producto.discount > 0 && (
+                <span style={styles.oldPrice}>${producto.price.toFixed(2)}</span>
+              )}
+              <span style={styles.price}>${precioFinal.toFixed(2)}</span>
+              {producto.discount > 0 && (
+                <span style={styles.discount}>-{producto.discount}%</span>
+              )}
+            </div>
 
-          <div style={styles.infoGrid}>
-            <div style={styles.infoItem}>
-              <strong>Categoría:</strong> {producto.category}
-            </div>
-            <div style={styles.infoItem}>
-              <strong>Material:</strong> {producto.material}
-            </div>
-            <div style={styles.infoItem}>
-              <strong>Color:</strong> {producto.color}
-            </div>
-            <div style={styles.infoItem}>
-              <strong>Tallas disponibles:</strong> {producto.talla.join(", ")}
-            </div>
-            <div style={styles.infoItem}>
-              <strong>Stock:</strong> {producto.stock} unidades
-            </div>
-            <div style={styles.infoItem}>
-              <strong>Valoración:</strong> {producto.rating}/5 ({producto.reviews} reseñas)
+            <p style={styles.description}>{producto.description}</p>
+
+            <div style={styles.infoGrid}>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Categoría</div>
+                <div style={styles.infoValue}>{producto.category}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Material</div>
+                <div style={styles.infoValue}>{producto.material}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Color</div>
+                <div style={styles.infoValue}>{producto.color}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Tallas disponibles</div>
+                <div style={styles.infoValue}>{producto.talla.join(", ")}</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Stock</div>
+                <div style={styles.infoValue}>{producto.stock} unidades</div>
+              </div>
+              <div style={styles.infoItem}>
+                <div style={styles.infoLabel}>Valoración</div>
+                <div style={styles.rating}>
+                  {'★'.repeat(Math.floor(producto.rating))}
+                  {'☆'.repeat(5 - Math.floor(producto.rating))}
+                  <span style={{ color: '#4A4A4A', marginLeft: '5px' }}>
+                    ({producto.reviews} reseñas)
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

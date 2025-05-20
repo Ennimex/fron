@@ -1,18 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { colors, textStyles, layout, buttons } from '../../styles/styles';
 import { Container, Row, Col, Card, Image, Badge } from 'react-bootstrap';
 
-// Iconos para los servicios de danza
+// Iconos para los servicios de danza folclórica
 const ServiceIcons = {
   clases: "💃",
   alquiler: "👗",
   coreografia: "🎭",
-  estudio: "🏢",
   eventos: "🎉",
+  talleres: "📚",
   calidad: "⭐",
   atencion: "👥",
   pasion: "❤️",
-  precios: "💰"
+  accesibilidad: "🌟",
+};
+
+// Paleta de colores inspirada en la Huasteca
+const colors = {
+  deepRed: '#A91B0D',
+  vibrantYellow: '#FFC107',
+  emeraldGreen: '#2E7D32',
+  turquoise: '#26A69A',
+  warmBeige: '#F5E8C7',
+  darkGrey: '#4A4A4A',
+};
+
+const textStyles = {
+  title: { fontFamily: "'Roboto', sans-serif", fontWeight: 'bold' },
+  subtitle: { fontFamily: "'Roboto', sans-serif", fontWeight: 600 },
+  paragraph: { fontFamily: "'Roboto', sans-serif", fontWeight: 400 },
+};
+
+const layout = { sectionPadding: { padding: '50px 0' } };
+
+const buttons = {
+  primary: {
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
 };
 
 const Servicios = () => {
@@ -36,9 +61,9 @@ const Servicios = () => {
       position: 'relative',
     },
     hero: {
-      background: `linear-gradient(135deg, ${colors.pinkBerry} 0%, ${colors.pinkDeep} 100%)`,
+      background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
       padding: '80px 0',
-      color: colors.warmWhite,
+      color: colors.warmBeige,
       marginBottom: '50px',
       position: 'relative',
       overflow: 'hidden',
@@ -49,7 +74,7 @@ const Servicios = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundImage: `radial-gradient(${colors.warmWhite} 1px, transparent 1px)`,
+      backgroundImage: `radial-gradient(${colors.warmBeige} 1px, transparent 1px)`,
       backgroundSize: '20px 20px',
       opacity: 0.1,
     },
@@ -59,7 +84,7 @@ const Servicios = () => {
       transition: 'all 0.3s ease',
       height: '100%',
       border: 'none',
-      backgroundColor: colors.warmWhite,
+      backgroundColor: colors.warmBeige,
     },
     benefitCard: {
       borderRadius: '10px',
@@ -67,8 +92,8 @@ const Servicios = () => {
       transition: 'all 0.3s ease',
       height: '100%',
       border: 'none',
-      backgroundColor: colors.pinkBlush,
-      color: colors.warmWhite,
+      backgroundColor: colors.turquoise,
+      color: colors.warmBeige,
       overflow: 'hidden',
       position: 'relative',
     },
@@ -85,7 +110,7 @@ const Servicios = () => {
     },
     title: { 
       ...textStyles.title, 
-      color: colors.warmWhite, 
+      color: colors.warmBeige, 
       fontSize: '48px', 
       marginBottom: '25px', 
       fontWeight: 800,
@@ -99,7 +124,7 @@ const Servicios = () => {
       paddingBottom: '15px', 
       marginBottom: '25px',
       transition: 'color 0.3s ease',
-      color: colors.pinkBerry,
+      color: colors.deepRed,
     },
     paragraph: { 
       ...textStyles.paragraph, 
@@ -108,8 +133,8 @@ const Servicios = () => {
       color: colors.darkGrey,
     },
     badge: {
-      backgroundColor: colors.pinkLight,
-      color: colors.warmWhite,
+      backgroundColor: colors.vibrantYellow,
+      color: colors.warmBeige,
       padding: '5px 10px',
       borderRadius: '20px',
       fontSize: '14px',
@@ -119,7 +144,7 @@ const Servicios = () => {
     },
     heroSubtitle: {
       ...textStyles.paragraph, 
-      color: colors.warmWhite, 
+      color: colors.warmBeige, 
       fontSize: '20px', 
       maxWidth: '700px', 
       margin: '0 auto', 
@@ -149,109 +174,109 @@ const Servicios = () => {
     listItem: {
       marginBottom: '15px',
       paddingLeft: '5px',
-    }
+    },
   };
 
-  // Datos para servicios de danza
+  // Datos para servicios de danza folclórica
   const serviciosData = [
     {
       id: 'clases',
-      titulo: 'Clases de Danza',
-      descripcion: 'Ofrecemos clases de danza para todos los niveles y edades, impartidas por profesionales:',
+      titulo: 'Clases de Danza Folclórica',
+      descripcion: 'Ofrecemos clases de danza folclórica huasteca para todos los niveles y edades, impartidas por expertos:',
       listItems: [
         {
-          titulo: 'Ballet Clásico',
-          descripcion: 'Clases para niños, jóvenes y adultos, desde principiantes hasta avanzados.'
+          titulo: 'Danzas Tradicionales Huastecas',
+          descripcion: 'Aprende sones huastecos y danzas tradicionales de la región.'
         },
         {
-          titulo: 'Danza Contemporánea',
-          descripcion: 'Explora la expresión corporal con técnicas modernas y creativas.'
+          titulo: 'Técnicas de Zapateado',
+          descripcion: 'Domina el zapateado característico del estilo huasteco.'
         },
         {
-          titulo: 'Salsa y Ritmos Latinos',
-          descripcion: 'Aprende a moverte con estilo en nuestras clases de salsa, bachata y más.'
-        }
+          titulo: 'Danza para Niños y Adultos',
+          descripcion: 'Clases adaptadas para diferentes edades y niveles de experiencia.'
+        },
       ],
-      imagen: "https://images.unsplash.com/photo-1514557928579-7748b51b37ba?q=80&w=2940"
+      imagen: "https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940",
     },
     {
       id: 'alquiler',
-      titulo: 'Alquiler de Vestuario',
-      descripcion: 'Facilitamos tu preparación para eventos con nuestro servicio de alquiler de vestuario:',
+      titulo: 'Alquiler de Trajes Folclóricos',
+      descripcion: 'Facilitamos tu preparación para eventos con nuestro servicio de alquiler de trajes huastecos:',
       listItems: [
         {
-          titulo: 'Vestuario para Presentaciones',
-          descripcion: 'Trajes de ballet, flamenco, jazz y más, disponibles en varias tallas.'
+          titulo: 'Trajes Tradicionales',
+          descripcion: 'Huipiles y faldas con bordados artesanales, disponibles en varias tallas.'
         },
         {
-          titulo: 'Accesorios de Danza',
-          descripcion: 'Alquila accesorios como cintas, sombreros y props para complementar tu atuendo.'
-        }
+          titulo: 'Accesorios Folclóricos',
+          descripcion: 'Alquila tocados, rebozos y joyería tradicional para completar tu atuendo.'
+        },
       ],
-      imagen: 'https://images.unsplash.com/photo-1612903351440-147fb1e94e48?q=80&w=2940'
+      imagen: 'https://images.unsplash.com/photo-1612903351440-147fb1e94e48?q=80&w=2940',
     },
     {
       id: 'coreografia',
-      titulo: 'Coreografía Personalizada',
-      descripcion: 'Creamos coreografías únicas para eventos, competencias o presentaciones:',
+      titulo: 'Coreografía Folclórica Personalizada',
+      descripcion: 'Creamos coreografías únicas para festivales, presentaciones o competencias huastecas:',
       listItems: [
         {
           titulo: 'Coreografías para Solistas y Grupos',
-          descripcion: 'Diseñamos rutinas adaptadas a tu estilo y nivel.'
+          descripcion: 'Rutinas que resaltan la riqueza cultural de la Huasteca.'
         },
         {
-          titulo: 'Preparación para Competencias',
-          descripcion: 'Entrenamiento intensivo para destacar en competiciones nacionales e internacionales.'
-        }
-      ],
-      imagen: 'https://images.unsplash.com/photo-1595957882097-3f7db803ed93?q=80&w=2940'
-    },
-    {
-      id: 'estudio',
-      titulo: 'Alquiler de Estudios de Danza',
-      descripcion: 'Espacios equipados para ensayos, clases o eventos de danza:',
-      listItems: [
-        {
-          titulo: 'Estudios con Espejos y Barras',
-          descripcion: 'Salas amplias con pisos de madera y equipo de sonido profesional.'
+          titulo: 'Preparación para Festivales',
+          descripcion: 'Entrenamiento para destacar en eventos culturales y competencias regionales.'
         },
-        {
-          titulo: 'Espacios para Eventos',
-          descripcion: 'Alquila nuestros estudios para talleres, audiciones o presentaciones.'
-        }
       ],
-      imagen: 'https://images.unsplash.com/photo-1605733160314-4fc7dac4b611?q=80&w=2940'
+      imagen: 'https://images.unsplash.com/photo-1595957882097-3f7db803ed93?q=80&w=2940',
     },
     {
       id: 'eventos',
-      titulo: 'Organización de Eventos de Danza',
-      descripcion: 'Organizamos eventos de danza en Huejutla de Reyes, Hidalgo, para que brilles en el escenario. Desde recitales hasta competencias, nuestro equipo se encarga de cada detalle.',
+      titulo: 'Organización de Eventos Folclóricos',
+      descripcion: 'Organizamos eventos de danza folclórica en Huejutla de Reyes, Hidalgo, para celebrar la cultura huasteca. Desde festivales hasta presentaciones, nuestro equipo cuida cada detalle.',
       listItems: [],
-      imagen: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940'
-    }
+      imagen: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
+    },
+    {
+      id: 'talleres',
+      titulo: 'Talleres Culturales',
+      descripcion: 'Ofrecemos talleres para profundizar en la cultura huasteca a través de la danza:',
+      listItems: [
+        {
+          titulo: 'Historia de la Danza Huasteca',
+          descripcion: 'Explora el contexto cultural e histórico de las danzas tradicionales.'
+        },
+        {
+          titulo: 'Taller de Bordado y Vestimenta',
+          descripcion: 'Aprende sobre los bordados y la confección de trajes huastecos.'
+        },
+      ],
+      imagen: 'https://images.unsplash.com/photo-1605733160314-4fc7dac4b611?q=80&w=2940',
+    },
   ];
 
   // Datos para beneficios
   const benefitsData = [
     { 
       id: 'calidad',
-      title: "Calidad Profesional", 
-      content: "Nuestros servicios están respaldados por instructores y diseñadores con años de experiencia en la danza.",
+      title: "Autenticidad Cultural", 
+      content: "Nuestros servicios celebran la rica tradición huasteca con trajes y danzas auténticas.",
     },
     { 
       id: 'atencion',
       title: "Atención Personalizada", 
-      content: "Cada cliente recibe un servicio adaptado a sus necesidades, desde clases hasta eventos.",
+      content: "Cada cliente recibe un servicio adaptado a sus necesidades culturales y artísticas.",
     },
     { 
       id: 'pasion',
-      title: "Pasión por la Danza", 
-      content: "Nuestra misión es inspirar y fomentar el amor por la danza en cada proyecto que emprendemos.",
+      title: "Pasión por la Huasteca", 
+      content: "Nuestra misión es preservar y compartir el amor por la danza folclórica huasteca.",
     },
     { 
-      id: 'precios',
-      title: "Precios Accesibles", 
-      content: "Ofrecemos servicios de alta calidad a precios competitivos para todos los presupuestos.",
+      id: 'accesibilidad',
+      title: "Accesibilidad Cultural", 
+      content: "Ofrecemos servicios inclusivos para que todos puedan disfrutar de la danza huasteca.",
     },
   ];
 
@@ -288,7 +313,7 @@ const Servicios = () => {
                 fontSize: '20px', 
                 fontWeight: 'bold', 
                 marginBottom: '15px',
-                borderBottom: `2px solid ${colors.warmWhite}`,
+                borderBottom: `2px solid ${colors.warmBeige}`,
                 paddingBottom: '10px',
               }}>
                 {item.title}
@@ -304,7 +329,7 @@ const Servicios = () => {
                     left: 0,
                     right: 0,
                     height: '5px',
-                    background: `linear-gradient(to right, ${colors.pinkBerry}, ${colors.pinkDeep})`,
+                    background: `linear-gradient(to right, ${colors.deepRed}, ${colors.emeraldGreen})`,
                   }}
                 />
               )}
@@ -354,17 +379,17 @@ const Servicios = () => {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+                    background: `linear-gradient(to top, rgba(0,0,0,0.7), transparent)`,
                     padding: '30px 20px 15px',
                     transform: 'translateY(0)',
                     transition: 'transform 0.5s ease',
                   }}
                 >
-                  <h4 style={{ color: colors.warmWhite, marginBottom: '5px' }}>
+                  <h4 style={{ color: colors.warmBeige, marginBottom: '5px' }}>
                     <span style={{ marginRight: '10px' }}>{ServiceIcons[servicio.id]}</span>
                     {servicio.titulo}
                   </h4>
-                  <p style={{ color: colors.warmWhite, marginBottom: 0, fontSize: '14px' }}>
+                  <p style={{ color: colors.warmBeige, marginBottom: 0, fontSize: '14px' }}>
                     Conoce más sobre este servicio
                   </p>
                 </div>
@@ -376,7 +401,7 @@ const Servicios = () => {
             <div style={styles[isEven ? 'slideRight' : 'slideLeft'](0.3 + (index * 0.05))}>
               <h2 style={{
                 ...styles.subtitle,
-                color: hoveredService === servicio.id ? colors.pinkDeep : colors.pinkBerry,
+                color: hoveredService === servicio.id ? colors.emeraldGreen : colors.deepRed,
               }}>
                 {servicio.titulo}
                 <span style={{
@@ -385,7 +410,7 @@ const Servicios = () => {
                   left: 0,
                   width: '60px',
                   height: '4px',
-                  backgroundColor: colors.pinkLight,
+                  backgroundColor: colors.vibrantYellow,
                   transition: 'width 0.3s ease',
                   width: hoveredService === servicio.id ? '100px' : '60px',
                 }}></span>
@@ -413,8 +438,8 @@ const Servicios = () => {
                   marginTop: '20px',
                   padding: '10px 20px',
                   fontSize: '15px',
-                  backgroundColor: colors.pinkBerry,
-                  color: colors.warmWhite,
+                  backgroundColor: colors.deepRed,
+                  color: colors.warmBeige,
                   transition: 'all 0.3s ease',
                   opacity: animate ? 1 : 0,
                   transform: animate ? 'translateY(0)' : 'translateY(20px)',
@@ -422,10 +447,10 @@ const Servicios = () => {
                   overflow: 'hidden',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.pinkDeep;
+                  e.currentTarget.style.backgroundColor = colors.emeraldGreen;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.pinkBerry;
+                  e.currentTarget.style.backgroundColor = colors.deepRed;
                 }}
               >
                 <span style={{ position: 'relative', zIndex: 2 }}>Solicitar información</span>
@@ -455,17 +480,16 @@ const Servicios = () => {
   }, [hoveredService, animate, styles]);
 
   return (
-    <div style={{ backgroundColor: colors.warmWhite, color: colors.pinkBerry }}>
+    <div style={{ backgroundColor: colors.warmBeige, color: colors.deepRed }}>
       {/* Hero Section */}
       <div style={styles.hero}>
         <div style={styles.heroPattern}></div>
         <Container>
           <Row className="text-center">
             <Col>
-              <h1 style={styles.title}>Nuestros Servicios de Danza</h1>
+              <h1 style={styles.title}>Nuestros Servicios de Danza Folclórica Huasteca</h1>
               <p style={styles.heroSubtitle}>
-                En nuestro estudio de danza, ofrecemos una variedad de servicios para bailarines de todos los niveles, 
-                desde clases especializadas hasta organización de eventos en Huejutla de Reyes, Hidalgo.
+                En nuestra escuela en Huejutla de Reyes, Hidalgo, celebramos la tradición huasteca con servicios que inspiran y fortalecen la danza folclórica.
               </p>
             </Col>
           </Row>
@@ -493,7 +517,7 @@ const Servicios = () => {
                   transform: 'translateX(-50%)',
                   width: '80px',
                   height: '4px',
-                  backgroundColor: colors.pinkLight
+                  backgroundColor: colors.vibrantYellow,
                 }}></span>
               </h2>
             </Col>
@@ -510,8 +534,8 @@ const Servicios = () => {
             marginTop: '50px',
             padding: '40px',
             borderRadius: '10px',
-            background: `linear-gradient(135deg, ${colors.pinkBerry} 0%, ${colors.pinkDeep} 100%)`,
-            color: colors.warmWhite,
+            background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
+            color: colors.warmBeige,
             textAlign: 'center',
             position: 'relative',
             overflow: 'hidden',
@@ -531,7 +555,7 @@ const Servicios = () => {
             fontWeight: 'bold',
             marginBottom: '20px',
             position: 'relative',
-          }}>¿Listo para bailar con nosotros?</h3>
+          }}>¿Listo para celebrar la danza huasteca?</h3>
           
           <p style={{
             fontSize: '18px',
@@ -539,14 +563,13 @@ const Servicios = () => {
             margin: '0 auto 25px',
             position: 'relative',
           }}>
-            Únete a nuestra comunidad de danza y descubre cómo podemos ayudarte a brillar en el escenario. 
-            Contáctanos hoy para más información.
+            Únete a nuestra comunidad y descubre cómo preservar y compartir la tradición huasteca. Contáctanos hoy.
           </p>
           
           <button style={{
             backgroundColor: 'transparent',
-            border: `2px solid ${colors.warmWhite}`,
-            color: colors.warmWhite,
+            border: `2px solid ${colors.warmBeige}`,
+            color: colors.warmBeige,
             padding: '12px 30px',
             borderRadius: '5px',
             fontSize: '16px',
@@ -557,12 +580,12 @@ const Servicios = () => {
             position: 'relative',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colors.warmWhite;
-            e.currentTarget.style.color = colors.pinkBerry;
+            e.currentTarget.style.backgroundColor = colors.warmBeige;
+            e.currentTarget.style.color = colors.deepRed;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = colors.warmWhite;
+            e.currentTarget.style.color = colors.warmBeige;
           }}
           >
             Solicitar información

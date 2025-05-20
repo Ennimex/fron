@@ -48,24 +48,9 @@ function App() {
 
               {/* Rutas Privadas usando PrivateLayout y protegidas con PrivateRoute */}
               <Route element={<PrivateLayout />}>
-                <Route
-                  path="/inicio-privado"
-                  element={
-                    <PrivateRoute>
-                      <InicioPrivate />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/perfil"
-                  element={
-                    <PrivateRoute>
-                      <Perfil />
-                    </PrivateRoute>
-                  }
-                />
+                <Route path="/inicio-privado" element={<PrivateRoute><InicioPrivate /></PrivateRoute>}/>
+                <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>}/>
               </Route>
-
               {/* Redirección por defecto */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

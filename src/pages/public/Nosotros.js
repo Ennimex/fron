@@ -1,6 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { colors, textStyles, layout, buttons } from '../../styles/styles';
+import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Image } from 'react-bootstrap';
+
+// Paleta de colores inspirada en la Huasteca
+const colors = {
+  deepRed: '#A91B0D',
+  vibrantYellow: '#FFC107',
+  emeraldGreen: '#2E7D32',
+  turquoise: '#26A69A',
+  warmBeige: '#F5E8C7',
+  darkGrey: '#4A4A4A',
+  white: '#FFFFFF',
+};
+
+const textStyles = {
+  title: { fontFamily: "'Roboto', sans-serif", fontWeight: 'bold' },
+  subtitle: { fontFamily: "'Roboto', sans-serif", fontWeight: 600 },
+  paragraph: { fontFamily: "'Roboto', sans-serif", fontWeight: 400 },
+  fontPrimary: "'Roboto', sans-serif",
+};
+
+const layout = { sectionPadding: { padding: '50px 0' } };
+
+const buttons = {
+  primary: {
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    color: colors.white,
+  },
+  secondary: {
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+};
 
 const Nosotros = () => {
   const [animate, setAnimate] = useState(false);
@@ -31,19 +63,19 @@ const Nosotros = () => {
       position: 'relative',
       paddingLeft: '30px',
       marginBottom: '20px',
-      borderLeft: `3px solid ${colors.primaryLight}`,
+      borderLeft: `3px solid ${colors.vibrantYellow}`,
       transition: 'all 0.3s ease',
     },
     timelineItemHover: {
-      borderLeft: `5px solid ${colors.primaryMedium}`,
+      borderLeft: `5px solid ${colors.emeraldGreen}`,
       paddingLeft: '35px',
-      backgroundColor: `rgba(${parseInt(colors.primaryLight.slice(1, 3), 16)}, ${parseInt(colors.primaryLight.slice(3, 5), 16)}, ${parseInt(colors.primaryLight.slice(5, 7), 16)}, 0.05)`,
+      backgroundColor: `rgba(${parseInt(colors.vibrantYellow.slice(1, 3), 16)}, ${parseInt(colors.vibrantYellow.slice(3, 5), 16)}, ${parseInt(colors.vibrantYellow.slice(5, 7), 16)}, 0.05)`,
       borderRadius: '0 8px 8px 0',
     },
     hero: {
-      background: `linear-gradient(135deg, ${colors.primaryDark} 0%, ${colors.primaryMedium} 100%)`,
+      background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
       padding: '80px 0',
-      color: colors.white,
+      color: colors.warmBeige,
       marginBottom: '50px',
       position: 'relative',
       overflow: 'hidden',
@@ -54,13 +86,13 @@ const Nosotros = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundImage: `radial-gradient(${colors.white} 1px, transparent 1px)`,
+      backgroundImage: `radial-gradient(${colors.warmBeige} 1px, transparent 1px)`,
       backgroundSize: '20px 20px',
       opacity: 0.1,
     },
     title: { 
       ...textStyles.title, 
-      color: colors.white, 
+      color: colors.warmBeige, 
       fontSize: '48px', 
       marginBottom: '25px', 
       fontWeight: 800,
@@ -74,31 +106,33 @@ const Nosotros = () => {
       paddingBottom: '15px', 
       marginBottom: '25px',
       transition: 'all 0.3s ease',
+      color: colors.deepRed,
     },
     subtitleHover: {
-      color: colors.primaryDark,
+      color: colors.emeraldGreen,
     },
     paragraph: { 
       ...textStyles.paragraph, 
       fontSize: '17px', 
-      lineHeight: '1.7' 
+      lineHeight: '1.7',
+      color: colors.darkGrey,
     },
     featureCard: {
       marginBottom: '20px',
-      backgroundColor: `rgba(${parseInt(colors.primaryLight.slice(1, 3), 16)}, ${parseInt(colors.primaryLight.slice(3, 5), 16)}, ${parseInt(colors.primaryLight.slice(5, 7), 16)}, 0.1)`,
+      backgroundColor: `rgba(${parseInt(colors.vibrantYellow.slice(1, 3), 16)}, ${parseInt(colors.vibrantYellow.slice(3, 5), 16)}, ${parseInt(colors.vibrantYellow.slice(5, 7), 16)}, 0.1)`,
       padding: '15px 20px',
       borderRadius: '8px',
-      borderLeft: `4px solid ${colors.primaryLight}`,
+      borderLeft: `4px solid ${colors.vibrantYellow}`,
       transition: 'all 0.3s ease',
     },
     featureCardHover: {
-      backgroundColor: `rgba(${parseInt(colors.primaryLight.slice(1, 3), 16)}, ${parseInt(colors.primaryLight.slice(3, 5), 16)}, ${parseInt(colors.primaryLight.slice(5, 7), 16)}, 0.15)`,
-      borderLeft: `6px solid ${colors.primaryMedium}`,
+      backgroundColor: `rgba(${parseInt(colors.vibrantYellow.slice(1, 3), 16)}, ${parseInt(colors.vibrantYellow.slice(3, 5), 16)}, ${parseInt(colors.vibrantYellow.slice(5, 7), 16)}, 0.15)`,
+      borderLeft: `6px solid ${colors.emeraldGreen}`,
       transform: 'translateX(5px)',
     },
     badge: {
-      backgroundColor: colors.primaryLight,
-      color: colors.white,
+      backgroundColor: colors.vibrantYellow,
+      color: colors.warmBeige,
       padding: '5px 10px',
       borderRadius: '20px',
       fontSize: '14px',
@@ -106,78 +140,32 @@ const Nosotros = () => {
       display: 'inline-block',
       marginBottom: '15px',
     },
-    underlineAnimation: {
-      position: 'relative',
-      display: 'inline-block',
-      '&:after': {
-        content: '""',
-        position: 'absolute',
-        width: '100%',
-        transform: 'scaleX(0)',
-        height: '2px',
-        bottom: 0,
-        left: 0,
-        backgroundColor: colors.primaryLight,
-        transformOrigin: 'bottom right',
-        transition: 'transform 0.3s ease-out',
-      },
-      '&:hover:after': {
-        transform: 'scaleX(1)',
-        transformOrigin: 'bottom left',
-      },
-    },
     button: {
       ...buttons.primary,
       marginTop: '30px',
       padding: '12px 25px',
       fontSize: '16px',
       transition: 'all 0.3s ease',
-      backgroundColor: colors.primaryMedium,
+      backgroundColor: colors.deepRed,
       position: 'relative',
       overflow: 'hidden',
-      '&:before': {
-        content: '""',
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        width: '300px',
-        height: '300px',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderRadius: '50%',
-        transform: 'translate(-50%, -50%) scale(0)',
-        transition: 'transform 0.6s ease',
-      },
-      '&:hover:before': {
-        transform: 'translate(-50%, -50%) scale(1)',
-      },
     },
     policySection: {
       padding: '40px 0',
-      backgroundColor: `rgba(${parseInt(colors.primaryLight.slice(1, 3), 16)}, ${parseInt(colors.primaryLight.slice(3, 5), 16)}, ${parseInt(colors.primaryLight.slice(5, 7), 16)}, 0.1)`,
+      backgroundColor: `rgba(${parseInt(colors.warmBeige.slice(1, 3), 16)}, ${parseInt(colors.warmBeige.slice(3, 5), 16)}, ${parseInt(colors.warmBeige.slice(5, 7), 16)}, 0.1)`,
       marginTop: '50px',
       borderRadius: '10px',
     },
     policyButton: {
       ...buttons.secondary,
-      backgroundColor: colors.primaryDark,
+      backgroundColor: colors.deepRed,
       padding: '12px 25px',
       transition: 'all 0.3s ease',
       margin: '0 auto',
       display: 'block',
-      border: `2px solid ${colors.primaryDark}`,
+      border: `2px solid ${colors.deepRed}`,
+      color: colors.warmBeige,
     },
-  };
-  
-  const sectionStyle = {
-    marginBottom: '70px',
-  };
-  
-  const cardStyle = {
-    borderRadius: '10px',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    height: '100%',
-    border: 'none',
   };
 
   const [hoveredTimeline, setHoveredTimeline] = useState(null);
@@ -188,54 +176,53 @@ const Nosotros = () => {
 
   const timelineData = [
     { 
-      year: '2024', 
-      description: 'Lanzamiento de nuestra primera colección de diseños personalizados.',
-      icon: '🚀',
+      year: '2015', 
+      description: 'Fundación de la escuela de danza folclórica en Huejutla de Reyes, Hidalgo.',
+      icon: '💃',
     },
     { 
-      year: '2025', 
-      description: 'Expansión de nuestra presencia en el mercado nacional con proyectos destacados.',
-      icon: '🌎',
+      year: '2018', 
+      description: 'Primera participación en el Festival Nacional de Danza Folclórica.',
+      icon: '🎉',
     },
     { 
-      year: '2025', 
-      description: 'Reconocimiento como "Mejor Empresa de Diseño" en los Premios Nacionales de Innovación.',
+      year: '2023', 
+      description: 'Reconocimiento como "Mejor Escuela de Danza Folclórica" en Hidalgo.',
       icon: '🏆',
     },
   ];
 
-
   const featuresData = [
     { 
-      title: 'Personalización', 
-      desc: 'Cada diseño está creado a medida para reflejar la esencia de nuestros clientes.',
-      icon: '✨',
+      title: 'Autenticidad Cultural', 
+      desc: 'Preservamos las tradiciones huastecas en cada danza y traje.',
+      icon: '🌟',
     },
     { 
-      title: 'Tecnología', 
-      desc: 'Integramos herramientas avanzadas para garantizar precisión y funcionalidad.',
-      icon: '💻',
+      title: 'Enseñanza Experta', 
+      desc: 'Instructores con experiencia en danzas huastecas y zapateado.',
+      icon: '👩‍🏫',
     },
     { 
-      title: 'Materiales ecológicos', 
-      desc: 'Utilizamos materiales sostenibles y de alta calidad en todos nuestros proyectos.',
-      icon: '🌱',
+      title: 'Comunidad Inclusiva', 
+      desc: 'Acogemos a bailarines de todas las edades y niveles.',
+      icon: '🤝',
     },
   ];
 
   return (
-    <div style={{ backgroundColor: colors.white, color: colors.primaryDark }}>
+    <div style={{ backgroundColor: colors.warmBeige, color: colors.deepRed }}>
       {/* Hero Section */}
       <div style={styles.hero}>
         <div style={styles.heroPattern}></div>
         <Container>
           <Row className="text-center">
             <Col>
-              <h1 style={styles.title}>Conoce Nuestra Historia</h1>
+              <h1 style={styles.title}>Nuestra Historia Huasteca</h1>
               <p 
                 style={{ 
                   ...styles.paragraph, 
-                  color: colors.white, 
+                  color: colors.warmBeige, 
                   fontSize: '20px', 
                   maxWidth: '700px', 
                   margin: '0 auto', 
@@ -245,7 +232,7 @@ const Nosotros = () => {
                   transitionDelay: '0.2s',
                 }}
               >
-                Diseños que conectan, experiencias que enamoran.
+                Celebramos la danza folclórica huasteca con pasión y tradición.
               </p>
             </Col>
           </Row>
@@ -253,7 +240,7 @@ const Nosotros = () => {
       </div>
 
       <Container style={layout.sectionPadding}>
-        {/* Historia de la empresa con imagen */}
+        {/* Historia de la escuela con imagen */}
         <Row className="align-items-center" style={styles.section}>
           <Col md={6} className="mb-4 mb-md-0">
             <div 
@@ -267,15 +254,14 @@ const Nosotros = () => {
               onMouseLeave={() => setImageHover(false)}
             >
               <Image 
-                src="/public/img.webp" 
-                alt="Historia de JADA Company" 
+                src="https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940" 
+                alt="Historia de la Escuela Huasteca" 
                 fluid 
                 style={{
                   ...styles.image,
                   transform: imageHover ? 'scale(1.05)' : 'scale(1)',
                   transition: 'transform 0.5s ease',
                 }} 
-                onError={(e) => { e.target.src = "https://via.placeholder.com/600x400"; }} 
               />
               <div 
                 style={{
@@ -283,15 +269,15 @@ const Nosotros = () => {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+                  background: `linear-gradient(to top, rgba(0,0,0,0.7), transparent)`,
                   padding: '30px 20px 15px',
                   transform: imageHover ? 'translateY(0)' : 'translateY(100%)',
                   transition: 'transform 0.5s ease',
                 }}
               >
-                <h4 style={{ color: colors.white, marginBottom: '5px' }}>Innovación desde el primer día</h4>
-                <p style={{ color: colors.white, marginBottom: 0, fontSize: '14px' }}>
-                  Nuestra sede central en Huejutla de Reyes, Hidalgo
+                <h4 style={{ color: colors.warmBeige, marginBottom: '5px' }}>Tradición desde el corazón</h4>
+                <p style={{ color: colors.warmBeige, marginBottom: 0, fontSize: '14px' }}>
+                  Nuestra escuela en Huejutla de Reyes, Hidalgo
                 </p>
               </div>
             </div>
@@ -304,13 +290,12 @@ const Nosotros = () => {
                 transition: 'opacity 0.8s ease, transform 0.8s ease',
               }}
             >
-              
               <h2 style={styles.subtitle}>
                 Nuestra Historia
-                <span style={{ position: 'absolute', bottom: 0, left: 0, width: '60px', height: '4px', backgroundColor: colors.primaryLight }}></span>
+                <span style={{ position: 'absolute', bottom: 0, left: 0, width: '60px', height: '4px', backgroundColor: colors.vibrantYellow }}></span>
               </h2>
               <p style={styles.paragraph}>
-                JADA Company nació en 2025 en Huejutla de Reyes, Hidalgo, México, con el propósito de revolucionar el mundo del diseño al ofrecer soluciones que combinan creatividad, funcionalidad y sostenibilidad.
+                La Escuela de Danza Folclórica Huasteca fue fundada en 2015 en Huejutla de Reyes, Hidalgo, México, con la misión de preservar y difundir la rica tradición de la danza huasteca. Desde nuestros inicios, hemos formado bailarines que celebran nuestra cultura con orgullo.
               </p>
               <div style={{ marginTop: '30px' }}>
                 {timelineData.map((item, index) => (
@@ -325,7 +310,7 @@ const Nosotros = () => {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
                       <span style={{ marginRight: '10px', fontSize: '20px' }}>{item.icon}</span>
-                      <h5 style={{ color: colors.primaryDark, fontWeight: 600, margin: 0 }}>{item.year}</h5>
+                      <h5 style={{ color: colors.deepRed, fontWeight: 600, margin: 0 }}>{item.year}</h5>
                     </div>
                     <p style={{ ...styles.paragraph, marginBottom: '0' }}>{item.description}</p>
                   </div>
@@ -334,16 +319,17 @@ const Nosotros = () => {
             </div>
           </Col>
         </Row>
-        <Container style={layout.sectionPadding}>
+
         {/* Misión, Visión y Valores */}
-        <div style={sectionStyle}>
+        <div style={styles.section}>
           <Row className="text-center mb-5">
             <Col>
               <h2 style={{
                 ...textStyles.subtitle,
                 position: 'relative',
                 display: 'inline-block',
-                paddingBottom: '15px'
+                paddingBottom: '15px',
+                color: colors.deepRed,
               }}>
                 Nuestra Filosofía
                 <span style={{
@@ -353,7 +339,7 @@ const Nosotros = () => {
                   transform: 'translateX(-50%)',
                   width: '80px',
                   height: '4px',
-                  backgroundColor: colors.primaryLight
+                  backgroundColor: colors.vibrantYellow,
                 }}></span>
               </h2>
             </Col>
@@ -362,31 +348,31 @@ const Nosotros = () => {
             {[
               { 
                 title: "Misión", 
-                color: colors.primaryLight,
-                content: "Mejorar la calidad de vida con persianas de alta calidad que combinan diseño, funcionalidad y sostenibilidad."
+                color: colors.turquoise,
+                content: "Preservar y difundir la danza folclórica huasteca, fomentando el amor por nuestra cultura a través de la enseñanza y la práctica.",
               },
               { 
                 title: "Visión", 
-                color: colors.primaryMedium,
-                content: "Ser la empresa líder en el mercado europeo de persianas, con presencia en más de 10 países para 2030."
+                color: colors.emeraldGreen,
+                content: "Ser un referente nacional en la enseñanza y promoción de la danza folclórica huasteca para 2030.",
               },
               { 
                 title: "Valores", 
-                color: colors.primaryDark,
+                color: colors.deepRed,
                 content: [
-                  "Calidad: Productos duraderos y funcionales.",
-                  "Innovación: Mejora constante.",
-                  "Sostenibilidad: Materiales ecológicos.",
-                  "Servicio al Cliente: Atención prioritaria."
-                ]
-              }
+                  "Autenticidad: Respetamos las tradiciones huastecas.",
+                  "Pasión: Danzamos con el corazón.",
+                  "Inclusión: Acogemos a todos los amantes de la danza.",
+                  "Calidad: Ofrecemos enseñanza y trajes de excelencia.",
+                ],
+              },
             ].map((item, index) => (
               <Col md={4} key={index} className="mb-4 mb-md-0">
                 <Card 
                   style={{
-                    ...cardStyle,
+                    ...styles.card,
                     backgroundColor: item.color,
-                    color: colors.white
+                    color: colors.warmBeige,
                   }}
                   className="hover-card"
                 >
@@ -396,25 +382,25 @@ const Nosotros = () => {
                       fontSize: '24px',
                       fontWeight: 'bold',
                       marginBottom: '20px',
-                      borderBottom: `2px solid ${colors.white}`,
-                      paddingBottom: '10px'
+                      borderBottom: `2px solid ${colors.warmBeige}`,
+                      paddingBottom: '10px',
                     }}>
                       {item.title}
                     </Card.Title>
                     {Array.isArray(item.content) ? (
                       <ul style={{
                         textAlign: 'left',
-                        paddingLeft: '20px'
+                        paddingLeft: '20px',
                       }}>
                         {item.content.map((point, i) => (
-                          <li key={i} style={{marginBottom: '10px'}}>{point}</li>
+                          <li key={i} style={{ marginBottom: '10px' }}>{point}</li>
                         ))}
                       </ul>
                     ) : (
                       <Card.Text style={{
                         fontSize: '16px',
                         lineHeight: '1.6',
-                        flex: 1
+                        flex: 1,
                       }}>
                         {item.content}
                       </Card.Text>
@@ -425,19 +411,17 @@ const Nosotros = () => {
             ))}
           </Row>
         </div>
-      </Container>
 
         {/* Diferenciadores */}
         <div>
           <Row className="text-center mb-5">
             <Col>
-              
               <h2 style={{
                 ...styles.subtitle,
                 display: 'inline-block',
               }}>
                 ¿Por qué elegirnos?
-                <span style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '80px', height: '4px', backgroundColor: colors.primaryLight }}></span>
+                <span style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '80px', height: '4px', backgroundColor: colors.vibrantYellow }}></span>
               </h2>
             </Col>
           </Row>
@@ -459,8 +443,8 @@ const Nosotros = () => {
                     position: 'absolute', 
                     top: '20px', 
                     right: '20px', 
-                    backgroundColor: colors.primaryMedium,
-                    color: colors.white,
+                    backgroundColor: colors.emeraldGreen,
+                    color: colors.warmBeige,
                     padding: '10px 15px',
                     borderRadius: '5px',
                     fontSize: '14px',
@@ -468,9 +452,14 @@ const Nosotros = () => {
                     zIndex: 2,
                   }}
                 >
-                  Excelencia en diseño
+                  Excelencia en danza
                 </div>
-                <Image src="https://via.placeholder.com/600x400" alt="¿Por qué elegirnos?" fluid style={styles.image} />
+                <Image 
+                  src="https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940" 
+                  alt="¿Por qué elegirnos?" 
+                  fluid 
+                  style={styles.image} 
+                />
               </div>
             </Col>
             <Col md={6} className="order-md-1">
@@ -481,12 +470,12 @@ const Nosotros = () => {
                   transition: 'opacity 0.8s ease, transform 0.8s ease',
                 }}
               >
-                <h3 style={{ ...styles.subtitle, fontSize: '22px', marginBottom: '20px', color: colors.primaryMedium }}>
+                <h3 style={{ ...styles.subtitle, fontSize: '22px', marginBottom: '20px', color: colors.emeraldGreen }}>
                   <span style={{ marginRight: '10px', fontSize: '24px' }}>🌟</span>
-                  Excelencia en cada detalle
+                  Excelencia en cada paso
                 </h3>
                 <p style={{ ...styles.paragraph, marginBottom: '25px' }}>
-                  En JADA Company, combinamos diseño personalizado, tecnología avanzada y un compromiso sólido con la sostenibilidad para ofrecerte experiencias únicas.
+                  En la Escuela de Danza Folclórica Huasteca, combinamos autenticidad cultural, enseñanza experta y un compromiso con la comunidad para ofrecerte una experiencia única.
                 </p>
                 <div>
                   {featuresData.map((feature, index) => (
@@ -501,7 +490,7 @@ const Nosotros = () => {
                     >
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ fontSize: '22px', marginRight: '10px' }}>{feature.icon}</span>
-                        <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.primaryDark, marginBottom: '5px' }}>
+                        <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.deepRed, marginBottom: '5px' }}>
                           {feature.title}
                         </h4>
                       </div>
@@ -511,24 +500,17 @@ const Nosotros = () => {
                 </div>
                 <button 
                   style={{ 
-                    ...buttons.primary, 
-                    marginTop: '30px', 
-                    padding: '12px 25px', 
-                    fontSize: '16px', 
-                    transition: 'all 0.3s ease', 
-                    backgroundColor: buttonHover ? colors.primaryDark : colors.primaryMedium,
-                    position: 'relative',
-                    overflow: 'hidden',
+                    ...styles.button,
+                    backgroundColor: buttonHover ? colors.emeraldGreen : colors.deepRed,
                   }}
                   onMouseEnter={() => setButtonHover(true)}
                   onMouseLeave={() => setButtonHover(false)}
                 >
-                  <span style={{ position: 'relative', zIndex: 2 }}>Solicitar presupuesto gratuito</span>
+                  <span style={{ position: 'relative', zIndex: 2 }}>Solicitar información</span>
                   <span 
                     style={{ 
                       position: 'absolute',
                       top: 0,
-                      left: '-100%',
                       width: '100%',
                       height: '100%',
                       background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)`,
@@ -545,9 +527,9 @@ const Nosotros = () => {
 
       {/* Llamado a la acción final */}
       <div style={{ 
-        background: `linear-gradient(135deg, ${colors.primaryMedium} 0%, ${colors.primaryDark} 100%)`,
+        background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
         padding: '60px 0',
-        color: colors.white,
+        color: colors.warmBeige,
         marginTop: '50px',
         position: 'relative',
         overflow: 'hidden',
@@ -563,25 +545,25 @@ const Nosotros = () => {
         
         <Container className="text-center">
           <h2 style={{ 
-            color: colors.white, 
+            color: colors.warmBeige, 
             marginBottom: '20px',
             fontFamily: textStyles.title.fontFamily,
             fontSize: '32px',
             fontWeight: 700,
-          }}>¿Listo para crear algo increíble?</h2>
+          }}>¿Listo para danzar con nosotros?</h2>
           <p style={{ 
-            color: colors.white, 
+            color: colors.warmBeige, 
             maxWidth: '700px', 
             margin: '0 auto 30px',
             fontSize: '18px',
-            opacity: 0.9
+            opacity: 0.9,
           }}>
-            Permítenos convertir tus ideas en realidad con nuestro equipo experto en diseño.
+            Únete a nuestra comunidad y celebra la tradición huasteca a través de la danza.
           </p>
           <button style={{
             backgroundColor: 'transparent',
-            border: `2px solid ${colors.white}`,
-            color: colors.white,
+            border: `2px solid ${colors.warmBeige}`,
+            color: colors.warmBeige,
             padding: '12px 30px',
             borderRadius: '5px',
             fontSize: '16px',
@@ -591,12 +573,12 @@ const Nosotros = () => {
             fontFamily: textStyles.fontPrimary,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colors.white;
-            e.currentTarget.style.color = colors.primaryDark;
+            e.currentTarget.style.backgroundColor = colors.warmBeige;
+            e.currentTarget.style.color = colors.deepRed;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = colors.white;
+            e.currentTarget.style.color = colors.warmBeige;
           }}
           >
             Contáctanos hoy
@@ -604,14 +586,14 @@ const Nosotros = () => {
         </Container>
       </div>
 
-      {/* SECCIÓN NUEVA: Políticas y Términos */}
+      {/* SECCIÓN: Políticas y Términos */}
       <Container>
         <div style={styles.policySection}>
           <Row className="text-center">
             <Col>
               <h2 style={{
                 ...textStyles.subtitle,
-                color: colors.primaryDark,
+                color: colors.deepRed,
                 marginBottom: '25px',
               }}>
                 Políticas y Términos
@@ -621,14 +603,13 @@ const Nosotros = () => {
                 maxWidth: '700px',
                 margin: '0 auto 30px',
               }}>
-                Conoce nuestras políticas de privacidad, términos de servicio y garantía de productos.
-                Nos comprometemos con la transparencia y la protección de los datos de nuestros clientes.
+                Conoce nuestras políticas de inscripción, alquiler de trajes y protección de datos. Nos comprometemos a ofrecer transparencia y calidad en todos nuestros servicios.
               </p>
               <button
                 style={{
                   ...styles.policyButton,
-                  backgroundColor: policyButtonHover ? colors.white : colors.primaryDark,
-                  color: policyButtonHover ? colors.primaryDark : colors.white,
+                  backgroundColor: policyButtonHover ? colors.warmBeige : colors.deepRed,
+                  color: policyButtonHover ? colors.deepRed : colors.warmBeige,
                 }}
                 onMouseEnter={() => setPolicyButtonHover(true)}
                 onMouseLeave={() => setPolicyButtonHover(false)}

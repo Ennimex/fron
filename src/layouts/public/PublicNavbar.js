@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navbar, Container, Nav, Button, Form, FormControl } from "react-bootstrap";
+import { Navbar, Container, Nav, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { colors } from "../../styles/styles";
 import { useCart } from "../../context/CartContext";
@@ -134,30 +134,8 @@ const NavbarComponent = () => {
             </Nav.Link>
           </Nav>
 
-          {/* Barra de búsqueda, carrito y botón de inicio de sesión - alineados a la derecha */}
+          {/* Botón del carrito y botón de inicio de sesión - alineados a la derecha */}
           <div className="d-flex align-items-center mt-3 mt-lg-0">
-            {/* Barra de búsqueda */}
-            <Form className="d-flex me-2" onSubmit={(e) => e.preventDefault()}>
-              <FormControl 
-                type="search" 
-                placeholder="¿Qué estás buscando?" 
-                className="me-2 rounded-pill"
-                aria-label="Buscar"
-                style={{ borderColor: `${colors.primaryLight}50` }}
-              />
-              <Button 
-                style={{ 
-                  backgroundColor: colors.primaryDark, 
-                  borderColor: colors.primaryDark,
-                  borderRadius: "20px",
-                }}
-                type="submit"
-                className="rounded-pill px-3"
-              >
-                Buscar
-              </Button>
-            </Form>
-
             {/* Botón del carrito */}
             <button
               style={styles.cartButton}
