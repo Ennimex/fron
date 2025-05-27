@@ -1,13 +1,20 @@
 import React, { useState } from "react";
-import { Navbar, Container, Nav, Button } from "react-bootstrap";
+import { Navbar, Container, Nav, Button, NavDropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { colors } from "../../styles/styles";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext"; // Añadir useAuth
 
 const NavbarComponent = () => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const { cart } = useCart();
+  const { user, logout } = useAuth(); // Añadir useAuth
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const styles = {
     cartButton: {
@@ -103,15 +110,27 @@ const NavbarComponent = () => {
               Servicios
             </Nav.Link>
             
-            <Nav.Link 
-              as={Link} 
-              to="/nosotros" 
-              onClick={() => setExpanded(false)}
+            <NavDropdown 
+              title="Nosotros" 
+              id="nav-dropdown"
               className="mx-2"
               style={{ color: colors.primaryMedium }}
             >
-              Nosotros
-            </Nav.Link>
+              <NavDropdown.Item 
+                as={Link} 
+                to="/nosotros"
+                onClick={() => setExpanded(false)}
+              >
+                Acerca de
+              </NavDropdown.Item>
+              <NavDropdown.Item 
+                as={Link} 
+                to="/galeria"
+                onClick={() => setExpanded(false)}
+              >
+                Galería
+              </NavDropdown.Item>
+            </NavDropdown>
             
             <Nav.Link 
               as={Link} 
@@ -125,12 +144,12 @@ const NavbarComponent = () => {
 
             <Nav.Link 
               as={Link} 
-              to="/galeria" 
+              to="/politicas" 
               onClick={() => setExpanded(false)}
               className="mx-2"
               style={{ color: colors.primaryMedium }}
             >
-              Galería
+              Políticas
             </Nav.Link>
           </Nav>
 
@@ -152,21 +171,36 @@ const NavbarComponent = () => {
               )}
             </button>
 
-            {/* Botón de inicio de sesión */}
-            <Button 
-              as={Link} 
-              to="/login" 
-              style={{ 
-                backgroundColor: colors.primaryDark, 
-                borderColor: colors.primaryDark,
-                whiteSpace: "nowrap",
-                borderRadius: "20px"
-              }} 
-              className="ms-2 px-3"
-              onClick={() => setExpanded(false)}
-            >
-              Iniciar Sesión
-            </Button>
+            {/* Botón de inicio de sesión o dropdown de usuario */}
+            {user?.isAuthenticated ? (
+              <NavDropdown 
+                title={user.name}
+                className="ms-2"
+                align="end"
+              >
+                <NavDropdown.Item as={Link} to="/perfil">Mi Perfil</NavDropdown.Item>
+                {user.role === 'ADMIN' && (
+                  <NavDropdown.Item as={Link} to="/admin">Dashboard Admin</NavDropdown.Item>
+                )}
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={handleLogout}>Cerrar Sesión</NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <Button 
+                as={Link} 
+                to="/login" 
+                style={{ 
+                  backgroundColor: colors.primaryDark, 
+                  borderColor: colors.primaryDark,
+                  whiteSpace: "nowrap",
+                  borderRadius: "20px"
+                }} 
+                className="ms-2 px-3"
+                onClick={() => setExpanded(false)}
+              >
+                Iniciar Sesión
+              </Button>
+            )}
           </div>
         </Navbar.Collapse>
       </Container>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Button, Row, Col, Card, Image } from "react-bootstrap";
+import { Container, Button, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Cards from "../../components/shared/CardsV"; // Componente de tarjetas
 import productos from '../../services/base'; // Importamos la base de datos simulada
@@ -19,6 +19,40 @@ const Inicio = () => {
     starProduct: false,
     cta: false,
   });
+
+  // Nuevo estado para comentarios
+  const [comentarios, setComentarios] = useState([]);
+  const [comentarioTexto, setComentarioTexto] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Verificar si el usuario está autenticado
+
+  useEffect(() => {
+    // Aquí puedes agregar la lógica para verificar si el usuario está autenticado
+    // y cargar los comentarios existentes desde tu backend
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+
+    checkAuth();
+    // Aquí iría la llamada a tu API para cargar los comentarios
+    // Por ejemplo: fetchComentarios();
+  }, []);
+
+  const handleSubmitComentario = (e) => {
+    e.preventDefault();
+    if (!comentarioTexto.trim()) return;
+
+    // Aquí iría la lógica para enviar el comentario a tu backend
+    const nuevoComentario = {
+      id: Date.now(),
+      texto: comentarioTexto,
+      fecha: new Date(),
+      usuario: "Usuario actual" // Esto debería venir de tu sistema de autenticación
+    };
+
+    setComentarios([nuevoComentario, ...comentarios]);
+    setComentarioTexto('');
+  };
 
   // Usar la base de datos simulada en lugar de la API
   useEffect(() => {
@@ -118,31 +152,6 @@ const Inicio = () => {
       icono: "🚚",
       titulo: "Envío Rápido",
       descripcion: "Entregas rápidas para que estés listo para tu próxima presentación.",
-    },
-  ];
-
-  // Testimonios de clientes
-  const testimonios = [
-    {
-      nombre: "María González",
-      puesto: "Bailarina folclórica",
-      foto: "https://randomuser.me/api/portraits/women/22.jpg",
-      comentario: "Los trajes huastecos son hermosos y cómodos, perfectos para nuestras presentaciones en festivales.",
-      estrellas: 5,
-    },
-    {
-      nombre: "Juan Pérez",
-      puesto: "Profesor de danza folclórica",
-      foto: "https://randomuser.me/api/portraits/men/42.jpg",
-      comentario: "La calidad de los bordados es impresionante. La renta de trajes es ideal para mis alumnos.",
-      estrellas: 5,
-    },
-    {
-      nombre: "Ana López",
-      puesto: "Estudiante de danza",
-      foto: "https://randomuser.me/api/portraits/women/55.jpg",
-      comentario: "Me encanta la variedad de colores y la comodidad de los trajes. ¡Llegaron a tiempo para mi evento!",
-      estrellas: 4,
     },
   ];
 
@@ -487,20 +496,14 @@ const Inicio = () => {
           <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px" }}>
             Trajes, accesorios y calzado para danza folclórica que celebran la tradición huasteca.
           </p>
-          <div className="d-flex justify-content-center flex-wrap gap-5 mt-5">
-            <div className="text-center animate-in" style={{ animationDelay: "0.3s" }}>
-              <div style={customStyles.statNumber}>500+</div>
-              <div className="opacity-75">Productos artesanales</div>
-            </div>
-            <div className="text-center animate-in" style={{ animationDelay: "0.6s" }}>
-              <div style={customStyles.statNumber}>98%</div>
-              <div className="opacity-75">Clientes satisfechos</div>
-            </div>
-            <div className="text-center animate-in" style={{ animationDelay: "0.9s" }}>
-              <div style={customStyles.statNumber}>24/7</div>
-              <div className="opacity-75">Soporte cultural</div>
-            </div>
-          </div>
+          <Button
+            className="mt-4 rounded-pill px-5 py-3 animate-in"
+            style={customStyles.redButton}
+            onClick={() => navigate("/productos")}
+          >
+            <i className="bi bi-arrow-right-circle me-2"></i>
+            Explorar Productos
+          </Button>
         </Container>
       </section>
 
@@ -695,66 +698,123 @@ const Inicio = () => {
         </Container>
       </section>
 
-      {/* Sección de Testimonios */}
+      {/* Sección de Comentarios */}
       <section className="py-5" style={customStyles.testimonialsSection}>
         <div style={customStyles.testimonialsPattern}></div>
         <Container className="py-5" style={{ position: "relative", zIndex: 2 }}>
           <div className="text-center mb-5">
             <h2 className="display-5 fw-bold text-dark">
-              Lo que dicen nuestros bailarines
+              Comentarios de la Comunidad
               <span style={customStyles.titleUnderline}></span>
             </h2>
             <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-              La comunidad huasteca confía en nosotros para sus trajes y accesorios de danza.
+              Comparte tu experiencia con nuestra comunidad de danza huasteca
             </p>
           </div>
-          <Row className="g-4">
-            {testimonios.map((testimonio, idx) => (
-              <Col lg={4} md={6} key={idx} className="animate-in" style={{ animationDelay: `${0.3 * idx}s` }}>
-                <Card className="testimonial-card shadow" style={customStyles.testimonialCard}>
-                  <Card.Body className="p-4 position-relative">
-                    <div style={customStyles.testimonialQuote}>"</div>
-                    <p className="fs-5 mb-4" style={{ color: '#4A4A4A' }}>
-                      {testimonio.comentario}
-                    </p>
-                    <div className="d-flex align-items-center">
-                      <Image
-                        src={testimonio.foto}
-                        alt={testimonio.nombre}
-                        width={60}
-                        height={60}
-                        roundedCircle
-                        className="me-3"
-                      />
-                      <div>
-                        <h5 className="mb-1" style={{ color: '#A91B0D' }}>
-                          {testimonio.nombre}
-                        </h5>
-                        <p className="mb-2 text-muted">{testimonio.puesto}</p>
-                        <div style={customStyles.starRating}>
-                          {Array(5)
-                            .fill()
-                            .map((_, i) => (
-                              <span key={i}>{i < testimonio.estrellas ? "★" : "☆"}</span>
-                            ))}
+
+          {/* Formulario de comentarios */}
+          {isLoggedIn ? (
+            <div className="mb-5">
+              <Card className="shadow-sm border-0" style={{ background: 'rgba(255,255,255,0.9)' }}>
+                <Card.Body className="p-4">
+                  <form onSubmit={handleSubmitComentario}>
+                    <div className="d-flex align-items-start mb-3">
+                      <div className="me-3">
+                        <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                             style={{ width: '45px', height: '45px', backgroundColor: '#A91B0D !important' }}>
+                          <i className="bi bi-person-circle fs-4"></i>
                         </div>
                       </div>
+                      <div className="flex-grow-1">
+                        <textarea
+                          className="form-control border-0 shadow-none"
+                          rows="3"
+                          placeholder="¿Qué te pareció tu experiencia con nosotros?"
+                          value={comentarioTexto}
+                          onChange={(e) => setComentarioTexto(e.target.value)}
+                          style={{
+                            backgroundColor: '#f8f9fa',
+                            resize: 'none',
+                            fontSize: '1.1rem',
+                          }}
+                        ></textarea>
+                      </div>
                     </div>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div className="text-muted small">
+                        <i className="bi bi-info-circle me-1"></i>
+                        Tu comentario será visible para toda la comunidad
+                      </div>
+                      <Button
+                        type="submit"
+                        style={{
+                          ...customStyles.redButton,
+                          transition: 'all 0.3s ease',
+                        }}
+                        className="rounded-pill px-4 py-2 d-flex align-items-center"
+                      >
+                        <i className="bi bi-send-fill me-2"></i>
+                        Publicar comentario
+                      </Button>
+                    </div>
+                  </form>
+                </Card.Body>
+              </Card>
+            </div>
+          ) : (
+            <Card className="text-center mb-5 shadow-sm border-0" 
+                  style={{ background: 'rgba(255,255,255,0.9)' }}>
+              <Card.Body className="p-5">
+                <div className="mb-4">
+                  <i className="bi bi-chat-quote display-4" style={{ color: '#A91B0D' }}></i>
+                </div>
+                <h3 className="mb-3">¡Únete a la conversación!</h3>
+                <p className="lead mb-4">
+                  Inicia sesión para compartir tu experiencia con la comunidad de danza huasteca
+                </p>
+                <Button
+                  onClick={() => navigate("/login")}
+                  style={customStyles.redButton}
+                  className="rounded-pill px-5 py-3"
+                >
+                  <i className="bi bi-box-arrow-in-right me-2"></i>
+                  Iniciar Sesión
+                </Button>
+              </Card.Body>
+            </Card>
+          )}
+
+          {/* Lista de comentarios con nuevo diseño */}
+          <Row className="g-4">
+            {comentarios.map((comentario) => (
+              <Col lg={4} md={6} key={comentario.id} className="animate-in">
+                <Card className="h-100 shadow-sm border-0 testimonial-card" 
+                      style={{ background: 'rgba(255,255,255,0.9)' }}>
+                  <Card.Body className="p-4">
+                    <div className="d-flex align-items-center mb-3">
+                      <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
+                           style={{ width: '40px', height: '40px', backgroundColor: '#A91B0D !important' }}>
+                        <i className="bi bi-person"></i>
+                      </div>
+                      <div>
+                        <h6 className="mb-0" style={{ color: '#A91B0D' }}>{comentario.usuario}</h6>
+                        <small className="text-muted">
+                          {new Date(comentario.fecha).toLocaleDateString('es-MX', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </small>
+                      </div>
+                    </div>
+                    <p className="mb-0" style={{ color: '#4A4A4A' }}>
+                      {comentario.texto}
+                    </p>
                   </Card.Body>
                 </Card>
               </Col>
             ))}
           </Row>
-          <div className="text-center mt-5 animate-in" style={{ animationDelay: "0.9s" }}>
-            <Button
-              variant="outline"
-              className="rounded-pill px-4 py-2"
-              style={{ borderColor: '#A91B0D', color: '#A91B0D' }}
-              onClick={() => navigate("/testimonios")}
-            >
-              Ver más opiniones
-            </Button>
-          </div>
         </Container>
       </section>
 
