@@ -1,291 +1,151 @@
 import { useState, useEffect } from "react";
 import { Container, Button, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import Cards from "../../components/shared/CardsV"; // Componente de tarjetas
-import productos from '../../services/base'; // Importamos la base de datos simulada
+import productos from '../../services/base';
 
 const Inicio = () => {
   const navigate = useNavigate();
-  const [destacados, setDestacados] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [productosState, setProductos] = useState([]); // Renombrado para evitar conflicto con la importación
-  const [productoEstrella, setProductoEstrella] = useState(null);
   const [isVisible, setIsVisible] = useState({
     hero: false,
-    features: false,
-    categories: false,
-    products: false,
-    testimonials: false,
-    starProduct: false,
+    reasons: false,
+    regions: false,
+    clothing: false,
+    collections: false,
+    comments: false,
     cta: false,
   });
-
-  // Nuevo estado para comentarios
   const [comentarios, setComentarios] = useState([]);
   const [comentarioTexto, setComentarioTexto] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Verificar si el usuario está autenticado
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Aquí puedes agregar la lógica para verificar si el usuario está autenticado
-    // y cargar los comentarios existentes desde tu backend
     const checkAuth = () => {
       const token = localStorage.getItem('token');
       setIsLoggedIn(!!token);
     };
-
     checkAuth();
-    // Aquí iría la llamada a tu API para cargar los comentarios
-    // Por ejemplo: fetchComentarios();
+
+    // Obtener categorías únicas y su información
+    const categoriasUnicas = [...new Set(productos.map(p => p.category))];
+    const categoriasData = categoriasUnicas.map(categoria => {
+      const productosCategoria = productos.filter(p => p.category === categoria);
+      return {
+        nombre: categoria,
+        cantidad: productosCategoria.length,
+        imagen: productosCategoria[0]?.image || '',
+        descripcion: `Colección de ${categoria.toLowerCase()} con detalles artesanales únicos`,
+      };
+    });
+    setCategorias(categoriasData);
+
+    // Animaciones
+    setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, reasons: true })), 500);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, regions: true })), 900);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, clothing: true })), 1300);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, collections: true })), 1500);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, comments: true })), 1700);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 2100);
   }, []);
 
   const handleSubmitComentario = (e) => {
     e.preventDefault();
     if (!comentarioTexto.trim()) return;
-
-    // Aquí iría la lógica para enviar el comentario a tu backend
     const nuevoComentario = {
       id: Date.now(),
       texto: comentarioTexto,
       fecha: new Date(),
-      usuario: "Usuario actual" // Esto debería venir de tu sistema de autenticación
+      usuario: "Usuario actual",
     };
-
     setComentarios([nuevoComentario, ...comentarios]);
     setComentarioTexto('');
   };
 
-  // Usar la base de datos simulada en lugar de la API
-  useEffect(() => {
-    // Asignamos directamente los datos de la base simulada
-    setProductos(productos);
+  // Actualizar clothingItems con datos reales y agregar manejo de clicks
+  const clothingItems = categorias.map(cat => ({
+    image: cat.imagen,
+    name: cat.nombre,
+    description: cat.descripcion,
+    onClick: () => navigate(`/productos?categoria=${cat.nombre}`),
+  }));
 
-    // Filtrar productos destacados (con rating alto o descuento)
-    const productosDestacados = productos
-      .filter((p) => p.rating >= 4.7 || p.discount >= 10)
-      .slice(0, 4);
-    setDestacados(productosDestacados);
-
-    // Extraer categorías únicas de productos
-    const categoriasUnicas = [...new Set(productos.map((p) => p.category))];
-    const categoriasData = categoriasUnicas.map((categoria) => {
-      const productosCategoria = productos.filter((p) => p.category === categoria);
-      return {
-        nombre: categoria,
-        cantidad: productosCategoria.length,
-        imagen: productosCategoria[0]?.image,
-      };
-    });
-    setCategorias(categoriasData);
-  }, []);
-
-  // Crear producto estrella (adaptado al contexto de danza folclórica)
-  useEffect(() => {
-    const trajeFolclorico = {
-      _id: "650a1f1b3e0d3a001c1a4b22",
-      image: "https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940",
-      title: "Traje Folclórico Huasteco",
-      description: "Traje tradicional huasteco con bordados artesanales, ideal para presentaciones de danza folclórica.",
-      price: 129.99,
-      category: "Danza Folclórica",
-      stock: 20,
-      brand: "HuastecaArte",
-      rating: 4.9,
-      reviews: 180,
-      discount: 15,
-      features: [
-        "Bordados artesanales únicos",
-        "Tela de algodón transpirable",
-        "Diseño tradicional huasteco",
-        "Ajuste cómodo para danza",
-        "Disponible en varias tallas",
-        "Ideal para festivales y presentaciones",
-      ],
-      warranty: "1 año",
-      availability: "En stock",
-      specs: {
-        material: "Algodón y bordados",
-        tallas: "S-XL",
-        peso: "500g",
-        color: "Multicolor (rojo, amarillo, verde)",
-      },
-    };
-    setProductoEstrella(trajeFolclorico);
-
-    // Activar animaciones secuencialmente
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, hero: true })), 100);
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, features: true })), 500);
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, categories: true })), 900);
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, products: true })), 1300);
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, starProduct: true })), 1500);
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, testimonials: true })), 1700);
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, cta: true })), 2100);
-  }, []);
-
-  // Características destacadas
-  const features = [
-    {
-      icono: "💃",
-      titulo: "Estilos Tradicionales",
-      descripcion: "Trajes y accesorios para danza folclórica huasteca, llenos de color y tradición.",
-    },
-    {
-      icono: "👗",
-      titulo: "Artesanía de Calidad",
-      descripcion: "Productos hechos a mano con materiales auténticos y duraderos.",
-    },
-    {
-      icono: "🛒",
-      titulo: "Compra y Renta",
-      descripcion: "Adquiere o renta trajes según tus necesidades para festivales y eventos.",
-    },
-    {
-      icono: "🎨",
-      titulo: "Diseños Auténticos",
-      descripcion: "Bordados y patrones inspirados en la cultura huasteca.",
-    },
-    {
-      icono: "📏",
-      titulo: "Ajuste Perfecto",
-      descripcion: "Tallas para todas las edades, con guías de medidas precisas.",
-    },
-    {
-      icono: "🚚",
-      titulo: "Envío Rápido",
-      descripcion: "Entregas rápidas para que estés listo para tu próxima presentación.",
-    },
+  const reasons = [
+    { name: "Calidad Artesanal", description: "Cada pieza es elaborada a mano por maestras artesanas, garantizando una calidad excepcional y atención al detalle." },
+    { name: "Exclusividad", description: "Ofrecemos diseños únicos que combinan tradición y modernidad, perfectos para quienes buscan piezas irrepetibles." },
+    { name: "Sostenibilidad", description: "Nuestros procesos respetan el medio ambiente, utilizando materiales naturales y apoyando comunidades locales." },
+    { name: "Conexión Cultural", description: "Cada creación celebra la rica herencia huasteca, conectándote con siglos de historia y tradición." },
   ];
 
-  const handleVerProductoEstrella = () => {
-    if (productoEstrella) {
-      navigate(`/producto/${productoEstrella._id}`);
-    }
-  };
+  const regions = [
+    { name: "Huasteca Potosina", description: "Cuna de técnicas ancestrales donde cada puntada cuenta la historia de generaciones de maestras artesanas." },
+    { name: "Huasteca Veracruzana", description: "Paleta cromática rica en matices naturales que captura la esencia tropical de la región." },
+    { name: "Huasteca Hidalguense", description: "Precisión geométrica en patrones que reflejan la arquitectura cultural de pueblos originarios." },
+    { name: "Huasteca Tamaulipas", description: "Convergencia de influencias que enriquecen nuestra identidad textil contemporánea." },
+  ];
 
-  const handleCategoriaClick = (categoria) => {
-    navigate(`/productos?categoria=${categoria}`);
-  };
+  // Actualizar clothingItems con datos reales
+  const collections = [
+    { icon: "👗", title: "Alta Costura Tradicional", description: "Piezas únicas de vestimenta ceremonial y cotidiana, donde cada bordado narra historias ancestrales." },
+    { icon: "✨", title: "Accesorios de Autor", description: "Complementos exclusivos que elevan cualquier atuendo, desde rebozos hasta joyería textil." },
+    { icon: "🏡", title: "Decoración Artesanal", description: "Textiles para el hogar que transforman espacios en refugios de calidez cultural." },
+    { icon: "🎨", title: "Arte Textil Coleccionable", description: "Obras maestras de terciopelada destinadas a coleccionistas que aprecian la excelencia artesanal." },
+    { icon: "👶", title: "Herencia Infantil", description: "Piezas delicadas para las nuevas generaciones, sembrando el amor por la tradición." },
+    { icon: "🌟", title: "Fusión Moderna", description: "Reinterpretación contemporánea de técnicas milenarias para el guardarropa urbano." },
+  ];
 
-  // Estilos para animaciones
   const animationStyles = `
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
     @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+      50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
     }
-    @keyframes shine {
-      from { background-position: -100px; }
-      to { background-position: 200px; }
+    .animate-in { animation: fadeInUp 0.8s forwards; }
+    .reason-card, .region-card, .clothing-card, .collection-card {
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      border: 1px solid rgba(232, 180, 184, 0.15);
     }
-    .feature-card {
-      transition: all 0.3s ease;
-      border: none;
-    }
-    .feature-card:hover {
+    .reason-card:hover, .region-card:hover, .clothing-card:hover, .collection-card:hover {
       transform: translateY(-10px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 20px 40px rgba(255, 0, 112, 0.35), 0 10px 20px rgba(31, 138, 128, 0.25), 0 6px 12px rgba(44, 35, 41, 0.18);
+      border-color: #ff4060;
     }
-    .feature-card:hover .feature-icon {
-      animation: pulse 1s infinite;
+    .reason-card:nth-child(1), .clothing-card:nth-child(1), .region-card:nth-child(1), .collection-card:nth-child(1) { border-left: 3px solid #ff0070; }
+    .reason-card:nth-child(2), .clothing-card:nth-child(2), .region-card:nth-child(2), .collection-card:nth-child(2) { border-left: 3px solid #1f8a80; }
+    .reason-card:nth-child(3), .clothing-card:nth-child(3), .region-card:nth-child(3), .collection-card:nth-child(3) { border-left: 3px solid #ff1030; }
+    .reason-card:nth-child(4), .clothing-card:nth-child(4), .region-card:nth-child(4), .collection-card:nth-child(4) { border-left: 3px solid #8840b8; }
+    .clothing-image { transition: transform 0.3s ease; }
+    .clothing-card:hover .clothing-image { transform: scale(1.05); }
+    .collection-icon { transition: transform 0.3s ease; }
+    .collection-card:hover .collection-icon { transform: scale(1.1); }
+    .floating-element {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: float 8s ease-in-out infinite;
     }
-    .category-card {
-      transition: all 0.3s ease;
-      cursor: pointer;
-      overflow: hidden;
-    }
-    .category-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100px;
-      width: 50px;
-      height: 100%;
-      background: rgba(255,255,255,0.3);
-      transform: skewX(-20deg);
-      transition: 0.5s;
-      filter: blur(5px);
-    }
-    .category-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    }
-    .category-card:hover::before {
-      animation: shine 1s forwards;
-    }
-    .category-card:hover .category-title {
-      transform: translateY(-5px);
-      color: #A91B0D; /* Deep Red */
-    }
-    .testimonial-card {
-      transition: all 0.3s ease;
-    }
-    .testimonial-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    }
-    .star-product-img {
-      transition: all 0.5s ease;
-    }
-    .star-product-img:hover {
-      transform: scale(1.03);
-    }
-    .star-badge {
-      animation: float 3s ease-in-out infinite;
-    }
-    .cta-button {
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-    .cta-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
-    .cta-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100px;
-      width: 50px;
-      height: 100%;
-      background: rgba(255,255,255,0.5);
-      transform: skewX(-20deg);
-      transition: 0.5s;
-      filter: blur(5px);
-    }
-    .cta-button:hover::before {
-      animation: shine 1s forwards;
-    }
-    .animate-in {
-      animation: fadeInUp 0.8s forwards;
-    }
-    .feature-icon {
-      transition: all 0.3s ease;
-    }
-    .category-title {
-      transition: all 0.3s ease;
-    }
+    .floating-element:nth-child(1) { top: 20%; left: 10%; background: #ff0070; }
+    .floating-element:nth-child(2) { top: 60%; right: 15%; background: #1f8a80; animation-delay: 2s; }
+    .floating-element:nth-child(3) { bottom: 30%; left: 20%; background: #ff1030; animation-delay: 4s; }
   `;
 
-  // Estilos personalizados
   const customStyles = {
     heroSection: {
-      backgroundImage: `linear-gradient(135deg, rgba(169, 27, 13, 0.85) 0%, rgba(44, 107, 62, 0.9) 100%), url('https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940')`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      opacity: isVisible.hero ? 1 : 0,
-      transform: isVisible.hero ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      height: "85vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
       position: "relative",
-      overflow: "hidden",
+      opacity: isVisible.hero ? 1 : 0,
+      transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
+      transition: "all 1.2s ease-out",
     },
     heroOverlay: {
       position: "absolute",
@@ -293,86 +153,70 @@ const Inicio = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NiIgaGVpZ2h0PSIxMDAiPgo8cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iMTAwIiBmaWxsPSIjQTkxQjBEIj48L3JlY3Q+CjxwYXRoIGQ9Ik0yOCA2NkwwIDUwTDAgMTZMMjggMEw1NiAxNkw1NiA1MEwyOCA2NkwyOCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJFN0QzMiIgc3Ryb2tlLXdpZHRoPSIyIj48L3BhdGg+CjxwYXRoIGQ9Ik0yOCAwTDI4IDM0TDAgNTBMMDAgODRMMjggMTAwTDU2IDg0TDU2IDUwTDI4IDM0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyRTdEMzIiIHN0cm9rZS13aWR0aD0iMiI+PC9wYXRoPgo8L3N2Zz4=')",
-      opacity: 0.1,
-      zIndex: 1,
-    },
-    featuresSection: {
-      opacity: isVisible.features ? 1 : 0,
-      transform: isVisible.features ? "translateY(0)" : "translateY(30px)",
-      transition: "all 0.8s ease-out",
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`, // Warm Beige to light yellow
-      position: "relative",
-      overflow: "hidden",
-    },
-    categoriesSection: {
-      backgroundImage: `linear-gradient(135deg, rgba(169, 27, 13, 0.95) 0%, rgba(38, 166, 154, 0.9) 100%), url('https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940')`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundAttachment: "fixed",
-      opacity: isVisible.categories ? 1 : 0,
-      transform: isVisible.categories ? "translateY(0)" : "translateY(30px)",
-      transition: "all 0.8s ease-out",
-      position: "relative",
-    },
-    categoriesOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCI+CjxyZWN0IHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIzIiBjeT0iNCIgcj0iMSIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iMC4xIj48L2NpcmNsZT4KPC9zdmc+')",
-      opacity: 0.6,
-      zIndex: 1,
-    },
-    productsSection: {
-      opacity: isVisible.products ? 1 : 0,
-      transform: isVisible.products ? "translateY(0)" : "translateY(30px)",
-      transition: "all 0.8s ease-out",
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`, // Warm Beige to light yellow
-    },
-    starProductSection: {
-      backgroundImage: `linear-gradient(135deg, #FFF8E1 0%, #F5E8C7 100%)`, // Light yellow to Warm Beige
-      opacity: isVisible.starProduct ? 1 : 0,
-      transform: isVisible.starProduct ? "translateY(0)" : "translateY(30px)",
-      transition: "all 0.8s ease-out",
-      position: "relative",
-      overflow: "hidden",
-    },
-    starProductPattern: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8cGF0aCBkPSJNMzAgMzAgTDU0IDQ0IEw0NCA1NCBMMzAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJFN0QzMiIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiPjwvcGF0aD4KPHBhdGggZD0iTTMwIDMwIEw2IDQ0IEwxNiA1NCBMMzAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJFN0QzMiIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiPjwvcGF0aD4KPHBhdGggZD0iTTMwIDMwIEw1NCAxNiBMNDQgNiBMMzAgMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJFN0QzMiIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjEiPjwvcGF0aD4KPHBhdGggZD0iTTMwIDMwIEw2IDE2IEwxNiA2IEwzMCAzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMkU3RDMyIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMSI+PC9wYXRoPgo8L3N2Zz4=')",
-      opacity: 0.7,
-      zIndex: 0,
-    },
-    testimonialsSection: {
-      opacity: isVisible.testimonials ? 1 : 0,
-      transform: isVisible.testimonials ? "translateY(0)" : "translateY(30px)",
-      transition: "all 0.8s ease-out",
-      background: `linear-gradient(to bottom, #FFF8E1, #F5E8C7)`, // Light yellow to Warm Beige
-      position: "relative",
-    },
-    testimonialsPattern: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxyZWN0IHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSIjRkZDMTA3IiBvcGFjaXR5PSIwLjA1Ij48L2NpcmNsZT4KPC9zdmc+')",
+      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
       opacity: 0.8,
-      zIndex: 0,
+      zIndex: 1,
+    },
+    section: {
+      padding: "6rem 2rem",
+      maxWidth: "1400px",
+      margin: "0 auto",
+      position: "relative",
+    },
+    reasonsSection: {
+      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      opacity: isVisible.reasons ? 1 : 0,
+      transform: isVisible.reasons ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
+    },
+    regionsSection: {
+      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      opacity: isVisible.regions ? 1 : 0,
+      transform: isVisible.regions ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
+    },
+    regionsOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      opacity: 0.8,
+      zIndex: 1,
+    },
+    clothingSection: {
+      opacity: isVisible.clothing ? 1 : 0,
+      transform: isVisible.clothing ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
+      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+    },
+    collectionsSection: {
+      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      opacity: isVisible.collections ? 1 : 0,
+      transform: isVisible.collections ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
+    },
+    collectionsOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      opacity: 0.8,
+      zIndex: 1,
+    },
+    commentsSection: {
+      opacity: isVisible.comments ? 1 : 0,
+      transform: isVisible.comments ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
+      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
     },
     ctaSection: {
-      backgroundImage: `linear-gradient(135deg, rgba(169, 27, 13, 0.95) 0%, rgba(38, 166, 154, 0.9) 100%), url('https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940')`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundAttachment: "fixed",
+      background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
       opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? "translateY(0)" : "translateY(30px)",
+      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out",
       position: "relative",
     },
@@ -382,153 +226,86 @@ const Inicio = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundImage: `radial-gradient(circle at 30% 40%, #FFF8E1 0%, rgba(245,232,199,0) 50%)`, // Light yellow
+      background: `radial-gradient(circle at 30% 40%, #FFF8E1 0%, rgba(245,232,199,0) 50%)`,
       zIndex: 1,
-    },
-    redButton: {
-      backgroundColor: '#A91B0D', // Deep Red
-      borderColor: '#A91B0D',
-      color: '#F5E8C7', // Warm Beige
-    },
-    ctaRedButton: {
-      backgroundColor: '#A91B0D', // Deep Red
-      borderColor: '#A91B0D',
-      color: '#F5E8C7', // Warm Beige
-      borderRadius: "30px",
-      padding: "12px 30px",
-      fontWeight: "bold",
-      fontSize: "1.1rem",
-    },
-    categoryOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `linear-gradient(to top, #A91B0D 0%, #2E7D32 50%, #FFF8E1 100%)`, // Deep Red, Emerald Green, Light yellow
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "flex-end",
-      padding: "20px",
-      transition: "all 0.3s ease",
-      opacity: 0.8,
-    },
-    featureIcon: {
-      fontSize: "2.5rem",
-      background: `linear-gradient(135deg, #FFF8E1 0%, #F5E8C7 100%)`, // Light yellow to Warm Beige
-      width: "80px",
-      height: "80px",
-      lineHeight: "80px",
-      borderRadius: "50%",
-      display: "inline-block",
-      boxShadow: "0 5px 15px rgba(0,0,0,0.05)",
-    },
-    statNumber: {
-      fontSize: "2.5rem",
-      fontWeight: "bold",
-      color: '#A91B0D', // Deep Red
-      textShadow: "0 2px 10px rgba(0,0,0,0.2)",
     },
     titleUnderline: {
       display: "block",
-      width: "80px",
-      height: "4px",
-      backgroundColor: '#A91B0D', // Deep Red
-      borderRadius: "2px",
+      width: "60px",
+      height: "2px",
+      background: `linear-gradient(90deg, #ff0070, #1f8a80)`,
+      borderRadius: "1px",
       margin: "15px auto",
-      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
     },
     whiteUnderline: {
-      backgroundColor: '#F5E8C7', // Warm Beige
+      background: `#ffffff`,
       boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     },
-    testimonialQuote: {
-      fontSize: "70px",
-      position: "absolute",
-      top: "10px",
-      right: "20px",
-      color: '#FFF8E1', // Light yellow
-      fontFamily: "serif",
-    },
-    testimonialCard: {
-      borderRadius: "10px",
-      overflow: "hidden",
-      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-      cursor: "pointer",
-      height: "100%",
-      border: "none",
-    },
-    starRating: {
-      color: "#FFC107", // Vibrant Yellow
-      fontSize: "20px",
-      filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.1))",
-    },
-    starProductBadge: {
-      backgroundColor: '#A91B0D', // Deep Red
-      color: '#F5E8C7', // Warm Beige
-      fontWeight: "bold",
-      fontSize: "1rem",
-      padding: "8px 15px",
+    pinkButton: {
+      backgroundColor: '#ff4060',
+      borderColor: '#ff4060',
+      color: '#ffffff',
       borderRadius: "30px",
-      display: "inline-block",
-      boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-      position: "relative",
-      zIndex: 2,
+      padding: "12px 30px",
+      fontWeight: "500",
+      fontSize: "1.1rem",
     },
-    featureCheck: {
-      color: '#2E7D32', // Emerald Green
-      marginRight: "8px",
-      fontWeight: "bold",
+    collectionIcon: {
+      width: "70px",
+      height: "70px",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "1.8rem",
+      color: "#ffffff",
+      boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
     },
   };
 
   return (
     <>
       <style>{animationStyles}</style>
+      <div className="floating-elements" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
+        <div className="floating-element"></div>
+        <div className="floating-element"></div>
+        <div className="floating-element"></div>
+      </div>
 
       {/* Hero Section */}
-      <section className="py-5" style={customStyles.heroSection}>
+      <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
-        <Container className="py-5 text-center text-white" style={{ position: "relative", zIndex: 2 }}>
-          <h1 className="display-3 fw-bold mb-4">
-            Danza Folclórica Huasteca con Pasión
+        <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
+          <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
+            La Aterciopelada
           </h1>
-          <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px" }}>
-            Trajes, accesorios y calzado para danza folclórica que celebran la tradición huasteca.
+          <div className="animate-in" style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #ff0070, #1f8a80, transparent)", margin: "0 auto 2rem", animationDelay: "0.9s" }}></div>
+          <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>
+            Boutique Huasteca · Tradición Artesanal Refinada
           </p>
-          <Button
-            className="mt-4 rounded-pill px-5 py-3 animate-in"
-            style={customStyles.redButton}
-            onClick={() => navigate("/productos")}
-          >
-            <i className="bi bi-arrow-right-circle me-2"></i>
-            Explorar Productos
+          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "1.2s" }} onClick={() => navigate("/productos")}>
+            Explorar Colección
           </Button>
         </Container>
       </section>
 
-      {/* Sección de Características */}
-      <section className="py-5" style={customStyles.featuresSection}>
-        <Container className="py-5" style={{ position: "relative", zIndex: 2 }}>
-          <div className="text-center mb-5">
-            <h2 className="display-5 fw-bold text-dark">
-              Por Qué Elegirnos
-              <span style={customStyles.titleUnderline}></span>
-            </h2>
-            <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-              Trajes y accesorios diseñados para celebrar la danza folclórica huasteca con autenticidad.
-            </p>
-          </div>
+      {/* Reasons Section */}
+      <section style={customStyles.reasonsSection}>
+        <Container style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+            ¿Por qué elegir La Aterciopelada?
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+            Sumérgete en la pasión y el arte de la artesanía huasteca
+          </p>
           <Row className="g-4">
-            {features.map((feature, idx) => (
-              <Col md={6} lg={4} key={idx} className="mb-4 animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <Card className="h-100 shadow feature-card">
-                  <Card.Body className="p-4 text-center">
-                    <div className="mb-3 text-center">
-                      <span className="feature-icon" style={customStyles.featureIcon}>{feature.icono}</span>
-                    </div>
-                    <h3 className="fs-4 fw-bold mb-3" style={{ color: '#A91B0D' }}>{feature.titulo}</h3>
-                    <p className="text-muted" style={{ color: '#4A4A4A' }}>{feature.descripcion}</p>
+            {reasons.map((reason, idx) => (
+              <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                <Card className="reason-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
+                  <Card.Body>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{reason.name}</h3>
+                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{reason.description}</p>
                   </Card.Body>
                 </Card>
               </Col>
@@ -537,268 +314,158 @@ const Inicio = () => {
         </Container>
       </section>
 
-      {/* Sección de Categorías */}
-      <section className="py-5 text-white" style={customStyles.categoriesSection}>
-        <div style={customStyles.categoriesOverlay}></div>
-        <Container className="py-5" style={{ position: "relative", zIndex: 2 }}>
-          <div className="text-center mb-5">
-            <h2 className="display-5 fw-bold">
-              Categorías de Danza Folclórica
-              <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
-            </h2>
-            <p className="lead opacity-75 mx-auto mb-5" style={{ maxWidth: "700px" }}>
-              Descubre nuestra selección de productos para cada estilo de danza huasteca.
-            </p>
-          </div>
+      {/* Regions Section */}
+      <section style={customStyles.regionsSection}>
+        <div style={customStyles.regionsOverlay}></div>
+        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2 }}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+            Raíces de Tradición
+            <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+            Explora la herencia cultural que inspira nuestras creaciones
+          </p>
           <Row className="g-4">
-            {categorias.map((categoria, idx) => (
+            {regions.map((region, idx) => (
               <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <div
-                  className="position-relative rounded-4 overflow-hidden shadow h-100 category-card"
-                  style={{ height: "200px" }}
-                  onClick={() => handleCategoriaClick(categoria.nombre)}
-                >
-                  <img
-                    src={categoria.imagen}
-                    alt={categoria.nombre}
-                    className="w-100 h-100"
-                    style={{ objectFit: "cover" }}
-                  />
-                  <div style={customStyles.categoryOverlay}>
-                    <h3 className="fs-4 fw-bold mb-1 category-title">{categoria.nombre}</h3>
-                    <p className="small opacity-75">{categoria.cantidad} productos</p>
-                  </div>
-                </div>
+                <Card className="region-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
+                  <Card.Body>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{region.name}</h3>
+                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{region.description}</p>
+                  </Card.Body>
+                </Card>
               </Col>
             ))}
           </Row>
         </Container>
       </section>
 
-      {/* Sección de Producto Estrella */}
-      {productoEstrella && (
-        <section className="py-5" style={customStyles.starProductSection}>
-          <div style={customStyles.starProductPattern}></div>
-          <Container className="py-5" style={{ position: "relative", zIndex: 2 }}>
-            <div className="text-center mb-5">
-              <div className="mb-3">
-                <span className="star-badge" style={customStyles.starProductBadge}>PRODUCTO ESTRELLA</span>
-              </div>
-              <h2 className="display-5 fw-bold text-dark">
-                {productoEstrella.title}
-                <span style={customStyles.titleUnderline}></span>
-              </h2>
-              <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-                Un traje huasteco que combina tradición y comodidad para tus presentaciones.
-              </p>
-            </div>
-            <Row className="align-items-center g-5">
-              <Col lg={6} className="animate-in" style={{ animationDelay: "0.2s" }}>
-                <div className="position-relative">
-                  <img
-                    src={productoEstrella.image}
-                    alt={productoEstrella.title}
-                    className="rounded-4 shadow-lg img-fluid star-product-img"
-                    style={{ objectFit: "cover" }}
-                  />
-                  {productoEstrella.discount > 0 && (
-                    <div
-                      className="position-absolute top-0 start-0 m-3 py-2 px-3 rounded-pill animate-in"
-                      style={{
-                        backgroundColor: '#2E7D32', // Emerald Green
-                        color: '#F5E8C7', // Warm Beige
-                        fontWeight: "bold",
-                        animationDelay: "0.5s",
-                        boxShadow: `0 5px 15px rgba(46, 125, 50, 0.3)`, // Adjusted for rgba
-                      }}
-                    >
-                      -{productoEstrella.discount}%
-                    </div>
-                  )}
-                  <div
-                    className="position-absolute bottom-0 end-0 m-3 py-2 px-3 rounded-pill animate-in"
-                    style={{
-                      backgroundColor: `rgba(169, 27, 13, 0.8)`, // Deep Red
-                      color: '#F5E8C7', // Warm Beige
-                      animationDelay: "0.7s",
-                      boxShadow: `0 5px 15px rgba(169, 27, 13, 0.3)`, // Adjusted for rgba
-                    }}
-                  >
-                    <span className="me-1">★</span>
-                    {productoEstrella.rating} ({productoEstrella.reviews} reseñas)
-                  </div>
-                </div>
+      {/* Clothing Categories Section */}
+      <section style={customStyles.clothingSection}>
+        <Container style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+            Categorías de Ropa
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+            Descubre piezas únicas tejidas con la esencia de la tradición huasteca
+          </p>
+          <Row className="g-4">
+            {clothingItems.map((item, idx) => (
+              <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                <Card className="clothing-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
+                  <Card.Img variant="top" src={item.image} alt={item.name} className="clothing-image" style={{ maxWidth: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", margin: "0 auto 1.5rem" }} />
+                  <Card.Body>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{item.name}</h3>
+                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{item.description}</p>
+                  </Card.Body>
+                </Card>
               </Col>
-              <Col lg={6} className="animate-in" style={{ animationDelay: "0.5s" }}>
-                <div>
-                  <h3 className="fs-2 fw-bold mb-4" style={{ color: '#A91B0D' }}>{productoEstrella.title}</h3>
-                  <p className="fs-5 mb-4" style={{ color: '#4A4A4A' }}>
-                    {productoEstrella.description}
-                  </p>
-                  <div className="mb-4">
-                    <div className="d-flex mb-2">
-                      <div className="fs-3 fw-bold me-3" style={{ color: '#A91B0D' }}>
-                        ${(productoEstrella.price - (productoEstrella.price * productoEstrella.discount) / 100).toFixed(2)}
-                      </div>
-                      {productoEstrella.discount > 0 && (
-                        <div className="fs-5 text-decoration-line-through text-muted d-flex align-items-center">
-                          ${productoEstrella.price.toFixed(2)}
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-success">
-                      <i className="bi bi-check-circle-fill me-2"></i>
-                      {productoEstrella.availability}
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <h4 className="fs-5 fw-bold mb-3" style={{ color: '#2E7D32' }}>
-                      Características principales:
-                    </h4>
-                    <Row className="g-3">
-                      {productoEstrella.features.map((feature, idx) => (
-                        <Col md={6} key={idx} className="animate-in" style={{ animationDelay: `${0.6 + idx * 0.1}s` }}>
-                          <div className="d-flex align-items-center">
-                            <span style={customStyles.featureCheck}>✓</span> {feature}
-                          </div>
-                        </Col>
-                      ))}
-                    </Row>
-                  </div>
-                  <Button
-                    size="lg"
-                    className="mt-3 rounded-pill px-5 cta-button"
-                    style={customStyles.redButton}
-                    onClick={handleVerProductoEstrella}
-                  >
-                    Ver Detalles
-                  </Button>
-                </div>
-              </Col>
-            </Row>
-          </Container>
-        </section>
-      )}
-
-      {/* Sección de Productos Destacados */}
-      <section className="py-5" style={customStyles.productsSection}>
-        <Container className="py-5">
-          <div className="d-flex justify-content-between align-items-center mb-5 flex-wrap">
-            <h2 className="display-5 fw-bold text-dark mb-3 mb-md-0">
-              Productos Destacados
-              <span style={customStyles.titleUnderline}></span>
-            </h2>
-            <a href="/productos" className="text-decoration-none fw-bold" style={{ color: '#A91B0D' }}>
-              Ver todos los productos <i className="bi bi-arrow-right ms-2"></i>
-            </a>
-          </div>
-          <div className="animate-in" style={{ animationDelay: "0.3s" }}>
-            <Cards items={destacados.length > 0 ? destacados : productosState.slice(0, 4)} />
-          </div>
+            ))}
+          </Row>
         </Container>
       </section>
 
-      {/* Sección de Comentarios */}
-      <section className="py-5" style={customStyles.testimonialsSection}>
-        <div style={customStyles.testimonialsPattern}></div>
-        <Container className="py-5" style={{ position: "relative", zIndex: 2 }}>
-          <div className="text-center mb-5">
-            <h2 className="display-5 fw-bold text-dark">
-              Comentarios de la Comunidad
-              <span style={customStyles.titleUnderline}></span>
-            </h2>
-            <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-              Comparte tu experiencia con nuestra comunidad de danza huasteca
-            </p>
-          </div>
+      {/* Collections Section */}
+      <section style={customStyles.collectionsSection}>
+        <div style={customStyles.collectionsOverlay}></div>
+        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2 }}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+            Colecciones Selectas
+            <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+            Viste la historia, abraza la artesanía
+          </p>
+          <Row className="g-4">
+            {collections.map((collection, idx) => (
+              <Col md={6} lg={4} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                <Card className="collection-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "16px", padding: "3rem 2.5rem", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
+                  <Card.Body className="text-center">
+                    <div className="collection-icon" style={{ ...customStyles.collectionIcon, background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : idx === 2 ? "linear-gradient(135deg, #ff1030, #ff0070)" : idx === 3 ? "linear-gradient(135deg, #8840b8, #23102d)" : idx === 4 ? "linear-gradient(135deg, #1f8a80, #ff1030)" : "linear-gradient(135deg, #ff0070, #1f8a80)" }}>
+                      {collection.icon}
+                    </div>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.01em" }}>{collection.title}</h3>
+                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.7, fontWeight: 400 }}>{collection.description}</p>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
 
-          {/* Formulario de comentarios */}
+      {/* Comments Section */}
+      <section style={customStyles.commentsSection}>
+        <Container style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+            Comentarios de la Comunidad
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+            Comparte tu experiencia con nuestra comunidad artesanal
+          </p>
           {isLoggedIn ? (
-            <div className="mb-5">
-              <Card className="shadow-sm border-0" style={{ background: 'rgba(255,255,255,0.9)' }}>
-                <Card.Body className="p-4">
-                  <form onSubmit={handleSubmitComentario}>
-                    <div className="d-flex align-items-start mb-3">
-                      <div className="me-3">
-                        <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
-                             style={{ width: '45px', height: '45px', backgroundColor: '#A91B0D !important' }}>
-                          <i className="bi bi-person-circle fs-4"></i>
-                        </div>
-                      </div>
-                      <div className="flex-grow-1">
-                        <textarea
-                          className="form-control border-0 shadow-none"
-                          rows="3"
-                          placeholder="¿Qué te pareció tu experiencia con nosotros?"
-                          value={comentarioTexto}
-                          onChange={(e) => setComentarioTexto(e.target.value)}
-                          style={{
-                            backgroundColor: '#f8f9fa',
-                            resize: 'none',
-                            fontSize: '1.1rem',
-                          }}
-                        ></textarea>
+            <Card className="mb-5 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
+              <Card.Body className="p-4">
+                <form onSubmit={handleSubmitComentario}>
+                  <div className="d-flex align-items-start mb-3">
+                    <div className="me-3">
+                      <div style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#ff4060", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <i className="bi bi-person-circle fs-4"></i>
                       </div>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="text-muted small">
-                        <i className="bi bi-info-circle me-1"></i>
-                        Tu comentario será visible para toda la comunidad
-                      </div>
-                      <Button
-                        type="submit"
-                        style={{
-                          ...customStyles.redButton,
-                          transition: 'all 0.3s ease',
-                        }}
-                        className="rounded-pill px-4 py-2 d-flex align-items-center"
-                      >
-                        <i className="bi bi-send-fill me-2"></i>
-                        Publicar comentario
-                      </Button>
+                    <textarea
+                      className="form-control border-0 shadow-none"
+                      rows="3"
+                      placeholder="¿Qué te pareció tu experiencia con nosotros?"
+                      value={comentarioTexto}
+                      onChange={(e) => setComentarioTexto(e.target.value)}
+                      style={{ backgroundColor: "#f8f9fa", resize: "none", fontSize: "1.1rem" }}
+                    ></textarea>
+                  </div>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div style={{ fontSize: "0.9rem", color: "#403a3c" }}>
+                      <i className="bi bi-info-circle me-1"></i>
+                      Tu comentario será visible para toda la comunidad
                     </div>
-                  </form>
-                </Card.Body>
-              </Card>
-            </div>
+                    <Button type="submit" style={customStyles.pinkButton} className="rounded-pill px-4 py-2">
+                      <i className="bi bi-send-fill me-2"></i>
+                      Publicar comentario
+                    </Button>
+                  </div>
+                </form>
+              </Card.Body>
+            </Card>
           ) : (
-            <Card className="text-center mb-5 shadow-sm border-0" 
-                  style={{ background: 'rgba(255,255,255,0.9)' }}>
+            <Card className="text-center mb-5 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
               <Card.Body className="p-5">
                 <div className="mb-4">
-                  <i className="bi bi-chat-quote display-4" style={{ color: '#A91B0D' }}></i>
+                  <i className="bi bi-chat-quote display-4" style={{ color: "#ff4060" }}></i>
                 </div>
-                <h3 className="mb-3">¡Únete a la conversación!</h3>
-                <p className="lead mb-4">
-                  Inicia sesión para compartir tu experiencia con la comunidad de danza huasteca
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>¡Únete a la conversación!</h3>
+                <p style={{ fontSize: "1.1rem", color: "#403a3c", marginBottom: "1.5rem" }}>
+                  Inicia sesión para compartir tu experiencia con la comunidad artesanal
                 </p>
-                <Button
-                  onClick={() => navigate("/login")}
-                  style={customStyles.redButton}
-                  className="rounded-pill px-5 py-3"
-                >
+                <Button style={customStyles.pinkButton} className="rounded-pill px-5 py-3" onClick={() => navigate("/login")}>
                   <i className="bi bi-box-arrow-in-right me-2"></i>
                   Iniciar Sesión
                 </Button>
               </Card.Body>
             </Card>
           )}
-
-          {/* Lista de comentarios con nuevo diseño */}
           <Row className="g-4">
             {comentarios.map((comentario) => (
-              <Col lg={4} md={6} key={comentario.id} className="animate-in">
-                <Card className="h-100 shadow-sm border-0 testimonial-card" 
-                      style={{ background: 'rgba(255,255,255,0.9)' }}>
+              <Col lg={4} md={6} key={comentario.id} className="animate-in" style={{ animationDelay: "0.2s" }}>
+                <Card className="h-100 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
                   <Card.Body className="p-4">
                     <div className="d-flex align-items-center mb-3">
-                      <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
-                           style={{ width: '40px', height: '40px', backgroundColor: '#A91B0D !important' }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#ff4060", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", marginRight: "1rem" }}>
                         <i className="bi bi-person"></i>
                       </div>
                       <div>
-                        <h6 className="mb-0" style={{ color: '#A91B0D' }}>{comentario.usuario}</h6>
-                        <small className="text-muted">
+                        <h6 style={{ fontFamily: "'Playfair Display', serif", marginBottom: 0, color: "#23102d" }}>{comentario.usuario}</h6>
+                        <small style={{ color: "#403a3c" }}>
                           {new Date(comentario.fecha).toLocaleDateString('es-MX', {
                             year: 'numeric',
                             month: 'long',
@@ -807,9 +474,7 @@ const Inicio = () => {
                         </small>
                       </div>
                     </div>
-                    <p className="mb-0" style={{ color: '#4A4A4A' }}>
-                      {comentario.texto}
-                    </p>
+                    <p style={{ color: "#403a3c", marginBottom: 0 }}>{comentario.texto}</p>
                   </Card.Body>
                 </Card>
               </Col>
@@ -818,26 +483,20 @@ const Inicio = () => {
         </Container>
       </section>
 
-      {/* Sección CTA */}
-      <section className="py-5 text-white" style={customStyles.ctaSection}>
+      {/* CTA Section */}
+      <section style={customStyles.ctaSection}>
         <div style={customStyles.ctaOverlay}></div>
-        <Container className="py-5 text-center" style={{ position: "relative", zIndex: 2 }}>
-          <h2 className="display-4 fw-bold mb-3 animate-in" style={{ maxWidth: "800px", margin: "0 auto", animationDelay: "0.3s" }}>
+        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
+          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
             Celebra la Tradición Huasteca
           </h2>
-          <p className="lead opacity-75 mb-5 mx-auto animate-in" style={{ maxWidth: "700px", animationDelay: "0.5s" }}>
-            Únete a nuestra comunidad de bailarines y descubre trajes y accesorios auténticos.
+          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
+            Únete a nuestra comunidad y descubre piezas artesanales únicas
           </p>
-          <div className="mx-auto animate-in" style={{ maxWidth: "500px", animationDelay: "0.7s" }}>
-            <Button
-              style={customStyles.ctaRedButton}
-              className="px-5 py-3 cta-button"
-              onClick={() => navigate("/login?register=true")}
-            >
-              Regístrate
-            </Button>
-          </div>
-          <p className="mt-4 opacity-75 small animate-in" style={{ animationDelay: "0.9s" }}>
+          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/login?register=true")}>
+            Regístrate
+          </Button>
+          <p className="animate-in" style={{ fontSize: "0.9rem", color: "#ffffff", opacity: 0.75, marginTop: "1rem", animationDelay: "0.9s" }}>
             <i className="bi bi-shield-check me-2"></i>
             Tu información está segura con nosotros.
           </p>
