@@ -12,8 +12,6 @@ import Contacto from "./pages/public/Contacto";
 import Login from "./pages/public/Login";
 import Galeria from "./pages/public/Galeria";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
-import Carrito from "./pages/public/Carrito";
-import Politicas from "./pages/public/Politicas";
 
 import InicioPrivate from "./pages/Private/InicioPrivate";
 import Perfil from "./pages/Private/Perfil";
@@ -43,8 +41,6 @@ function App() {
                 <Route path="/contacto" element={<Contacto />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/galeria" element={<Galeria />} />
-                <Route path="/carrito" element={<Carrito />} />
-                <Route path="/politicas" element={<Politicas />} />
               </Route>
 
               {/* Rutas Privadas usando PrivateLayout y protegidas con PrivateRoute */}

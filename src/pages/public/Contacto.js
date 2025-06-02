@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { IonIcon } from '@ionic/react';
+import { mailOutline, callOutline, locationOutline, timeOutline, logoFacebook, logoInstagram, logoTwitter } from 'ionicons/icons';
 
 const Contacto = () => {
   const navigate = useNavigate();
@@ -22,15 +24,26 @@ const Contacto = () => {
     cta: false
   });
 
+  // Paleta de colores alineada con La Aterciopelada
+  const colors = {
+    deepRed: '#ff0070',
+    emeraldGreen: '#1f8a80',
+    warmBeige: '#F5E8C7',
+    vibrantYellow: '#FFC107',
+    darkGrey: '#4A4A4A',
+    softPink: '#ff8090',
+    darkPurple: '#23102d'
+  };
+
   // Animation trigger on mount
   useEffect(() => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, contactInfo: true })), 500);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, formSection: true })), 900);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, social: true })), 1100);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, map: true })), 1300);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, faq: true })), 1500);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1700);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, contactInfo: true })), 300);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, formSection: true })), 500);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, social: true })), 700);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, map: true })), 900);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, faq: true })), 1100);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1300);
   }, []);
 
   const handleInputChange = (e) => {
@@ -41,26 +54,11 @@ const Contacto = () => {
     });
   };
 
-  const enviarContacto = async (contacto) => {
-    try {
-      const response = await fetch('http://localhost:5000/contacto', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(contacto)
-      });
-      return response.ok;
-    } catch (error) {
-      console.error('Error al enviar el contacto:', error);
-      return false;
-    }
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (formState.nombre && formState.email && formState.mensaje) {
-      const exito = await enviarContacto(formState);
-      if (exito) {
+      // Simulación de envío exitoso
+      setTimeout(() => {
         setFormSubmitted(true);
         setFormError(false);
         setFormState({
@@ -69,9 +67,7 @@ const Contacto = () => {
           telefono: '',
           mensaje: ''
         });
-      } else {
-        setFormError(true);
-      }
+      }, 1000);
     } else {
       setFormError(true);
     }
@@ -79,62 +75,66 @@ const Contacto = () => {
 
   const contactInfo = [
     {
-      icon: "📍",
+      icon: <IonIcon icon={locationOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
       title: "Dirección",
-      content: "Calle de la Danza #456, Huejutla de Reyes, Hidalgo, México",
+      content: "Calle Artesanal #123, Centro, Huejutla de Reyes, Hidalgo",
       link: "https://maps.app.goo.gl/UzrK1BW2QVNirmmt8",
-      linkText: "Ver en Google Maps"
+      linkText: "Ver en mapa"
     },
     {
-      icon: "📞",
+      icon: <IonIcon icon={callOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
       title: "Teléfono",
-      content: "+52 789 123 4567 (Ventas)\n+52 789 987 6543 (Soporte Cultural)"
+      content: "+52 771 123 4567 (Ventas)\n+52 771 987 6543 (Consultas)"
     },
     {
-      icon: "📧",
+      icon: <IonIcon icon={mailOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
       title: "Correo Electrónico",
-      content: "contacto@huastecadanza.com (Consultas)\nventas@huastecadanza.com (Pedidos)"
+      content: "ventas@laaterciopelada.com\nconsultas@laaterciopelada.com"
     },
     {
-      icon: "🕒",
+      icon: <IonIcon icon={timeOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
       title: "Horario de Atención",
-      content: "Lunes a Sábado: 8:00 AM - 7:00 PM\nDomingos: 10:00 AM - 3:00 PM"
+      content: "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM"
     }
   ];
 
   const socialNetworks = [
     {
-      icon: "📱",
+      icon: <IonIcon icon={logoFacebook} style={{ fontSize: '24px', color: colors.deepRed }} />,
       name: "Facebook",
-      handle: "HuastecaDanza",
-      url: "https://facebook.com/huastecadanza"
+      handle: "@LaAterciopeladaOficial",
+      url: "https://facebook.com/laaterciopelada"
     },
     {
-      icon: "📷",
+      icon: <IonIcon icon={logoInstagram} style={{ fontSize: '24px', color: colors.deepRed }} />,
       name: "Instagram",
-      handle: "@HuastecaDanza",
-      url: "https://instagram.com/huastecadanza"
+      handle: "@LaAterciopelada",
+      url: "https://instagram.com/laaterciopelada"
     },
     {
-      icon: "🎥",
-      name: "TikTok",
-      handle: "@HuastecaDanza",
-      url: "https://tiktok.com/@huastecadanza"
+      icon: <IonIcon icon={logoTwitter} style={{ fontSize: '24px', color: colors.deepRed }} />,
+      name: "Twitter",
+      handle: "@AterciopeladaMX",
+      url: "https://twitter.com/aterciopeladamx"
     }
   ];
 
   const faqs = [
     {
-      question: "¿Pueden personalizar trajes para mi grupo de danza?",
-      answer: "Sí, ofrecemos servicios de personalización para trajes huastecos según las necesidades de tu grupo."
+      question: "¿Cómo puedo realizar un pedido personalizado?",
+      answer: "Ofrecemos servicios de personalización para todas nuestras prendas. Contáctanos con tus requerimientos y te enviaremos una cotización."
     },
     {
-      question: "¿Cuánto tiempo tarda el envío de un traje?",
-      answer: "Los envíos dentro de México tardan de 3 a 7 días hábiles, dependiendo de la ubicación."
+      question: "¿Cuáles son los tiempos de entrega?",
+      answer: "Los envíos dentro de México tardan de 3 a 5 días hábiles. Para pedidos personalizados, el tiempo varía según la complejidad (normalmente 2-3 semanas)."
     },
     {
-      question: "¿Ofrecen renta de trajes para eventos?",
-      answer: "Sí, tenemos opciones de renta para presentaciones y festivales. Contáctanos para detalles."
+      question: "¿Ofrecen envíos internacionales?",
+      answer: "Sí, realizamos envíos a todo el mundo. Los costos y tiempos varían según el destino."
+    },
+    {
+      question: "¿Puedo visitar su taller?",
+      answer: "¡Claro! Nuestro taller en Huejutla está abierto al público. Recomendamos agendar una cita para brindarte mejor atención."
     }
   ];
 
@@ -144,11 +144,10 @@ const Contacto = () => {
       to { opacity: 1; transform: translateY(0); }
     }
     
-    @keyframes floatingLabel {
-      from { transform: translateY(0); }
-      to { transform: translateY(-25px) scale(0.85); }
+    .animate-in {
+      animation: fadeInUp 0.8s forwards;
     }
-
+    
     .form-input {
       position: relative;
       margin-bottom: 25px;
@@ -159,17 +158,16 @@ const Contacto = () => {
       width: 100%;
       padding: 16px 20px;
       border: 2px solid #E0E0E0;
-      border-radius: 15px;
+      border-radius: 12px;
       background: #FFFFFF;
       font-size: 16px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s ease;
     }
 
     .form-input input:focus,
     .form-input textarea:focus {
-      border-color: #2E7D32;
-      box-shadow: 0 4px 20px rgba(46, 125, 50, 0.15);
-      transform: translateY(-2px);
+      border-color: ${colors.emeraldGreen};
+      box-shadow: 0 4px 20px rgba(31, 138, 128, 0.15);
       outline: none;
     }
 
@@ -181,7 +179,7 @@ const Contacto = () => {
       background: #FFFFFF;
       padding: 0 5px;
       color: #757575;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s ease;
       pointer-events: none;
     }
 
@@ -196,468 +194,428 @@ const Contacto = () => {
     .form-input textarea:not(:placeholder-shown) ~ label {
       top: 0;
       transform: translateY(-50%) scale(0.85);
-      color: #2E7D32;
-    }
-
-    .submit-button {
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .submit-button::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-      );
-      transition: all 0.5s ease;
-    }
-
-    .submit-button:hover::after {
-      left: 100%;
-    }
-
-    .form-input input:hover,
-    .form-input textarea:hover {
-      border-color: #2E7D32;
+      color: ${colors.emeraldGreen};
     }
 
     .hover-card {
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      border: 1px solid rgba(232, 180, 184, 0.15);
     }
     .hover-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(255, 0, 112, 0.35), 
+                  0 10px 20px rgba(31, 138, 128, 0.25), 
+                  0 6px 12px rgba(44, 35, 41, 0.18);
+      border-color: ${colors.deepRed};
+    }
+    
+    .social-card {
+      transition: all 0.3s ease;
+      border-left: 3px solid ${colors.deepRed};
+    }
+    .social-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+      box-shadow: 0 10px 20px rgba(255, 0, 112, 0.2);
+    }
+    
+    .submit-button {
+      background: linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .submit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 0, 112, 0.3);
+    }
+    
+    .floating-element {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+      50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
     }
   `;
 
   const customStyles = {
     heroSection: {
-      backgroundImage: `linear-gradient(135deg, rgba(169, 27, 13, 0.85), rgba(44, 107, 62, 0.9)), url('https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      padding: '80px 0',
-      color: '#F5E8C7',
-      position: 'relative',
+      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      padding: "100px 0",
+      color: colors.darkPurple,  // Cambiado a darkPurple para mejor contraste
+      position: "relative",
       opacity: isVisible.hero ? 1 : 0,
-      transform: isVisible.hero ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.hero ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     heroOverlay: {
-      position: 'absolute',
+      position: "absolute",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NiIgaGVpZ2h0PSIxMDAiPgo8cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iMTAwIiBmaWxsPSIjQTkxQjBEIj48L3JlY3Q+CjxwYXRoIGQ9Ik0yOCA2NkwwIDUwTDAgMTZMMjggMEw1NiAxNkw1NiA1MEwyOCA2NkwyOCAxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJFN0QzMiIgc3Ryb2tlLXdpZHRoPSIyIj48L3BhdGg+CjxwYXRoIGQ9Ik0yOCAwTDI4IDM0TDAgNTBMMDAgODRMMjggMTAwTDU2IDg0TDU2IDUwTDI4IDM0IiBmaWxsPSJub25lIiBzdHJva2U9IiMyRTdEMzIiIHN0cm9rZS13aWR0aD0iMiI+PC9wYXRoPgo8L3N2Zz4=')",
-      opacity: 0.1,
-      zIndex: 1
+      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      opacity: 0.8,
+      zIndex: 1,
+      pointerEvents: 'none'
     },
     section: {
-      marginBottom: '60px',
+      marginBottom: "80px",
       opacity: isVisible.contactInfo ? 1 : 0,
-      transform: isVisible.contactInfo ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.contactInfo ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     formSection: {
       opacity: isVisible.formSection ? 1 : 0,
-      transform: isVisible.formSection ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.formSection ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     socialSection: {
       opacity: isVisible.social ? 1 : 0,
-      transform: isVisible.social ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.social ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     mapSection: {
       opacity: isVisible.map ? 1 : 0,
-      transform: isVisible.map ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.map ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     faqSection: {
       opacity: isVisible.faq ? 1 : 0,
-      transform: isVisible.faq ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.faq ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     ctaSection: {
-      backgroundImage: `linear-gradient(135deg, rgba(169, 27, 13, 0.95), rgba(38, 166, 154, 0.9))`,
-      padding: '60px 0',
-      color: '#F5E8C7',
-      position: 'relative',
+      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      padding: "80px 0",
+      color: colors.darkPurple,  // Cambiado a darkPurple para mejor contraste
+      position: "relative",
       opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.8s ease-out'
+      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out"
     },
     titleUnderline: {
-      display: 'block',
-      width: '80px',
-      height: '4px',
-      backgroundColor: '#A91B0D',
-      borderRadius: '2px',
-      margin: '15px 0',
-      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+      display: "block",
+      width: "60px",
+      height: "2px",
+      background: `linear-gradient(90deg, ${colors.deepRed}, ${colors.emeraldGreen})`,
+      borderRadius: "1px",
+      margin: "15px auto",
     },
-    formControl: {
-      borderRadius: '8px',
-      border: '1px solid #2E7D32',
-      padding: '12px 18px',
-      marginBottom: '20px',
-      fontSize: '16px',
-      transition: 'border-color 0.3s ease, box-shadow 0.3s ease'
+    whiteUnderline: {
+      background: colors.warmBeige,
+      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     },
-    input: {
-      width: '100%',
-      padding: '15px 20px',
-      fontSize: '16px',
-      border: '2px solid #E0E0E0',
-      borderRadius: '12px',
-      backgroundColor: '#FFFFFF',
-      transition: 'all 0.3s ease',
-      outline: 'none',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-      '&:focus': {
-        borderColor: '#2E7D32',
-        boxShadow: '0 4px 8px rgba(46,125,50,0.15)',
-        transform: 'translateY(-2px)'
-      }
+    contactCard: {
+      borderLeft: `3px solid ${colors.deepRed}`,
+      borderRadius: "12px",
+      transition: "all 0.3s ease",
+      height: "100%"
     },
-    formGroup: {
-      marginBottom: '25px',
-      position: 'relative'
-    },
-    label: {
-      display: 'block',
-      marginBottom: '8px',
-      fontSize: '16px',
-      fontWeight: '600',
-      color: '#2E7D32',
-      transition: 'color 0.3s ease'
-    },
-    button: {
-      backgroundColor: '#A91B0D',
-      color: '#F5E8C7',
-      padding: '12px 30px',
-      fontSize: '16px',
-      fontWeight: '600',
-      borderRadius: '8px',
-      border: 'none',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-    },
-    ctaRedButton: {
-      backgroundColor: '#A91B0D',
-      color: '#F5E8C7',
-      padding: '16px 32px',
-      fontSize: '16px',
-      fontWeight: '600',
-      borderRadius: '15px',
-      border: 'none',
-      boxShadow: '0 4px 15px rgba(169, 27, 13, 0.2)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    }
-  };
-
-  const customFormStyles = {
-    input: {
-      width: '100%',
-      padding: '16px 20px',
-      fontSize: '16px',
-      border: '2px solid #E0E0E0',
-      borderRadius: '15px',
-      backgroundColor: '#FFFFFF',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-    },
-    label: {
-      position: 'absolute',
-      left: '15px',
-      background: '#FFFFFF',
-      padding: '0 5px',
-      color: '#2E7D32',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      fontSize: '14px',
-      fontWeight: '600',
-    },
-    submitButton: {
-      backgroundColor: '#A91B0D',
-      color: '#F5E8C7',
-      padding: '16px 32px',
-      fontSize: '16px',
-      fontWeight: '600',
-      borderRadius: '15px',
-      border: 'none',
-      boxShadow: '0 4px 15px rgba(169, 27, 13, 0.2)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    faqCard: {
+      background: colors.warmBeige,
+      borderRadius: "12px",
+      border: "none",
+      marginBottom: "20px",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
     }
   };
 
   return (
     <>
       <style>{animationStyles}</style>
-      <div className="font-sans">
-        {/* Hero Section */}
-        <section style={customStyles.heroSection} className="py-5">
-          <div style={customStyles.heroOverlay}></div>
-          <Container className="py-5 text-center text-white" style={{ position: "relative", zIndex: 2 }}>
-            <h1 className="display-3 fw-bold mb-4">
-              Contacto
-            </h1>
-            <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px" }}>
-              Conéctate con nosotros para descubrir cómo nuestros trajes y accesorios huastecos pueden realzar tus presentaciones de danza.
-            </p>
-          </Container>
+      
+      {/* Hero Section */}
+      <section style={customStyles.heroSection}>
+        <div style={customStyles.heroOverlay}></div>
+        <Container style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+          <h1 className="animate-in" style={{ 
+            fontFamily: "'Playfair Display', serif", 
+            fontSize: "clamp(2.5rem, 5vw, 4rem)", 
+            fontWeight: 700, 
+            marginBottom: "1.5rem",
+            color: colors.darkPurple  // Asegurar color oscuro para el título
+          }}>
+            Contacto
+          </h1>
+          <div className="animate-in" style={{ 
+            width: "80px", 
+            height: "2px", 
+            background: `linear-gradient(90deg, ${colors.deepRed}, ${colors.emeraldGreen})`,
+            margin: "0 auto 2rem" 
+          }}></div>
+          <p className="animate-in" style={{ 
+            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
+            fontWeight: 300, 
+            maxWidth: "700px", 
+            margin: "0 auto", 
+            lineHeight: "1.6",
+            color: colors.darkGrey  // Asegurar color oscuro para el texto
+          }}>
+            Conéctate con nosotros y descubre el arte textil de la Huasteca
+          </p>
+        </Container>
+      </section>
+
+      <Container>
+        {/* Información de Contacto */}
+        <section style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+            Información de Contacto
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem" }}>
+            Estamos aquí para responder tus preguntas y ayudarte con tus pedidos especiales
+          </p>
+          
+          <Row className="g-4">
+            {contactInfo.map((info, index) => (
+              <Col md={6} lg={3} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
+                <Card className="hover-card h-100" style={customStyles.contactCard}>
+                  <Card.Body className="text-center d-flex flex-column">
+                    <div className="mb-3">
+                      {info.icon}
+                    </div>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: colors.darkPurple, marginBottom: "1rem" }}>
+                      {info.title}
+                    </h3>
+                    <p style={{ color: colors.darkGrey, lineHeight: "1.6", flexGrow: 1 }}>
+                      {info.content.split('\n').map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          <br />
+                        </span>
+                      ))}
+                    </p>
+                    {info.link && (
+                      <a 
+                        href={info.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ color: colors.emeraldGreen, fontWeight: "600", marginTop: "15px" }}
+                      >
+                        {info.linkText} →
+                      </a>
+                    )}
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
         </section>
 
-        <Container className="py-5">
-          {/* Contact Info */}
-          <section style={customStyles.section}>
-            <div className="text-center mb-5">
-              <h2 className="display-5 fw-bold text-dark">
-                Información de Contacto
+        {/* Formulario y Redes Sociales */}
+        <section style={customStyles.formSection}>
+          <Row>
+            <Col lg={7} className="mb-5 mb-lg-0">
+              <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+                Envíanos un Mensaje
                 <span style={customStyles.titleUnderline}></span>
               </h2>
-              <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-                Estamos aquí para ayudarte con cualquier consulta sobre nuestros productos y servicios.
-              </p>
-            </div>
-            <Row className="g-4">
-              {contactInfo.map((info, index) => (
-                <Col md={6} lg={3} key={index}>
-                  <Card className="h-100 border-0 shadow-lg rounded-4 bg-light hover-card" 
-                        style={{
-                          minHeight: '250px', // Altura mínima uniforme
-                          transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-                        }}>
-                    <Card.Body className="d-flex flex-column p-4">
-                      <div className="mb-3">
-                        <span className="fs-1 text-success">{info.icon}</span>
-                        <h3 className="h5 mt-3 text-danger fw-bold">{info.title}</h3>
-                      </div>
-                      <div className="flex-grow-1">
-                        <p className="text-muted mb-0" style={{ whiteSpace: 'pre-line' }}>{info.content}</p>
-                      </div>
-                      {info.link && (
-                        <a
-                          href={info.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-success fw-semibold mt-3 text-decoration-none d-inline-block"
-                        >
-                          {info.linkText} →
-                        </a>
-                      )}
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </section>
-
-          {/* Form Section */}
-          <section style={customStyles.formSection}>
-            <Row>
-              <Col lg={7}>
-                <div className="text-center mb-5">
-                  <h2 className="display-5 fw-bold text-dark">
-                    Envíanos un Mensaje
-                    <span style={customStyles.titleUnderline}></span>
-                  </h2>
-                  <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-                    Cuéntanos sobre tus necesidades y te responderemos a la brevedad.
-                  </p>
+              
+              {formSubmitted && (
+                <Alert variant="success" className="mb-4" style={{ background: "rgba(31, 138, 128, 0.1)", borderColor: colors.emeraldGreen }}>
+                  <Alert.Heading style={{ color: colors.emeraldGreen }}>¡Mensaje Enviado!</Alert.Heading>
+                  <p style={{ color: colors.darkGrey }}>Gracias por contactarnos. Te responderemos en breve.</p>
+                </Alert>
+              )}
+              
+              {formError && (
+                <Alert variant="danger" className="mb-4" style={{ background: "rgba(255, 0, 112, 0.1)", borderColor: colors.deepRed }}>
+                  <Alert.Heading style={{ color: colors.deepRed }}>Error en el formulario</Alert.Heading>
+                  <p style={{ color: colors.darkGrey }}>Por favor completa los campos requeridos.</p>
+                </Alert>
+              )}
+              
+              <form onSubmit={handleSubmit}>
+                <div className="form-input">
+                  <input
+                    id="formNombre"
+                    type="text"
+                    placeholder=" "
+                    value={formState.nombre}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="formNombre">Nombre *</label>
                 </div>
-                {formSubmitted && (
-                  <Alert variant="success" className="tw-bg-[#2E7D32]/10 tw-border-[#2E7D32]/20 tw-rounded-lg tw-mb-6 tw-p-4">
-                    <Alert.Heading className="tw-text-[#2E7D32]">¡Mensaje Enviado!</Alert.Heading>
-                    <p className="tw-text-[#4A4A4A]">Gracias por contactarnos. Te responderemos pronto.</p>
-                  </Alert>
-                )}
-                {formError && (
-                  <Alert variant="danger" className="tw-bg-[#A91B0D]/10 tw-border-[#A91B0D]/20 tw-rounded-lg tw-mb-6 tw-p-4">
-                    <Alert.Heading className="tw-text-[#A91B0D]">Error en el formulario</Alert.Heading>
-                    <p className="tw-text-[#4A4A4A]">Por favor completa todos los campos requeridos (nombre, email y mensaje).</p>
-                  </Alert>
-                )}
-                <div className="tw-space-y-4">
-                  <div className="form-input">
-                    <input
-                      id="formNombre"
-                      type="text"
-                      placeholder=" "
-                      style={customFormStyles.input}
-                      onChange={handleInputChange}
-                      value={formState.nombre}
-                    />
-                    <label htmlFor="formNombre" style={customFormStyles.label}>
-                      Nombre *
-                    </label>
-                  </div>
-
-                  <div className="form-input">
-                    <input
-                      id="formEmail"
-                      type="email"
-                      placeholder=" "
-                      style={customFormStyles.input}
-                      onChange={handleInputChange}
-                      value={formState.email}
-                    />
-                    <label htmlFor="formEmail" style={customFormStyles.label}>
-                      Correo Electrónico *
-                    </label>
-                  </div>
-
-                  <div className="form-input">
-                    <input
-                      id="formTelefono"
-                      type="tel"
-                      placeholder=" "
-                      style={customFormStyles.input}
-                      onChange={handleInputChange}
-                      value={formState.telefono}
-                    />
-                    <label htmlFor="formTelefono" style={customFormStyles.label}>
-                      Teléfono
-                    </label>
-                  </div>
-
-                  <div className="form-input">
-                    <textarea
-                      id="formMensaje"
-                      rows={6}
-                      placeholder=" "
-                      style={customFormStyles.input}
-                      onChange={handleInputChange}
-                      value={formState.mensaje}
-                    />
-                    <label htmlFor="formMensaje" style={customFormStyles.label}>
-                      Mensaje *
-                    </label>
-                  </div>
-                  
-                  <p className="tw-text-sm tw-text-[#2E7D32] tw-mb-4">* Campos requeridos</p>
-                  
-                  <Button
-                    className="submit-button"
-                    style={customFormStyles.submitButton}
-                    onClick={handleSubmit}
-                  >
+                
+                <div className="form-input">
+                  <input
+                    id="formEmail"
+                    type="email"
+                    placeholder=" "
+                    value={formState.email}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="formEmail">Correo Electrónico *</label>
+                </div>
+                
+                <div className="form-input">
+                  <input
+                    id="formTelefono"
+                    type="tel"
+                    placeholder=" "
+                    value={formState.telefono}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="formTelefono">Teléfono</label>
+                </div>
+                
+                <div className="form-input">
+                  <textarea
+                    id="formMensaje"
+                    rows={5}
+                    placeholder=" "
+                    value={formState.mensaje}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="formMensaje">Mensaje *</label>
+                </div>
+                
+                <p className="text-muted mb-4">* Campos obligatorios</p>
+                
+                <div className="text-center">
+                  <button type="submit" className="submit-button">
                     Enviar Mensaje
-                    <div className="button-glow"></div>
-                  </Button>
+                  </button>
                 </div>
-              </Col>
-              <Col lg={5}>
-                <div className="text-center mb-5">
-                  <h2 className="display-5 fw-bold text-dark">
-                    Síguenos en Redes
-                    <span style={customStyles.titleUnderline}></span>
-                  </h2>
-                  <p className="lead text-muted mx-auto mb-5">
-                    Conéctate con nuestra comunidad de danza huasteca.
-                  </p>
-                </div>
+              </form>
+            </Col>
+            
+            <Col lg={5}>
+              <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+                Síguenos
+                <span style={customStyles.titleUnderline}></span>
+              </h2>
+              
+              <div className="mb-4">
                 {socialNetworks.map((social, index) => (
                   <a
                     key={index}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="tw-flex tw-items-center tw-p-3 tw-mb-3 tw-rounded-lg tw-bg-[#F5E8C7] tw-text-[#A91B0D] tw-transition-all social-link"
+                    className="d-flex align-items-center mb-3 p-3 rounded social-card"
+                    style={{ background: colors.warmBeige, textDecoration: "none", color: colors.darkPurple }}
                   >
-                    <span className="tw-text-2xl tw-mr-4">{social.icon}</span>
+                    <div className="me-3">
+                      {social.icon}
+                    </div>
                     <div>
-                      <strong className="tw-block tw-text-lg">{social.name}</strong>
-                      <span className="tw-text-sm">{social.handle}</span>
+                      <h4 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.25rem" }}>{social.name}</h4>
+                      <p style={{ color: colors.darkGrey, marginBottom: "0" }}>{social.handle}</p>
                     </div>
                   </a>
                 ))}
-                <Card className="tw-mt-6 tw-border-none tw-shadow-lg tw-rounded-xl tw-bg-[#FFF8E1]">
-                  <Card.Body className="tw-p-6">
-                    <Card.Title className="tw-text-lg tw-font-semibold tw-text-[#A91B0D] tw-mb-3">Consulta Personalizada</Card.Title>
-                    <Card.Text className="tw-text-[#4A4A4A]">
-                      ¿Buscas un traje único o asesoría para tu grupo de danza? Agenda una consulta con nuestro equipo.
-                    </Card.Text>
-                    <a
-                      href="mailto:consultas@huastecadanza.com"
-                      className="tw-inline-block tw-bg-[#2E7D32]/10 tw-text-[#2E7D32] tw-rounded-lg tw-px-4 tw-py-2 tw-font-semibold tw-mt-3 hover:tw-bg-[#2E7D32]/20"
-                    >
-                      consultas@huastecadanza.com
-                    </a>
+              </div>
+              
+              <Card className="border-0 shadow-sm" style={{ background: colors.warmBeige }}>
+                <Card.Body className="text-center">
+                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: colors.darkPurple, marginBottom: "1rem" }}>
+                    Boletín Cultural
+                  </h3>
+                  <p style={{ color: colors.darkGrey, marginBottom: "1.5rem" }}>
+                    Suscríbete para recibir noticias sobre eventos, talleres y nuevas colecciones
+                  </p>
+                  <Button 
+                    variant="outline-dark" 
+                    style={{ borderColor: colors.deepRed, color: colors.deepRed }}
+                    onClick={() => navigate("/newsletter")}
+                  >
+                    Suscribirme
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </section>
+
+        {/* Mapa */}
+        <section style={customStyles.mapSection}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+            Visítanos
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem" }}>
+            Nuestro taller está ubicado en el corazón de la Huasteca
+          </p>
+          
+          <div className="rounded-3 overflow-hidden shadow-lg" style={{ height: "450px" }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.222715667089!2d-98.4072127!3d20.4536186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d61b1a6e8d5e3f%3A0x5f1a5e5b5e5b5e5b!2sHuejutla%20de%20Reyes%2C%20Hgo.!5e0!3m2!1sen!2smx!4v1620000000000!5m2!1sen!2smx"
+              width="100%"
+              height="100%"
+              style={{ border: "0" }}
+              allowFullScreen=""
+              loading="lazy"
+              title="Ubicación de La Aterciopelada"
+            ></iframe>
+          </div>
+        </section>
+
+        {/* Preguntas Frecuentes */}
+        <section style={customStyles.faqSection}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+            Preguntas Frecuentes
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem" }}>
+            Resolvemos tus dudas sobre nuestros productos y servicios
+          </p>
+          
+          <Row className="g-4">
+            {faqs.map((faq, index) => (
+              <Col md={6} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
+                <Card className="h-100 hover-card" style={{ borderLeft: `3px solid ${index % 2 === 0 ? colors.deepRed : colors.emeraldGreen}` }}>
+                  <Card.Body>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 600, color: colors.darkPurple, marginBottom: "1rem" }}>
+                      {faq.question}
+                    </h3>
+                    <p style={{ color: colors.darkGrey, lineHeight: "1.6" }}>
+                      {faq.answer}
+                    </p>
                   </Card.Body>
                 </Card>
               </Col>
-            </Row>
-          </section>
-
-          {/* Map Section */}
-          <section style={customStyles.mapSection}>
-            <div className="text-center mb-5">
-              <h2 className="display-5 fw-bold text-dark">
-                Encuéntranos
-                <span style={customStyles.titleUnderline}></span>
-              </h2>
-              <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-                Visítanos en nuestra tienda en Huejutla de Reyes, Hidalgo.
-              </p>
-            </div>
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d714.7272224437176!2d-98.40721287703151!3d21.14354955461783!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2smx!4v1741701738633!5m2!1sen!2smx"
-              style={{ border: 0, borderRadius: '12px', boxShadow: '0 6px 20px rgba(0,0,0,0.1)', width: '100%', height: '450px' }}
-              allowFullScreen=""
-              loading="lazy"
-              title="Ubicación de Huasteca Danza"
-            ></iframe>
-          </section>
-
-          {/* FAQ Section */}
-          <section style={customStyles.faqSection} className="mt-5">
-            <div className="text-center mb-5">
-              <h2 className="display-5 fw-bold text-dark">
-                Preguntas Frecuentes
-                <span style={customStyles.titleUnderline}></span>
-              </h2>
-              <p className="lead text-muted mx-auto mb-5" style={{ maxWidth: "700px" }}>
-                Resolvemos tus dudas más comunes sobre nuestros servicios.
-              </p>
-            </div>
-            {faqs.map((faq, index) => (
-              <div
-                key={index}
-                className={`tw-p-5 tw-mb-4 tw-rounded-lg ${index % 2 === 0 ? 'tw-bg-[#F5E8C7]' : 'tw-bg-white'} tw-shadow-md tw-animate-in`}
-                style={{ animationDelay: `${0.2 * index}s` }}
-              >
-                <h3 className="tw-text-lg tw-font-semibold tw-text-[#A91B0D] tw-mb-2">{faq.question}</h3>
-                <p className="tw-text-[#4A4A4A]">{faq.answer}</p>
-              </div>
             ))}
-          </section>
-        </Container>
-
-        {/* CTA Section */}
-        <section style={customStyles.ctaSection} className="py-5 text-white">
-          <Container className="py-5 text-center" style={{ position: "relative", zIndex: 2 }}>
-            <h2 className="display-4 fw-bold mb-4">¿Listo para Bailar?</h2>
-            <p className="lead opacity-75 mb-5 mx-auto" style={{ maxWidth: "700px" }}>
-              Contáctanos hoy y descubre cómo nuestros trajes huastecos pueden hacer brillar tu próxima presentación.
-            </p>
-            <Button
-              className="px-5 py-3 cta-button"
-              style={customStyles.ctaRedButton}
-              onClick={() => navigate('/login?register=true')}
-            >
-              Regístrate Ahora
-            </Button>
-          </Container>
+          </Row>
         </section>
-      </div>
+      </Container>
+
+      {/* CTA Section */}
+      <section style={customStyles.ctaSection}>
+        <Container style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, marginBottom: "1rem" }}>
+            ¿Listo para descubrir más?
+          </h2>
+          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, opacity: 0.9, maxWidth: "700px", margin: "0 auto 2rem" }}>
+            Explora nuestra colección completa de prendas y accesorios artesanales
+          </p>
+          <Button 
+            className="animate-in" 
+            style={{ 
+              background: colors.warmBeige, 
+              color: colors.deepRed, 
+              border: "none",
+              padding: "12px 30px",
+              fontWeight: "600",
+              fontSize: "1.1rem",
+              borderRadius: "30px"
+            }}
+            onClick={() => navigate("/productos")}
+          >
+            Ver Colección
+          </Button>
+        </Container>
+      </section>
     </>
   );
 };

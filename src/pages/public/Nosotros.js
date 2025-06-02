@@ -1,635 +1,369 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Image } from 'react-bootstrap';
-
-// Paleta de colores inspirada en la Huasteca
-const colors = {
-  deepRed: '#A91B0D',
-  vibrantYellow: '#FFC107',
-  emeraldGreen: '#2E7D32',
-  turquoise: '#26A69A',
-  warmBeige: '#F5E8C7',
-  darkGrey: '#4A4A4A',
-  white: '#FFFFFF',
-};
-
-const textStyles = {
-  title: { fontFamily: "'Roboto', sans-serif", fontWeight: 'bold' },
-  subtitle: { fontFamily: "'Roboto', sans-serif", fontWeight: 600 },
-  paragraph: { fontFamily: "'Roboto', sans-serif", fontWeight: 400 },
-  fontPrimary: "'Roboto', sans-serif",
-};
-
-const layout = { sectionPadding: { padding: '50px 0' } };
-
-const buttons = {
-  primary: {
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    color: colors.white,
-  },
-  secondary: {
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
-};
+import { Container, Row, Col, Card, Image, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 const Nosotros = () => {
-  const [animate, setAnimate] = useState(false);
-  
-  // Efecto para activar animaciones al cargar el componente
+  const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState({
+    hero: false,
+    historia: false,
+    mision: false,
+    equipo: false,
+    valores: false,
+    cta: false,
+  });
+
   useEffect(() => {
-    setAnimate(true);
+    // Animaciones escalonadas como en Inicio.js
+    setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, historia: true })), 300);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, mision: true })), 600);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, equipo: true })), 900);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, valores: true })), 1200);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1500);
   }, []);
 
-  const styles = {
-    section: { marginBottom: '70px' },
-    card: {
-      borderRadius: '10px',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-      height: '100%',
-      border: 'none',
+  const equipo = [
+    { 
+      nombre: "María Hernández", 
+      rol: "Fundadora & Diseñadora", 
+      bio: "Maestra artesana con 25 años de experiencia en bordado tradicional huasteco.",
+      imagen: "/team/maria.jpg"
     },
-    image: { 
-      borderRadius: '10px', 
-      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
-      transition: 'transform 0.5s ease',
+    { 
+      nombre: "Carlos Méndez", 
+      rol: "Director Comercial", 
+      bio: "Especialista en comercio justo y desarrollo comunitario.",
+      imagen: "/team/carlos.jpg"
     },
-    imageHover: {
-      transform: 'scale(1.03)',
+    { 
+      nombre: "Luisa Torres", 
+      rol: "Coordinadora de Producción", 
+      bio: "Encargada de mantener los más altos estándares de calidad artesanal.",
+      imagen: "/team/luisa.jpg"
     },
-    timelineItem: {
-      position: 'relative',
-      paddingLeft: '30px',
-      marginBottom: '20px',
-      borderLeft: `3px solid ${colors.vibrantYellow}`,
-      transition: 'all 0.3s ease',
+  ];
+
+  const valores = [
+    { icon: "🤝", titulo: "Comercio Justo", descripcion: "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas." },
+    { icon: "🌱", titulo: "Sostenibilidad", descripcion: "Utilizamos materiales naturales y procesos eco-amigables en todas nuestras piezas." },
+    { icon: "🎨", titulo: "Autenticidad", descripcion: "Cada pieza conserva las técnicas tradicionales de la cultura huasteca." },
+  ];
+
+  const historia = [
+    { año: "1995", evento: "Nace el taller familiar en Xilitla, San Luis Potosí" },
+    { año: "2008", evento: "Primera exposición internacional en París" },
+    { año: "2015", evento: "Reconocimiento por la UNESCO como patrimonio cultural" },
+    { año: "2020", evento: "Lanzamiento de la plataforma digital" },
+  ];
+
+  const customStyles = {
+    heroSection: {
+      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      height: "60vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      position: "relative",
+      opacity: isVisible.hero ? 1 : 0,
+      transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
+      transition: "all 1.2s ease-out",
     },
-    timelineItemHover: {
-      borderLeft: `5px solid ${colors.emeraldGreen}`,
-      paddingLeft: '35px',
-      backgroundColor: `rgba(${parseInt(colors.vibrantYellow.slice(1, 3), 16)}, ${parseInt(colors.vibrantYellow.slice(3, 5), 16)}, ${parseInt(colors.vibrantYellow.slice(5, 7), 16)}, 0.05)`,
-      borderRadius: '0 8px 8px 0',
-    },
-    hero: {
-      background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
-      padding: '80px 0',
-      color: colors.warmBeige,
-      marginBottom: '50px',
-      position: 'relative',
-      overflow: 'hidden',
-    },
-    heroPattern: {
-      position: 'absolute',
+    heroOverlay: {
+      position: "absolute",
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundImage: `radial-gradient(${colors.warmBeige} 1px, transparent 1px)`,
-      backgroundSize: '20px 20px',
-      opacity: 0.1,
+      right: 0,
+      bottom: 0,
+      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      opacity: 0.8,
+      zIndex: 1,
     },
-    title: { 
-      ...textStyles.title, 
-      color: colors.warmBeige, 
-      fontSize: '48px', 
-      marginBottom: '25px', 
-      fontWeight: 800,
-      opacity: animate ? 1 : 0,
-      transform: animate ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'opacity 0.8s ease, transform 0.8s ease',
+    section: {
+      padding: "6rem 2rem",
+      maxWidth: "1400px",
+      margin: "0 auto",
+      position: "relative",
     },
-    subtitle: { 
-      ...textStyles.subtitle, 
-      position: 'relative', 
-      paddingBottom: '15px', 
-      marginBottom: '25px',
-      transition: 'all 0.3s ease',
-      color: colors.deepRed,
+    historiaSection: {
+      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      opacity: isVisible.historia ? 1 : 0,
+      transform: isVisible.historia ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
     },
-    subtitleHover: {
-      color: colors.emeraldGreen,
+    misionSection: {
+      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      opacity: isVisible.mision ? 1 : 0,
+      transform: isVisible.mision ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
     },
-    paragraph: { 
-      ...textStyles.paragraph, 
-      fontSize: '17px', 
-      lineHeight: '1.7',
-      color: colors.darkGrey,
+    equipoSection: {
+      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      opacity: isVisible.equipo ? 1 : 0,
+      transform: isVisible.equipo ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
     },
-    featureCard: {
-      marginBottom: '20px',
-      backgroundColor: `rgba(${parseInt(colors.vibrantYellow.slice(1, 3), 16)}, ${parseInt(colors.vibrantYellow.slice(3, 5), 16)}, ${parseInt(colors.vibrantYellow.slice(5, 7), 16)}, 0.1)`,
-      padding: '15px 20px',
-      borderRadius: '8px',
-      borderLeft: `4px solid ${colors.vibrantYellow}`,
-      transition: 'all 0.3s ease',
+    valoresSection: {
+      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      opacity: isVisible.valores ? 1 : 0,
+      transform: isVisible.valores ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
     },
-    featureCardHover: {
-      backgroundColor: `rgba(${parseInt(colors.vibrantYellow.slice(1, 3), 16)}, ${parseInt(colors.vibrantYellow.slice(3, 5), 16)}, ${parseInt(colors.vibrantYellow.slice(5, 7), 16)}, 0.15)`,
-      borderLeft: `6px solid ${colors.emeraldGreen}`,
-      transform: 'translateX(5px)',
+    ctaSection: {
+      background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
+      opacity: isVisible.cta ? 1 : 0,
+      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.8s ease-out",
+      position: "relative",
     },
-    badge: {
-      backgroundColor: colors.vibrantYellow,
-      color: colors.warmBeige,
-      padding: '5px 10px',
-      borderRadius: '20px',
-      fontSize: '14px',
-      fontWeight: 'bold',
-      display: 'inline-block',
-      marginBottom: '15px',
+    titleUnderline: {
+      display: "block",
+      width: "60px",
+      height: "2px",
+      background: `linear-gradient(90deg, #ff0070, #1f8a80)`,
+      borderRadius: "1px",
+      margin: "15px auto",
     },
-    button: {
-      ...buttons.primary,
-      marginTop: '30px',
-      padding: '12px 25px',
-      fontSize: '16px',
-      transition: 'all 0.3s ease',
-      backgroundColor: colors.deepRed,
-      position: 'relative',
-      overflow: 'hidden',
+    whiteUnderline: {
+      background: `#ffffff`,
+      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     },
-    policySection: {
-      padding: '40px 0',
-      backgroundColor: `rgba(${parseInt(colors.warmBeige.slice(1, 3), 16)}, ${parseInt(colors.warmBeige.slice(3, 5), 16)}, ${parseInt(colors.warmBeige.slice(5, 7), 16)}, 0.1)`,
-      marginTop: '50px',
-      borderRadius: '10px',
+    pinkButton: {
+      backgroundColor: '#ff4060',
+      borderColor: '#ff4060',
+      color: '#ffffff',
+      borderRadius: "30px",
+      padding: "12px 30px",
+      fontWeight: "500",
+      fontSize: "1.1rem",
     },
-    policyButton: {
-      ...buttons.secondary,
-      backgroundColor: colors.deepRed,
-      padding: '12px 25px',
-      transition: 'all 0.3s ease',
-      margin: '0 auto',
-      display: 'block',
-      border: `2px solid ${colors.deepRed}`,
-      color: colors.warmBeige,
+    card: {
+      background: "#ffffff",
+      borderRadius: "12px",
+      padding: "2.5rem 2rem",
+      textAlign: "center",
+      boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
+      transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      border: "1px solid rgba(232, 180, 184, 0.15)",
+      height: "100%",
+    },
+    teamImage: {
+      width: "150px",
+      height: "150px",
+      borderRadius: "50%",
+      objectFit: "cover",
+      border: "3px solid #ff4060",
+      margin: "0 auto 1.5rem",
+    },
+    valueIcon: {
+      width: "70px",
+      height: "70px",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "1.8rem",
+      color: "#ffffff",
+      boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
+      margin: "0 auto 1.5rem",
+    },
+    timelineItem: {
+      position: "relative",
+      paddingLeft: "30px",
+      marginBottom: "30px",
+      borderLeft: "3px solid #ff4060",
     },
   };
 
-  const [hoveredTimeline, setHoveredTimeline] = useState(null);
-  const [hoveredFeature, setHoveredFeature] = useState(null);
-  const [buttonHover, setButtonHover] = useState(false);
-  const [imageHover, setImageHover] = useState(false);
-  const [policyButtonHover, setPolicyButtonHover] = useState(false);
-
-  const timelineData = [
-    { 
-      year: '2015', 
-      description: 'Fundación de la escuela de danza folclórica en Huejutla de Reyes, Hidalgo.',
-      icon: '💃',
-    },
-    { 
-      year: '2018', 
-      description: 'Primera participación en el Festival Nacional de Danza Folclórica.',
-      icon: '🎉',
-    },
-    { 
-      year: '2023', 
-      description: 'Reconocimiento como "Mejor Escuela de Danza Folclórica" en Hidalgo.',
-      icon: '🏆',
-    },
-  ];
-
-  const featuresData = [
-    { 
-      title: 'Autenticidad Cultural', 
-      desc: 'Preservamos las tradiciones huastecas en cada danza y traje.',
-      icon: '🌟',
-    },
-    { 
-      title: 'Enseñanza Experta', 
-      desc: 'Instructores con experiencia en danzas huastecas y zapateado.',
-      icon: '👩‍🏫',
-    },
-    { 
-      title: 'Comunidad Inclusiva', 
-      desc: 'Acogemos a bailarines de todas las edades y niveles.',
-      icon: '🤝',
-    },
-  ];
-
   return (
-    <div style={{ backgroundColor: colors.warmBeige, color: colors.deepRed }}>
+    <>
       {/* Hero Section */}
-      <div style={styles.hero}>
-        <div style={styles.heroPattern}></div>
-        <Container>
-          <Row className="text-center">
-            <Col>
-              <h1 style={styles.title}>Nuestra Historia Huasteca</h1>
-              <p 
-                style={{ 
-                  ...styles.paragraph, 
-                  color: colors.warmBeige, 
-                  fontSize: '20px', 
-                  maxWidth: '700px', 
-                  margin: '0 auto', 
-                  opacity: animate ? 0.9 : 0,
-                  transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                  transition: 'opacity 1s ease, transform 1s ease',
-                  transitionDelay: '0.2s',
-                }}
-              >
-                Celebramos la danza folclórica huasteca con pasión y tradición.
-              </p>
-            </Col>
-          </Row>
+      <section style={customStyles.heroSection}>
+        <div style={customStyles.heroOverlay}></div>
+        <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
+          <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
+            La Aterciopelada
+          </h1>
+          <div className="animate-in" style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #ff0070, #1f8a80, transparent)", margin: "0 auto 2rem", animationDelay: "0.9s" }}></div>
+          <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>
+            Nuestra historia, valores y pasión por la artesanía huasteca
+          </p>
         </Container>
-      </div>
+      </section>
 
-      <Container style={layout.sectionPadding}>
-        {/* Historia de la escuela con imagen */}
-        <Row className="align-items-center" style={styles.section}>
-          <Col md={6} className="mb-4 mb-md-0">
-            <div 
-              style={{ 
-                position: 'relative', 
-                overflow: 'hidden', 
-                borderRadius: '10px',
-                boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
-              }}
-              onMouseEnter={() => setImageHover(true)}
-              onMouseLeave={() => setImageHover(false)}
-            >
+      {/* Historia Section */}
+      <section style={customStyles.historiaSection}>
+        <Container style={customStyles.section}>
+          <Row className="align-items-center">
+            <Col md={6} className="mb-5 mb-md-0">
               <Image 
-                src="https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940" 
-                alt="Historia de la Escuela Huasteca" 
+                src="https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2940" 
+                alt="Historia de La Aterciopelada" 
                 fluid 
-                style={{
-                  ...styles.image,
-                  transform: imageHover ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'transform 0.5s ease',
-                }} 
+                style={{ borderRadius: "12px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
               />
-              <div 
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: `linear-gradient(to top, rgba(0,0,0,0.7), transparent)`,
-                  padding: '30px 20px 15px',
-                  transform: imageHover ? 'translateY(0)' : 'translateY(100%)',
-                  transition: 'transform 0.5s ease',
-                }}
-              >
-                <h4 style={{ color: colors.warmBeige, marginBottom: '5px' }}>Tradición desde el corazón</h4>
-                <p style={{ color: colors.warmBeige, marginBottom: 0, fontSize: '14px' }}>
-                  Nuestra escuela en Huejutla de Reyes, Hidalgo
-                </p>
-              </div>
-            </div>
-          </Col>
-          <Col md={6}>
-            <div 
-              style={{ 
-                opacity: animate ? 1 : 0, 
-                transform: animate ? 'translateX(0)' : 'translateX(20px)',
-                transition: 'opacity 0.8s ease, transform 0.8s ease',
-              }}
-            >
-              <h2 style={styles.subtitle}>
+            </Col>
+            <Col md={6}>
+              <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem" }}>
                 Nuestra Historia
-                <span style={{ position: 'absolute', bottom: 0, left: 0, width: '60px', height: '4px', backgroundColor: colors.vibrantYellow }}></span>
+                <span style={customStyles.titleUnderline}></span>
               </h2>
-              <p style={styles.paragraph}>
-                La Escuela de Danza Folclórica Huasteca fue fundada en 2015 en Huejutla de Reyes, Hidalgo, México, con la misión de preservar y difundir la rica tradición de la danza huasteca. Desde nuestros inicios, hemos formado bailarines que celebran nuestra cultura con orgullo.
-              </p>
-              <div style={{ marginTop: '30px' }}>
-                {timelineData.map((item, index) => (
-                  <div 
-                    key={index} 
-                    style={{
-                      ...styles.timelineItem,
-                      ...(hoveredTimeline === index ? styles.timelineItemHover : {}),
-                    }}
-                    onMouseEnter={() => setHoveredTimeline(index)}
-                    onMouseLeave={() => setHoveredTimeline(null)}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-                      <span style={{ marginRight: '10px', fontSize: '20px' }}>{item.icon}</span>
-                      <h5 style={{ color: colors.deepRed, fontWeight: 600, margin: 0 }}>{item.year}</h5>
-                    </div>
-                    <p style={{ ...styles.paragraph, marginBottom: '0' }}>{item.description}</p>
+              
+              <div style={{ marginTop: "2rem" }}>
+                {historia.map((item, idx) => (
+                  <div key={idx} style={customStyles.timelineItem}>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "0.5rem" }}>
+                      {item.año}
+                    </h3>
+                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                      {item.evento}
+                    </p>
                   </div>
                 ))}
               </div>
-            </div>
-          </Col>
-        </Row>
-
-        {/* Misión, Visión y Valores */}
-        <div style={styles.section}>
-          <Row className="text-center mb-5">
-            <Col>
-              <h2 style={{
-                ...textStyles.subtitle,
-                position: 'relative',
-                display: 'inline-block',
-                paddingBottom: '15px',
-                color: colors.deepRed,
-              }}>
-                Nuestra Filosofía
-                <span style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '80px',
-                  height: '4px',
-                  backgroundColor: colors.vibrantYellow,
-                }}></span>
-              </h2>
             </Col>
           </Row>
+        </Container>
+      </section>
+
+      {/* Misión Section */}
+      <section style={customStyles.misionSection}>
+        <Container style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", marginBottom: "1.5rem" }}>
+            Nuestra Misión
+            <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
+          </h2>
+          
           <Row className="g-4">
-            {[
-              { 
-                title: "Misión", 
-                color: colors.turquoise,
-                content: "Preservar y difundir la danza folclórica huasteca, fomentando el amor por nuestra cultura a través de la enseñanza y la práctica.",
-              },
-              { 
-                title: "Visión", 
-                color: colors.emeraldGreen,
-                content: "Ser un referente nacional en la enseñanza y promoción de la danza folclórica huasteca para 2030.",
-              },
-              { 
-                title: "Valores", 
-                color: colors.deepRed,
-                content: [
-                  "Autenticidad: Respetamos las tradiciones huastecas.",
-                  "Pasión: Danzamos con el corazón.",
-                  "Inclusión: Acogemos a todos los amantes de la danza.",
-                  "Calidad: Ofrecemos enseñanza y trajes de excelencia.",
-                ],
-              },
-            ].map((item, index) => (
-              <Col md={4} key={index} className="mb-4 mb-md-0">
-                <Card 
-                  style={{
-                    ...styles.card,
-                    backgroundColor: item.color,
-                    color: colors.warmBeige,
-                  }}
-                  className="hover-card"
-                >
-                  <Card.Body className="d-flex flex-column">
-                    <Card.Title style={{
-                      fontFamily: textStyles.title.fontFamily,
-                      fontSize: '24px',
-                      fontWeight: 'bold',
-                      marginBottom: '20px',
-                      borderBottom: `2px solid ${colors.warmBeige}`,
-                      paddingBottom: '10px',
-                    }}>
-                      {item.title}
-                    </Card.Title>
-                    {Array.isArray(item.content) ? (
-                      <ul style={{
-                        textAlign: 'left',
-                        paddingLeft: '20px',
-                      }}>
-                        {item.content.map((point, i) => (
-                          <li key={i} style={{ marginBottom: '10px' }}>{point}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <Card.Text style={{
-                        fontSize: '16px',
-                        lineHeight: '1.6',
-                        flex: 1,
-                      }}>
-                        {item.content}
-                      </Card.Text>
-                    )}
+            <Col md={4}>
+              <Card className="h-100" style={customStyles.card}>
+                <Card.Body>
+                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                    Misión
+                  </h3>
+                  <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                    Preservar y modernizar las técnicas artesanales huastecas, creando piezas únicas que celebren nuestra herencia cultural mientras apoyamos a las comunidades artesanas.
+                  </p>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={4}>
+              <Card className="h-100" style={customStyles.card}>
+                <Card.Body>
+                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                    Visión
+                  </h3>
+                  <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                    Ser reconocidos como el referente en moda artesanal huasteca, combinando tradición y diseño contemporáneo para llevar nuestra cultura al mundo.
+                  </p>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={4}>
+              <Card className="h-100" style={customStyles.card}>
+                <Card.Body>
+                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                    Filosofía
+                  </h3>
+                  <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                    Cada puntada cuenta una historia, cada diseño honra una tradición. Creemos en la moda con propósito y el comercio justo como pilares fundamentales.
+                  </p>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      {/* Equipo Section */}
+      <section style={customStyles.equipoSection}>
+        <Container style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem" }}>
+            Nuestro Equipo
+            <span style={customStyles.titleUnderline}></span>
+          </h2>
+          <p className="text-center" style={{ fontFamily: "'Roboto', sans-serif", fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem" }}>
+            Conoce al equipo apasionado que da vida a La Aterciopelada
+          </p>
+          
+          <Row className="g-4">
+            {equipo.map((miembro, idx) => (
+              <Col md={4} key={idx}>
+                <Card className="h-100" style={customStyles.card}>
+                  <Card.Body className="text-center">
+                    <Image 
+                      src={miembro.imagen} 
+                      alt={miembro.nombre} 
+                      style={customStyles.teamImage}
+                    />
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "0.5rem" }}>
+                      {miembro.nombre}
+                    </h3>
+                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#ff4060", fontWeight: "500", marginBottom: "1rem" }}>
+                      {miembro.rol}
+                    </p>
+                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                      {miembro.bio}
+                    </p>
                   </Card.Body>
                 </Card>
               </Col>
             ))}
           </Row>
-        </div>
-
-        {/* Diferenciadores */}
-        <div>
-          <Row className="text-center mb-5">
-            <Col>
-              <h2 style={{
-                ...styles.subtitle,
-                display: 'inline-block',
-              }}>
-                ¿Por qué elegirnos?
-                <span style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '80px', height: '4px', backgroundColor: colors.vibrantYellow }}></span>
-              </h2>
-            </Col>
-          </Row>
-          <Row className="align-items-center g-4">
-            <Col md={6} className="order-md-2 mb-4 mb-md-0">
-              <div 
-                style={{ 
-                  position: 'relative', 
-                  overflow: 'hidden', 
-                  borderRadius: '10px',
-                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
-                  opacity: animate ? 1 : 0,
-                  transform: animate ? 'translateX(0)' : 'translateX(20px)',
-                  transition: 'opacity 0.8s ease, transform 0.8s ease',
-                }}
-              >
-                <div 
-                  style={{ 
-                    position: 'absolute', 
-                    top: '20px', 
-                    right: '20px', 
-                    backgroundColor: colors.emeraldGreen,
-                    color: colors.warmBeige,
-                    padding: '10px 15px',
-                    borderRadius: '5px',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    zIndex: 2,
-                  }}
-                >
-                  Excelencia en danza
-                </div>
-                <Image 
-                  src="https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940" 
-                  alt="¿Por qué elegirnos?" 
-                  fluid 
-                  style={styles.image} 
-                />
-              </div>
-            </Col>
-            <Col md={6} className="order-md-1">
-              <div
-                style={{
-                  opacity: animate ? 1 : 0,
-                  transform: animate ? 'translateX(0)' : 'translateX(-20px)',
-                  transition: 'opacity 0.8s ease, transform 0.8s ease',
-                }}
-              >
-                <h3 style={{ ...styles.subtitle, fontSize: '22px', marginBottom: '20px', color: colors.emeraldGreen }}>
-                  <span style={{ marginRight: '10px', fontSize: '24px' }}>🌟</span>
-                  Excelencia en cada paso
-                </h3>
-                <p style={{ ...styles.paragraph, marginBottom: '25px' }}>
-                  En la Escuela de Danza Folclórica Huasteca, combinamos autenticidad cultural, enseñanza experta y un compromiso con la comunidad para ofrecerte una experiencia única.
-                </p>
-                <div>
-                  {featuresData.map((feature, index) => (
-                    <div 
-                      key={index} 
-                      style={{
-                        ...styles.featureCard,
-                        ...(hoveredFeature === index ? styles.featureCardHover : {}),
-                      }}
-                      onMouseEnter={() => setHoveredFeature(index)}
-                      onMouseLeave={() => setHoveredFeature(null)}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ fontSize: '22px', marginRight: '10px' }}>{feature.icon}</span>
-                        <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.deepRed, marginBottom: '5px' }}>
-                          {feature.title}
-                        </h4>
-                      </div>
-                      <p style={{ ...styles.paragraph, marginBottom: 0, paddingLeft: '32px' }}>{feature.desc}</p>
-                    </div>
-                  ))}
-                </div>
-                <button 
-                  style={{ 
-                    ...styles.button,
-                    backgroundColor: buttonHover ? colors.emeraldGreen : colors.deepRed,
-                  }}
-                  onMouseEnter={() => setButtonHover(true)}
-                  onMouseLeave={() => setButtonHover(false)}
-                >
-                  <span style={{ position: 'relative', zIndex: 2 }}>Solicitar información</span>
-                  <span 
-                    style={{ 
-                      position: 'absolute',
-                      top: 0,
-                      width: '100%',
-                      height: '100%',
-                      background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)`,
-                      transition: 'left 0.5s ease',
-                      left: buttonHover ? '100%' : '-100%',
-                    }}
-                  ></span>
-                </button>
-              </div>
-            </Col>
-          </Row>
-        </div>
-      </Container>
-
-      {/* Llamado a la acción final */}
-      <div style={{ 
-        background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
-        padding: '60px 0',
-        color: colors.warmBeige,
-        marginTop: '50px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 40%)`,
-        }}></div>
-        
-        <Container className="text-center">
-          <h2 style={{ 
-            color: colors.warmBeige, 
-            marginBottom: '20px',
-            fontFamily: textStyles.title.fontFamily,
-            fontSize: '32px',
-            fontWeight: 700,
-          }}>¿Listo para danzar con nosotros?</h2>
-          <p style={{ 
-            color: colors.warmBeige, 
-            maxWidth: '700px', 
-            margin: '0 auto 30px',
-            fontSize: '18px',
-            opacity: 0.9,
-          }}>
-            Únete a nuestra comunidad y celebra la tradición huasteca a través de la danza.
-          </p>
-          <button style={{
-            backgroundColor: 'transparent',
-            border: `2px solid ${colors.warmBeige}`,
-            color: colors.warmBeige,
-            padding: '12px 30px',
-            borderRadius: '5px',
-            fontSize: '16px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            fontFamily: textStyles.fontPrimary,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colors.warmBeige;
-            e.currentTarget.style.color = colors.deepRed;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = colors.warmBeige;
-          }}
-          >
-            Contáctanos hoy
-          </button>
         </Container>
-      </div>
+      </section>
 
-      {/* SECCIÓN: Políticas y Términos */}
-      <Container>
-        <div style={styles.policySection}>
-          <Row className="text-center">
-            <Col>
-              <h2 style={{
-                ...textStyles.subtitle,
-                color: colors.deepRed,
-                marginBottom: '25px',
-              }}>
-                Políticas y Términos
-              </h2>
-              <p style={{
-                ...styles.paragraph,
-                maxWidth: '700px',
-                margin: '0 auto 30px',
-              }}>
-                Conoce nuestras políticas de inscripción, alquiler de trajes y protección de datos. Nos comprometemos a ofrecer transparencia y calidad en todos nuestros servicios.
-              </p>
-              <button
-                style={{
-                  ...styles.policyButton,
-                  backgroundColor: policyButtonHover ? colors.warmBeige : colors.deepRed,
-                  color: policyButtonHover ? colors.deepRed : colors.warmBeige,
-                }}
-                onMouseEnter={() => setPolicyButtonHover(true)}
-                onMouseLeave={() => setPolicyButtonHover(false)}
-              >
-                Ver Políticas
-              </button>
-            </Col>
+      {/* Valores Section */}
+      <section style={customStyles.valoresSection}>
+        <Container style={customStyles.section}>
+          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", marginBottom: "1.5rem" }}>
+            Nuestros Valores
+            <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
+          </h2>
+          
+          <Row className="g-4">
+            {valores.map((valor, idx) => (
+              <Col md={4} key={idx}>
+                <Card className="h-100" style={customStyles.card}>
+                  <Card.Body className="text-center">
+                    <div style={{ 
+                      ...customStyles.valueIcon, 
+                      background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : 
+                                  idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : 
+                                  "linear-gradient(135deg, #8840b8, #23102d)"
+                    }}>
+                      {valor.icon}
+                    </div>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                      {valor.titulo}
+                    </h3>
+                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                      {valor.descripcion}
+                    </p>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
           </Row>
-        </div>
-      </Container>
+        </Container>
+      </section>
 
-      {/* CSS para efectos hover */}
-      <style jsx>{`
-        .hover-card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-      `}</style>
-    </div>
+      {/* CTA Section */}
+      <section style={customStyles.ctaSection}>
+        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
+          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
+            Únete a Nuestra Comunidad
+          </h2>
+          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
+            Descubre la belleza de la artesanía huasteca y forma parte de esta tradición
+          </p>
+          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/contacto")}>
+            Contáctanos
+          </Button>
+        </Container>
+      </section>
+    </>
   );
 };
 

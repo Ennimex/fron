@@ -1,15 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
-import { eyeOffOutline, eyeOutline, mailOutline, callOutline } from 'ionicons/icons';
+import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from 'ionicons/icons';
 import { Link, useSearchParams } from 'react-router-dom';
-
-const textStyles = {
-  title: { fontFamily: "'Roboto', sans-serif", fontWeight: 'bold' },
-  subtitle: { fontFamily: "'Roboto', sans-serif", fontWeight: 600 },
-  paragraph: { fontFamily: "'Roboto', sans-serif", fontWeight: 400 },
-  fontPrimary: "'Roboto', sans-serif",
-};
 
 const Login = () => {
   const [searchParams] = useSearchParams();
@@ -18,8 +11,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [animating, setAnimating] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Form states
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -27,11 +20,11 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
-
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
+  // Field errors
   const [fieldErrors, setFieldErrors] = useState({
     nombre: false,
     apellido: false,
@@ -44,10 +37,22 @@ const Login = () => {
     acceptTerms: false
   });
 
+  // Color palette for La Aterciopelada
+  const colors = {
+    deepRed: '#ff0070',
+    emeraldGreen: '#1f8a80',
+    warmBeige: '#F5E8C7',
+    darkPurple: '#23102d',
+    softPink: '#ff8090'
+  };
+
+  // Background images
   const backgroundImages = useMemo(() => [
-    'https://vidauniversitaria.uanl.mx/wp-content/uploads/2019/09/muestra-de-danza-folklorica-uanl-3.jpg',
-    'https://vidauniversitaria.uanl.mx/wp-content/uploads/2019/09/muestra-de-danza-folklorica-uanl-2.jpg'
+    'https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787',
+    'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2787'
   ], []);
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
@@ -165,10 +170,10 @@ const Login = () => {
 
   const getPasswordStrengthColor = () => {
     const strength = passwordStrength(password);
-    if (strength === 0) return '#A91B0D';
+    if (strength === 0) return colors.deepRed;
     if (strength === 1) return '#ff9800';
     if (strength === 2) return '#ffeb3b';
-    if (strength === 3) return '#2E7D32';
+    if (strength === 3) return colors.emeraldGreen;
     if (strength === 4) return '#1B5E20';
   };
 
@@ -183,11 +188,11 @@ const Login = () => {
 
   const cssStyles = `
     :root {
-      --huasteca-red: #A91B0D;
-      --huasteca-green: #2E7D32;
-      --huasteca-beige: #F5E8C7;
-      --huasteca-yellow: #FFF8E1;
-      --huasteca-dark: #4A4A4A;
+      --huasteca-red: ${colors.deepRed};
+      --huasteca-green: ${colors.emeraldGreen};
+      --huasteca-beige: ${colors.warmBeige};
+      --huasteca-dark: ${colors.darkPurple};
+      --huasteca-pink: ${colors.softPink};
     }
 
     .login-container {
@@ -196,12 +201,13 @@ const Login = () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(to right, var(--huasteca-red), var(--huasteca-green));
+      background: linear-gradient(rgba(35, 16, 45, 0.85), rgba(35, 16, 45, 0.85)), 
+                  url(${backgroundImages[currentImageIndex]});
       background-size: cover;
       background-position: center;
       background-blend-mode: overlay;
       padding: 20px;
-      font-family: ${textStyles.fontPrimary};
+      font-family: 'Roboto', sans-serif;
     }
 
     .login-inner-container {
@@ -218,7 +224,7 @@ const Login = () => {
       display: none;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 992px) {
       .login-left-panel {
         display: block;
       }
@@ -231,18 +237,19 @@ const Login = () => {
     }
 
     .login-welcome-title {
-      font-size: 2.625rem;
+      font-size: 2.5rem;
       font-weight: bold;
       margin-bottom: 1.25rem;
       line-height: 1.2;
-      font-family: ${textStyles.title.fontFamily};
+      font-family: 'Playfair Display', serif;
+      color: var(--huasteca-beige);
     }
 
     .login-welcome-text {
       font-size: 1rem;
       margin-bottom: 1.875rem;
       line-height: 1.6;
-      font-family: ${textStyles.paragraph.fontFamily};
+      color: rgba(245, 232, 199, 0.8);
     }
 
     .login-brand-feature {
@@ -260,12 +267,13 @@ const Login = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(169, 27, 13, 0.3);
+      background-color: rgba(255, 0, 112, 0.3);
+      color: var(--huasteca-beige);
     }
 
     .login-feature-text {
       font-size: 1rem;
-      font-family: ${textStyles.paragraph.fontFamily};
+      color: rgba(245, 232, 199, 0.8);
     }
 
     .login-right-panel {
@@ -280,13 +288,14 @@ const Login = () => {
       position: relative;
       width: 100%;
       max-width: 500px;
-      background: rgba(255, 248, 225, 0.9);
+      background: rgba(255, 248, 225, 0.95);
       backdrop-filter: blur(10px);
-      border-radius: 20px;
+      border-radius: 16px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
       padding: 40px;
       overflow: hidden;
       transition: all 0.3s ease;
+      border: 1px solid rgba(232, 180, 184, 0.3);
     }
 
     .login-logo {
@@ -295,18 +304,18 @@ const Login = () => {
     }
 
     .login-logo-text {
-      font-size: 1.875rem;
+      font-size: 2rem;
       font-weight: bold;
       color: var(--huasteca-red);
       margin: 0;
-      font-family: ${textStyles.title.fontFamily};
+      font-family: 'Playfair Display', serif;
     }
 
     .login-logo-subtext {
       font-size: 0.875rem;
       color: var(--huasteca-dark);
       margin-top: 5px;
-      font-family: ${textStyles.paragraph.fontFamily};
+      font-style: italic;
     }
 
     .login-title {
@@ -315,7 +324,7 @@ const Login = () => {
       text-align: center;
       color: var(--huasteca-red);
       font-weight: 600;
-      font-family: ${textStyles.title.fontFamily};
+      font-family: 'Playfair Display', serif;
     }
 
     .login-subtitle {
@@ -323,7 +332,6 @@ const Login = () => {
       text-align: center;
       color: var(--huasteca-dark);
       margin-bottom: 30px;
-      font-family: ${textStyles.subtitle.fontFamily};
     }
 
     .login-form-container {
@@ -349,47 +357,33 @@ const Login = () => {
       font-weight: 600;
       color: var(--huasteca-green);
       transition: all 0.3s ease;
-      font-family: ${textStyles.subtitle.fontFamily};
     }
 
     .login-input {
       width: 100%;
-      background: rgba(169, 27, 13, 0.1);
+      background: rgba(255, 128, 144, 0.1);
       border: 2px solid var(--huasteca-green);
       outline: none;
-      color: var(--huasteca-red);
-      padding: 15px 45px 15px 20px;  /* Aumentado el padding derecho de 40px a 45px */
+      color: var(--huasteca-dark);
+      padding: 15px 45px 15px 20px;
       border-radius: 10px;
       font-size: 1rem;
       transition: all 0.3s ease;
     }
 
     .login-input:focus {
-      background: rgba(169, 27, 13, 0.15);
+      background: rgba(255, 128, 144, 0.15);
       border-color: var(--huasteca-red);
-      box-shadow: 0 0 0 2px rgba(169, 27, 13, 0.2);
+      box-shadow: 0 0 0 2px rgba(255, 0, 112, 0.2);
     }
 
     .login-input::placeholder {
-      color: rgba(169, 27, 13, 0.6);
+      color: rgba(35, 16, 45, 0.5);
     }
 
     .login-input.input-error {
       border-color: var(--huasteca-red);
       animation: pulse 0.5s ease-in-out infinite alternate;
-    }
-
-    .login-input.input-focus {
-      animation: bounce 0.3s ease-in-out;
-    }
-
-    .login-label.label-float {
-      transform: translateY(-24px);
-      font-size: 14px;
-      color: var(--huasteca-red);
-      font-weight: 700;
-      background-color: var(--huasteca-beige);
-      padding: 0 6px;
     }
 
     .login-error-text {
@@ -403,7 +397,7 @@ const Login = () => {
       position: absolute;
       right: 15px;
       top: 50%;
-      transform: translateY(-10%);
+      transform: translateY(-50%);
       font-size: 20px;
       color: var(--huasteca-red);
       display: flex;
@@ -418,7 +412,7 @@ const Login = () => {
       position: absolute;
       right: 15px;
       top: 50%;
-      transform: translateY(-10%);
+      transform: translateY(-50%);
       font-size: 20px;
       color: var(--huasteca-red);
       display: flex;
@@ -434,7 +428,7 @@ const Login = () => {
       display: ${password ? 'block' : 'none'};
       width: 100%;
       height: 4px;
-      background-color: rgba(169, 27, 13, 0.1);
+      background-color: rgba(255, 0, 112, 0.1);
       margin-top: 8px;
       border-radius: 2px;
       overflow: hidden;
@@ -465,12 +459,12 @@ const Login = () => {
       color: var(--huasteca-dark);
       font-size: 14px;
       cursor: pointer;
-      font-family: ${textStyles.paragraph.fontFamily};
     }
 
     .login-checkbox {
       margin-right: 8px;
       cursor: pointer;
+      accent-color: var(--huasteca-red);
     }
 
     .login-forgot-password {
@@ -481,35 +475,55 @@ const Login = () => {
     }
 
     .login-forgot-password:hover {
-      color: #7B0D05;
+      color: var(--huasteca-dark);
       text-decoration: underline;
     }
 
     .login-button {
       width: 100%;
       padding: 15px;
-      background: linear-gradient(to right, var(--huasteca-red), var(--huasteca-green));
+      background: linear-gradient(135deg, var(--huasteca-red), var(--huasteca-green));
       border: none;
       outline: none;
-      border-radius: 10px;
+      border-radius: 30px;
       cursor: pointer;
       font-size: 16px;
       color: var(--huasteca-beige);
       font-weight: 600;
       transition: all 0.3s ease;
       margin-top: 10px;
-      box-shadow: 0 4px 15px rgba(169, 27, 13, 0.3);
-      font-family: ${textStyles.fontPrimary};
+      box-shadow: 0 4px 15px rgba(255, 0, 112, 0.3);
+      position: relative;
+      overflow: hidden;
     }
 
     .login-button:hover {
-      background: var(--huasteca-green);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(169, 27, 13, 0.4);
+      box-shadow: 0 6px 20px rgba(255, 0, 112, 0.4);
     }
 
     .login-button:active {
       transform: translateY(1px);
+    }
+
+    .login-button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transition: all 0.5s ease;
+    }
+
+    .login-button:hover::after {
+      left: 100%;
     }
 
     .login-switch-form {
@@ -517,7 +531,6 @@ const Login = () => {
       margin-top: 25px;
       color: var(--huasteca-dark);
       font-size: 14px;
-      font-family: ${textStyles.paragraph.fontFamily};
     }
 
     .login-link {
@@ -529,7 +542,7 @@ const Login = () => {
     }
 
     .login-link:hover {
-      color: #7B0D05;
+      color: var(--huasteca-dark);
       text-decoration: underline;
     }
 
@@ -538,17 +551,17 @@ const Login = () => {
       color: var(--huasteca-dark);
       text-align: center;
       margin-top: 25px;
-      font-family: ${textStyles.paragraph.fontFamily};
     }
 
     .login-highlight {
       color: var(--huasteca-red);
       text-decoration: underline;
       cursor: pointer;
+      font-weight: 600;
     }
 
     .login-alert-success {
-      background-color: rgba(46, 125, 50, 0.2);
+      background-color: rgba(31, 138, 128, 0.2);
       color: var(--huasteca-green);
       padding: 12px 15px;
       border-radius: 10px;
@@ -557,7 +570,7 @@ const Login = () => {
     }
 
     .login-alert-error {
-      background-color: rgba(169, 27, 13, 0.2);
+      background-color: rgba(255, 0, 112, 0.2);
       color: var(--huasteca-red);
       padding: 12px 15px;
       border-radius: 10px;
@@ -565,35 +578,54 @@ const Login = () => {
       margin-bottom: 20px;
     }
 
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+    @keyframes pulse {
+      from { box-shadow: 0 0 0 0 rgba(255, 0, 112, 0.3); }
+      to { box-shadow: 0 0 0 6px rgba(255, 0, 112, 0.1); }
     }
 
-    @keyframes pulse {
-      from { box-shadow: 0 0 0 0 rgba(169, 27, 13, 0.3); }
-      to { box-shadow: 0 0 0 6px rgba(169, 27, 13, 0.1); }
+    .floating-element {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+      50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
     }
   `;
 
   return (
     <>
       <style>{cssStyles}</style>
-      <div className="login-container" style={{ backgroundImage: `url(${backgroundImages[currentImageIndex]})` }}>
+      
+      {/* Floating decorative elements */}
+      <div className="floating-elements" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
+        <div className="floating-element" style={{ top: "20%", left: "10%", background: colors.deepRed }}></div>
+        <div className="floating-element" style={{ top: "60%", right: "15%", background: colors.emeraldGreen, animationDelay: "2s" }}></div>
+        <div className="floating-element" style={{ bottom: "30%", left: "20%", background: colors.softPink, animationDelay: "4s" }}></div>
+      </div>
+
+      <div className="login-container">
         <div className="login-inner-container">
+          {/* Left Panel - Welcome Content */}
           <div className="login-left-panel">
             <div className="login-left-content">
               <div style={{ marginBottom: '60px' }}>
-                <h1 className="login-welcome-title">Bienvenido a Danza Estelar</h1>
+                <h1 className="login-welcome-title">Bienvenido a La Aterciopelada</h1>
                 <p className="login-welcome-text">
-                  Únete a nuestra comunidad de danza huasteca. Inicia sesión o regístrate para reservar clases, alquilar trajes o personalizar coreografías.
+                  Descubre el arte textil de la Huasteca. Únete a nuestra comunidad para acceder a productos exclusivos, eventos culturales y más.
                 </p>
               </div>
+              
               {[
-                { icon: '💃', text: 'Clases de danza para todos los niveles' },
-                { icon: '👗', text: 'Alquiler de vestuario exclusivo' },
-                { icon: '🎭', text: 'Coreografías personalizadas' },
-                { icon: '🏢', text: 'Reserva de estudios de danza' }
+                { icon: '👗', text: 'Prendas artesanales únicas' },
+                { icon: '🧵', text: 'Técnicas de bordado tradicional' },
+                { icon: '🎨', text: 'Diseños exclusivos huastecos' },
+                { icon: '✨', text: 'Eventos culturales especiales' }
               ].map((feature, index) => (
                 <div key={index} className="login-brand-feature">
                   <div className="login-feature-icon">{feature.icon}</div>
@@ -603,14 +635,19 @@ const Login = () => {
             </div>
           </div>
 
+          {/* Right Panel - Form */}
           <div className="login-right-panel">
             <div
               className="login-form-wrapper"
-              style={{ transform: animating ? 'scale(0.98)' : 'scale(1)', opacity: animating ? 0.8 : 1 }}
+              style={{ 
+                transform: animating ? 'scale(0.98)' : 'scale(1)', 
+                opacity: animating ? 0.8 : 1 
+              }}
             >
+              {/* Logo */}
               <div className="login-logo">
-                <h1 className="login-logo-text">Danza Estelar</h1>
-                <p className="login-logo-subtext">Estudio de Danza Huasteca</p>
+                <h1 className="login-logo-text">La Aterciopelada</h1>
+                <p className="login-logo-subtext">Arte Textil Huasteco</p>
               </div>
 
               <div className="login-form-container" style={{ opacity: animating ? 0 : 1 }}>
@@ -618,9 +655,12 @@ const Login = () => {
                   <>
                     <h2 className="login-title">Iniciar Sesión</h2>
                     <p className="login-subtitle">Accede a tu cuenta para continuar</p>
+                    
                     {error && <div className="login-alert-error">{error}</div>}
                     {success && <div className="login-alert-success">{success}</div>}
+                    
                     <Form onSubmit={handleLoginSubmit}>
+                      {/* Email Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${loginEmail ? 'label-float' : ''}`}>
                           Correo Electrónico*
@@ -629,14 +669,21 @@ const Login = () => {
                           type="email"
                           placeholder="Correo Electrónico"
                           value={loginEmail}
-                          onChange={(e) => { setLoginEmail(e.target.value); setFieldErrors({ ...fieldErrors, loginEmail: false }); }}
-                          className={`login-input ${fieldErrors.loginEmail ? 'input-error' : ''} ${loginEmail ? 'input-focus' : ''}`}
+                          onChange={(e) => { 
+                            setLoginEmail(e.target.value); 
+                            setFieldErrors({ ...fieldErrors, loginEmail: false }); 
+                          }}
+                          className={`login-input ${fieldErrors.loginEmail ? 'input-error' : ''}`}
                         />
-                        <span className="login-icon"><IonIcon icon={mailOutline} /></span>
+                        <span className="login-icon">
+                          <IonIcon icon={mailOutline} />
+                        </span>
                         {fieldErrors.loginEmail && (
                           <p className="login-error-text">Por favor ingresa un correo válido</p>
                         )}
                       </div>
+                      
+                      {/* Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${loginPassword ? 'label-float' : ''}`}>
                           Contraseña*
@@ -645,16 +692,24 @@ const Login = () => {
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Contraseña"
                           value={loginPassword}
-                          onChange={(e) => { setLoginPassword(e.target.value); setFieldErrors({ ...fieldErrors, loginPassword: false }); }}
-                          className={`login-input ${fieldErrors.loginPassword ? 'input-error' : ''} ${loginPassword ? 'input-focus' : ''}`}
+                          onChange={(e) => { 
+                            setLoginPassword(e.target.value); 
+                            setFieldErrors({ ...fieldErrors, loginPassword: false }); 
+                          }}
+                          className={`login-input ${fieldErrors.loginPassword ? 'input-error' : ''}`}
                         />
-                        <span className="login-toggle-password" onClick={togglePasswordVisibility}>
+                        <span 
+                          className="login-toggle-password" 
+                          onClick={togglePasswordVisibility}
+                        >
                           <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
                         </span>
                         {fieldErrors.loginPassword && (
                           <p className="login-error-text">La contraseña es requerida</p>
                         )}
                       </div>
+                      
+                      {/* Remember Me & Forgot Password */}
                       <div className="login-checkbox-container">
                         <label className="login-checkbox-label">
                           <input
@@ -669,16 +724,22 @@ const Login = () => {
                           ¿Olvidaste tu contraseña?
                         </Link>
                       </div>
+                      
+                      {/* Submit Button */}
                       <Button type="submit" className="login-button">
                         Iniciar Sesión
                       </Button>
                     </Form>
+                    
+                    {/* Switch to Register */}
                     <div className="login-switch-form">
                       ¿No tienes una cuenta?{' '}
                       <span className="login-link" onClick={toggleForm}>
                         Regístrate aquí
                       </span>
                     </div>
+                    
+                    {/* Terms */}
                     <div className="login-terms-text">
                       Al iniciar sesión, aceptas nuestras{' '}
                       <Link to="/politicas#cliente" className="login-highlight">Políticas de Cliente</Link>{' '}
@@ -689,10 +750,13 @@ const Login = () => {
                 ) : (
                   <>
                     <h2 className="login-title">Crear Cuenta</h2>
-                    <p className="login-subtitle">Únete a nuestra comunidad de danza</p>
+                    <p className="login-subtitle">Únete a nuestra comunidad</p>
+                    
                     {error && <div className="login-alert-error">{error}</div>}
                     {success && <div className="login-alert-success">{success}</div>}
+                    
                     <Form onSubmit={handleRegisterSubmit}>
+                      {/* Name Inputs */}
                       <div className="login-input-row">
                         <div className="login-input-box">
                           <label className={`login-label ${nombre ? 'label-float' : ''}`}>
@@ -702,13 +766,20 @@ const Login = () => {
                             type="text"
                             placeholder="Nombre"
                             value={nombre}
-                            onChange={(e) => { setNombre(e.target.value); setFieldErrors({ ...fieldErrors, nombre: false }); }}
-                            className={`login-input ${fieldErrors.nombre ? 'input-error' : ''} ${nombre ? 'input-focus' : ''}`}
+                            onChange={(e) => { 
+                              setNombre(e.target.value); 
+                              setFieldErrors({ ...fieldErrors, nombre: false }); 
+                            }}
+                            className={`login-input ${fieldErrors.nombre ? 'input-error' : ''}`}
                           />
+                          <span className="login-icon">
+                            <IonIcon icon={personOutline} />
+                          </span>
                           {fieldErrors.nombre && (
                             <p className="login-error-text">El nombre es requerido</p>
                           )}
                         </div>
+                        
                         <div className="login-input-box">
                           <label className={`login-label ${apellido ? 'label-float' : ''}`}>
                             Apellido*
@@ -717,14 +788,19 @@ const Login = () => {
                             type="text"
                             placeholder="Apellido"
                             value={apellido}
-                            onChange={(e) => { setApellido(e.target.value); setFieldErrors({ ...fieldErrors, apellido: false }); }}
-                            className={`login-input ${fieldErrors.apellido ? 'input-error' : ''} ${apellido ? 'input-focus' : ''}`}
+                            onChange={(e) => { 
+                              setApellido(e.target.value); 
+                              setFieldErrors({ ...fieldErrors, apellido: false }); 
+                            }}
+                            className={`login-input ${fieldErrors.apellido ? 'input-error' : ''}`}
                           />
                           {fieldErrors.apellido && (
                             <p className="login-error-text">El apellido es requerido</p>
                           )}
                         </div>
                       </div>
+                      
+                      {/* Phone Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${telefono ? 'label-float' : ''}`}>
                           Teléfono*
@@ -733,14 +809,21 @@ const Login = () => {
                           type="tel"
                           placeholder="Teléfono"
                           value={telefono}
-                          onChange={(e) => { setTelefono(e.target.value); setFieldErrors({ ...fieldErrors, telefono: false }); }}
-                          className={`login-input ${fieldErrors.telefono ? 'input-error' : ''} ${telefono ? 'input-focus' : ''}`}
+                          onChange={(e) => { 
+                            setTelefono(e.target.value); 
+                            setFieldErrors({ ...fieldErrors, telefono: false }); 
+                          }}
+                          className={`login-input ${fieldErrors.telefono ? 'input-error' : ''}`}
                         />
-                        <span className="login-icon"><IonIcon icon={callOutline} /></span>
+                        <span className="login-icon">
+                          <IonIcon icon={callOutline} />
+                        </span>
                         {fieldErrors.telefono && (
                           <p className="login-error-text">El teléfono es requerido</p>
                         )}
                       </div>
+                      
+                      {/* Email Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${email ? 'label-float' : ''}`}>
                           Correo Electrónico*
@@ -749,14 +832,21 @@ const Login = () => {
                           type="email"
                           placeholder="Correo Electrónico"
                           value={email}
-                          onChange={(e) => { setEmail(e.target.value); setFieldErrors({ ...fieldErrors, email: false }); }}
-                          className={`login-input ${fieldErrors.email ? 'input-error' : ''} ${email ? 'input-focus' : ''}`}
+                          onChange={(e) => { 
+                            setEmail(e.target.value); 
+                            setFieldErrors({ ...fieldErrors, email: false }); 
+                          }}
+                          className={`login-input ${fieldErrors.email ? 'input-error' : ''}`}
                         />
-                        <span className="login-icon"><IonIcon icon={mailOutline} /></span>
+                        <span className="login-icon">
+                          <IonIcon icon={mailOutline} />
+                        </span>
                         {fieldErrors.email && (
                           <p className="login-error-text">Por favor ingresa un correo válido</p>
                         )}
                       </div>
+                      
+                      {/* Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${password ? 'label-float' : ''}`}>
                           Contraseña*
@@ -765,12 +855,20 @@ const Login = () => {
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Contraseña"
                           value={password}
-                          onChange={(e) => { setPassword(e.target.value); setFieldErrors({ ...fieldErrors, password: false }); }}
-                          className={`login-input ${fieldErrors.password ? 'input-error' : ''} ${password ? 'input-focus' : ''}`}
+                          onChange={(e) => { 
+                            setPassword(e.target.value); 
+                            setFieldErrors({ ...fieldErrors, password: false }); 
+                          }}
+                          className={`login-input ${fieldErrors.password ? 'input-error' : ''}`}
                         />
-                        <span className="login-toggle-password" onClick={togglePasswordVisibility}>
+                        <span 
+                          className="login-toggle-password" 
+                          onClick={togglePasswordVisibility}
+                        >
                           <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
                         </span>
+                        
+                        {/* Password Strength Meter */}
                         {password && (
                           <>
                             <div className="login-password-strength">
@@ -790,10 +888,13 @@ const Login = () => {
                             </div>
                           </>
                         )}
+                        
                         {fieldErrors.password && (
                           <p className="login-error-text">La contraseña es requerida</p>
                         )}
                       </div>
+                      
+                      {/* Confirm Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${confirmPassword ? 'label-float' : ''}`}>
                           Confirmar Contraseña*
@@ -802,42 +903,59 @@ const Login = () => {
                           type={showPassword ? 'text' : 'password'}
                           placeholder="Confirmar Contraseña"
                           value={confirmPassword}
-                          onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors({ ...fieldErrors, confirmPassword: false }); }}
-                          className={`login-input ${fieldErrors.confirmPassword ? 'input-error' : ''} ${confirmPassword ? 'input-focus' : ''}`}
+                          onChange={(e) => { 
+                            setConfirmPassword(e.target.value); 
+                            setFieldErrors({ ...fieldErrors, confirmPassword: false }); 
+                          }}
+                          className={`login-input ${fieldErrors.confirmPassword ? 'input-error' : ''}`}
                         />
-                        <span className="login-toggle-password" onClick={togglePasswordVisibility}>
+                        <span 
+                          className="login-toggle-password" 
+                          onClick={togglePasswordVisibility}
+                        >
                           <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
                         </span>
                         {fieldErrors.confirmPassword && (
                           <p className="login-error-text">Las contraseñas no coinciden</p>
                         )}
                       </div>
+                      
+                      {/* Terms Checkbox */}
                       <div style={{ marginBottom: '20px' }}>
                         <label className="login-checkbox-label">
                           <input
                             type="checkbox"
                             className="login-checkbox"
                             checked={acceptTerms}
-                            onChange={() => { setAcceptTerms(!acceptTerms); setFieldErrors({ ...fieldErrors, acceptTerms: false }); }}
+                            onChange={() => { 
+                              setAcceptTerms(!acceptTerms); 
+                              setFieldErrors({ ...fieldErrors, acceptTerms: false }); 
+                            }}
                           />
-                          Acepto las <Link to="/politicas#cliente" className="login-highlight">Políticas de Cliente</Link> y las <Link to="/politicas#privacidad" className="login-highlight">Políticas de Privacidad</Link>
+                          Acepto los términos y condiciones
                         </label>
                         {fieldErrors.acceptTerms && (
                           <p className="login-error-text">Debes aceptar los términos</p>
                         )}
                       </div>
+                      
+                      {/* Submit Button */}
                       <Button type="submit" className="login-button">
                         Crear Cuenta
                       </Button>
                     </Form>
+                    
+                    {/* Switch to Login */}
                     <div className="login-switch-form">
                       ¿Ya tienes una cuenta?{' '}
                       <span className="login-link" onClick={toggleForm}>
                         Inicia sesión aquí
                       </span>
                     </div>
+                    
+                    {/* Newsletter Text */}
                     <div className="login-terms-text">
-                      Al registrarte, aceptas recibir correos electrónicos de nuestro estudio de danza. Puedes darte de baja en cualquier momento.
+                      Al registrarte, aceptas recibir correos electrónicos sobre nuestros productos y eventos culturales.
                     </div>
                   </>
                 )}

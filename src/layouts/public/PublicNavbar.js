@@ -2,53 +2,17 @@ import React, { useState } from "react";
 import { Navbar, Container, Nav, Button, NavDropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { colors } from "../../styles/styles";
-import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext"; // Añadir useAuth
 
 const NavbarComponent = () => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
-  const { cart } = useCart();
   const { user, logout } = useAuth(); // Añadir useAuth
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
-
-  const styles = {
-    cartButton: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "40px",
-      height: "40px",
-      borderRadius: "20px",
-      backgroundColor: colors.pinkBerry,
-      color: colors.warmWhite,
-      cursor: "pointer",
-      position: "relative",
-      border: "none",
-      marginLeft: "10px",
-    },
-    cartBadge: {
-      position: "absolute",
-      top: "-5px",
-      right: "-5px",
-      backgroundColor: "#ffe607",
-      color: colors.pinkBerry,
-      borderRadius: "50%",
-      width: "20px",
-      height: "20px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "12px",
-      fontWeight: "bold",
-    },
-  };
-
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <Navbar
@@ -67,7 +31,7 @@ const NavbarComponent = () => {
           onClick={() => setExpanded(false)}
           style={{ color: colors.primaryDark }}
         >
-          JADA Company
+          La Aterciopelada
         </Navbar.Brand>
 
         {/* Botón de toggle para móviles */}
@@ -110,27 +74,25 @@ const NavbarComponent = () => {
               Servicios
             </Nav.Link>
             
-            <NavDropdown 
-              title="Nosotros" 
-              id="nav-dropdown"
+            <Nav.Link 
+              as={Link} 
+              to="/nosotros" 
+              onClick={() => setExpanded(false)}
               className="mx-2"
               style={{ color: colors.primaryMedium }}
             >
-              <NavDropdown.Item 
-                as={Link} 
-                to="/nosotros"
-                onClick={() => setExpanded(false)}
-              >
-                Acerca de
-              </NavDropdown.Item>
-              <NavDropdown.Item 
-                as={Link} 
-                to="/galeria"
-                onClick={() => setExpanded(false)}
-              >
-                Galería
-              </NavDropdown.Item>
-            </NavDropdown>
+              Nosotros
+            </Nav.Link>
+
+            <Nav.Link 
+              as={Link} 
+              to="/galeria" 
+              onClick={() => setExpanded(false)}
+              className="mx-2"
+              style={{ color: colors.primaryMedium }}
+            >
+              Galería
+            </Nav.Link>
             
             <Nav.Link 
               as={Link} 
@@ -141,37 +103,10 @@ const NavbarComponent = () => {
             >
               Contacto
             </Nav.Link>
-
-            <Nav.Link 
-              as={Link} 
-              to="/politicas" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Políticas
-            </Nav.Link>
           </Nav>
 
-          {/* Botón del carrito y botón de inicio de sesión - alineados a la derecha */}
+          {/* Botón de inicio de sesión o dropdown de usuario */}
           <div className="d-flex align-items-center mt-3 mt-lg-0">
-            {/* Botón del carrito */}
-            <button
-              style={styles.cartButton}
-              onClick={() => {
-                setExpanded(false);
-                navigate("/carrito");
-              }}
-            >
-              <i className="bi bi-cart"></i>
-              {cart.length > 0 && (
-                <span style={styles.cartBadge}>
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
-
-            {/* Botón de inicio de sesión o dropdown de usuario */}
             {user?.isAuthenticated ? (
               <NavDropdown 
                 title={user.name}

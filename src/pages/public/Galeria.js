@@ -1,29 +1,46 @@
 import { useState, useEffect } from 'react';
-import { Container, Table } from 'react-bootstrap';
+import { Container, Table, Card } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
-import { closeOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { closeOutline, chevronBackOutline, chevronForwardOutline, playCircleOutline } from 'ionicons/icons';
 
 const Galeria = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const [animate, setAnimate] = useState(false);
+  const [activeTab, setActiveTab] = useState('fotos');
 
+  // Colores alineados con la paleta de La Aterciopelada
   const colors = {
-    deepRed: '#A91B0D',
-    emeraldGreen: '#2E7D32',
+    deepRed: '#ff0070',
+    emeraldGreen: '#1f8a80',
     warmBeige: '#F5E8C7',
     vibrantYellow: '#FFC107',
     darkGrey: '#4A4A4A',
+    softPink: '#ff8090',
+    darkPurple: '#23102d'
   };
 
   const styles = {
     pageContainer: {
-      backgroundColor: colors.warmBeige,
+      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
       minHeight: '100vh',
       paddingTop: '30px',
       paddingBottom: '60px',
+      position: 'relative',
+    },
+    pageOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      opacity: 0.8,
+      zIndex: 1,
+      pointerEvents: 'none',
     },
     hero: {
-      backgroundImage: `linear-gradient(135deg, rgba(169, 27, 13, 0.85), rgba(44, 107, 62, 0.9)), url('https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940')`,
+      backgroundImage: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
       padding: '80px 0',
       color: colors.warmBeige,
       marginBottom: '50px',
@@ -41,21 +58,36 @@ const Galeria = () => {
       backgroundSize: '20px 20px',
       opacity: 0.1,
     },
+    sectionTitle: {
+      fontFamily: "'Playfair Display', serif",
+      fontSize: "clamp(2rem, 4vw, 2.8rem)",
+      fontWeight: 600,
+      color: colors.darkPurple,
+      marginBottom: "1.5rem",
+      position: "relative",
+      textAlign: "center"
+    },
+    titleUnderline: {
+      display: "block",
+      width: "60px",
+      height: "2px",
+      background: `linear-gradient(90deg, ${colors.deepRed}, ${colors.emeraldGreen})`,
+      borderRadius: "1px",
+      margin: "15px auto",
+    },
     contentGrid: {
       display: 'grid',
-      gridTemplateColumns: '400px 1fr',
-      gap: '30px',
+      gridTemplateColumns: '1fr',
+      gap: '50px',
       padding: '0 20px',
-      '@media (max-width: 992px)': {
-        gridTemplateColumns: '1fr',
-      }
     },
     eventsSection: {
       width: '100%',
-      backgroundColor: colors.warmBeige,
+      backgroundColor: 'white',
       borderRadius: '15px',
-      padding: '20px',
+      padding: '30px',
       boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      border: `1px solid ${colors.softPink}`,
     },
     eventsTitle: {
       fontSize: '28px',
@@ -68,7 +100,7 @@ const Galeria = () => {
       backgroundColor: '#FFFFFF',
       borderRadius: '12px',
       boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-      border: `2px solid ${colors.emeraldGreen}`,
+      border: `1px solid ${colors.emeraldGreen}`,
       overflow: 'hidden',
       fontSize: '14px',
     },
@@ -87,31 +119,66 @@ const Galeria = () => {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
       gap: '20px',
+      marginTop: '30px'
+    },
+    reelsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: '25px',
+      marginTop: '30px',
+      padding: '0 15px'
     },
     galleryItem: {
       position: 'relative',
       overflow: 'hidden',
       borderRadius: '12px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
       cursor: 'pointer',
       height: '250px',
       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    },
-    lightboxButton: {
-      backgroundColor: colors.deepRed,
-      color: colors.warmBeige,
-      border: 'none',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      cursor: 'pointer',
-      transition: 'background 0.3s ease',
       '&:hover': {
-        backgroundColor: colors.emeraldGreen,
+        transform: 'translateY(-5px)',
+        boxShadow: '0 12px 20px rgba(255, 0, 112, 0.3)'
       }
+    },
+    reelItem: {
+      position: 'relative',
+      overflow: 'hidden',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
+      cursor: 'pointer',
+      aspectRatio: '16/9',
+      height: 'auto',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: '0 12px 20px rgba(255, 0, 112, 0.3)'
+      }
+    },
+    galleryImage: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      transition: 'transform 0.5s ease'
+    },
+    playIcon: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '50px',
+      color: 'rgba(255, 255, 255, 0.9)',
+      zIndex: 2
+    },
+    captionOverlay: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+      color: 'white',
+      padding: '15px',
+      textAlign: 'center'
     },
     lightbox: {
       position: 'fixed',
@@ -128,15 +195,29 @@ const Galeria = () => {
     },
     lightboxImageWrapper: {
       position: 'relative',
-      maxWidth: '70%',
-      maxHeight: '70%',
+      maxWidth: '80%',
+      maxHeight: '80%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    lightboxContent: {
+      maxWidth: '90%',
+      maxHeight: '90%'
     },
     lightboxImage: {
       maxWidth: '100%',
-      maxHeight: '70vh',
+      maxHeight: '80vh',
       objectFit: 'contain',
       borderRadius: '8px',
       boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
+    },
+    lightboxVideo: {
+      width: '800px',
+      maxWidth: '90vw',
+      height: '450px',
+      maxHeight: '90vh',
+      borderRadius: '8px'
     },
     lightboxCaption: {
       position: 'absolute',
@@ -147,11 +228,14 @@ const Galeria = () => {
       background: 'rgba(0, 0, 0, 0.5)',
       padding: '10px 20px',
       borderRadius: '8px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '80%'
     },
     closeButton: {
       position: 'absolute',
-      top: '10px',
-      right: '10px',
+      top: '20px',
+      right: '20px',
       backgroundColor: colors.deepRed,
       color: colors.warmBeige,
       border: 'none',
@@ -163,69 +247,148 @@ const Galeria = () => {
       alignItems: 'center',
       cursor: 'pointer',
       transition: 'background 0.3s ease',
+      zIndex: 1001,
+      '&:hover': {
+        backgroundColor: colors.emeraldGreen
+      }
     },
+    navButton: {
+      position: 'fixed',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      backgroundColor: colors.deepRed,
+      color: colors.warmBeige,
+      border: 'none',
+      borderRadius: '50%',
+      width: '50px',
+      height: '50px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: 'pointer',
+      transition: 'background 0.3s ease',
+      zIndex: 1001,
+      '&:hover': {
+        backgroundColor: colors.emeraldGreen
+      }
+    },
+    tabButtons: {
+      display: 'flex',
+      justifyContent: 'center',
+      marginBottom: '30px',
+      gap: '15px'
+    },
+    tabButton: {
+      padding: '10px 25px',
+      borderRadius: '30px',
+      border: 'none',
+      background: 'transparent',
+      color: colors.darkPurple,
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      '&.active': {
+        background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
+        color: 'white'
+      }
+    }
   };
 
+  // Datos de ejemplo - imágenes de productos y eventos
   const images = [
     {
       id: 1,
-      src: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
-      alt: 'Danza Huasteca',
-      caption: 'Tradición y elegancia en la danza huasteca.'
+      src: 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787',
+      alt: 'Vestido tradicional huasteco',
+      caption: 'Vestido tradicional con bordados artesanales'
     },
     {
       id: 2,
-      src: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
-      alt: 'Danza Huasteca',
-      caption: 'Celebración cultural en la danza huasteca.'
+      src: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2787',
+      alt: 'Bordados huastecos',
+      caption: 'Detalle de bordados tradicionales'
     },
     {
       id: 3,
-      src: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
-      alt: 'Danza Huasteca',
-      caption: 'Ritmos y colores de la danza huasteca.'
+      src: 'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?q=80&w=2942',
+      alt: 'Accesorios artesanales',
+      caption: 'Collares y accesorios hechos a mano'
     },
     {
       id: 4,
-      src: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
-      alt: 'Danza Huasteca',
-      caption: 'Expresión artística en la danza huasteca.'
+      src: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2874',
+      alt: 'Tejidos tradicionales',
+      caption: 'Tejidos con técnicas ancestrales'
     },
     {
       id: 5,
-      src: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
-      alt: 'Danza Huasteca',
-      caption: 'Tradición y cultura en la danza huasteca.'
+      src: 'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?q=80&w=2942',
+      alt: 'Modelo con vestido huasteco',
+      caption: 'Nuestra colección primavera-verano'
     },
     {
       id: 6,
-      src: 'https://images.unsplash.com/photo-1519408291194-946735bcea13?q=80&w=2940',
-      alt: 'Danza Huasteca',
-      caption: 'Arte y pasión en la danza huasteca.'
+      src: 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787',
+      alt: 'Detalle de bordado',
+      caption: 'Cada puntada cuenta una historia'
+    }
+  ];
+
+  const reels = [
+    {
+      id: 1,
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Proceso de bordado tradicional',
+      description: 'Conoce cómo nuestras artesanas crean cada pieza'
+    },
+    {
+      id: 2,
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Desfile de moda huasteca',
+      description: 'Nuestra colección en la pasarela internacional'
+    },
+    {
+      id: 3,
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Entrevista con artesanas',
+      description: 'Historias detrás de cada creación'
+    },
+    {
+      id: 4,
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Tutorial: Cuidado de prendas',
+      description: 'Cómo mantener tus prendas artesanales'
     }
   ];
 
   const events = [
     {
       id: 1,
-      date: '20/06/24',
-      name: 'Festival Huasteco',
-      location: 'Plaza Huejutla',
-      description: 'Presentación de danzas tradicionales huastecas con grupos locales.'
+      date: '15/07/2024',
+      name: 'Exposición de Arte Textil',
+      location: 'Galería Municipal, Huejutla',
+      description: 'Muestra de las mejores piezas artesanales de la región'
     },
     {
       id: 2,
-      date: '15/07/24',
-      name: 'Noche Cultural',
-      location: 'Centro Cultural',
-      description: 'Exhibición de música y danza huasteca con artistas invitados.'
+      date: '22/08/2024',
+      name: 'Taller de Bordado Huasteco',
+      location: 'Casa de Cultura, San Luis Potosí',
+      description: 'Aprende las técnicas tradicionales con maestras artesanas'
     },
     {
       id: 3,
-      date: '10/08/24',
-      name: 'Tradiciones',
-      location: 'Auditorio',
-      description: 'Festival cultural con demostraciones de bailes tradicionales.'
+      date: '10/09/2024',
+      name: 'Feria Artesanal Anual',
+      location: 'Plaza Principal, Tampico',
+      description: 'Evento con más de 100 expositores de arte popular'
+    },
+    {
+      id: 4,
+      date: '05/10/2024',
+      name: 'Pasarela "Raíces Huastecas"',
+      location: 'Centro de Convenciones, CDMX',
+      description: 'Moda contemporánea inspirada en tradiciones'
     }
   ];
 
@@ -238,40 +401,61 @@ const Galeria = () => {
 
   const openLightbox = (image) => {
     setSelectedImage(image);
+    setSelectedVideo(null);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const openVideo = (video) => {
+    setSelectedVideo(video);
+    setSelectedImage(null);
     document.body.style.overflow = 'hidden';
   };
 
   const closeLightbox = () => {
     setSelectedImage(null);
+    setSelectedVideo(null);
     document.body.style.overflow = 'auto';
   };
 
-  const navigateImage = (direction) => {
-    const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
-    let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-    if (newIndex < 0) newIndex = images.length - 1;
-    if (newIndex >= images.length) newIndex = 0;
-    setSelectedImage(images[newIndex]);
+  const navigateMedia = (direction) => {
+    if (selectedImage) {
+      const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
+      let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+      if (newIndex < 0) newIndex = images.length - 1;
+      if (newIndex >= images.length) newIndex = 0;
+      setSelectedImage(images[newIndex]);
+    } else if (selectedVideo) {
+      const currentIndex = reels.findIndex((vid) => vid.id === selectedVideo.id);
+      let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+      if (newIndex < 0) newIndex = reels.length - 1;
+      if (newIndex >= reels.length) newIndex = 0;
+      setSelectedVideo(reels[newIndex]);
+    }
   };
 
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.hero}>
-        <div style={styles.heroPattern}></div>
-        <Container>
-          <h1 className="display-3 fw-bold mb-4">
-            Galería Huasteca
-          </h1>
-          <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px" }}>
-            Explora nuestra colección de momentos mágicos en la danza huasteca.
-          </p>
-        </Container>
-      </div>
-
+      <div style={styles.pageOverlay}></div>
       <Container>
-        <div style={styles.contentGrid}>
+        {/* Hero Section */}
+        <div style={styles.hero}>
+          <div style={styles.heroPattern}></div>
+          <Container>
+            <h1 className="display-3 fw-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Galería Artesanal
+            </h1>
+            <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px", fontFamily: "'Playfair Display', serif" }}>
+              Descubre la belleza y tradición de nuestras creaciones huastecas
+            </p>
+          </Container>
+        </div>
+
+        {/* Sección de Eventos */}
+        <section style={{ marginBottom: '60px' }}>
+          <h2 style={styles.sectionTitle}>Próximos Eventos</h2>
+          <div style={styles.titleUnderline}></div>
+          
           <div style={styles.eventsSection}>
-            <h2 style={styles.eventsTitle}>Próximos Eventos</h2>
             <Table responsive style={styles.eventsTable}>
               <thead style={styles.tableHeader}>
                 <tr>
@@ -289,10 +473,11 @@ const Galeria = () => {
                       opacity: animate ? 1 : 0,
                       transform: animate ? 'translateY(0)' : 'translateY(20px)',
                       transition: `opacity 0.8s ease ${0.6 + index * 0.1}s, transform 0.8s ease ${0.6 + index * 0.1}s`,
+                      backgroundColor: index % 2 === 0 ? 'white' : colors.warmBeige
                     }}
                   >
                     <td style={styles.tableCell}>{event.date}</td>
-                    <td style={styles.tableCell}>{event.name}</td>
+                    <td style={{ ...styles.tableCell, fontWeight: '600' }}>{event.name}</td>
                     <td style={styles.tableCell}>{event.location}</td>
                     <td style={styles.tableCell}>{event.description}</td>
                   </tr>
@@ -300,39 +485,133 @@ const Galeria = () => {
               </tbody>
             </Table>
           </div>
+        </section>
 
-          <div style={styles.galleryGrid}>
-            {images.map((image, index) => (
-              <div
-                key={image.id}
-                style={{
-                  ...styles.galleryItem,
-                  transition: `opacity 0.8s ease ${index * 0.1}s, transform 0.8s ease ${index * 0.1}s`
-                }}
-                onClick={() => openLightbox(image)}
-              >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  style={styles.galleryImage}
-                />
-                <div style={styles.captionOverlay}>
-                  <p>{image.caption}</p>
-                </div>
-              </div>
-            ))}
+        {/* Pestañas de Galería y Reels */}
+        <section style={{ marginBottom: '60px' }}>
+          <div style={styles.tabButtons}>
+            <button 
+              style={{ ...styles.tabButton, ...(activeTab === 'fotos' ? { background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`, color: 'white' } : {}) }}
+              onClick={() => setActiveTab('fotos')}
+            >
+              Galería
+            </button>
+            <button 
+              style={{ ...styles.tabButton, ...(activeTab === 'videos' ? { background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`, color: 'white' } : {}) }}
+              onClick={() => setActiveTab('videos')}
+            >
+              Reels
+            </button>
           </div>
-        </div>
+
+          {activeTab === 'fotos' ? (
+            <>
+              <h2 style={styles.sectionTitle}>Nuestros Productos</h2>
+              <div style={styles.titleUnderline}></div>
+              <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+                Cada pieza cuenta una historia de tradición y artesanía
+              </p>
+              
+              <div style={styles.galleryGrid}>
+                {images.map((image, index) => (
+                  <div
+                    key={image.id}
+                    style={{
+                      ...styles.galleryItem,
+                      opacity: animate ? 1 : 0,
+                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
+                      transition: `all 0.8s ease ${index * 0.1}s`
+                    }}
+                    onClick={() => openLightbox(image)}
+                  >
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      style={styles.galleryImage}
+                    />
+                    <div style={styles.captionOverlay}>
+                      <p style={{ margin: 0, fontWeight: '500' }}>{image.caption}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 style={styles.sectionTitle}>Reels Artesanales</h2>
+              <div style={styles.titleUnderline}></div>
+              <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+                Descubre el proceso detrás de cada creación
+              </p>
+              
+              <div style={styles.reelsGrid}>
+                {reels.map((reel, index) => (
+                  <Card
+                    key={reel.id}
+                    style={{
+                      ...styles.reelItem,
+                      opacity: animate ? 1 : 0,
+                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
+                      transition: `all 0.8s ease ${index * 0.1}s`,
+                      padding: 0,
+                      border: 'none'
+                    }}
+                    onClick={() => openVideo(reel)}
+                  >
+                    <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
+                      <img
+                        src={`https://img.youtube.com/vi/${reel.src.split('/').pop()}/maxresdefault.jpg`}
+                        alt={reel.title}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      <div style={styles.playIcon}>
+                        <IonIcon icon={playCircleOutline} style={{ fontSize: '60px' }} />
+                      </div>
+                      <Card.Body style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3), transparent)',
+                        padding: '20px',
+                        color: 'white'
+                      }}>
+                        <Card.Title style={{ 
+                          fontSize: '1.1rem',
+                          fontWeight: '600',
+                          marginBottom: '8px'
+                        }}>{reel.title}</Card.Title>
+                        <Card.Text style={{
+                          fontSize: '0.9rem',
+                          opacity: '0.9'
+                        }}>{reel.description}</Card.Text>
+                      </Card.Body>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
       </Container>
 
+      {/* Lightbox para imágenes */}
       {selectedImage && (
         <div style={styles.lightbox}>
           <button
-            style={{ ...styles.lightboxButton, left: '20px' }}
-            onClick={() => navigateImage('prev')}
+            style={{ ...styles.navButton, left: '20px' }}
+            onClick={() => navigateMedia('prev')}
           >
             <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
           </button>
+          
           <div style={styles.lightboxImageWrapper}>
             <button style={styles.closeButton} onClick={closeLightbox}>
               <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
@@ -342,14 +621,56 @@ const Galeria = () => {
               alt={selectedImage.alt}
               style={styles.lightboxImage}
             />
+            <div style={styles.lightboxCaption}>{selectedImage.caption}</div>
           </div>
+          
           <button
-            style={{ ...styles.lightboxButton, right: '20px' }}
-            onClick={() => navigateImage('next')}
+            style={{ ...styles.navButton, right: '20px' }}
+            onClick={() => navigateMedia('next')}
           >
             <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
           </button>
-          <div style={styles.lightboxCaption}>{selectedImage.caption}</div>
+        </div>
+      )}
+
+      {/* Lightbox para videos */}
+      {selectedVideo && (
+        <div style={styles.lightbox}>
+          <button
+            style={{ ...styles.navButton, left: '20px' }}
+            onClick={() => navigateMedia('prev')}
+          >
+            <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
+          </button>
+          
+          <div style={styles.lightboxImageWrapper}>
+            <button style={styles.closeButton} onClick={closeLightbox}>
+              <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
+            </button>
+            <div style={styles.lightboxContent}>
+              <iframe
+                width="100%"
+                height="100%"
+                src={selectedVideo.src}
+                title={selectedVideo.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={styles.lightboxVideo}
+              ></iframe>
+            </div>
+            <div style={styles.lightboxCaption}>
+              <h4>{selectedVideo.title}</h4>
+              <p>{selectedVideo.description}</p>
+            </div>
+          </div>
+          
+          <button
+            style={{ ...styles.navButton, right: '20px' }}
+            onClick={() => navigateMedia('next')}
+          >
+            <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
+          </button>
         </div>
       )}
     </div>

@@ -134,9 +134,12 @@ const Inicio = () => {
     .floating-element:nth-child(3) { bottom: 30%; left: 20%; background: #ff1030; animation-delay: 4s; }
   `;
 
-  const customStyles = {
+  const styles = {
+    pageContainer: {
+      background: `linear-gradient(135deg, #fffffc 0%, #ff4080 30%, rgba(31, 138, 128, 0.45) 60%, #fffffc 100%)`,
+    },
     heroSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      background: `linear-gradient(135deg, #fffffc 0%, #ff4080 30%, rgba(31, 138, 128, 0.45) 60%, #fffffc 100%)`,
       height: "85vh",
       display: "flex",
       alignItems: "center",
@@ -164,13 +167,13 @@ const Inicio = () => {
       position: "relative",
     },
     reasonsSection: {
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      background: `linear-gradient(to bottom, #FFE0B2, #FFD180)`,
       opacity: isVisible.reasons ? 1 : 0,
       transform: isVisible.reasons ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out",
     },
     regionsSection: {
-      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      background: `linear-gradient(135deg, #FFB74D 0%, #FF8A65 100%)`,
       opacity: isVisible.regions ? 1 : 0,
       transform: isVisible.regions ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out",
@@ -192,7 +195,7 @@ const Inicio = () => {
       background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
     },
     collectionsSection: {
-      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      background: `linear-gradient(135deg, #FF8A65 0%, #FF5252 100%)`,
       opacity: isVisible.collections ? 1 : 0,
       transform: isVisible.collections ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out",
@@ -214,7 +217,7 @@ const Inicio = () => {
       background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
     },
     ctaSection: {
-      background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
+      background: `linear-gradient(135deg, #ff4080 0%, #1f8a80 100%)`,
       opacity: isVisible.cta ? 1 : 0,
       transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out",
@@ -242,8 +245,8 @@ const Inicio = () => {
       boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
     },
     pinkButton: {
-      backgroundColor: '#ff4060',
-      borderColor: '#ff4060',
+      backgroundColor: '#ff2060',
+      borderColor: '#ff2060',
       color: '#ffffff',
       borderRadius: "30px",
       padding: "12px 30px",
@@ -261,6 +264,10 @@ const Inicio = () => {
       color: "#ffffff",
       boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
     },
+    card: {
+      boxShadow: "0 8px 16px rgba(255, 32, 96, 0.3), 0 4px 8px rgba(31, 138, 128, 0.25)",
+      borderLeft: "3px solid #ff2060"
+    }
   };
 
   return (
@@ -273,8 +280,8 @@ const Inicio = () => {
       </div>
 
       {/* Hero Section */}
-      <section style={customStyles.heroSection}>
-        <div style={customStyles.heroOverlay}></div>
+      <section style={styles.heroSection}>
+        <div style={styles.heroOverlay}></div>
         <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
           <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
             La Aterciopelada
@@ -283,18 +290,18 @@ const Inicio = () => {
           <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>
             Boutique Huasteca · Tradición Artesanal Refinada
           </p>
-          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "1.2s" }} onClick={() => navigate("/productos")}>
+          <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "1.2s" }} onClick={() => navigate("/productos")}>
             Explorar Colección
           </Button>
         </Container>
       </section>
 
       {/* Reasons Section */}
-      <section style={customStyles.reasonsSection}>
-        <Container style={customStyles.section}>
+      <section style={styles.reasonsSection}>
+        <Container style={styles.section}>
           <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
             ¿Por qué elegir La Aterciopelada?
-            <span style={customStyles.titleUnderline}></span>
+            <span style={styles.titleUnderline}></span>
           </h2>
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Sumérgete en la pasión y el arte de la artesanía huasteca
@@ -315,12 +322,12 @@ const Inicio = () => {
       </section>
 
       {/* Regions Section */}
-      <section style={customStyles.regionsSection}>
-        <div style={customStyles.regionsOverlay}></div>
-        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2 }}>
+      <section style={styles.regionsSection}>
+        <div style={styles.regionsOverlay}></div>
+        <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>
           <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
             Raíces de Tradición
-            <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
+            <span style={{ ...styles.titleUnderline, ...styles.whiteUnderline }}></span>
           </h2>
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Explora la herencia cultural que inspira nuestras creaciones
@@ -341,11 +348,11 @@ const Inicio = () => {
       </section>
 
       {/* Clothing Categories Section */}
-      <section style={customStyles.clothingSection}>
-        <Container style={customStyles.section}>
+      <section style={styles.clothingSection}>
+        <Container style={styles.section}>
           <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
             Categorías de Ropa
-            <span style={customStyles.titleUnderline}></span>
+            <span style={styles.titleUnderline}></span>
           </h2>
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Descubre piezas únicas tejidas con la esencia de la tradición huasteca
@@ -367,12 +374,12 @@ const Inicio = () => {
       </section>
 
       {/* Collections Section */}
-      <section style={customStyles.collectionsSection}>
-        <div style={customStyles.collectionsOverlay}></div>
-        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2 }}>
+      <section style={styles.collectionsSection}>
+        <div style={styles.collectionsOverlay}></div>
+        <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>
           <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
             Colecciones Selectas
-            <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
+            <span style={{ ...styles.titleUnderline, ...styles.whiteUnderline }}></span>
           </h2>
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Viste la historia, abraza la artesanía
@@ -382,7 +389,7 @@ const Inicio = () => {
               <Col md={6} lg={4} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
                 <Card className="collection-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "16px", padding: "3rem 2.5rem", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
                   <Card.Body className="text-center">
-                    <div className="collection-icon" style={{ ...customStyles.collectionIcon, background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : idx === 2 ? "linear-gradient(135deg, #ff1030, #ff0070)" : idx === 3 ? "linear-gradient(135deg, #8840b8, #23102d)" : idx === 4 ? "linear-gradient(135deg, #1f8a80, #ff1030)" : "linear-gradient(135deg, #ff0070, #1f8a80)" }}>
+                    <div className="collection-icon" style={{ ...styles.collectionIcon, background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : idx === 2 ? "linear-gradient(135deg, #ff1030, #ff0070)" : idx === 3 ? "linear-gradient(135deg, #8840b8, #23102d)" : idx === 4 ? "linear-gradient(135deg, #1f8a80, #ff1030)" : "linear-gradient(135deg, #ff0070, #1f8a80)" }}>
                       {collection.icon}
                     </div>
                     <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.01em" }}>{collection.title}</h3>
@@ -396,11 +403,11 @@ const Inicio = () => {
       </section>
 
       {/* Comments Section */}
-      <section style={customStyles.commentsSection}>
-        <Container style={customStyles.section}>
+      <section style={styles.commentsSection}>
+        <Container style={styles.section}>
           <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
             Comentarios de la Comunidad
-            <span style={customStyles.titleUnderline}></span>
+            <span style={styles.titleUnderline}></span>
           </h2>
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Comparte tu experiencia con nuestra comunidad artesanal
@@ -429,7 +436,7 @@ const Inicio = () => {
                       <i className="bi bi-info-circle me-1"></i>
                       Tu comentario será visible para toda la comunidad
                     </div>
-                    <Button type="submit" style={customStyles.pinkButton} className="rounded-pill px-4 py-2">
+                    <Button type="submit" style={styles.pinkButton} className="rounded-pill px-4 py-2">
                       <i className="bi bi-send-fill me-2"></i>
                       Publicar comentario
                     </Button>
@@ -447,7 +454,7 @@ const Inicio = () => {
                 <p style={{ fontSize: "1.1rem", color: "#403a3c", marginBottom: "1.5rem" }}>
                   Inicia sesión para compartir tu experiencia con la comunidad artesanal
                 </p>
-                <Button style={customStyles.pinkButton} className="rounded-pill px-5 py-3" onClick={() => navigate("/login")}>
+                <Button style={styles.pinkButton} className="rounded-pill px-5 py-3" onClick={() => navigate("/login")}>
                   <i className="bi bi-box-arrow-in-right me-2"></i>
                   Iniciar Sesión
                 </Button>
@@ -484,16 +491,16 @@ const Inicio = () => {
       </section>
 
       {/* CTA Section */}
-      <section style={customStyles.ctaSection}>
-        <div style={customStyles.ctaOverlay}></div>
-        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
+      <section style={styles.ctaSection}>
+        <div style={styles.ctaOverlay}></div>
+        <Container style={{ ...styles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
           <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
             Celebra la Tradición Huasteca
           </h2>
           <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
             Únete a nuestra comunidad y descubre piezas artesanales únicas
           </p>
-          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/login?register=true")}>
+          <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/login?register=true")}>
             Regístrate
           </Button>
           <p className="animate-in" style={{ fontSize: "0.9rem", color: "#ffffff", opacity: 0.75, marginTop: "1rem", animationDelay: "0.9s" }}>
