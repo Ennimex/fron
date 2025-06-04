@@ -22,17 +22,10 @@ import MisProductos from "./pages/Private/MisProductos";
 import Mensajes from "./pages/Private/Mensajes";
 import HistorialCompras from "./pages/Private/HistorialCompras";
 import MiCuenta from "./pages/Private/MiCuenta";
-import { CartProvider } from "./context/CartContext";
 */
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider} from "./context/AuthContext";
 
-// Componente para rutas privadas
-const PrivateRoute = ({ children, allowedRoles = ['user', 'admin'] }) => {
-  const { user } = useAuth();
-  return user.isAuthenticated && allowedRoles.includes(user.role) 
-    ? children 
-    : <Navigate to="/login" />;
-};
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (
@@ -55,6 +48,7 @@ function App() {
             {/* Rutas Privadas usando PrivateLayout */}
             <Route element={<PrivateLayout />}>
               <Route path="/inicio-privado" element={<PrivateRoute><InicioPrivate /></PrivateRoute>}/>
+
             </Route>
             
             {/* Redirección por defecto */}

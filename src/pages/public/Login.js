@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
 import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from 'ionicons/icons';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 const Login = () => {
   const [searchParams] = useSearchParams();
@@ -36,6 +37,10 @@ const Login = () => {
     loginPassword: false,
     acceptTerms: false
   });
+
+  // Contexto y navegación
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // Color palette for La Aterciopelada
   const colors = {
@@ -107,10 +112,25 @@ const Login = () => {
 
     if (!errors.loginEmail && !errors.loginPassword) {
       setError('');
-      setSuccess('¡Inicio de sesión exitoso!');
-      setTimeout(() => {
-        setSuccess('Redireccionando...');
-      }, 1500);
+      setSuccess('');
+      setAnimating(true);
+      try {
+        const result = await login(loginEmail, loginPassword);
+        setAnimating(false);
+        if (result.success) {
+          setSuccess('¡Inicio de sesión exitoso!');
+          setTimeout(() => {
+            navigate('/inicio-privado');
+          }, 1500);
+        } else {
+          setError(result.message || 'Error de autenticación');
+          setSuccess('');
+        }
+      } catch (err) {
+        setAnimating(false);
+        setError('Error al iniciar sesión. Por favor, intenta de nuevo.');
+        setSuccess('');
+      }
     } else {
       setError('Por favor, completa todos los campos correctamente.');
       setSuccess('');
@@ -506,6 +526,11 @@ const Login = () => {
       transform: translateY(1px);
     }
 
+    .login-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .login-button::after {
       content: '';
       position: absolute;
@@ -641,7 +666,7 @@ const Login = () => {
               className="login-form-wrapper"
               style={{ 
                 transform: animating ? 'scale(0.98)' : 'scale(1)', 
-                opacity: animating ? 0.8 : 1 
+                opacity: animating ? 0.7 : 1 
               }}
             >
               {/* Logo */}
@@ -726,7 +751,7 @@ const Login = () => {
                       </div>
                       
                       {/* Submit Button */}
-                      <Button type="submit" className="login-button">
+                      <Button type="submit" className="login-button" disabled={animating}>
                         Iniciar Sesión
                       </Button>
                     </Form>
@@ -782,7 +807,7 @@ const Login = () => {
                         
                         <div className="login-input-box">
                           <label className={`login-label ${apellido ? 'label-float' : ''}`}>
-                            Apellido*
+                           .bp                            Apellido*
                           </label>
                           <input
                             type="text"
@@ -940,7 +965,7 @@ const Login = () => {
                       </div>
                       
                       {/* Submit Button */}
-                      <Button type="submit" className="login-button">
+                      <Button type="submit" className="login-button" disabled={animating}>
                         Crear Cuenta
                       </Button>
                     </Form>
