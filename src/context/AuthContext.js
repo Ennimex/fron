@@ -1,71 +1,91 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Estado inicial del usuario (simulado, en un caso real vendría de una API)
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser
-      ? JSON.parse(savedUser)
-      : { isAuthenticated: false, name: "", email: "", address: "", phone: "" };
+  const [user, setUser] = useState({
+    isAuthenticated: false,
+    role: null,
+    token: null,
+    name: null,
+    email: null,
+    id: null
   });
 
-  // Estado para manejar errores o mensajes
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  // Efecto para guardar el estado en localStorage
   useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(user));
-  }, [user]);
+    // Verificar si hay token en localStorage al cargar la app
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser({
+          isAuthenticated: true,
+          role: decoded.role,
+          token: token,
+          name: decoded.name || 'Usuario',
+          email: decoded.email,
+          id: decoded.id
+        });
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        logout();
+      }
+    }
+  }, []);
 
-  // Función para iniciar sesión
-  const login = (email, password) => {
-    // Simulación de login (en un caso real, consulta a una API)
-    if (email === "usuario@example.com" && password === "contraseña123") {
-      const authenticatedUser = {
+  const login = async (email, password) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Credenciales inválidas');
+      }
+      
+      const data = await response.json();
+      const decoded = jwtDecode(data.token);
+      
+      localStorage.setItem('token', data.token);
+      
+      setUser({
         isAuthenticated: true,
-        name: "Ana López",
-        email: "usuario@example.com",
-        address: "Calle Principal 123, Ciudad Danza, México",
-        phone: "555-123-4567",
-      };
-      setUser(authenticatedUser);
-      setError("");
-      setSuccess("Inicio de sesión exitoso.");
-      setTimeout(() => setSuccess(""), 3000);
-    } else {
-      setError("Correo o contraseña incorrectos.");
-      setTimeout(() => setError(""), 3000);
+        role: decoded.role,
+        token: data.token,
+        name: decoded.name || 'Usuario',
+        email: decoded.email,
+        id: decoded.id
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, message: error.message };
     }
   };
 
-  // Función para cerrar sesión
   const logout = () => {
-    setUser({ isAuthenticated: false, name: "", email: "", address: "", phone: "" });
-    setError("");
-    setSuccess("Sesión cerrada exitosamente.");
-    setTimeout(() => setSuccess(""), 3000);
-  };
-
-  // Función para actualizar la información del usuario (usada en Perfil.js)
-  const updateUserInfo = (newInfo) => {
-    if (!newInfo.name || !newInfo.email || !newInfo.address || !newInfo.phone) {
-      setError("Por favor, completa todos los campos.");
-      return;
-    }
-    setUser((prev) => ({ ...prev, ...newInfo, isAuthenticated: true }));
-    setError("");
-    setSuccess("Información actualizada correctamente.");
-    setTimeout(() => setSuccess(""), 3000);
+    localStorage.removeItem('token');
+    setUser({
+      isAuthenticated: false,
+      role: null,
+      token: null,
+      name: null,
+      email: null,
+      id: null
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUserInfo, error, success }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => React.useContext(AuthContext);
