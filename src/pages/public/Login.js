@@ -39,7 +39,7 @@ const Login = () => {
   });
 
   // Contexto y navegación
-  const { login } = useContext(AuthContext);
+  const { login, register } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Color palette for La Aterciopelada
@@ -152,26 +152,30 @@ const Login = () => {
 
     if (!Object.values(errors).some(Boolean)) {
       setError('');
-      setSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
-      setTimeout(() => {
-        setIsLogin(true);
+      setSuccess('');
+      setAnimating(true);
+      try {
+        const result = await register(email, password);
+        setAnimating(false);
+        if (result.success) {
+          setSuccess('¡Registro exitoso! Redirigiendo...');
+          setTimeout(() => {
+            navigate('/inicio-privado');
+          }, 1200);
+        } else {
+          setError(result.message || 'Error en el registro');
+          setSuccess('');
+        }
+      } catch (err) {
+        setAnimating(false);
+        setError('Error al registrarse. Por favor, intenta de nuevo.');
         setSuccess('');
-        setFieldErrors({
-          nombre: false,
-          apellido: false,
-          telefono: false,
-          email: false,
-          password: false,
-          confirmPassword: false,
-          loginEmail: false,
-          loginPassword: false,
-          acceptTerms: false
-        });
-      }, 2000);
+      }
     } else {
       setError(
         errors.confirmPassword ? 'Las contraseñas no coinciden.' :
         errors.acceptTerms ? 'Debes aceptar los Términos de Servicio y la Política de Privacidad.' :
+        errors.email ? 'Por favor ingresa un correo válido.' :
         'Por favor, completa todos los campos correctamente.'
       );
       setSuccess('');
@@ -807,7 +811,7 @@ const Login = () => {
                         
                         <div className="login-input-box">
                           <label className={`login-label ${apellido ? 'label-float' : ''}`}>
-                           .bp                            Apellido*
+                            Apellido*
                           </label>
                           <input
                             type="text"
