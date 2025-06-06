@@ -104,7 +104,7 @@ const NavbarPrivate = () => {
           <div className="d-flex align-items-center mt-3 mt-lg-0">
             <Button 
               as={Link} 
-              to="/profile" 
+              to="/perfil" 
               style={{ 
                 backgroundColor: colors.primaryDark, 
                 borderColor: colors.primaryDark,

@@ -15,8 +15,9 @@ import Login from "./pages/public/Login";
 import Galeria from "./pages/public/Galeria";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
 // Importación de componentes privados
-/*
 import Perfil from "./pages/Private/Perfil";
+/*
+";
 import MisProductos from "./pages/Private/MisProductos";
 import Mensajes from "./pages/Private/Mensajes";
 import HistorialCompras from "./pages/Private/HistorialCompras";
@@ -47,7 +48,7 @@ function App() {
             {/* Rutas Privadas usando PrivateLayout */}
             <Route element={<PrivateLayout />}>
               <Route path="/Inicio" element={<PrivateRoute><Inicio/></PrivateRoute>}/>
-
+              <Route path="/perfil" element={<PrivateRoute><Perfil/></PrivateRoute>}/>
             </Route>
             
             {/* Redirección por defecto */}

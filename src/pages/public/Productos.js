@@ -1,10 +1,9 @@
-"use client"
-
 import React, { useState, useEffect, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import productos from "../../services/base"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
+import { useAuth } from '../../context/AuthContext' // Agregar este import
 
 const ProductoCard = React.memo(({ producto, vistaGrilla, handleProductClick, animationDelay }) => {
   const key = `${producto._id}-${vistaGrilla ? 'grid' : 'list'}`;
@@ -42,6 +41,7 @@ const ProductoCard = React.memo(({ producto, vistaGrilla, handleProductClick, an
 })
 
 const Productos = () => {
+  const { user } = useAuth(); // Agregar esto
   const navigate = useNavigate()
   const location = useLocation()
   const [filtros, setFiltros] = useState({
@@ -790,23 +790,25 @@ const Productos = () => {
             </p>
           </div>
 
-          <div
-            className="alert alert-warning animate-in"
-            style={{
-              animationDelay: "0.4s",
-              backgroundColor: "#FFF3CD",
-              borderColor: "#FFEEBA",
-              color: "#856404",
-              borderRadius: "8px",
-              padding: "15px",
-              marginBottom: "25px",
-              borderLeft: "5px solid #FFC107",
-            }}
-          >
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong>Importante:</strong> Para realizar un pedido se requiere un anticipo del 50%. El resto se paga al
-            recibir el producto.
-          </div>
+          {user.isAuthenticated && (
+            <div
+              className="alert alert-warning animate-in"
+              style={{
+                animationDelay: "0.4s",
+                backgroundColor: "#FFF3CD",
+                borderColor: "#FFEEBA",
+                color: "#856404",
+                borderRadius: "8px",
+                padding: "15px",
+                marginBottom: "25px",
+                borderLeft: "5px solid #FFC107",
+              }}
+            >
+              <i className="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong>Importante:</strong> Para realizar un pedido se requiere un anticipo del 50%. El resto se paga al
+              recibir el producto.
+            </div>
+          )}
 
           <div className="productos-filter-bar">
             <div className="productos-search-container">
