@@ -1,12 +1,49 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import productos from "../../services/base";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.min.css";
+"use client"
+
+import React, { useState, useEffect, useCallback } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import productos from "../../services/base"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-icons/font/bootstrap-icons.min.css"
+
+const ProductoCard = React.memo(({ producto, vistaGrilla, handleProductClick, animationDelay }) => {
+  const key = `${producto._id}-${vistaGrilla ? 'grid' : 'list'}`;
+  
+  return (
+    <div
+      key={key}
+      className={`productos-product-card ${vistaGrilla ? "grid-view" : "list-view"} animate-in`}
+      style={{ animationDelay: `${animationDelay}s` }}
+      onClick={(e) => handleProductClick(producto._id, e)}
+    >
+      <div className={`productos-product-content ${vistaGrilla ? "grid-view" : "list-view"}`}>
+        <div className={`productos-product-image-container ${vistaGrilla ? "grid-view" : "list-view"}`}>
+          <img
+            src={producto.image || "/placeholder.svg"}
+            alt={producto.title}
+            className="productos-product-image"
+            loading="lazy"
+          />
+        </div>
+        <div className={`productos-product-details ${vistaGrilla ? "grid-view" : "list-view"}`}>
+          <h3 className={`productos-product-title ${vistaGrilla ? "" : "list-view"}`}>{producto.title}</h3>
+          <p className="productos-product-description">{producto.description}</p>
+          <button className="productos-view-more-button" onClick={(e) => handleProductClick(producto._id, e)}>
+            Ver más
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}, (prevProps, nextProps) => {
+  return prevProps.producto._id === nextProps.producto._id && 
+         prevProps.vistaGrilla === nextProps.vistaGrilla &&
+         prevProps.animationDelay === nextProps.animationDelay;
+})
 
 const Productos = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
   const [filtros, setFiltros] = useState({
     ordenar: "",
     talla: "",
@@ -15,24 +52,37 @@ const Productos = () => {
     material: "",
     precio: "",
     busqueda: "",
-  });
-  const [filtrosExpandidos, setFiltrosExpandidos] = useState(false);
-  const [productosFiltrados, setProductosFiltrados] = useState([]);
-  const [filtrosActivos, setFiltrosActivos] = useState(0);
-  const [vistaGrilla, setVistaGrilla] = useState(true);
-  const [isVisible, setIsVisible] = useState(false);
+  })
+  const [filtrosExpandidos, setFiltrosExpandidos] = useState(false)
+  const [productosFiltrados, setProductosFiltrados] = useState([])
+  const [filtrosActivos, setFiltrosActivos] = useState(0)
+  const [vistaGrilla, setVistaGrilla] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   useEffect(() => {
-    setProductosFiltrados(productos);
-    setTimeout(() => setIsVisible(true), 100);
-  }, []);
+    // Precarga las imágenes
+    productos.forEach((producto) => {
+      const img = new Image()
+      img.src = producto.image
+    })
+
+    setProductosFiltrados(productos)
+    setTimeout(() => setIsVisible(true), 100)
+  }, [])
 
   const handleChange = (e) => {
-    setFiltros({ ...filtros, [e.target.name]: e.target.value });
-  };
+    const newFiltros = { ...filtros, [e.target.name]: e.target.value }
+    setFiltros(newFiltros)
+
+    // Filtra los productos inmediatamente
+    const { resultado, contadorFiltros } = filtrarProductos(productos, newFiltros)
+    setProductosFiltrados(resultado)
+    setFiltrosActivos(contadorFiltros)
+  }
 
   const limpiarFiltros = () => {
-    setFiltros({
+    const resetFiltros = {
       ordenar: "",
       talla: "",
       categoria: "",
@@ -40,108 +90,113 @@ const Productos = () => {
       material: "",
       precio: "",
       busqueda: "",
-    });
-    document.querySelectorAll(".form-select").forEach((select) => (select.value = ""));
-    document.querySelector("input[name='busqueda']").value = "";
-  };
+    }
+
+    setFiltros(resetFiltros)
+    document.querySelectorAll(".form-select").forEach((select) => (select.value = ""))
+    const searchInput = document.querySelector("input[name='busqueda']")
+    if (searchInput) searchInput.value = ""
+
+    const { resultado, contadorFiltros } = filtrarProductos(productos, resetFiltros)
+    setProductosFiltrados(resultado)
+    setFiltrosActivos(contadorFiltros)
+  }
 
   const toggleFiltros = () => {
-    setFiltrosExpandidos(!filtrosExpandidos);
-  };
+    setFiltrosExpandidos(!filtrosExpandidos)
+  }
 
   const toggleVistaGrilla = () => {
-    setVistaGrilla(!vistaGrilla);
-  };
+    if (isTransitioning) return
+    
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setVistaGrilla(!vistaGrilla)
+      setTimeout(() => setIsTransitioning(false), 300)
+    }, 50)
+  }
 
   const handleProductClick = (productoId, event) => {
     if (event) {
-      event.preventDefault();
-      event.stopPropagation();
+      event.preventDefault()
+      event.stopPropagation()
     }
-    navigate(`/producto/${productoId}`);
-  };
+    navigate(`/producto/${productoId}`)
+  }
 
-  const filtrarProductos = React.useCallback((productos, filtros) => {
-    let resultado = [...productos];
-    let contadorFiltros = 0;
+  const filtrarProductos = useCallback((productos, filtros) => {
+    let resultado = [...productos]
+    let contadorFiltros = 0
 
     if (filtros.busqueda) {
-      const searchTerm = filtros.busqueda.toLowerCase();
+      const searchTerm = filtros.busqueda.toLowerCase()
       resultado = resultado.filter(
         (producto) =>
           producto.title.toLowerCase().includes(searchTerm) ||
           producto.description.toLowerCase().includes(searchTerm) ||
-          producto.category.toLowerCase().includes(searchTerm)
-      );
-      contadorFiltros++;
+          producto.category.toLowerCase().includes(searchTerm),
+      )
+      contadorFiltros++
     }
 
     if (filtros.categoria) {
-      resultado = resultado.filter(
-        (producto) => producto.category.toLowerCase() === filtros.categoria.toLowerCase()
-      );
-      contadorFiltros++;
+      resultado = resultado.filter((producto) => producto.category.toLowerCase() === filtros.categoria.toLowerCase())
+      contadorFiltros++
     }
 
     if (filtros.color) {
-      resultado = resultado.filter(
-        (producto) => producto.color.toLowerCase() === filtros.color.toLowerCase()
-      );
-      contadorFiltros++;
+      resultado = resultado.filter((producto) => producto.color.toLowerCase() === filtros.color.toLowerCase())
+      contadorFiltros++
     }
 
     if (filtros.material) {
-      resultado = resultado.filter(
-        (producto) => producto.material.toLowerCase().includes(filtros.material.toLowerCase())
-      );
-      contadorFiltros++;
+      resultado = resultado.filter((producto) =>
+        producto.material.toLowerCase().includes(filtros.material.toLowerCase()),
+      )
+      contadorFiltros++
     }
 
     if (filtros.talla) {
-      resultado = resultado.filter((producto) =>
-        producto.talla.includes(filtros.talla)
-      );
-      contadorFiltros++;
+      resultado = resultado.filter((producto) => producto.talla.includes(filtros.talla))
+      contadorFiltros++
     }
 
     if (filtros.precio) {
       switch (filtros.precio) {
         case "low":
-          resultado = resultado.filter((producto) => producto.price < 50);
-          break;
+          resultado = resultado.filter((producto) => producto.price < 50)
+          break
         case "medium":
-          resultado = resultado.filter(
-            (producto) => producto.price >= 50 && producto.price <= 100
-          );
-          break;
+          resultado = resultado.filter((producto) => producto.price >= 50 && producto.price <= 100)
+          break
         case "high":
-          resultado = resultado.filter((producto) => producto.price > 100);
-          break;
+          resultado = resultado.filter((producto) => producto.price > 100)
+          break
         default:
-          break;
+          break
       }
-      contadorFiltros++;
+      contadorFiltros++
     }
 
     if (filtros.ordenar) {
       if (filtros.ordenar === "asc") {
-        resultado.sort((a, b) => a.price - b.price);
+        resultado.sort((a, b) => a.price - b.price)
       } else if (filtros.ordenar === "desc") {
-        resultado.sort((a, b) => b.price - a.price);
+        resultado.sort((a, b) => b.price - a.price)
       } else if (filtros.ordenar === "rating") {
-        resultado.sort((a, b) => b.rating - a.rating);
+        resultado.sort((a, b) => b.rating - a.rating)
       } else if (filtros.ordenar === "newest") {
-        resultado.sort((a, b) => b._id.localeCompare(a._id));
+        resultado.sort((a, b) => b._id.localeCompare(a._id))
       }
-      contadorFiltros++;
+      contadorFiltros++
     }
 
-    return { resultado, contadorFiltros };
-  }, []);
+    return { resultado, contadorFiltros }
+  }, [])
 
   useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const categoria = query.get('categoria');
+    const query = new URLSearchParams(location.search)
+    const categoria = query.get("categoria")
     const initialFiltros = {
       ordenar: "",
       talla: "",
@@ -150,19 +205,19 @@ const Productos = () => {
       material: "",
       precio: "",
       busqueda: "",
-    };
-    setFiltros(initialFiltros);
-    const { resultado, contadorFiltros } = filtrarProductos(productos, initialFiltros);
-    setProductosFiltrados(resultado);
-    setFiltrosActivos(contadorFiltros);
-  }, [location.search, filtrarProductos]);
+    }
+    setFiltros(initialFiltros)
+    const { resultado, contadorFiltros } = filtrarProductos(productos, initialFiltros)
+    setProductosFiltrados(resultado)
+    setFiltrosActivos(contadorFiltros)
+  }, [location.search, filtrarProductos])
 
   const customStyles = {
     section: {
       padding: "6rem 2rem",
       maxWidth: "1400px",
       margin: "0 auto",
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      background: "linear-gradient(to bottom, #F5E8C7, #FFF8E1)",
       opacity: isVisible ? 1 : 0,
       transform: isVisible ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out",
@@ -174,7 +229,8 @@ const Productos = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      background:
+        'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>\')',
       opacity: 0.8,
       zIndex: 1,
     },
@@ -182,21 +238,21 @@ const Productos = () => {
       display: "block",
       width: "60px",
       height: "2px",
-      background: `linear-gradient(90deg, #ff0070, #1f8a80)`,
+      background: "linear-gradient(90deg, #ff0070, #1f8a80)",
       borderRadius: "1px",
       margin: "15px auto",
     },
     pinkButton: {
-      backgroundColor: '#ff4060',
-      borderColor: '#ff4060',
-      color: '#ffffff',
+      backgroundColor: "#ff4060",
+      borderColor: "#ff4060",
+      color: "#ffffff",
       borderRadius: "30px",
       padding: "8px 20px",
       fontWeight: "500",
       fontSize: "0.9rem",
       fontFamily: "'Playfair Display', serif",
     },
-  };
+  }
 
   const cssStyles = `
     :root {
@@ -347,6 +403,11 @@ const Productos = () => {
       color: var(--huasteca-beige);
     }
 
+    .productos-view-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .productos-filter-panel {
       background: rgba(255,255,255,0.9);
       padding: 20px;
@@ -430,6 +491,7 @@ const Productos = () => {
     .productos-product-grid {
       display: grid;
       gap: 20px;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
     .productos-product-grid.grid-view {
@@ -467,6 +529,7 @@ const Productos = () => {
     .productos-product-content {
       display: flex;
       height: 100%;
+      transition: all 0.4s ease;
     }
 
     .productos-product-content.grid-view {
@@ -481,6 +544,9 @@ const Productos = () => {
 
     .productos-product-image-container {
       overflow: hidden;
+      background: #f5f5f5;
+      position: relative;
+      transition: all 0.4s ease;
     }
 
     .productos-product-image-container.grid-view {
@@ -499,7 +565,11 @@ const Productos = () => {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      will-change: transform, opacity;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     .productos-product-card:hover .productos-product-image {
@@ -510,7 +580,8 @@ const Productos = () => {
       flex: 1;
       text-align: center;
       position: relative;
-      padding-bottom: 45px;  /* Espacio para el botón */
+      padding-bottom: 45px;
+      transition: all 0.4s ease;
     }
 
     .productos-product-details.grid-view {
@@ -527,6 +598,7 @@ const Productos = () => {
       font-weight: 600;
       margin-bottom: 8px;
       color: var(--huasteca-dark);
+      transition: font-size 0.4s ease;
     }
 
     .productos-product-title.list-view {
@@ -548,6 +620,7 @@ const Productos = () => {
       justify-content: center;
       align-items: center;
       margin-top: 8px;
+      transition: justify-content 0.4s ease;
     }
 
     .productos-product-price-container.list-view {
@@ -558,6 +631,7 @@ const Productos = () => {
       font-size: 1.125rem;
       font-weight: 700;
       color: var(--huasteca-red);
+      transition: font-size 0.4s ease;
     }
 
     .productos-product-price.list-view {
@@ -618,6 +692,19 @@ const Productos = () => {
       color: #403a3c;
     }
 
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .alert-warning {
+      background-color: #FFF3CD;
+      border-color: #FFEEBA;
+      color: #856404;
+    }
+
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -625,6 +712,20 @@ const Productos = () => {
 
     .animate-in {
       animation: fadeInUp 0.8s forwards;
+    }
+
+    .productResults {
+      transition: opacity 0.3s ease;
+    }
+
+    .productos-product-grid.transitioning .productos-product-card {
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+    }
+
+    .productos-product-grid:not(.transitioning) .productos-product-card {
+      opacity: 1;
+      transition: opacity 0.3s ease 0.1s;
     }
 
     @media (max-width: 768px) {
@@ -640,6 +741,28 @@ const Productos = () => {
       .productos-filter-grid {
         grid-template-columns: 1fr;
       }
+
+      .productos-product-card.list-view {
+        height: auto;
+      }
+
+      .productos-product-content.list-view {
+        flex-direction: column;
+      }
+
+      .productos-product-image-container.list-view {
+        width: 100%;
+        height: 200px;
+      }
+
+      .productos-product-details.list-view {
+        padding: 15px;
+        text-align: center;
+      }
+
+      .productos-product-price-container.list-view {
+        justify-content: center;
+      }
     }
 
     @media (max-width: 576px) {
@@ -651,7 +774,7 @@ const Productos = () => {
         height: auto;
       }
     }
-  `;
+  `
 
   return (
     <>
@@ -665,6 +788,24 @@ const Productos = () => {
             <p className="productos-subtitle animate-in" style={{ animationDelay: "0.3s" }}>
               Explora nuestra selección de ropa, calzado y accesorios para danza huasteca.
             </p>
+          </div>
+
+          <div
+            className="alert alert-warning animate-in"
+            style={{
+              animationDelay: "0.4s",
+              backgroundColor: "#FFF3CD",
+              borderColor: "#FFEEBA",
+              color: "#856404",
+              borderRadius: "8px",
+              padding: "15px",
+              marginBottom: "25px",
+              borderLeft: "5px solid #FFC107",
+            }}
+          >
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Importante:</strong> Para realizar un pedido se requiere un anticipo del 50%. El resto se paga al
+            recibir el producto.
           </div>
 
           <div className="productos-filter-bar">
@@ -682,13 +823,13 @@ const Productos = () => {
 
             <div className="productos-filter-actions">
               <button
-                className={`productos-filter-button ${filtrosExpandidos ? 'expanded' : ''}`}
+                className={`productos-filter-button ${filtrosExpandidos ? "expanded" : ""}`}
                 onClick={toggleFiltros}
               >
                 <i className="bi bi-funnel"></i>
                 Filtros
                 {filtrosActivos > 0 && (
-                  <span className={`productos-filter-count ${filtrosActivos > 0 ? 'active' : ''}`}>
+                  <span className={`productos-filter-count ${filtrosActivos > 0 ? "active" : ""}`}>
                     {filtrosActivos}
                   </span>
                 )}
@@ -696,14 +837,16 @@ const Productos = () => {
 
               <div className="productos-view-toggle">
                 <div
-                  className={`productos-view-button ${vistaGrilla ? 'active' : ''}`}
+                  className={`productos-view-button ${vistaGrilla ? "active" : ""}`}
                   onClick={() => vistaGrilla || toggleVistaGrilla()}
+                  style={{ opacity: isTransitioning ? 0.6 : 1 }}
                 >
                   <i className="bi bi-grid-3x3-gap-fill"></i>
                 </div>
                 <div
-                  className={`productos-view-button ${!vistaGrilla ? 'active' : ''}`}
+                  className={`productos-view-button ${!vistaGrilla ? "active" : ""}`}
                   onClick={() => !vistaGrilla || toggleVistaGrilla()}
+                  style={{ opacity: isTransitioning ? 0.6 : 1 }}
                 >
                   <i className="bi bi-list-ul"></i>
                 </div>
@@ -711,7 +854,7 @@ const Productos = () => {
             </div>
           </div>
 
-          <div className={`productos-filter-panel ${filtrosExpandidos ? 'expanded' : ''}`}>
+          <div className={`productos-filter-panel ${filtrosExpandidos ? "expanded" : ""}`}>
             <div className="productos-filter-grid">
               <div className="productos-filter-group">
                 <label className="productos-filter-label">Ordenar por</label>
@@ -825,46 +968,18 @@ const Productos = () => {
 
           {productosFiltrados.length > 0 ? (
             <div className="productResults">
-              <div className={`productos-product-grid ${vistaGrilla ? 'grid-view' : 'list-view'}`}>
+              <div
+                className={`productos-product-grid ${vistaGrilla ? "grid-view" : "list-view"} ${isTransitioning ? "transitioning" : ""}`}
+                key={`product-grid-${vistaGrilla ? 'grid' : 'list'}`}
+              >
                 {productosFiltrados.map((producto, idx) => (
-                  <div
-                    key={producto._id}
-                    className={`productos-product-card ${vistaGrilla ? 'grid-view' : 'list-view'} animate-in`}
-                    style={{ animationDelay: `${0.2 * idx}s` }}
-                    onClick={(e) => handleProductClick(producto._id, e)}
-                  >
-                    <div className={`productos-product-content ${vistaGrilla ? 'grid-view' : 'list-view'}`}>
-                      <div className={`productos-product-image-container ${vistaGrilla ? 'grid-view' : 'list-view'}`}>
-                        <img
-                          src={producto.image}
-                          alt={producto.title}
-                          className="productos-product-image"
-                        />
-                      </div>
-                      <div className={`productos-product-details ${vistaGrilla ? 'grid-view' : 'list-view'}`}>
-                        <h3 className={`productos-product-title ${vistaGrilla ? '' : 'list-view'}`}>
-                          {producto.title}
-                        </h3>
-                        <p className="productos-product-description">{producto.description}</p>
-                        <div className={`productos-product-price-container ${vistaGrilla ? '' : 'list-view'}`}>
-                          <span className={`productos-product-price ${vistaGrilla ? '' : 'list-view'}`}>
-                            ${(producto.price * (1 - producto.discount / 100)).toFixed(2)}
-                          </span>
-                          {producto.discount > 0 && (
-                            <span className="productos-product-original-price">
-                              ${producto.price.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-                        <button
-                          className="productos-view-more-button"
-                          onClick={(e) => handleProductClick(producto._id, e)}
-                        >
-                          Ver más
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <ProductoCard
+                    key={`${producto._id}-${vistaGrilla ? 'grid' : 'list'}-${idx}`}
+                    producto={producto}
+                    vistaGrilla={vistaGrilla}
+                    handleProductClick={handleProductClick}
+                    animationDelay={0.1 * (idx % 10)}
+                  />
                 ))}
               </div>
             </div>
@@ -877,10 +992,7 @@ const Productos = () => {
               <p className="productos-no-results-subtext">
                 Prueba con diferentes criterios de búsqueda o elimina algunos filtros.
               </p>
-              <button
-                className="productos-clear-button productos-no-results-button"
-                onClick={limpiarFiltros}
-              >
+              <button className="productos-clear-button productos-no-results-button" onClick={limpiarFiltros}>
                 <i className="bi bi-arrow-repeat"></i>
                 Restablecer filtros
               </button>
@@ -889,7 +1001,7 @@ const Productos = () => {
         </div>
       </section>
     </>
-  );
-};
+  )
+}
 
-export default Productos;
+export default Productos

@@ -41,8 +41,6 @@ const ProductoDetalle = () => {
     </div>;
   }
 
-  const precioFinal = producto.price * (1 - producto.discount / 100);
-
   const customStyles = {
     heroSection: {
       background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
@@ -100,32 +98,6 @@ const ProductoDetalle = () => {
       lineHeight: "1.7",
       marginBottom: "2rem",
     },
-    priceContainer: {
-      display: "flex",
-      alignItems: "center",
-      gap: "15px",
-      marginBottom: "2rem",
-    },
-    price: {
-      fontFamily: "'Roboto', sans-serif",
-      fontSize: "2rem",
-      fontWeight: "bold",
-      color: "#1f8a80",
-    },
-    oldPrice: {
-      fontFamily: "'Roboto', sans-serif",
-      fontSize: "1.5rem",
-      color: "#403a3c",
-      textDecoration: "line-through",
-    },
-    discount: {
-      backgroundColor: "#ff4060",
-      color: "#ffffff",
-      padding: "5px 15px",
-      borderRadius: "20px",
-      fontSize: "1rem",
-      fontWeight: "bold",
-    },
     infoGrid: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
@@ -155,13 +127,6 @@ const ProductoDetalle = () => {
       fontFamily: "'Roboto', sans-serif",
       fontSize: "1rem",
       color: "#403a3c",
-    },
-    rating: {
-      display: "flex",
-      alignItems: "center",
-      gap: "5px",
-      color: "#FFC107",
-      fontSize: "1.2rem",
     },
     ctaSection: {
       background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
@@ -217,16 +182,6 @@ const ProductoDetalle = () => {
               <h1 style={customStyles.title}>{producto.title}</h1>
               <p style={customStyles.description}>{producto.description}</p>
 
-              <div style={customStyles.priceContainer}>
-                {producto.discount > 0 && (
-                  <span style={customStyles.oldPrice}>${producto.price.toFixed(2)}</span>
-                )}
-                <span style={customStyles.price}>${precioFinal.toFixed(2)}</span>
-                {producto.discount > 0 && (
-                  <span style={customStyles.discount}>-{producto.discount}%</span>
-                )}
-              </div>
-
               <div style={customStyles.infoGrid}>
                 <div style={customStyles.infoItem}>
                   <div style={customStyles.infoLabel}>Categoría</div>
@@ -243,20 +198,6 @@ const ProductoDetalle = () => {
                 <div style={customStyles.infoItem}>
                   <div style={customStyles.infoLabel}>Tallas</div>
                   <div style={customStyles.infoValue}>{producto.talla.join(", ")}</div>
-                </div>
-                <div style={customStyles.infoItem}>
-                  <div style={customStyles.infoLabel}>Stock</div>
-                  <div style={customStyles.infoValue}>{producto.stock} unidades</div>
-                </div>
-                <div style={customStyles.infoItem}>
-                  <div style={customStyles.infoLabel}>Valoración</div>
-                  <div style={customStyles.rating}>
-                    {'★'.repeat(Math.floor(producto.rating))}
-                    {'☆'.repeat(5 - Math.floor(producto.rating))}
-                    <span style={{ color: '#403a3c', fontSize: '0.9rem', marginLeft: '5px' }}>
-                      ({producto.reviews} reseñas)
-                    </span>
-                  </div>
                 </div>
               </div>
 

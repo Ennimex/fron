@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { Navbar, Container, Nav, Button } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { colors } from "../../styles/styles";
+import { useAuth } from '../../context/AuthContext';
 
 const NavbarPrivate = () => {
-  const navigate = useNavigate();
+  const { logout } = useAuth(); // <--- Usa el logout del contexto
   const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
-    // Add logout logic here (e.g., clear session, redirect to login)
-    navigate("/login");
+    logout();
+    window.location.href = "/login"; // Recarga total de la app
     setExpanded(false);
   };
 

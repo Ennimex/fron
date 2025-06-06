@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Container, Button, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import productos from '../../services/base';
+import { useAuth } from '../../context/AuthContext';
 
 const Inicio = () => {
   const navigate = useNavigate();
@@ -17,14 +18,9 @@ const Inicio = () => {
   });
   const [comentarios, setComentarios] = useState([]);
   const [comentarioTexto, setComentarioTexto] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
-    };
-    checkAuth();
 
     // Obtener categorías únicas y su información
     const categoriasUnicas = [...new Set(productos.map(p => p.category))];
@@ -412,7 +408,7 @@ const Inicio = () => {
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Comparte tu experiencia con nuestra comunidad artesanal
           </p>
-          {isLoggedIn ? (
+          {user.isAuthenticated ?  (
             <Card className="mb-5 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
               <Card.Body className="p-4">
                 <form onSubmit={handleSubmitComentario}>

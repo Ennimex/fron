@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { jwtDecode } from 'jwt-decode'; // Asegúrate de instalarlo: npm install jwt-decode
+import { jwtDecode } from 'jwt-decode'; // npm install jwt-decode
 
 export const AuthContext = createContext();
 
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   // Login: consulta a tu API y guarda el token
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', { // Cambia la URL si usas proxy o dominio diferente
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         token: data.token,
         name: decoded.name || '',
         email: decoded.email || '',
-        id: decoded.id || decoded._id // usa el campo que tengas
+        id: decoded.id || decoded._id
       });
 
       return { success: true };
@@ -74,36 +74,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password) => {
-  try {
-    const response = await fetch('http://localhost:5000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || 'No se pudo registrar');
+  const register = async (userData) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'No se pudo registrar');
+      }
+
+      return { 
+        success: true,
+        message: data.message || 'Registro exitoso. Por favor inicia sesión.'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.message 
+      };
     }
-    if (!data.token) throw new Error('No se recibió token');
-
-    const decoded = jwtDecode(data.token);
-    localStorage.setItem('token', data.token);
-
-    setUser({
-      isAuthenticated: true,
-      role: decoded.role,
-      token: data.token,
-      name: decoded.name || '',
-      email: decoded.email || '',
-      id: decoded.id || decoded._id
-    });
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, message: error.message };
-  }
-};
+  };
 
   // Logout: limpia todo
   const logout = () => {
@@ -118,8 +112,11 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // Puedes exportar también isAuthenticated directamente para mayor comodidad
+  const isAuthenticated = user.isAuthenticated;
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, login, logout, register, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

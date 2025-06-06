@@ -183,7 +183,7 @@ const Nosotros = () => {
         <div style={customStyles.heroOverlay}></div>
         <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
           <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
-            La Aterciopelada
+            Nosotros
           </h1>
           <div className="animate-in" style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #ff0070, #1f8a80, transparent)", margin: "0 auto 2rem", animationDelay: "0.9s" }}></div>
           <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>

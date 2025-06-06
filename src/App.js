@@ -15,7 +15,6 @@ import Login from "./pages/public/Login";
 import Galeria from "./pages/public/Galeria";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
 // Importación de componentes privados
-import InicioPrivate from "./pages/Private/InicioPrivate";
 /*
 import Perfil from "./pages/Private/Perfil";
 import MisProductos from "./pages/Private/MisProductos";
@@ -47,7 +46,7 @@ function App() {
 
             {/* Rutas Privadas usando PrivateLayout */}
             <Route element={<PrivateLayout />}>
-              <Route path="/inicio-privado" element={<PrivateRoute><InicioPrivate /></PrivateRoute>}/>
+              <Route path="/Inicio" element={<PrivateRoute><Inicio/></PrivateRoute>}/>
 
             </Route>
             
