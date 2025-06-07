@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import Sidebar from './admin/SidebarAdmin'; // Asegúrate de que la ruta sea correcta
+import { Outlet, Navigate } from 'react-router-dom';
+import Sidebar from './admin/SidebarAdmin';
 import { Navbar, Container, Dropdown, Button } from 'react-bootstrap';
 import { FaBell, FaUser } from 'react-icons/fa';
 import { colors, typography } from '../styles/styles';
-
+import { useAuth } from '../context/AuthContext'; // Corregimos la ruta del AuthContext
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { user } = useAuth();
   
   // Esta función se pasará al sidebar para mantener sincronizado el estado
   const handleSidebarToggle = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
+  
+  // Movemos la verificación después de los hooks
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/login" replace />;
+  }
   
   const styles = {
     mainContainer: {

@@ -120,12 +120,23 @@ const Login = () => {
       setSuccess("")
       setAnimating(true)
       try {
-        const result = await login(loginEmail, loginPassword)
+        const credentials = {
+          email: loginEmail,
+          password: loginPassword,
+        }
+        
+        const result = await login(credentials)
         setAnimating(false)
+        
         if (result.success) {
           setSuccess("¡Inicio de sesión exitoso!")
+          // Redirigir según el rol del usuario
           setTimeout(() => {
-            navigate("/Inicio")
+            if (result.role === 'admin') {
+              navigate("/admin")
+            } else {
+              navigate("/Inicio")
+            }
           }, 1500)
         } else {
           setError(result.message || "Error de autenticación")
@@ -160,13 +171,14 @@ const Login = () => {
       setSuccess("")
       setAnimating(true)
       try {
-        const result = await register({
-          nombre,
-          apellido,
-          telefono,
+        const registerData = {
+          name: `${nombre} ${apellido}`, // Combinamos nombre y apellido
           email,
           password,
-        })
+          phone: telefono, // Añadimos el teléfono
+        }
+
+        const result = await register(registerData)
         setAnimating(false)
         if (result.success) {
           setSuccess(result.message)

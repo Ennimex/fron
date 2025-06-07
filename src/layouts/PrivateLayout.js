@@ -1,9 +1,27 @@
 import React from "react";
 import { Container } from "react-bootstrap";
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import NavbarPrivada from "../layouts/private/NabvarPrivate";
+import { useAuth } from "../context/AuthContext";
 
 const PrivateLayout = () => {
+  const { user, isAuthenticated } = useAuth();
+
+  // Verificar autenticación y rol
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Si es admin, redirigir al panel de admin
+  if (user?.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+
+  // Si no es un usuario normal, redirigir al login
+  if (user?.role !== 'user') {
+    return <Navigate to="/login" replace />;
+  }
+
   const styles = {
     mainContainer: {
       display: 'flex',
