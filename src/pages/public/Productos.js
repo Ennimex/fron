@@ -41,7 +41,7 @@ const ProductoCard = React.memo(({ producto, vistaGrilla, handleProductClick, an
 })
 
 const Productos = () => {
-  const { user } = useAuth(); // Agregar esto
+  const { isAuthenticated } = useAuth(); // Solo desestructuramos lo que necesitamos
   const navigate = useNavigate()
   const location = useLocation()
   const [filtros, setFiltros] = useState({
@@ -790,7 +790,8 @@ const Productos = () => {
             </p>
           </div>
 
-          {user.isAuthenticated && (
+          {/* Modificamos la condición del alert para usar isAuthenticated */}
+          {isAuthenticated && (
             <div
               className="alert alert-warning animate-in"
               style={{
