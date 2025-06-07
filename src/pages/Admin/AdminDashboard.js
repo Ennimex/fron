@@ -1,13 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    users: 0,
+    sales: 0,
+    orders: 0
+  });
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al cargar los datos del dashboard');
+        }
+
+        const data = await response.json();
+        setStats({
+          users: data.stats.totalUsers || 0,
+          sales: data.stats.totalSales || 0,
+          orders: data.stats.totalOrders || 0
+        });
+        setRecentActivity(data.recentActivity || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user.token]);
+
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <div style={styles.dashboardContainer}>
       <header style={styles.header}>
         <h1 style={styles.title}>Panel de Administración</h1>
         <div style={styles.userInfo}>
-          <span style={styles.userName}>Admin</span>
-          <div style={styles.userAvatar}>A</div>
+          <span style={styles.userName}>{user.name || 'Admin'}</span>
+          <div style={styles.userAvatar}>
+            {user.name ? user.name[0].toUpperCase() : 'A'}
+          </div>
         </div>
       </header>
       
@@ -15,11 +67,11 @@ const AdminDashboard = () => {
         <aside style={styles.sidebar}>
           <nav style={styles.nav}>
             <ul style={styles.navList}>
-              <li style={styles.navItem}><a href="#" style={styles.navLink}>Inicio</a></li>
-              <li style={styles.navItem}><a href="#" style={styles.navLink}>Usuarios</a></li>
-              <li style={styles.navItem}><a href="#" style={styles.navLink}>Productos</a></li>
-              <li style={styles.navItem}><a href="#" style={styles.navLink}>Pedidos</a></li>
-              <li style={styles.navItem}><a href="#" style={styles.navLink}>Configuración</a></li>
+              <li style={styles.navItem}><Link to="/admin" style={styles.navLink}>Inicio</Link></li>
+              <li style={styles.navItem}><Link to="/admin/usuarios" style={styles.navLink}>Usuarios</Link></li>
+              <li style={styles.navItem}><Link to="/admin/productos" style={styles.navLink}>Productos</Link></li>
+              <li style={styles.navItem}><Link to="/admin/pedidos" style={styles.navLink}>Pedidos</Link></li>
+              <li style={styles.navItem}><Link to="/admin/configuracion" style={styles.navLink}>Configuración</Link></li>
             </ul>
           </nav>
         </aside>
@@ -28,25 +80,29 @@ const AdminDashboard = () => {
           <div style={styles.statsContainer}>
             <div style={styles.statCard}>
               <h3 style={styles.statTitle}>Usuarios</h3>
-              <p style={styles.statValue}>1,024</p>
+              <p style={styles.statValue}>{stats.users.toLocaleString()}</p>
             </div>
             <div style={styles.statCard}>
               <h3 style={styles.statTitle}>Ventas</h3>
-              <p style={styles.statValue}>$24,560</p>
+              <p style={styles.statValue}>${stats.sales.toLocaleString()}</p>
             </div>
             <div style={styles.statCard}>
               <h3 style={styles.statTitle}>Pedidos</h3>
-              <p style={styles.statValue}>342</p>
+              <p style={styles.statValue}>{stats.orders.toLocaleString()}</p>
             </div>
           </div>
           
           <div style={styles.recentActivity}>
             <h2 style={styles.sectionTitle}>Actividad Reciente</h2>
             <ul style={styles.activityList}>
-              <li style={styles.activityItem}>Usuario "Juan" realizó un pedido</li>
-              <li style={styles.activityItem}>Producto "Laptop" actualizado</li>
-              <li style={styles.activityItem}>Nuevo usuario registrado</li>
-              <li style={styles.activityItem}>Pedido #1234 completado</li>
+              {recentActivity.map((activity, index) => (
+                <li key={index} style={styles.activityItem}>
+                  {activity.description}
+                </li>
+              ))}
+              {recentActivity.length === 0 && (
+                <li style={styles.activityItem}>No hay actividad reciente</li>
+              )}
             </ul>
           </div>
         </main>

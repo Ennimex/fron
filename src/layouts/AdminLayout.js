@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import Sidebar from './admin/SidebarAdmin'; // Asegúrate de que la ruta sea correcta
 import { Navbar, Container, Dropdown, Button } from 'react-bootstrap';
 import { FaBell, FaUser } from 'react-icons/fa';
 import { colors, typography } from '../styles/styles';
+
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

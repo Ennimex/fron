@@ -5,6 +5,7 @@ import "./App.css";
 // Importación de layouts
 import PublicLayout from "./layouts/PublicLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
+import AdminLayout from "./layouts/AdminLayout";
 // Importación de páginas públicas
 import Inicio from "./pages/public/Inicio";
 import Productos from "./pages/public/Productos";
@@ -23,6 +24,9 @@ import Mensajes from "./pages/Private/Mensajes";
 import HistorialCompras from "./pages/Private/HistorialCompras";
 import MiCuenta from "./pages/Private/MiCuenta";
 */
+// Importación de componentes de administración
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+
 import { AuthProvider} from "./context/AuthContext";
 
 import PrivateRoute from "./routes/PrivateRoute";
@@ -50,8 +54,18 @@ function App() {
               <Route path="/Inicio" element={<PrivateRoute><Inicio/></PrivateRoute>}/>
               <Route path="/perfil" element={<PrivateRoute><Perfil/></PrivateRoute>}/>
             </Route>
-            
-            {/* Redirección por defecto */}
+            {/* Rutas de administración usando AdminLayout */}
+            <Route element={<AdminLayout />}>
+              <Route 
+                path="/admin" 
+                element={
+                  <PrivateRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </PrivateRoute>
+                }
+              />
+            </Route>
+
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
