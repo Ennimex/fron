@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react"
+// Removemos useNavigate ya que no se usa
 import {
   FaSearch,
   FaFilter,
@@ -18,10 +19,9 @@ import {
 } from "react-icons/fa"
 import { colors, typography } from "../../styles/styles"
 import { useAuth } from "../../context/AuthContext"
-import { useNavigate } from 'react-router-dom';
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
-  const navigate = useNavigate();
+  // Removemos la línea que declara navigate ya que no se usa
   const { user } = useAuth()
   const [users, setUsers] = useState([])
   const [filteredUsers, setFilteredUsers] = useState([]) // Cambiado de mockUsers a array vacío
@@ -39,13 +39,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   // Estilos consistentes con el sidebar
   const styles = {
     container: {
-      marginLeft: 0, // Quitamos el margen izquierdo ya que AdminLayout ya lo maneja
-      padding: "1rem", // Reducimos el padding para mejor uso del espacio
+      padding: "2rem",
       backgroundColor: "#f8fafc",
-      minHeight: "calc(100vh - 64px)", // Ajustamos altura considerando el navbar
-      width: "100%", // Aseguramos que tome todo el ancho disponible
-      maxWidth: "100%", // Evitamos desbordamiento
-      overflowX: "hidden", // Prevenimos scroll horizontal
+      minHeight: "100vh",
+      width: "100%",
+      overflowX: "hidden",
       fontFamily: typography.fontSecondary,
     },
     header: {
@@ -345,6 +343,25 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       fontSize: "12px",
       transition: "all 0.2s ease",
     },
+    headerActions: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px'
+    },
+    backButton: {
+      backgroundColor: colors.primary,
+      color: colors.white,
+      border: 'none',
+      padding: '10px 20px',
+      borderRadius: '8px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      cursor: 'pointer',
+      fontSize: '0.9rem',
+      transition: 'all 0.3s ease'
+    }
   }
 
   // Obtener usuarios del backend
@@ -568,27 +585,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
   return (
     <div style={styles.container}>
-      {/* Header */}
+      {/* Header - Eliminamos el botón de "Volver al Dashboard" ya que ahora está en el Sidebar */}
       <div style={styles.header}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h1 style={styles.title}>Gestión de Usuarios</h1>
-          <button 
-            onClick={() => navigate('/admin')}
-            style={{
-              ...styles.button,
-              backgroundColor: "#0D1B2A",
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <i className="bi bi-speedometer2"></i>
-            Volver al Dashboard
-          </button>
-        </div>
+        <h1 style={styles.title}>Gestión de Usuarios</h1>
         <p style={styles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
-
+        
         <div style={styles.toolbar}>
           <div style={styles.searchContainer}>
             <FaSearch style={styles.searchIcon} size={16} />

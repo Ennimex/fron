@@ -6,10 +6,7 @@ import { useAuth } from "../../context/AuthContext"
 import {
   FaChartBar,
   FaUsers,
-  FaNetworkWired,
   FaHome,
-  FaChevronDown,
-  FaChevronRight,
   FaBars,
   FaSignOutAlt,
 } from "react-icons/fa"
@@ -114,39 +111,6 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
   useEffect(() => {
     localStorage.setItem("sidebar-expanded-menus", JSON.stringify(expandedMenus))
   }, [expandedMenus])
-
-  // Función mejorada para alternar expansión de menús
-  const toggleMenu = useCallback(
-    (menu) => {
-      if (isCollapsed && !isMobile) {
-        // Si está colapsado en desktop, expandir sidebar primero
-        setIsTransitioning(true)
-        setIsCollapsed(false)
-        onToggle?.(false)
-        localStorage.setItem("sidebar-collapsed", "false")
-
-        // Después de la transición, expandir el menú
-        if (transitionTimeoutRef.current) {
-          clearTimeout(transitionTimeoutRef.current)
-        }
-
-        transitionTimeoutRef.current = setTimeout(() => {
-          setExpandedMenus((prev) => ({
-            ...prev,
-            [menu]: !prev[menu],
-          }))
-          setIsTransitioning(false)
-        }, 300)
-      } else {
-        // Comportamiento normal
-        setExpandedMenus((prev) => ({
-          ...prev,
-          [menu]: !prev[menu],
-        }))
-      }
-    },
-    [isCollapsed, isMobile, onToggle],
-  )
 
   // Función mejorada para toggle de sidebar
   const toggleSidebar = useCallback(() => {
@@ -415,13 +379,6 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     [location.pathname],
   )
 
-  const isMenuActive = useCallback(
-    (prefix) => {
-      return location.pathname.startsWith(prefix)
-    },
-    [location.pathname],
-  )
-
   // Componente de enlace de menú mejorado
   const MenuLink = ({ to, children, style, activeStyle, onClick }) => {
     const [isHovered, setIsHovered] = useState(false)
@@ -444,35 +401,6 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     )
   }
 
-  // Componente de enlace de submenú mejorado
-  const SubmenuLink = ({ to, children, style, onClick }) => {
-    const [isHovered, setIsHovered] = useState(false)
-    const active = isActive(to)
-
-    return (
-      <Link
-        to={to}
-        style={{
-          ...style,
-          ...(active ? styles.menuLinkActive : {}),
-          ...(isHovered && !active ? styles.submenuLinkHover : {}),
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={onClick}
-      >
-        {children}
-      </Link>
-    )
-  }
-
-  // Modificar las rutas en el menú de Productos
-  const productosSubmenu = [
-    { path: '/admin/productos', text: 'Lista de Productos' },
-    { path: '/admin/productos/crear', text: 'Crear Producto' },
-    { path: '/admin/productos/categorias', text: 'Categorías' }
-  ];
-
   return (
     <div style={styles.sidebar}>
       <div style={styles.logo}>
@@ -493,10 +421,16 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       </div>
 
       <ul style={styles.menuItems}>
-        {user?.role === "ADMIN" && (
+        {user?.role === "admin" && (
           <>
+            {/* Dashboard Link */}
             <li style={styles.menuItem}>
-              <MenuLink to="/admin" style={styles.menuLink} activeStyle={styles.menuLinkActive}>
+              <MenuLink 
+                to="/admin" 
+                style={styles.menuLink} 
+                activeStyle={styles.menuLinkActive}
+                end // Agregado para que solo active en /admin exacto
+              >
                 <span style={styles.menuIcon}>
                   <FaChartBar size={22} />
                 </span>
@@ -504,104 +438,18 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
               </MenuLink>
             </li>
 
-            {/* Usuarios */}
+            {/* Usuarios Link - Modificado para estar activo cuando la ruta empiece con /admin/usuarios */}
             <li style={styles.menuItem}>
-              <div
-                style={{
-                  ...styles.menuLink,
-                  cursor: "pointer",
-                  ...(isMenuActive("/admin/usuarios") ? styles.menuLinkActive : {}),
-                }}
-                onClick={() => toggleMenu("usuarios")}
-                onMouseEnter={(e) => {
-                  if (!isMenuActive("/admin/usuarios")) {
-                    e.target.style.backgroundColor = "rgba(255,255,255,0.08)"
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMenuActive("/admin/usuarios")) {
-                    e.target.style.backgroundColor = "transparent"
-                  }
-                }}
+              <MenuLink 
+                to="/admin/usuarios" 
+                style={styles.menuLink}
+                activeStyle={styles.menuLinkActive}
               >
                 <span style={styles.menuIcon}>
                   <FaUsers size={22} />
                 </span>
                 <span style={styles.menuText}>Usuarios</span>
-                <span style={styles.menuToggle}>
-                  {expandedMenus.usuarios ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
-                </span>
-              </div>
-              <div
-                style={{
-                  ...styles.submenuContainer,
-                  maxHeight: expandedMenus.usuarios && !isCollapsed ? "200px" : "0",
-                }}
-              >
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/usuarios" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Vista General</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/usuarios/cambios" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Cambios</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/usuarios/bajas" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Bajas</span>
-                    </SubmenuLink>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            {/* Productos Section */}
-            <li style={styles.menuItem}>
-              <div
-                style={{
-                  ...styles.menuLink,
-                  cursor: "pointer",
-                  ...(isMenuActive("/admin/productos") ? styles.menuLinkActive : {}),
-                }}
-                onClick={() => toggleMenu("productos")}
-                onMouseEnter={(e) => {
-                  if (!isMenuActive("/admin/productos")) {
-                    e.target.style.backgroundColor = "rgba(255,255,255,0.08)"
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMenuActive("/admin/productos")) {
-                    e.target.style.backgroundColor = "transparent"
-                  }
-                }}
-              >
-                <span style={styles.menuIcon}>
-                  <FaNetworkWired size={22} />
-                </span>
-                <span style={styles.menuText}>Productos</span>
-                <span style={styles.menuToggle}>
-                  {expandedMenus.productos ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
-                </span>
-              </div>
-              <div
-                style={{
-                  ...styles.submenuContainer,
-                  maxHeight: expandedMenus.productos && !isCollapsed ? "200px" : "0",
-                }}
-              >
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  {productosSubmenu.map((item, index) => (
-                    <li key={index} style={styles.submenuItem}>
-                      <SubmenuLink to={item.path} style={styles.submenuLink}>
-                        <span style={styles.submenuText}>{item.text}</span>
-                      </SubmenuLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              </MenuLink>
             </li>
           </>
         )}
