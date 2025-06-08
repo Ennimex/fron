@@ -28,11 +28,11 @@ const AdminLayout = () => {
     content: {
       flex: 1,
       marginLeft: sidebarCollapsed ? '70px' : '280px',
-      transition: 'margin-left 0.3s ease-in-out, width 0.3s ease-in-out',
-      width: sidebarCollapsed ? 'calc(100% - 70px)' : 'calc(100% - 280px)',
+      transition: 'margin-left 0.3s ease-in-out',
       display: 'flex',
       flexDirection: 'column',
-      overflowX: 'hidden'
+      height: '100vh',
+      overflow: 'hidden'
     },
     topBar: {
       backgroundColor: colors.white,
@@ -77,8 +77,8 @@ const AdminLayout = () => {
       flex: 1,
       backgroundColor: '#f8f9fa',
       overflow: 'auto',
-      padding: '20px',
-      transition: 'padding 0.3s ease-in-out'
+      padding: '0', // Quitamos el padding aquí para que lo maneje cada componente
+      transition: 'all 0.3s ease-in-out'
     },
     breadcrumb: {
       padding: '10px 0',

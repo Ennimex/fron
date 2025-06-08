@@ -20,40 +20,11 @@ import { colors, typography } from "../../styles/styles"
 import { useAuth } from "../../context/AuthContext"
 import { useNavigate } from 'react-router-dom';
 
-// Actualizar el modelo de datos mock para coincider con nuestro esquema
-const mockUsers = [
-  {
-    id: 1,
-    email: "juan.perez@email.com",
-    role: "admin",
-  },
-  {
-    id: 2,
-    email: "maria.garcia@email.com",
-    role: "user",
-  },
-  {
-    id: 3,
-    email: "carlos.lopez@email.com",
-    role: "user",
-  },
-  {
-    id: 4,
-    email: "ana.martinez@email.com",
-    role: "moderator",
-  },
-  {
-    id: 5,
-    email: "roberto.silva@email.com",
-    role: "user",
-  },
-]
-
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth()
   const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState(mockUsers)
+  const [filteredUsers, setFilteredUsers] = useState([]) // Cambiado de mockUsers a array vacío
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRole, setSelectedRole] = useState("all")
   const [sortField, setSortField] = useState("name")
@@ -68,18 +39,20 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   // Estilos consistentes con el sidebar
   const styles = {
     container: {
-      marginLeft: sidebarCollapsed ? "70px" : "280px",
-      transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      padding: "2rem 3rem", // Aumentado el padding
+      marginLeft: 0, // Quitamos el margen izquierdo ya que AdminLayout ya lo maneja
+      padding: "1rem", // Reducimos el padding para mejor uso del espacio
       backgroundColor: "#f8fafc",
-      minHeight: "100vh",
+      minHeight: "calc(100vh - 64px)", // Ajustamos altura considerando el navbar
+      width: "100%", // Aseguramos que tome todo el ancho disponible
+      maxWidth: "100%", // Evitamos desbordamiento
+      overflowX: "hidden", // Prevenimos scroll horizontal
       fontFamily: typography.fontSecondary,
     },
     header: {
       backgroundColor: colors.white,
       borderRadius: "12px",
-      padding: "2rem 2.5rem", // Aumentado el padding
-      marginBottom: "2rem", // Aumentado el margen
+      padding: "1.5rem", // Ajustamos el padding
+      marginBottom: "1rem",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
       border: "1px solid #e2e8f0",
     },
@@ -529,21 +502,18 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   // Renderizar badge de rol
   const renderRoleBadge = (role) => {
     const roleStyles = {
-      ADMIN: styles.roleAdmin,
-      MODERATOR: styles.roleModerator,
-      USER: styles.roleUser,
+      admin: styles.roleAdmin,
+      user: styles.roleUser,
     }
 
     const roleLabels = {
-      ADMIN: "Administrador",
-      MODERATOR: "Moderador",
-      USER: "Usuario",
+      admin: "Administrador",
+      user: "Usuario",
     }
 
     const roleIcons = {
-      ADMIN: <FaUserShield size={12} />,
-      MODERATOR: <FaUserCheck size={12} />,
-      USER: <FaUser size={12} />,
+      admin: <FaUserShield size={12} />,
+      user: <FaUser size={12} />,
     }
 
     return (
@@ -727,13 +697,14 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </thead>
           <tbody>
             {paginatedUsers.map((user) => (
-              <tr key={user.id} style={styles.tableRow}>
+              // Cambiamos user.id por user._id ya que MongoDB usa _id
+              <tr key={user._id} style={styles.tableRow}>
                 <td style={styles.tableCell}>
                   <input
                     type="checkbox"
                     style={styles.checkbox}
-                    checked={selectedUsers.has(user.id)}
-                    onChange={() => handleSelectUser(user.id)}
+                    checked={selectedUsers.has(user._id)}
+                    onChange={() => handleSelectUser(user._id)}
                   />
                 </td>
                 <td style={styles.tableCell}>
@@ -751,14 +722,14 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   <div style={{ display: "flex", gap: "4px" }}>
                     <button
                       style={{ ...styles.actionButton, ...styles.editButton }}
-                      onClick={() => handleUpdateUserRole(user.id, user.role === "user" ? "admin" : "user")}
+                      onClick={() => handleUpdateUserRole(user._id, user.role === "user" ? "admin" : "user")}
                       title="Cambiar rol"
                     >
                       <FaEdit size={14} />
                     </button>
                     <button
                       style={{ ...styles.actionButton, ...styles.deleteButton }}
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => handleDeleteUser(user._id)}
                       title="Eliminar usuario"
                     >
                       <FaTrash size={14} />

@@ -1,36 +1,35 @@
 // styles.js
 
-// Paleta de colores actualizada con tonos de la Huasteca Hidalguense
+// Paleta de colores unificada con el tema del Sidebar y NavbarAdmin
 export const colors = {
-  // --- Colores Principales ---
-  primary: "#2E7D32",      // Verde profundo de la vegetación Huasteca
-  secondary: "#1B5E20",    // Verde oscuro para contraste
-  accent: "#FFA000",       // Naranja cempasúchil
+  // Colores principales del sistema
+  primary: "#0D1B2A",      // Color principal (azul oscuro del sidebar)
+  secondary: "#1B263B",    // Color secundario (variante más clara del sidebar)
+  accent: "#3498db",       // Color de acento (azul para destacar)
 
-  // --- Colores de la Naturaleza ---
-  forestGreen: "#33691E",  // Verde bosque para elementos principales
-  leafGreen: "#558B2F",    // Verde hoja para variaciones
-  riverBlue: "#0277BD",    // Azul de los ríos
-  skyBlue: "#039BE5",      // Azul cielo huasteco
-  sunsetOrange: "#FB8C00", // Naranja atardecer
-  
-  // --- Colores Festivos ---
-  cempasuchil: "#FFB300",  // Amarillo-naranja de la flor
-  xantolo: "#FF6F00",      // Naranja intenso de celebración
-  artesania: "#D84315",    // Terracota de artesanías
+  // Variaciones de azul
+  primaryLight: "#2c3e50",  // Para hover states
+  primaryDark: "#090E15",   // Para elementos más oscuros
+  primaryMedium: "#233044", // Para elementos intermedios
 
-  // --- Neutros Naturales ---
-  earth: "#5D4037",        // Café tierra
-  stone: "#795548",        // Café piedra
-  sand: "#D7CCC8",         // Beige arena
-  cloud: "#ECEFF1",        // Blanco nube
-  night: "#263238",        // Gris oscuro casi negro
-  shadow: "#546E7A",       // Gris medio
-
-  // --- Blancos y Fondos ---
+  // Neutros
   white: "#FFFFFF",
-  offWhite: "#F5F5F5",
-  background: "#FAFAFA"
+  offWhite: "#F8F9FA",
+  background: "#F5F6F8",
+  gray: "#E2E8F0",
+  grayLight: "#F1F5F9",
+  grayDark: "#64748B",
+
+  // Estados y acciones
+  success: "#2E7D32",
+  warning: "#ED6C02",
+  error: "#D32F2F",
+  info: "#0288D1",
+
+  // Texto
+  textPrimary: "#1E293B",
+  textSecondary: "#475569",
+  textLight: "#94A3B8",
 };
 
 export const typography = {
