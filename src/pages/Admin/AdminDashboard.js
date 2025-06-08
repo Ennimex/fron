@@ -1,38 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     users: 0,
     sales: 0,
     orders: 0
   });
-  const [recentActivity, setRecentActivity] = useState([]);
+  const [recentUsers, setRecentUsers] = useState([]); // Cambio de recentActivity a recentUsers
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+        // Obtener datos del dashboard
+        const dashboardResponse = await fetch('http://localhost:5000/api/admin/dashboard', {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
         });
 
-        if (!response.ok) {
-          throw new Error('Error al cargar los datos del dashboard');
+        // Obtener lista de usuarios recientes
+        const usersResponse = await fetch('http://localhost:5000/api/admin/users', {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
+
+        if (!dashboardResponse.ok || !usersResponse.ok) {
+          throw new Error('Error al cargar los datos');
         }
 
-        const data = await response.json();
+        const dashboardData = await dashboardResponse.json();
+        const usersData = await usersResponse.json();
+
         setStats({
-          users: data.stats.totalUsers || 0,
-          sales: data.stats.totalSales || 0,
-          orders: data.stats.totalOrders || 0
+          users: dashboardData.stats.totalUsers || 0,
+          sales: dashboardData.stats.totalSales || 0,
+          orders: dashboardData.stats.totalOrders || 0
         });
-        setRecentActivity(data.recentActivity || []);
+
+        // Obtener solo los 5 usuarios más recientes
+        setRecentUsers(usersData.slice(0, 5));
       } catch (err) {
         setError(err.message);
       } finally {
@@ -43,6 +56,10 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, [user.token]);
 
+  const handleViewAllUsers = () => {
+    navigate('/admin/usuarios');
+  };
+
   if (loading) {
     return <div>Cargando...</div>;
   }
@@ -51,186 +68,170 @@ const AdminDashboard = () => {
     return <div>Error: {error}</div>;
   }
 
+  const styles = {
+    dashboardContainer: {
+      backgroundColor: '#f5f5f5',
+      minHeight: '100vh',
+      padding: '2rem',
+    },
+    statsContainer: {
+      display: 'flex',
+      gap: '1.5rem',
+      marginBottom: '2rem',
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      padding: '1.5rem',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    },
+    statTitle: {
+      margin: '0 0 0.5rem 0',
+      color: '#7f8c8d',
+      fontSize: '1rem',
+    },
+    statValue: {
+      margin: 0,
+      fontSize: '1.8rem',
+      fontWeight: 'bold',
+      color: '#2c3e50',
+    },
+    recentActivity: {
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      padding: '1.5rem',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    },
+    headerSection: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px',
+    },
+    viewAllLink: {
+      color: '#3498db',
+      textDecoration: 'none',
+      fontSize: '0.9rem',
+      ':hover': {
+        textDecoration: 'underline',
+      },
+    },
+    usersGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+      gap: '20px',
+    },
+    userCard: {
+      display: 'flex',
+      alignItems: 'center',
+      padding: '15px',
+      backgroundColor: '#f8f9fa',
+      borderRadius: '8px',
+      border: '1px solid #e9ecef',
+    },
+    headerUserAvatar: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      backgroundColor: '#3498db',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: 'bold',
+    },
+    headerUserInfo: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+    },
+    headerUserName: {
+      fontSize: '1rem',
+    },
+    userAvatar: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      backgroundColor: '#3498db',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: '15px',
+      fontSize: '1.2rem',
+      fontWeight: 'bold',
+    },
+    userInfo: {
+      flex: 1,
+    },
+    userName: {
+      margin: 0,
+      fontSize: '1rem',
+      fontWeight: 'bold',
+      color: '#2c3e50',
+    },
+    userEmail: {
+      margin: '5px 0',
+      fontSize: '0.85rem',
+      color: '#6c757d',
+    },
+    userRole: {
+      fontSize: '0.8rem',
+      padding: '3px 8px',
+      borderRadius: '12px',
+      backgroundColor: '#e9ecef',
+      color: '#495057',
+      display: 'inline-block',
+    },
+  };
+
   return (
     <div style={styles.dashboardContainer}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>Panel de Administración</h1>
-        <div style={styles.userInfo}>
-          <span style={styles.userName}>{user.name || 'Admin'}</span>
-          <div style={styles.userAvatar}>
-            {user.name ? user.name[0].toUpperCase() : 'A'}
+      <main style={styles.mainContent}>
+        <div style={styles.statsContainer}>
+          <div style={styles.statCard}>
+            <h3 style={styles.statTitle}>Usuarios Registrados</h3>
+            <p style={styles.statValue}>{stats.users.toLocaleString()}</p>
           </div>
         </div>
-      </header>
-      
-      <div style={styles.content}>
-        <aside style={styles.sidebar}>
-          <nav style={styles.nav}>
-            <ul style={styles.navList}>
-              <li style={styles.navItem}><Link to="/admin" style={styles.navLink}>Inicio</Link></li>
-              <li style={styles.navItem}><Link to="/admin/usuarios" style={styles.navLink}>Usuarios</Link></li>
-              <li style={styles.navItem}><Link to="/admin/productos" style={styles.navLink}>Productos</Link></li>
-              <li style={styles.navItem}><Link to="/admin/pedidos" style={styles.navLink}>Pedidos</Link></li>
-              <li style={styles.navItem}><Link to="/admin/configuracion" style={styles.navLink}>Configuración</Link></li>
-            </ul>
-          </nav>
-        </aside>
         
-        <main style={styles.mainContent}>
-          <div style={styles.statsContainer}>
-            <div style={styles.statCard}>
-              <h3 style={styles.statTitle}>Usuarios</h3>
-              <p style={styles.statValue}>{stats.users.toLocaleString()}</p>
-            </div>
-            <div style={styles.statCard}>
-              <h3 style={styles.statTitle}>Ventas</h3>
-              <p style={styles.statValue}>${stats.sales.toLocaleString()}</p>
-            </div>
-            <div style={styles.statCard}>
-              <h3 style={styles.statTitle}>Pedidos</h3>
-              <p style={styles.statValue}>{stats.orders.toLocaleString()}</p>
-            </div>
+        <div style={styles.recentActivity}>
+          <div style={styles.headerSection}>
+            <h2 style={styles.sectionTitle}>Usuarios Recientes</h2>
+            <button 
+              onClick={handleViewAllUsers}
+              style={{
+                ...styles.viewAllLink,
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              Ver todos los usuarios
+              <i className="bi bi-arrow-right"></i>
+            </button>
           </div>
           
-          <div style={styles.recentActivity}>
-            <h2 style={styles.sectionTitle}>Actividad Reciente</h2>
-            <ul style={styles.activityList}>
-              {recentActivity.map((activity, index) => (
-                <li key={index} style={styles.activityItem}>
-                  {activity.description}
-                </li>
-              ))}
-              {recentActivity.length === 0 && (
-                <li style={styles.activityItem}>No hay actividad reciente</li>
-              )}
-            </ul>
+          <div style={styles.usersGrid}>
+            {recentUsers.map((user) => (
+              <div key={user._id} style={styles.userCard}>
+                <div style={styles.userAvatar}>
+                  {user.email[0].toUpperCase()}
+                </div>
+                <div style={styles.userInfo}>
+                  <p style={styles.userEmail}>{user.email}</p>
+                  <span style={styles.userRole}>{user.role}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
-};
-
-// Estilos inyectados directamente como objeto JavaScript
-const styles = {
-  dashboardContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1rem 2rem',
-    backgroundColor: '#2c3e50',
-    color: 'white',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-  },
-  title: {
-    margin: 0,
-    fontSize: '1.5rem',
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  userName: {
-    fontSize: '1rem',
-  },
-  userAvatar: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    backgroundColor: '#3498db',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 'bold',
-  },
-  content: {
-    display: 'flex',
-    flex: 1,
-  },
-  sidebar: {
-    width: '250px',
-    backgroundColor: '#34495e',
-    color: 'white',
-    padding: '1.5rem 0',
-  },
-  nav: {},
-  navList: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  },
-  navItem: {
-    padding: '0.75rem 1.5rem',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: '#2c3e50',
-    },
-  },
-  navLink: {
-    color: 'white',
-    textDecoration: 'none',
-    display: 'block',
-  },
-  mainContent: {
-    flex: 1,
-    padding: '2rem',
-  },
-  statsContainer: {
-    display: 'flex',
-    gap: '1.5rem',
-    marginBottom: '2rem',
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '1.5rem',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-  },
-  statTitle: {
-    margin: '0 0 0.5rem 0',
-    color: '#7f8c8d',
-    fontSize: '1rem',
-  },
-  statValue: {
-    margin: 0,
-    fontSize: '1.8rem',
-    fontWeight: 'bold',
-    color: '#2c3e50',
-  },
-  recentActivity: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '1.5rem',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-  },
-  sectionTitle: {
-    marginTop: 0,
-    color: '#2c3e50',
-    fontSize: '1.3rem',
-    paddingBottom: '0.5rem',
-    borderBottom: '1px solid #ecf0f1',
-  },
-  activityList: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  },
-  activityItem: {
-    padding: '0.75rem 0',
-    borderBottom: '1px solid #ecf0f1',
-    ':last-child': {
-      borderBottom: 'none',
-    },
-  },
 };
 
 export default AdminDashboard;

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './admin/SidebarAdmin';
-import { Navbar, Container, Dropdown, Button } from 'react-bootstrap';
-import { FaBell, FaUser } from 'react-icons/fa';
-import { colors, typography } from '../styles/styles';
+import NavbarAdmin from './admin/NavbarAdmin';
 import { useAuth } from '../context/AuthContext'; // Corregimos la ruta del AuthContext
+import { colors } from '../styles/styles'; // Añadir esta importación
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -98,43 +97,7 @@ const AdminLayout = () => {
       />
       
       <div style={styles.content}>
-        {/* Top Bar */}
-        <Navbar style={styles.topBar} sticky="top">
-          <Container fluid>
-            {/* Quitamos el botón de menú hamburguesa que estaba aquí */}
-            
-            <div className="ms-auto d-flex align-items-center">
-              {/* Notificaciones */}
-              <div style={styles.notificationButton}>
-                <Button variant="light" style={{ border: 'none' }}>
-                  <FaBell color={colors.primaryMedium} />
-                  <span style={styles.notificationBadge}>3</span>
-                </Button>
-              </div>
-              
-              {/* Menú de usuario */}
-              <Dropdown align="end">
-                <Dropdown.Toggle as="div" style={{ cursor: 'pointer' }}>
-                  <div style={styles.userMenu}>
-                    <div style={styles.userAvatar}>
-                      <FaUser />
-                    </div>
-                    <span style={{ color: colors.primaryDark, fontFamily: typography.fontSecondary }}>
-                      Admin
-                    </span>
-                  </div>
-                </Dropdown.Toggle>
-                
-                <Dropdown.Menu>
-                  <Dropdown.Item>Mi Perfil</Dropdown.Item>
-                  <Dropdown.Item>Configuración</Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item>Cerrar Sesión</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </Container>
-        </Navbar>
+        <NavbarAdmin />
         
         {/* Contenido de la página */}
         <div style={styles.pageContent}>

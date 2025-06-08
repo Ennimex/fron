@@ -26,7 +26,13 @@ import MiCuenta from "./pages/Private/MiCuenta";
 */
 // Importación de componentes de administración
 import AdminDashboard from "./pages/Admin/AdminDashboard";
-
+import AdminUsersView from "./pages/Admin/AdminUsersView";
+// Importar componentes de productos
+/*
+import AdminProductosView from "./pages/Admin/AdminProductosView";
+import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
+import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
+*/
 import { AuthProvider} from "./context/AuthContext";
 
 import PrivateRoute from "./routes/PrivateRoute";
@@ -56,11 +62,9 @@ function App() {
             </Route>
             {/* Rutas de administración usando AdminLayout */}
             <Route element={<AdminLayout />}>
-              <Route 
-                path="/admin" 
-                element={
-                  <PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>}/>
-              </Route>
+              <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>}/>
+              <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={['admin']}><AdminUsersView /></PrivateRoute>} />
+            </Route>
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

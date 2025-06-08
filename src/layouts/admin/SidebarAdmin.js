@@ -7,9 +7,6 @@ import {
   FaChartBar,
   FaUsers,
   FaNetworkWired,
-  FaInfoCircle,
-  FaFileAlt,
-  FaQuestionCircle,
   FaHome,
   FaChevronDown,
   FaChevronRight,
@@ -39,7 +36,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       ? JSON.parse(saved)
       : {
           usuarios: false,
-          iot: false,
+          productos: false, // Cambiamos 'iot' por 'productos'
           informacion: false,
           politicas: false,
           preguntas: false,
@@ -168,7 +165,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       // Colapsar todos los submenús cuando se colapsa la barra lateral
       setExpandedMenus({
         usuarios: false,
-        iot: false,
+        productos: false,
         informacion: false,
         politicas: false,
         preguntas: false,
@@ -297,7 +294,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       maxHeight: isCollapsed
         ? "0"
         : expandedMenus.usuarios ||
-            expandedMenus.iot ||
+            expandedMenus.productos ||
             expandedMenus.informacion ||
             expandedMenus.politicas ||
             expandedMenus.preguntas
@@ -469,6 +466,13 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     )
   }
 
+  // Modificar las rutas en el menú de Productos
+  const productosSubmenu = [
+    { path: '/admin/productos', text: 'Lista de Productos' },
+    { path: '/admin/productos/crear', text: 'Crear Producto' },
+    { path: '/admin/productos/categorias', text: 'Categorías' }
+  ];
+
   return (
     <div style={styles.sidebar}>
       <div style={styles.logo}>
@@ -554,22 +558,22 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
               </div>
             </li>
 
-            {/* Productos */}
+            {/* Productos Section */}
             <li style={styles.menuItem}>
               <div
                 style={{
                   ...styles.menuLink,
                   cursor: "pointer",
-                  ...(isMenuActive("/admin/iot") ? styles.menuLinkActive : {}),
+                  ...(isMenuActive("/admin/productos") ? styles.menuLinkActive : {}),
                 }}
-                onClick={() => toggleMenu("iot")}
+                onClick={() => toggleMenu("productos")}
                 onMouseEnter={(e) => {
-                  if (!isMenuActive("/admin/iot")) {
+                  if (!isMenuActive("/admin/productos")) {
                     e.target.style.backgroundColor = "rgba(255,255,255,0.08)"
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isMenuActive("/admin/iot")) {
+                  if (!isMenuActive("/admin/productos")) {
                     e.target.style.backgroundColor = "transparent"
                   }
                 }}
@@ -579,198 +583,23 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                 </span>
                 <span style={styles.menuText}>Productos</span>
                 <span style={styles.menuToggle}>
-                  {expandedMenus.iot ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
+                  {expandedMenus.productos ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
                 </span>
               </div>
               <div
                 style={{
                   ...styles.submenuContainer,
-                  maxHeight: expandedMenus.iot && !isCollapsed ? "200px" : "0",
+                  maxHeight: expandedMenus.productos && !isCollapsed ? "200px" : "0",
                 }}
               >
                 <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/productos" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Vista General</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/productos/vinculacion" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Vinculación</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/productos/modificaciones" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Modificaciones</span>
-                    </SubmenuLink>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            {/* Información */}
-            <li style={styles.menuItem}>
-              <div
-                style={{
-                  ...styles.menuLink,
-                  cursor: "pointer",
-                  ...(isMenuActive("/admin/informacion") ? styles.menuLinkActive : {}),
-                }}
-                onClick={() => toggleMenu("informacion")}
-                onMouseEnter={(e) => {
-                  if (!isMenuActive("/admin/informacion")) {
-                    e.target.style.backgroundColor = "rgba(255,255,255,0.08)"
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMenuActive("/admin/informacion")) {
-                    e.target.style.backgroundColor = "transparent"
-                  }
-                }}
-              >
-                <span style={styles.menuIcon}>
-                  <FaInfoCircle size={22} />
-                </span>
-                <span style={styles.menuText}>Información</span>
-                <span style={styles.menuToggle}>
-                  {expandedMenus.informacion ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
-                </span>
-              </div>
-              <div
-                style={{
-                  ...styles.submenuContainer,
-                  maxHeight: expandedMenus.informacion && !isCollapsed ? "150px" : "0",
-                }}
-              >
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/informacion/vista" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Vista General</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/informacion/modificacion" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Modificación</span>
-                    </SubmenuLink>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            {/* Políticas */}
-            <li style={styles.menuItem}>
-              <div
-                style={{
-                  ...styles.menuLink,
-                  cursor: "pointer",
-                  ...(isMenuActive("/admin/politicas") ? styles.menuLinkActive : {}),
-                }}
-                onClick={() => toggleMenu("politicas")}
-                onMouseEnter={(e) => {
-                  if (!isMenuActive("/admin/politicas")) {
-                    e.target.style.backgroundColor = "rgba(255,255,255,0.08)"
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMenuActive("/admin/politicas")) {
-                    e.target.style.backgroundColor = "transparent"
-                  }
-                }}
-              >
-                <span style={styles.menuIcon}>
-                  <FaFileAlt size={22} />
-                </span>
-                <span style={styles.menuText}>Políticas</span>
-                <span style={styles.menuToggle}>
-                  {expandedMenus.politicas ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
-                </span>
-              </div>
-              <div
-                style={{
-                  ...styles.submenuContainer,
-                  maxHeight: expandedMenus.politicas && !isCollapsed ? "250px" : "0",
-                }}
-              >
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/politicas" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Vista General</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/politicas/empresa" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Políticas de la empresa</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/politicas/privacidad" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Políticas de privacidad</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/politicas/cliente" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Políticas de cliente</span>
-                    </SubmenuLink>
-                  </li>
-                </ul>
-              </div>
-            </li>
-
-            {/* Preguntas Frecuentes */}
-            <li style={styles.menuItem}>
-              <div
-                style={{
-                  ...styles.menuLink,
-                  cursor: "pointer",
-                  ...(isMenuActive("/admin/preguntas") ? styles.menuLinkActive : {}),
-                }}
-                onClick={() => toggleMenu("preguntas")}
-                onMouseEnter={(e) => {
-                  if (!isMenuActive("/admin/preguntas")) {
-                    e.target.style.backgroundColor = "rgba(255,255,255,0.08)"
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMenuActive("/admin/preguntas")) {
-                    e.target.style.backgroundColor = "transparent"
-                  }
-                }}
-              >
-                <span style={styles.menuIcon}>
-                  <FaQuestionCircle size={22} />
-                </span>
-                <span style={styles.menuText}>Preguntas Frecuentes</span>
-                <span style={styles.menuToggle}>
-                  {expandedMenus.preguntas ? <FaChevronDown size={12} /> : <FaChevronRight size={12} />}
-                </span>
-              </div>
-              <div
-                style={{
-                  ...styles.submenuContainer,
-                  maxHeight: expandedMenus.preguntas && !isCollapsed ? "250px" : "0",
-                }}
-              >
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/preguntas" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Vista General</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/preguntas/altas" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Altas</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/preguntas/bajas" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Bajas</span>
-                    </SubmenuLink>
-                  </li>
-                  <li style={styles.submenuItem}>
-                    <SubmenuLink to="/admin/preguntas/cambios" style={styles.submenuLink}>
-                      <span style={styles.submenuText}>Cambios</span>
-                    </SubmenuLink>
-                  </li>
+                  {productosSubmenu.map((item, index) => (
+                    <li key={index} style={styles.submenuItem}>
+                      <SubmenuLink to={item.path} style={styles.submenuLink}>
+                        <span style={styles.submenuText}>{item.text}</span>
+                      </SubmenuLink>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </li>

@@ -19,6 +19,7 @@ const Inicio = () => {
   const [comentarios, setComentarios] = useState([]);
   const [comentarioTexto, setComentarioTexto] = useState('');
   const { user } = useAuth();
+  const isAuthenticated = user && user.isAuthenticated;
 
   useEffect(() => {
 
@@ -486,25 +487,27 @@ const Inicio = () => {
         </Container>
       </section>
 
-      {/* CTA Section */}
-      <section style={styles.ctaSection}>
-        <div style={styles.ctaOverlay}></div>
-        <Container style={{ ...styles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
-          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
-            Celebra la Tradición Huasteca
-          </h2>
-          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
-            Únete a nuestra comunidad y descubre piezas artesanales únicas
-          </p>
-          <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/login?register=true")}>
-            Regístrate
-          </Button>
-          <p className="animate-in" style={{ fontSize: "0.9rem", color: "#ffffff", opacity: 0.75, marginTop: "1rem", animationDelay: "0.9s" }}>
-            <i className="bi bi-shield-check me-2"></i>
-            Tu información está segura con nosotros.
-          </p>
-        </Container>
-      </section>
+      {/* CTA Section - Solo se muestra si el usuario NO está autenticado */}
+      {!isAuthenticated && (
+        <section style={styles.ctaSection}>
+          <div style={styles.ctaOverlay}></div>
+          <Container style={{ ...styles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
+            <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
+              Celebra la Tradición Huasteca
+            </h2>
+            <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
+              Únete a nuestra comunidad y descubre piezas artesanales únicas
+            </p>
+            <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/login?register=true")}>
+              Regístrate
+            </Button>
+            <p className="animate-in" style={{ fontSize: "0.9rem", color: "#ffffff", opacity: 0.75, marginTop: "1rem", animationDelay: "0.9s" }}>
+              <i className="bi bi-shield-check me-2"></i>
+              Tu información está segura con nosotros.
+            </p>
+          </Container>
+        </section>
+      )}
     </>
   );
 };
