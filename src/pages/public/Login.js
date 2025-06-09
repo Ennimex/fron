@@ -56,8 +56,8 @@ const Login = () => {
   // Background images
   const backgroundImages = useMemo(
     () => [
-      "https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787",
+      "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2787",
     ],
     [],
   )
@@ -130,6 +130,7 @@ const Login = () => {
         
         if (result.success) {
           setSuccess("¡Inicio de sesión exitoso!")
+          // Redirigir según el rol del usuario
           setTimeout(() => {
             if (result.role === 'admin') {
               navigate("/admin")
@@ -171,16 +172,17 @@ const Login = () => {
       setAnimating(true)
       try {
         const registerData = {
-          name: `${nombre} ${apellido}`,
+          name: `${nombre} ${apellido}`, // Combinamos nombre y apellido
           email,
           password,
-          phone: telefono,
+          phone: telefono, // Añadimos el teléfono
         }
 
         const result = await register(registerData)
         setAnimating(false)
         if (result.success) {
           setSuccess(result.message)
+          // Limpiar campos
           setNombre("")
           setApellido("")
           setTelefono("")
@@ -188,6 +190,7 @@ const Login = () => {
           setPassword("")
           setConfirmPassword("")
           setAcceptTerms(false)
+          // Cambiar al formulario de login
           setTimeout(() => {
             toggleForm()
             setLoginEmail(email)
@@ -257,74 +260,66 @@ const Login = () => {
       background-size: cover;
       background-position: center;
       background-blend-mode: overlay;
-      padding: clamp(10px, 3vw, 15px);
+      padding: 15px;
       font-family: 'Roboto', sans-serif;
+      overflow-x: hidden; /* Prevenir scroll horizontal */
     }
 
     .login-inner-container {
       display: flex;
-      flex-direction: column;
       max-width: 1100px;
       width: 100%;
       position: relative;
-      min-height: clamp(500px, 80vh, 600px);
-      gap: clamp(10px, 2vw, 20px);
+      min-height: min-content; /* Cambiar de 600px a min-content */
+      margin: auto; /* Centrar el contenedor */
     }
 
     .login-left-panel {
-      flex: 1;
-      padding: clamp(20px, 4vw, 40px);
+      flex: 1 1 45%;
+      padding: 40px;
       color: var(--huasteca-beige);
       display: none;
     }
 
     @media (min-width: 992px) {
-      .login-inner-container {
-        flex-direction: row;
-      }
       .login-left-panel {
         display: block;
-        flex: 1 1 45%;
-      }
-      .login-right-panel {
-        flex: 1 1 55%;
       }
     }
 
     .login-left-content {
       max-width: 450px;
-      margin: 0 auto;
-      text-align: center;
+      margin-left: auto;
+      margin-right: 20px;
     }
 
     .login-welcome-title {
-      font-size: clamp(1.8rem, 5vw, 2.2rem);
+      font-size: 2.2rem;
       font-weight: bold;
-      margin-bottom: clamp(0.8rem, 2vw, 1rem);
+      margin-bottom: 1rem;
       line-height: 1.2;
       font-family: 'Playfair Display', serif;
       color: var(--huasteca-beige);
     }
 
     .login-welcome-text {
-      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
-      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
       line-height: 1.6;
       color: rgba(245, 232, 199, 0.8);
     }
 
     .login-brand-feature {
-      margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
+      margin-bottom: 1.2rem;
       display: flex;
       align-items: center;
-      justify-content: center;
     }
 
     .login-feature-icon {
-      font-size: clamp(1rem, 3vw, 1.2rem);
-      margin-right: clamp(0.5rem, 1.5vw, 0.8rem);
-      width: clamp(30px, 8vw, 35px);
-      height: clamp(30px, 8vw, 35px);
+      font-size: 1.2rem;
+      margin-right: 0.8rem;
+      width: 35px;
+      height: 35px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -334,28 +329,30 @@ const Login = () => {
     }
 
     .login-feature-text {
-      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      font-size: 0.9rem;
       color: rgba(245, 232, 199, 0.8);
     }
 
     .login-right-panel {
-      flex: 1;
+      flex: 1 1 55%;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: clamp(10px, 2vw, 15px);
+      padding: 15px;
     }
 
     .login-form-wrapper {
       position: relative;
       width: 100%;
-      max-width: clamp(350px, 90vw, 450px);
+      max-width: 450px;
       background: rgba(255, 248, 225, 0.95);
       backdrop-filter: blur(10px);
       border-radius: 16px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
       border: 1px solid rgba(232, 180, 184, 0.3);
       transition: all 0.3s ease;
+      margin: 20px auto; /* Añadir margen automático */
     }
 
     .login-form-slider {
@@ -367,13 +364,12 @@ const Login = () => {
 
     .login-form-panel {
       width: 50%;
-      padding: clamp(15px, 4vw, ${isLogin ? "30px 25px" : "20px 20px"});
+      padding: ${isLogin ? "30px 25px" : "20px 20px"};
       transition: all 0.3s ease;
       opacity: ${animating ? 0.7 : 1};
-      max-height: 90vh;
+      max-height: calc(100vh - 40px); /* Ajustar altura máxima */
       overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--huasteca-red) transparent;
+      -webkit-overflow-scrolling: touch; /* Mejor scroll en iOS */
     }
 
     .login-form-panel::-webkit-scrollbar {
@@ -391,11 +387,11 @@ const Login = () => {
 
     .login-logo {
       text-align: center;
-      margin-bottom: clamp(15px, 4vw, ${isLogin ? "25px" : "15px"});
+      margin-bottom: ${isLogin ? "25px" : "15px"};
     }
 
     .login-logo-text {
-      font-size: clamp(1.5rem, 5vw, 1.8rem);
+      font-size: 1.8rem;
       font-weight: bold;
       color: var(--huasteca-red);
       margin: 0;
@@ -403,15 +399,15 @@ const Login = () => {
     }
 
     .login-logo-subtext {
-      font-size: clamp(0.7rem, 2vw, 0.8rem);
+      font-size: 0.8rem;
       color: var(--huasteca-dark);
-      margin-top: clamp(3px, 1vw, 5px);
+      margin-top: 5px;
       font-style: italic;
     }
 
     .login-title {
-      font-size: clamp(1.2rem, 4vw, ${isLogin ? "1.6rem" : "1.4rem"});
-      margin-bottom: clamp(5px, 2vw, ${isLogin ? "8px" : "5px"});
+      font-size: ${isLogin ? "1.6rem" : "1.4rem"};
+      margin-bottom: ${isLogin ? "8px" : "5px"};
       text-align: center;
       color: var(--huasteca-red);
       font-weight: 600;
@@ -419,29 +415,28 @@ const Login = () => {
     }
 
     .login-subtitle {
-      font-size: clamp(0.8rem, 2.5vw, ${isLogin ? "0.9rem" : "0.8rem"});
+      font-size: ${isLogin ? "0.9rem" : "0.8rem"};
       text-align: center;
       color: var(--huasteca-dark);
-      margin-bottom: clamp(12px, 4vw, ${isLogin ? "25px" : "18px"});
+      margin-bottom: ${isLogin ? "25px" : "18px"};
     }
 
     .login-input-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: clamp(10px, 3vw, ${isLogin ? "15px" : "12px"});
-      margin-bottom: clamp(5px, 2vw, ${isLogin ? "8px" : "5px"});
+      gap: ${isLogin ? "15px" : "12px"};
+      margin-bottom: ${isLogin ? "8px" : "5px"};
     }
 
     .login-input-box {
       position: relative;
       width: 100%;
-      margin-bottom: clamp(10px, 3vw, ${isLogin ? "18px" : "12px"});
+      margin-bottom: ${isLogin ? "18px" : "12px"};
     }
 
     .login-label {
       display: block;
-      margin-bottom: clamp(4px, 1.5vw, ${isLogin ? "6px" : "4px"});
-      font-size: clamp(0.8rem, 2.5vw, ${isLogin ? "0.9rem" : "0.8rem"});
+      margin-bottom: ${isLogin ? "6px" : "4px"};
+      font-size: ${isLogin ? "0.9rem" : "0.8rem"};
       font-weight: 600;
       color: var(--huasteca-green);
     }
@@ -452,11 +447,10 @@ const Login = () => {
       border: 2px solid var(--huasteca-green);
       outline: none;
       color: var(--huasteca-dark);
-      padding: clamp(8px, 3vw, ${isLogin ? "12px 45px 12px 15px" : "10px 40px 10px 12px"});
+      padding: ${isLogin ? "12px 45px 12px 15px" : "10px 40px 10px 12px"};
       border-radius: 8px;
-      font-size: clamp(0.85rem, 2.5vw, ${isLogin ? "0.95rem" : "0.85rem"});
+      font-size: ${isLogin ? "0.95rem" : "0.85rem"};
       transition: all 0.3s ease;
-      min-height: 44px; /* Ensure touch target size */
     }
 
     .login-input:focus {
@@ -467,7 +461,7 @@ const Login = () => {
 
     .login-input::placeholder {
       color: rgba(35, 16, 45, 0.5);
-      font-size: clamp(0.8rem, 2.5vw, ${isLogin ? "0.9rem" : "0.8rem"});
+      font-size: ${isLogin ? "0.9rem" : "0.8rem"};
     }
 
     .login-input.input-error {
@@ -477,38 +471,38 @@ const Login = () => {
 
     .login-error-text {
       color: var(--huasteca-red);
-      font-size: clamp(0.7rem, 2vw, ${isLogin ? "0.8rem" : "0.7rem"});
-      margin-top: clamp(2px, 1vw, ${isLogin ? "4px" : "3px"});
+      font-size: ${isLogin ? "0.8rem" : "0.7rem"};
+      margin-top: ${isLogin ? "4px" : "3px"};
       font-weight: 600;
     }
 
     .login-icon {
       position: absolute;
-      right: clamp(10px, 3vw, ${isLogin ? "15px" : "12px"});
+      right: ${isLogin ? "15px" : "12px"};
       top: 50%;
       transform: translateY(-50%);
-      font-size: clamp(14px, 4vw, ${isLogin ? "18px" : "16px"});
+      font-size: ${isLogin ? "18px" : "16px"};
       color: var(--huasteca-red);
       display: flex;
       align-items: center;
       justify-content: center;
-      width: clamp(20px, 6vw, ${isLogin ? "25px" : "22px"});
-      height: clamp(20px, 6vw, ${isLogin ? "25px" : "22px"});
+      width: ${isLogin ? "25px" : "22px"};
+      height: ${isLogin ? "25px" : "22px"};
       pointer-events: none;
     }
 
     .login-toggle-password {
       position: absolute;
-      right: clamp(10px, 3vw, ${isLogin ? "15px" : "12px"});
+      right: ${isLogin ? "15px" : "12px"};
       top: 50%;
       transform: translateY(-50%);
-      font-size: clamp(14px, 4vw, ${isLogin ? "18px" : "16px"});
+      font-size: ${isLogin ? "18px" : "16px"};
       color: var(--huasteca-red);
       display: flex;
       align-items: center;
       justify-content: center;
-      width: clamp(20px, 6vw, ${isLogin ? "25px" : "22px"});
-      height: clamp(20px, 6vw, ${isLogin ? "25px" : "22px"});
+      width: ${isLogin ? "25px" : "22px"};
+      height: ${isLogin ? "25px" : "22px"};
       cursor: pointer;
       pointer-events: auto;
     }
@@ -518,7 +512,7 @@ const Login = () => {
       width: 100%;
       height: 3px;
       background-color: rgba(255, 0, 112, 0.1);
-      margin-top: clamp(4px, 1.5vw, 6px);
+      margin-top: 6px;
       border-radius: 2px;
       overflow: hidden;
     }
@@ -529,8 +523,8 @@ const Login = () => {
     }
 
     .login-password-strength-text {
-      font-size: clamp(10px, 2vw, ${isLogin ? "11px" : "10px"});
-      margin-top: clamp(2px, 1vw, 4px);
+      font-size: ${isLogin ? "11px" : "10px"};
+      margin-top: 4px;
       text-align: right;
       transition: color 0.3s ease;
     }
@@ -539,30 +533,28 @@ const Login = () => {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: clamp(12px, 4vw, ${isLogin ? "20px" : "15px"});
+      margin-bottom: ${isLogin ? "20px" : "15px"};
       flex-wrap: wrap;
-      gap: clamp(8px, 2vw, 10px);
+      gap: 10px;
     }
 
     .login-checkbox-label {
       display: flex;
       align-items: center;
       color: var(--huasteca-dark);
-      font-size: clamp(12px, 2.5vw, ${isLogin ? "13px" : "11px"});
+      font-size: ${isLogin ? "13px" : "11px"};
       cursor: pointer;
     }
 
     .login-checkbox {
-      margin-right: clamp(4px, 1.5vw, 6px);
+      margin-right: 6px;
       cursor: pointer;
       accent-color: var(--huasteca-red);
-      width: 18px;
-      height: 18px;
     }
 
     .login-forgot-password {
       color: var(--huasteca-red);
-      font-size: clamp(12px, 2.5vw, ${isLogin ? "13px" : "11px"});
+      font-size: ${isLogin ? "13px" : "11px"};
       text-decoration: none;
       transition: color 0.3s ease;
     }
@@ -574,21 +566,20 @@ const Login = () => {
 
     .login-button {
       width: 100%;
-      padding: clamp(10px, 3vw, ${isLogin ? "14px" : "12px"});
+      padding: ${isLogin ? "14px" : "12px"};
       background: linear-gradient(135deg, var(--huasteca-red), var(--huasteca-green));
       border: none;
       outline: none;
       border-radius: 25px;
       cursor: pointer;
-      font-size: clamp(13px, 3vw, ${isLogin ? "15px" : "13px"});
+      font-size: ${isLogin ? "15px" : "13px"};
       color: var(--huasteca-beige);
       font-weight: 600;
       transition: all 0.3s ease;
-      margin-top: clamp(8px, 2vw, ${isLogin ? "10px" : "8px"});
+      margin-top: ${isLogin ? "10px" : "8px"};
       box-shadow: 0 4px 15px rgba(255, 0, 112, 0.3);
       position: relative;
       overflow: hidden;
-      min-height: 48px; /* Ensure touch target size */
     }
 
     .login-button:hover {
@@ -627,9 +618,9 @@ const Login = () => {
 
     .login-switch-form {
       text-align: center;
-      margin-top: clamp(12px, 4vw, ${isLogin ? "20px" : "15px"});
+      margin-top: ${isLogin ? "20px" : "15px"};
       color: var(--huasteca-dark);
-      font-size: clamp(12px, 2.5vw, ${isLogin ? "13px" : "11px"});
+      font-size: ${isLogin ? "13px" : "11px"};
     }
 
     .login-link {
@@ -646,10 +637,10 @@ const Login = () => {
     }
 
     .login-terms-text {
-      font-size: clamp(9px, 2vw, ${isLogin ? "10px" : "9px"});
+      font-size: ${isLogin ? "10px" : "9px"};
       color: var(--huasteca-dark);
       text-align: center;
-      margin-top: clamp(10px, 3vw, ${isLogin ? "15px" : "12px"});
+      margin-top: ${isLogin ? "15px" : "12px"};
       line-height: 1.3;
     }
 
@@ -663,21 +654,96 @@ const Login = () => {
     .login-alert-success {
       background-color: rgba(31, 138, 128, 0.2);
       color: var(--huasteca-green);
-      padding: clamp(8px, 2vw, ${isLogin ? "12px 15px" : "10px 12px"});
+      padding: ${isLogin ? "12px 15px" : "10px 12px"};
       border-radius: 8px;
       border-left: 3px solid var(--huasteca-green);
-      margin-bottom: clamp(12px, 4vw, ${isLogin ? "20px" : "15px"});
-      font-size: clamp(12px, 2.5vw, ${isLogin ? "13px" : "12px"});
+      margin-bottom: ${isLogin ? "20px" : "15px"};
+      font-size: ${isLogin ? "13px" : "12px"};
     }
 
     .login-alert-error {
       background-color: rgba(255, 0, 112, 0.2);
       color: var(--huasteca-red);
-      padding: clamp(8px, 2vw, ${isLogin ? "12px 15px" : "10px 12px"});
+      padding: ${isLogin ? "12px 15px" : "10px 12px"};
       border-radius: 8px;
       border-left: 3px solid var(--huasteca-red);
-      margin-bottom: clamp(12px, 4vw, ${isLogin ? "20px" : "15px"});
-      font-size: clamp(12px, 2.5vw, ${isLogin ? "13px" : "12px"});
+      margin-bottom: ${isLogin ? "20px" : "15px"};
+      font-size: ${isLogin ? "13px" : "12px"};
+    }
+
+    /* Mejoras Responsivas */
+    @media (max-width: 1200px) {
+      .login-inner-container {
+        max-width: 950px;
+      }
+      
+      .login-left-content {
+        padding-right: 15px;
+      }
+      
+      .login-welcome-title {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .login-container {
+        padding: 20px;
+        min-height: calc(100vh - 40px);
+        background: linear-gradient(rgba(35, 16, 45, 0.9), rgba(35, 16, 45, 0.9)),
+                    url(${backgroundImages[currentImageIndex]});
+      }
+      
+      .login-form-wrapper {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .login-form-panel {
+        padding: 25px 20px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .login-container {
+        padding: 10px;
+        min-height: calc(100vh - 20px); /* Ajustar altura mínima */
+      }
+
+      .login-form-wrapper {
+        margin: 10px auto; /* Reducir margen en móviles */
+      }
+
+      .login-form-panel {
+        padding: 15px;
+        max-height: calc(100vh - 30px); /* Ajustar altura máxima en móviles */
+      }
+
+      .login-input-row {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .login-input-box {
+        margin-bottom: 12px;
+      }
+
+      .login-checkbox-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .login-container {
+        align-items: flex-start; /* Alinear al inicio en pantallas bajas */
+        padding: 10px 5px;
+      }
+
+      .login-form-wrapper {
+        margin: 5px auto;
+      }
     }
 
     @keyframes pulse {
@@ -687,8 +753,8 @@ const Login = () => {
 
     .floating-element {
       position: fixed;
-      width: clamp(3px, 1vw, 4px);
-      height: clamp(3px, 1vw, 4px);
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
       opacity: 0.7;
       animation: float 8s ease-in-out infinite;
@@ -698,98 +764,13 @@ const Login = () => {
       0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
       50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
     }
-
-    /* Responsive improvements */
-    @media (max-width: 992px) {
-      .login-inner-container {
-        flex-direction: column;
-      }
-      .login-left-panel {
-        display: block;
-        padding: clamp(15px, 3vw, 20px);
-      }
-      .login-right-panel {
-        padding-top: 0;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .login-container {
-        padding: clamp(8px, 2vw, 10px);
-      }
-      
-      .login-form-wrapper {
-        max-width: 95vw;
-      }
-      
-      .login-form-panel {
-        padding: clamp(12px, 3vw, ${isLogin ? "25px 20px" : "18px 15px"});
-      }
-      
-      .login-input-row {
-        flex-direction: column;
-        gap: 0;
-      }
-      
-      .login-checkbox-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-      
-      .login-left-panel {
-        display: none; /* Hide left panel on smaller screens */
-      }
-    }
-
-    @media (max-width: 480px) {
-      .login-form-panel {
-        padding: clamp(10px, 2.5vw, ${isLogin ? "20px 15px" : "15px 12px"});
-      }
-      
-      .login-title {
-        font-size: clamp(1rem, 3.5vw, ${isLogin ? "1.4rem" : "1.2rem"});
-      }
-      
-      .login-input {
-        padding: clamp(6px, 2vw, 10px);
-        font-size: clamp(0.8rem, 2vw, 0.9rem);
-      }
-      
-      .login-button {
-        padding: clamp(8px, 2vw, 12px);
-        font-size: clamp(12px, 2.5vw, 14px);
-      }
-      
-      .login-checkbox {
-        width: 16px;
-        height: 16px;
-      }
-      
-      .login-terms-text {
-        font-size: clamp(8px, 1.8vw, 9px);
-      }
-    }
-
-    @media (max-width: 360px) {
-      .login-form-wrapper {
-        border-radius: 12px;
-      }
-      
-      .login-logo-text {
-        font-size: clamp(1.2rem, 4vw, 1.5rem);
-      }
-      
-      .login-input-box {
-        margin-bottom: clamp(8px, 2vw, 10px);
-      }
-    }
   `
 
   return (
     <>
       <style>{cssStyles}</style>
 
+      {/* Floating decorative elements */}
       <div
         className="floating-elements"
         style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
@@ -807,6 +788,7 @@ const Login = () => {
 
       <div className="login-container">
         <div className="login-inner-container">
+          {/* Left Panel - Welcome Content */}
           <div className="login-left-panel">
             <div className="login-left-content">
               <div style={{ marginBottom: "50px" }}>
@@ -831,9 +813,11 @@ const Login = () => {
             </div>
           </div>
 
+          {/* Right Panel - Sliding Forms */}
           <div className="login-right-panel">
             <div className="login-form-wrapper">
               <div className="login-form-slider">
+                {/* Login Form Panel */}
                 <div className="login-form-panel">
                   <div className="login-logo">
                     <h1 className="login-logo-text">La Aterciopelada</h1>
@@ -847,6 +831,7 @@ const Login = () => {
                     {success && isLogin && <div className="login-alert-success">{success}</div>}
 
                     <form onSubmit={handleLoginSubmit}>
+                      {/* Email Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${loginEmail ? "label-float" : ""}`}>Correo Electrónico*</label>
                         <input
@@ -867,6 +852,7 @@ const Login = () => {
                         )}
                       </div>
 
+                      {/* Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${loginPassword ? "label-float" : ""}`}>Contraseña*</label>
                         <input
@@ -885,6 +871,7 @@ const Login = () => {
                         {fieldErrors.loginPassword && <p className="login-error-text">La contraseña es requerida</p>}
                       </div>
 
+                      {/* Remember Me & Forgot Password */}
                       <div className="login-checkbox-container">
                         <label className="login-checkbox-label">
                           <input
@@ -900,11 +887,13 @@ const Login = () => {
                         </Link>
                       </div>
 
+                      {/* Submit Button */}
                       <Button type="submit" className="login-button" disabled={animating}>
                         Iniciar Sesión
                       </Button>
                     </form>
 
+                    {/* Switch to Register */}
                     <div className="login-switch-form">
                       ¿No tienes una cuenta?{" "}
                       <span className="login-link" onClick={toggleForm}>
@@ -912,6 +901,7 @@ const Login = () => {
                       </span>
                     </div>
 
+                    {/* Terms */}
                     <div className="login-terms-text">
                       Al iniciar sesión, aceptas nuestras{" "}
                       <Link to="/politicas#cliente" className="login-highlight">
@@ -925,6 +915,7 @@ const Login = () => {
                   </div>
                 </div>
 
+                {/* Register Form Panel */}
                 <div className="login-form-panel">
                   <div className="login-logo">
                     <h1 className="login-logo-text">La Aterciopelada</h1>
@@ -938,6 +929,7 @@ const Login = () => {
                     {success && !isLogin && <div className="login-alert-success">{success}</div>}
 
                     <form onSubmit={handleRegisterSubmit}>
+                      {/* Name Inputs */}
                       <div className="login-input-row">
                         <div className="login-input-box">
                           <label className={`login-label ${nombre ? "label-float" : ""}`}>Nombre*</label>
@@ -973,6 +965,7 @@ const Login = () => {
                         </div>
                       </div>
 
+                      {/* Phone Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${telefono ? "label-float" : ""}`}>Teléfono*</label>
                         <input
@@ -991,6 +984,7 @@ const Login = () => {
                         {fieldErrors.telefono && <p className="login-error-text">El teléfono es requerido</p>}
                       </div>
 
+                      {/* Email Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${email ? "label-float" : ""}`}>Correo Electrónico*</label>
                         <input
@@ -1009,6 +1003,7 @@ const Login = () => {
                         {fieldErrors.email && <p className="login-error-text">Por favor ingresa un correo válido</p>}
                       </div>
 
+                      {/* Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${password ? "label-float" : ""}`}>Contraseña*</label>
                         <input
@@ -1025,6 +1020,7 @@ const Login = () => {
                           <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
                         </span>
 
+                        {/* Password Strength Meter */}
                         {password && (
                           <>
                             <div className="login-password-strength">
@@ -1045,6 +1041,7 @@ const Login = () => {
                         {fieldErrors.password && <p className="login-error-text">La contraseña es requerida</p>}
                       </div>
 
+                      {/* Confirm Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${confirmPassword ? "label-float" : ""}`}>
                           Confirmar Contraseña*
@@ -1067,6 +1064,7 @@ const Login = () => {
                         )}
                       </div>
 
+                      {/* Terms Checkbox */}
                       <div style={{ marginBottom: "15px" }}>
                         <label className="login-checkbox-label">
                           <input
@@ -1083,11 +1081,13 @@ const Login = () => {
                         {fieldErrors.acceptTerms && <p className="login-error-text">Debes aceptar los términos</p>}
                       </div>
 
+                      {/* Submit Button */}
                       <Button type="submit" className="login-button" disabled={animating}>
                         Crear Cuenta
                       </Button>
                     </form>
 
+                    {/* Switch to Login */}
                     <div className="login-switch-form">
                       ¿Ya tienes una cuenta?{" "}
                       <span className="login-link" onClick={toggleForm}>
@@ -1095,6 +1095,7 @@ const Login = () => {
                       </span>
                     </div>
 
+                    {/* Newsletter Text */}
                     <div className="login-terms-text">
                       Al registrarte, aceptas recibir correos electrónicos sobre nuestros productos y eventos
                       culturales.
