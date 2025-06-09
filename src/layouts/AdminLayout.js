@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './admin/SidebarAdmin';
 import NavbarAdmin from './admin/NavbarAdmin';
-import { useAuth } from '../context/AuthContext'; // Corregimos la ruta del AuthContext
-import { colors } from '../styles/styles'; // Añadir esta importación
+import { useAuth } from '../context/AuthContext';
+import { colors } from '../styles/styles';
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user } = useAuth();
   
-  // Esta función se pasará al sidebar para mantener sincronizado el estado
   const handleSidebarToggle = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
   
-  // Movemos la verificación después de los hooks
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" replace />;
   }
@@ -77,7 +75,7 @@ const AdminLayout = () => {
       flex: 1,
       backgroundColor: '#f8f9fa',
       overflow: 'auto',
-      padding: '0', // Quitamos el padding aquí para que lo maneje cada componente
+      padding: '0',
       transition: 'all 0.3s ease-in-out'
     },
     breadcrumb: {
@@ -91,19 +89,17 @@ const AdminLayout = () => {
 
   return (
     <div style={styles.mainContainer}>
-      <Sidebar 
-        collapsed={sidebarCollapsed} 
-        onToggle={handleSidebarToggle} 
-      />
-      
-      <div style={styles.content}>
-        <NavbarAdmin />
+        <Sidebar 
+            collapsed={sidebarCollapsed} 
+            onToggle={handleSidebarToggle} 
+        />
         
-        {/* Contenido de la página */}
-        <div style={styles.pageContent}>
-          <Outlet />
+        <div style={styles.content}>
+            <NavbarAdmin />
+            <div style={styles.pageContent}>
+                <Outlet />
+            </div>
         </div>
-      </div>
     </div>
   );
 };

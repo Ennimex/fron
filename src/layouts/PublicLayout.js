@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./public/PublicNavbar";
-import Footer from "./private/FooterPrivate";
+import Footer from "./shared/Footer"; // Actualizar importación
 
 const PublicLayout = () => {
   return (

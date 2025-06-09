@@ -20,7 +20,6 @@ const Contacto = () => {
     formSection: false,
     social: false,
     map: false,
-    faq: false,
     cta: false
   });
 
@@ -42,8 +41,7 @@ const Contacto = () => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, formSection: true })), 500);
     setTimeout(() => setIsVisible(prev => ({ ...prev, social: true })), 700);
     setTimeout(() => setIsVisible(prev => ({ ...prev, map: true })), 900);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, faq: true })), 1100);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1300);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1100);
   }, []);
 
   const handleInputChange = (e) => {
@@ -116,25 +114,6 @@ const Contacto = () => {
       name: "Twitter",
       handle: "@AterciopeladaMX",
       url: "https://twitter.com/aterciopeladamx"
-    }
-  ];
-
-  const faqs = [
-    {
-      question: "¿Cómo puedo realizar un pedido personalizado?",
-      answer: "Ofrecemos servicios de personalización para todas nuestras prendas. Contáctanos con tus requerimientos y te enviaremos una cotización."
-    },
-    {
-      question: "¿Cuáles son los tiempos de entrega?",
-      answer: "Los envíos dentro de México tardan de 3 a 5 días hábiles. Para pedidos personalizados, el tiempo varía según la complejidad (normalmente 2-3 semanas)."
-    },
-    {
-      question: "¿Ofrecen envíos internacionales?",
-      answer: "Sí, realizamos envíos a todo el mundo. Los costos y tiempos varían según el destino."
-    },
-    {
-      question: "¿Puedo visitar su taller?",
-      answer: "¡Claro! Nuestro taller en Huejutla está abierto al público. Recomendamos agendar una cita para brindarte mejor atención."
     }
   ];
 
@@ -288,11 +267,6 @@ const Contacto = () => {
       transform: isVisible.map ? "translateY(0)" : "translateY(20px)",
       transition: "all 0.8s ease-out"
     },
-    faqSection: {
-      opacity: isVisible.faq ? 1 : 0,
-      transform: isVisible.faq ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
-    },
     ctaSection: {
       background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
       padding: "80px 0",
@@ -319,13 +293,6 @@ const Contacto = () => {
       borderRadius: "12px",
       transition: "all 0.3s ease",
       height: "100%"
-    },
-    faqCard: {
-      background: colors.warmBeige,
-      borderRadius: "12px",
-      border: "none",
-      marginBottom: "20px",
-      boxShadow: "0 4px 15px rgba(0,0,0,0.1)"
     }
   };
 
@@ -516,24 +483,6 @@ const Contacto = () => {
                   </a>
                 ))}
               </div>
-              
-              <Card className="border-0 shadow-sm" style={{ background: colors.warmBeige }}>
-                <Card.Body className="text-center">
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: colors.darkPurple, marginBottom: "1rem" }}>
-                    Boletín Cultural
-                  </h3>
-                  <p style={{ color: colors.darkGrey, marginBottom: "1.5rem" }}>
-                    Suscríbete para recibir noticias sobre eventos, talleres y nuevas colecciones
-                  </p>
-                  <Button 
-                    variant="outline-dark" 
-                    style={{ borderColor: colors.deepRed, color: colors.deepRed }}
-                    onClick={() => navigate("/newsletter")}
-                  >
-                    Suscribirme
-                  </Button>
-                </Card.Body>
-              </Card>
             </Col>
           </Row>
         </section>
@@ -561,61 +510,33 @@ const Contacto = () => {
           </div>
         </section>
 
-        {/* Preguntas Frecuentes */}
-        <section style={customStyles.faqSection}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
-            Preguntas Frecuentes
-            <span style={customStyles.titleUnderline}></span>
-          </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem" }}>
-            Resolvemos tus dudas sobre nuestros productos y servicios
-          </p>
-          
-          <Row className="g-4">
-            {faqs.map((faq, index) => (
-              <Col md={6} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
-                <Card className="h-100 hover-card" style={{ borderLeft: `3px solid ${index % 2 === 0 ? colors.deepRed : colors.emeraldGreen}` }}>
-                  <Card.Body>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 600, color: colors.darkPurple, marginBottom: "1rem" }}>
-                      {faq.question}
-                    </h3>
-                    <p style={{ color: colors.darkGrey, lineHeight: "1.6" }}>
-                      {faq.answer}
-                    </p>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+        {/* CTA Section */}
+        <section style={customStyles.ctaSection}>
+          <Container style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+            <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, marginBottom: "1rem" }}>
+              ¿Listo para descubrir más?
+            </h2>
+            <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, opacity: 0.9, maxWidth: "700px", margin: "0 auto 2rem" }}>
+              Explora nuestra colección completa de prendas y accesorios artesanales
+            </p>
+            <Button 
+              className="animate-in" 
+              style={{ 
+                background: colors.warmBeige, 
+                color: colors.deepRed, 
+                border: "none",
+                padding: "12px 30px",
+                fontWeight: "600",
+                fontSize: "1.1rem",
+                borderRadius: "30px"
+              }}
+              onClick={() => navigate("/productos")}
+            >
+              Ver Colección
+            </Button>
+          </Container>
         </section>
       </Container>
-
-      {/* CTA Section */}
-      <section style={customStyles.ctaSection}>
-        <Container style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, marginBottom: "1rem" }}>
-            ¿Listo para descubrir más?
-          </h2>
-          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, opacity: 0.9, maxWidth: "700px", margin: "0 auto 2rem" }}>
-            Explora nuestra colección completa de prendas y accesorios artesanales
-          </p>
-          <Button 
-            className="animate-in" 
-            style={{ 
-              background: colors.warmBeige, 
-              color: colors.deepRed, 
-              border: "none",
-              padding: "12px 30px",
-              fontWeight: "600",
-              fontSize: "1.1rem",
-              borderRadius: "30px"
-            }}
-            onClick={() => navigate("/productos")}
-          >
-            Ver Colección
-          </Button>
-        </Container>
-      </section>
     </>
   );
 };

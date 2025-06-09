@@ -1,7 +1,8 @@
 import React from "react";
 import { Container } from "react-bootstrap";
 import { Outlet, Navigate } from "react-router-dom";
-import NavbarPrivada from "../layouts/private/NabvarPrivate";
+import NavbarPrivada from "./private/NabvarPrivate";
+import Footer from "./shared/Footer"; // Actualizar importación
 import { useAuth } from "../context/AuthContext";
 
 const PrivateLayout = () => {
@@ -44,15 +45,15 @@ const PrivateLayout = () => {
 
   return (
     <div style={styles.mainContainer}>
-      <div style={styles.content}>
-        <NavbarPrivada />
-        
-        <div style={styles.pageContent}>
-          <Container fluid className="px-0">
-            <Outlet />
-          </Container>
+        <div style={styles.content}>
+            <NavbarPrivada />
+            <div style={styles.pageContent}>
+                <Container fluid className="px-0">
+                    <Outlet />
+                </Container>
+            </div>
+            <Footer /> {/* Añadir el Footer */}
         </div>
-      </div>
     </div>
   );
 };
