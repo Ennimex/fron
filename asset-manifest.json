@@ -1,0 +1,35 @@
+{
+  "files": {
+    "main.css": "/fron/static/css/main.2f0dde6a.css",
+    "main.js": "/fron/static/js/main.a103ef23.js",
+    "static/js/738.4c2c056d.chunk.js": "/fron/static/js/738.4c2c056d.chunk.js",
+    "static/js/653.aa15ee29.chunk.js": "/fron/static/js/653.aa15ee29.chunk.js",
+    "static/js/923.8052dd9e.chunk.js": "/fron/static/js/923.8052dd9e.chunk.js",
+    "static/js/627.24e6239b.chunk.js": "/fron/static/js/627.24e6239b.chunk.js",
+    "static/js/938.ff6a3bce.chunk.js": "/fron/static/js/938.ff6a3bce.chunk.js",
+    "static/js/247.5ecf69a5.chunk.js": "/fron/static/js/247.5ecf69a5.chunk.js",
+    "static/js/82.51b25a8f.chunk.js": "/fron/static/js/82.51b25a8f.chunk.js",
+    "static/js/768.136aca7d.chunk.js": "/fron/static/js/768.136aca7d.chunk.js",
+    "static/js/834.8efa10ee.chunk.js": "/fron/static/js/834.8efa10ee.chunk.js",
+    "static/js/453.757d9adc.chunk.js": "/fron/static/js/453.757d9adc.chunk.js",
+    "static/media/bootstrap-icons.woff?": "/fron/static/media/bootstrap-icons.ff25a7ff93ea67f144c5.woff",
+    "static/media/bootstrap-icons.woff2?": "/fron/static/media/bootstrap-icons.ca961065e092080ca3f5.woff2",
+    "index.html": "/fron/index.html",
+    "main.2f0dde6a.css.map": "/fron/static/css/main.2f0dde6a.css.map",
+    "main.a103ef23.js.map": "/fron/static/js/main.a103ef23.js.map",
+    "738.4c2c056d.chunk.js.map": "/fron/static/js/738.4c2c056d.chunk.js.map",
+    "653.aa15ee29.chunk.js.map": "/fron/static/js/653.aa15ee29.chunk.js.map",
+    "923.8052dd9e.chunk.js.map": "/fron/static/js/923.8052dd9e.chunk.js.map",
+    "627.24e6239b.chunk.js.map": "/fron/static/js/627.24e6239b.chunk.js.map",
+    "938.ff6a3bce.chunk.js.map": "/fron/static/js/938.ff6a3bce.chunk.js.map",
+    "247.5ecf69a5.chunk.js.map": "/fron/static/js/247.5ecf69a5.chunk.js.map",
+    "82.51b25a8f.chunk.js.map": "/fron/static/js/82.51b25a8f.chunk.js.map",
+    "768.136aca7d.chunk.js.map": "/fron/static/js/768.136aca7d.chunk.js.map",
+    "834.8efa10ee.chunk.js.map": "/fron/static/js/834.8efa10ee.chunk.js.map",
+    "453.757d9adc.chunk.js.map": "/fron/static/js/453.757d9adc.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2f0dde6a.css",
+    "static/js/main.a103ef23.js"
+  ]
+}
