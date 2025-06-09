@@ -1,11 +1,13 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
+
 // Importación de layouts
 import PublicLayout from "./layouts/PublicLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
 import AdminLayout from "./layouts/AdminLayout";
+
 // Importación de páginas públicas
 import Inicio from "./pages/public/Inicio";
 import Productos from "./pages/public/Productos";
@@ -15,26 +17,22 @@ import Contacto from "./pages/public/Contacto";
 import Login from "./pages/public/Login";
 import Galeria from "./pages/public/Galeria";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
+
 // Importación de componentes privados
 import Perfil from "./pages/Private/Perfil";
-/*
-";
-import MisProductos from "./pages/Private/MisProductos";
-import Mensajes from "./pages/Private/Mensajes";
-import HistorialCompras from "./pages/Private/HistorialCompras";
-import MiCuenta from "./pages/Private/MiCuenta";
-*/
+// import MisProductos from "./pages/Private/MisProductos";
+// import Mensajes from "./pages/Private/Mensajes";
+// import HistorialCompras from "./pages/Private/HistorialCompras";
+// import MiCuenta from "./pages/Private/MiCuenta";
+
 // Importación de componentes de administración
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminUsersView from "./pages/Admin/AdminUsersView";
-// Importar componentes de productos
-/*
-import AdminProductosView from "./pages/Admin/AdminProductosView";
-import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
-import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
-*/
-import { AuthProvider} from "./context/AuthContext";
+// import AdminProductosView from "./pages/Admin/AdminProductosView";
+// import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
+// import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
 
+import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
@@ -57,12 +55,13 @@ function App() {
 
             {/* Rutas Privadas usando PrivateLayout */}
             <Route element={<PrivateLayout />}>
-              <Route path="/Inicio" element={<PrivateRoute><Inicio/></PrivateRoute>}/>
-              <Route path="/perfil" element={<PrivateRoute><Perfil/></PrivateRoute>}/>
+              <Route path="/Inicio" element={<PrivateRoute><Inicio /></PrivateRoute>} />
+              <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
             </Route>
+
             {/* Rutas de administración usando AdminLayout */}
             <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>}/>
+              <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>} />
               <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={['admin']}><AdminUsersView /></PrivateRoute>} />
             </Route>
 
