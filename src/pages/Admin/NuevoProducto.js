@@ -82,6 +82,7 @@ const GestionProductos = () => {
   // Manejadores de eventos para formulario
   const handleChange = (e) => {
     const { name, value } = e.target
+    console.log(`Input changed: ${name} = ${value}`)
     setProducto((prev) => ({
       ...prev,
       [name]: value,
@@ -92,12 +93,14 @@ const GestionProductos = () => {
     setProducto((prev) => {
       const exists = prev.tallasDisponibles.some((t) => t._id === tallaId)
       if (exists) {
+        console.log(`Talla removed: ${tallaId}`)
         return {
           ...prev,
           tallasDisponibles: prev.tallasDisponibles.filter((t) => t._id !== tallaId),
         }
       } else {
         const talla = tallas.find((t) => t._id === tallaId)
+        console.log(`Talla added: ${tallaId} (${talla.talla})`)
         return {
           ...prev,
           tallasDisponibles: [...prev.tallasDisponibles, talla],
@@ -108,14 +111,19 @@ const GestionProductos = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
-    if (!file) return
+    if (!file) {
+      console.log("No image selected")
+      return
+    }
 
     if (!file.type.match("image.*")) {
+      console.log("Invalid file type selected")
       setError("Por favor, selecciona un archivo de imagen válido")
       return
     }
 
     if (file.size > 5 * 1024 * 1024) {
+      console.log(`Image too large: ${file.size} bytes`)
       setError("La imagen no debe exceder los 5MB")
       return
     }
@@ -123,6 +131,7 @@ const GestionProductos = () => {
     setError(null)
     const reader = new FileReader()
     reader.onloadend = () => {
+      console.log(`Image preview generated: ${file.name}`)
       setImagePreview(reader.result)
     }
     reader.readAsDataURL(file)
@@ -132,19 +141,25 @@ const GestionProductos = () => {
     e.preventDefault()
 
     if (producto.tallasDisponibles.length === 0) {
+      console.log("Form submission failed: No tallas selected")
       setError("Selecciona al menos una talla disponible")
       return
     }
+
+    console.log("Submitting form with data:", {
+      ...producto,
+      tallasDisponibles: producto.tallasDisponibles.map((t) => t._id),
+    })
 
     setLoading(true)
     setError(null)
 
     try {
       const formData = new FormData()
-
       Object.entries(producto).forEach(([key, value]) => {
         if (key === "tallasDisponibles") {
-          value.forEach((t) => formData.append(`${key}._id`, t._id)) // Send _id of each talla object
+          // Append each talla ID as part of an array
+          value.forEach((t) => formData.append(`tallasDisponibles[]`, t._id))
         } else {
           formData.append(key, value)
         }
@@ -152,9 +167,11 @@ const GestionProductos = () => {
 
       const imageInput = document.querySelector('input[type="file"]')
       if (imageInput.files[0]) {
+        console.log(`Appending image to form: ${imageInput.files[0].name}`)
         formData.append("imagen", imageInput.files[0])
       }
 
+      console.log("Sending POST request to create product")
       const response = await axios.post("http://localhost:5000/api/productos", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -162,15 +179,14 @@ const GestionProductos = () => {
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          console.log(`Upload progress: ${percentCompleted}%`)
           setUploadProgress(percentCompleted)
         },
       })
 
       if (response.status === 201) {
-        // Actualizar lista de productos
+        console.log("Product created successfully:", response.data)
         setProductos((prev) => [response.data, ...prev])
-
-        // Resetear formulario
         setProducto({
           nombre: "",
           descripcion: "",
@@ -179,20 +195,17 @@ const GestionProductos = () => {
           tallasDisponibles: [],
         })
         setImagePreview(null)
-
-        // Cerrar modal
         setShowCreateModal(false)
-
-        // Mostrar mensaje de éxito
         setError(null)
         alert("Producto creado exitosamente")
       }
     } catch (err) {
-      console.error("Error al crear producto:", err)
+      console.error("Error during form submission:", err)
       setError(
         err.response?.data?.message || err.message || "Error al crear el producto. Por favor, intenta nuevamente.",
       )
     } finally {
+      console.log("Form submission completed, resetting loading state")
       setLoading(false)
       setUploadProgress(0)
     }
@@ -221,7 +234,6 @@ const GestionProductos = () => {
       producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
 
-    // Si el filtro de localidad está activo, verificamos si coincide
     const matchesLocalidad =
       !filterLocalidad ||
       (typeof producto.localidadId === "object" && producto.localidadId?._id === filterLocalidad) ||
@@ -232,22 +244,17 @@ const GestionProductos = () => {
 
   // Función para obtener el nombre de la localidad
   const getLocalidadNombre = (localidadId) => {
-    // Si localidadId es un objeto con propiedad _id
     if (typeof localidadId === "object" && localidadId !== null) {
-      // Si el objeto tiene directamente el nombre, lo usamos
       if (localidadId.nombre) {
         return localidadId.nombre
       }
-      // Si no, buscamos por el _id en la lista de localidades
       const localidad = localidades.find((l) => l._id === localidadId._id)
       if (localidad) return localidad.nombre
     }
 
-    // Si es un string (ID), buscamos en la lista de localidades
     const localidad = localidades.find((l) => l._id === localidadId)
     if (localidad) return localidad.nombre
 
-    // Si no encontramos nada, devolvemos un mensaje
     return "Sin localidad"
   }
 
@@ -392,15 +399,12 @@ const GestionProductos = () => {
       borderBottom: "1px solid #f1f3f4",
       transition: "background-color 0.2s ease",
     },
-    tableRowHover: {
-      backgroundColor: "#f8f9fa",
-    },
     tableCell: {
       padding: "1rem",
       borderRight: "1px solid #f1f3f4",
       fontSize: "0.9rem",
       color: "#374151",
-      whiteSpace: "normal", // Allow text wrapping
+      whiteSpace: "normal",
     },
     productImage: {
       width: "50px",
