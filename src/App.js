@@ -28,6 +28,7 @@ import Perfil from "./pages/Private/Perfil";
 // Importación de componentes de administración
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminUsersView from "./pages/Admin/AdminUsersView";
+import AdminNuevoProducto from "./pages/Admin/NuevoProducto";
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
 // import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
@@ -63,6 +64,8 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>} />
               <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={['admin']}><AdminUsersView /></PrivateRoute>} />
+              <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={['admin']}><AdminNuevoProducto /></PrivateRoute>} />
+            
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

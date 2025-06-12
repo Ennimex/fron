@@ -9,6 +9,11 @@ import {
   FaHome,
   FaBars,
   FaSignOutAlt,
+  FaBox,
+  FaBoxOpen,
+  FaChevronDown,
+  FaPlus,
+  FaList,
 } from "react-icons/fa"
 import { colors, typography } from "../../styles/styles"
 
@@ -17,30 +22,28 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
 
-  // Estados mejorados para evitar colapsos inesperados
+  // States
   const [isCollapsed, setIsCollapsed] = useState(collapsed)
   const [isMobile, setIsMobile] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
-
-  // Referencias para cleanup
-  const resizeTimeoutRef = useRef(null)
-  const transitionTimeoutRef = useRef(null)
-
-  // Estado para controlar submenús expandidos con persistencia
   const [expandedMenus, setExpandedMenus] = useState(() => {
     const saved = localStorage.getItem("sidebar-expanded-menus")
     return saved
       ? JSON.parse(saved)
       : {
           usuarios: false,
-          productos: false, // Cambiamos 'iot' por 'productos'
+          productos: false,
           informacion: false,
           politicas: false,
           preguntas: false,
         }
   })
 
-  // Detectar tamaño de pantalla con debounce mejorado
+  // References
+  const resizeTimeoutRef = useRef(null)
+  const transitionTimeoutRef = useRef(null)
+
+  // Handle resize with debounce
   const handleResize = useCallback(() => {
     if (resizeTimeoutRef.current) {
       clearTimeout(resizeTimeoutRef.current)
@@ -48,16 +51,12 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
 
     resizeTimeoutRef.current = setTimeout(() => {
       const newIsMobile = window.innerWidth < 768
-
       if (newIsMobile !== isMobile) {
         setIsMobile(newIsMobile)
-
         if (newIsMobile) {
-          // En móvil, colapsar automáticamente
           setIsCollapsed(true)
           onToggle?.(true)
         } else {
-          // En desktop, restaurar estado previo
           const savedCollapsed = localStorage.getItem("sidebar-collapsed")
           const shouldCollapse = savedCollapsed ? JSON.parse(savedCollapsed) : collapsed
           setIsCollapsed(shouldCollapse)
@@ -67,14 +66,12 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     }, 150)
   }, [isMobile, collapsed, onToggle])
 
-  // Inicialización mejorada
+  // Initial setup
   useEffect(() => {
     const checkInitialState = () => {
       const newIsMobile = window.innerWidth < 768
       setIsMobile(newIsMobile)
-
       if (!newIsMobile) {
-        // Solo en desktop, usar estado guardado o prop
         const savedCollapsed = localStorage.getItem("sidebar-collapsed")
         const initialCollapsed = savedCollapsed ? JSON.parse(savedCollapsed) : collapsed
         setIsCollapsed(initialCollapsed)
@@ -93,40 +90,37 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     }
   }, [handleResize, collapsed])
 
-  // Sincronizar con prop solo si no es móvil
+  // Sync with prop
   useEffect(() => {
     if (!isMobile && collapsed !== isCollapsed) {
       setIsCollapsed(collapsed)
     }
   }, [collapsed, isMobile, isCollapsed])
 
-  // Verificar autenticación
+  // Authentication check
   useEffect(() => {
     if (!user?.isAuthenticated || user?.role !== "admin") {
       navigate("/login")
     }
   }, [user, navigate])
 
-  // Guardar estado de menús expandidos
+  // Save expanded menus
   useEffect(() => {
     localStorage.setItem("sidebar-expanded-menus", JSON.stringify(expandedMenus))
   }, [expandedMenus])
 
-  // Función mejorada para toggle de sidebar
+  // Toggle sidebar
   const toggleSidebar = useCallback(() => {
     const newCollapsedState = !isCollapsed
-
     setIsTransitioning(true)
     setIsCollapsed(newCollapsedState)
     onToggle?.(newCollapsedState)
 
-    // Guardar estado solo en desktop
     if (!isMobile) {
       localStorage.setItem("sidebar-collapsed", JSON.stringify(newCollapsedState))
     }
 
     if (newCollapsedState) {
-      // Colapsar todos los submenús cuando se colapsa la barra lateral
       setExpandedMenus({
         usuarios: false,
         productos: false,
@@ -134,11 +128,6 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
         politicas: false,
         preguntas: false,
       })
-    }
-
-    // Reset transitioning state
-    if (transitionTimeoutRef.current) {
-      clearTimeout(transitionTimeoutRef.current)
     }
 
     transitionTimeoutRef.current = setTimeout(() => {
@@ -151,7 +140,15 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     navigate("/login")
   }, [logout, navigate])
 
-  // Estilos mejorados con mejor responsividad
+  // Toggle submenu
+  const toggleSubmenu = (menu) => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [menu]: !prev[menu],
+    }))
+  }
+
+  // Styles with improvements
   const styles = {
     sidebar: {
       width: isCollapsed ? "70px" : "280px",
@@ -165,9 +162,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       overflowX: "hidden",
       overflowY: "auto",
       boxShadow: "2px 0 10px rgba(0,0,0,0.2)",
-      // Mejorar scroll en móvil
       WebkitOverflowScrolling: "touch",
-      // Evitar selección de texto durante transiciones
       userSelect: isTransitioning ? "none" : "auto",
     },
     logo: {
@@ -193,18 +188,15 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       width: "100%",
       height: "56px",
       transition: "background-color 0.2s ease",
-      ":hover": {
-        backgroundColor: "rgba(255,255,255,0.1)",
-      },
     },
     menuItems: {
       padding: 0,
       listStyle: "none",
       margin: 0,
-      marginTop: "20px",
+      marginTop: "10px",
+      flexGrow: 1,
     },
     menuItem: {
-      overflow: "hidden",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -221,7 +213,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       width: "100%",
       padding: isCollapsed ? "0" : "0 20px",
       transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-      height: "56px",
+      height: "48px",
       cursor: "pointer",
     },
     menuLinkActive: {
@@ -240,58 +232,53 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       color: "white",
       width: "70px",
       minWidth: "70px",
-      height: "56px",
+      height: "48px",
     },
     menuText: {
       opacity: isCollapsed ? 0 : 1,
       visibility: isCollapsed ? "hidden" : "visible",
       transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
       whiteSpace: "nowrap",
-      fontSize: "14px",
+      fontSize: "13px",
       fontWeight: 500,
       width: isCollapsed ? 0 : "auto",
       overflow: "hidden",
-      transform: isCollapsed ? "translateX(-10px)" : "translateX(0)",
     },
     submenuContainer: {
-      overflow: "hidden",
-      maxHeight: isCollapsed
-        ? "0"
-        : expandedMenus.usuarios ||
-            expandedMenus.productos ||
-            expandedMenus.informacion ||
-            expandedMenus.politicas ||
-            expandedMenus.preguntas
-          ? "500px"
-          : "0",
-      transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
       width: "100%",
+      maxHeight: isCollapsed ? "0" : "auto",
+      transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
+      opacity: isCollapsed ? 0 : 1,
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      overflow: "hidden",
     },
     submenuItem: {
       paddingLeft: "30px",
-      marginTop: "2px",
-      marginBottom: "2px",
+      margin: "2px 0",
       width: "100%",
     },
     submenuLink: {
       display: "flex",
       alignItems: "center",
-      padding: "12px 10px 12px 50px",
+      padding: "10px 10px 10px 50px",
       color: colors.white,
       textDecoration: "none",
       fontFamily: typography.fontSecondary,
-      fontSize: "13px",
+      fontSize: "12px",
       transition: "background-color 0.2s ease",
       borderRadius: "4px",
       margin: "2px 10px",
       width: "calc(100% - 20px)",
     },
+    submenuLinkActive: {
+      backgroundColor: "rgba(255, 255, 255, 0.15)",
+      fontWeight: "bold",
+    },
     submenuLinkHover: {
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
     submenuText: {
-      marginLeft: "10px",
+      marginLeft: "8px",
       whiteSpace: "nowrap",
     },
     menuToggle: {
@@ -299,17 +286,18 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       right: "20px",
       visibility: isCollapsed ? "hidden" : "visible",
       opacity: isCollapsed ? 0 : 1,
-      transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "opacity 0.2s ease, visibility 0.2s ease",
       color: colors.white,
     },
     footer: {
-      padding: isCollapsed ? "10px 0" : "15px",
+      padding: isCollapsed ? "10px 0" : "15px 20px",
       borderTop: `1px solid rgba(255,255,255,0.1)`,
       textAlign: isCollapsed ? "center" : "left",
       position: "sticky",
       bottom: 0,
       width: "100%",
       backgroundColor: "#0D1B2A",
+      zIndex: 10,
     },
     logoutBtn: {
       display: "flex",
@@ -322,22 +310,22 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       backgroundColor: "transparent",
       cursor: "pointer",
       fontFamily: typography.fontSecondary,
-      fontSize: "14px",
+      fontSize: "13px",
       justifyContent: isCollapsed ? "center" : "flex-start",
       height: "40px",
       transition: "background-color 0.2s ease",
     },
     logoutText: {
-      marginLeft: "10px",
+      marginLeft: "8px",
       opacity: isCollapsed ? 0 : 1,
       visibility: isCollapsed ? "hidden" : "visible",
-      transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "opacity 0.2s ease, visibility 0.2s ease",
       whiteSpace: "nowrap",
       width: isCollapsed ? 0 : "auto",
       overflow: "hidden",
     },
     userInfo: {
-      padding: "1rem",
+      padding: isCollapsed ? "10px" : "10px 20px",
       borderBottom: "1px solid rgba(255,255,255,0.1)",
       display: "flex",
       alignItems: "center",
@@ -349,51 +337,51 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       zIndex: 9,
     },
     userName: {
-      fontSize: "0.9rem",
+      fontSize: isCollapsed ? "0" : "0.85rem",
       opacity: isCollapsed ? 0 : 0.9,
       visibility: isCollapsed ? "hidden" : "visible",
       transition: "opacity 0.2s ease, visibility 0.2s ease",
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
-      maxWidth: "150px",
+      maxWidth: "140px",
     },
     userAvatar: {
-      width: "35px",
-      height: "35px",
+      width: "32px",
+      height: "32px",
       borderRadius: "50%",
       backgroundColor: "#3498db",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "0.9rem",
+      fontSize: "0.85rem",
       fontWeight: "bold",
       flexShrink: 0,
+    },
+    submenuIcon: {
+      transition: "transform 0.3s ease",
     },
   }
 
   const isActive = useCallback(
-    (path) => {
-      return location.pathname === path
+    (path, exact = false) => {
+      if (exact) {
+        return location.pathname === path
+      }
+      return location.pathname.startsWith(path)
     },
     [location.pathname],
   )
 
-  // Componente de enlace de menú mejorado
-  const MenuLink = ({ to, children, style, activeStyle, onClick }) => {
-    const [isHovered, setIsHovered] = useState(false)
-    const active = isActive(to)
-
+  const MenuLink = ({ to, children, style, activeStyle, onClick, exact = false }) => {
+    const active = isActive(to, exact)
     return (
       <Link
         to={to}
         style={{
           ...style,
           ...(active ? activeStyle : {}),
-          ...(isHovered && !active ? styles.menuLinkHover : {}),
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         onClick={onClick}
       >
         {children}
@@ -407,11 +395,10 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
         <button
           style={styles.toggleButton}
           onClick={toggleSidebar}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = "rgba(255,255,255,0.1)")}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
           aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
+          aria-expanded={!isCollapsed}
         >
-          <FaBars size={22} color="white" />
+          <FaBars size={20} color="white" />
         </button>
       </div>
 
@@ -423,59 +410,111 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       <ul style={styles.menuItems}>
         {user?.role === "admin" && (
           <>
-            {/* Dashboard Link */}
             <li style={styles.menuItem}>
-              <MenuLink 
-                to="/admin" 
-                style={styles.menuLink} 
-                activeStyle={styles.menuLinkActive}
-                end // Agregado para que solo active en /admin exacto
-              >
+              <MenuLink to="/admin" style={styles.menuLink} activeStyle={styles.menuLinkActive} exact>
                 <span style={styles.menuIcon}>
-                  <FaChartBar size={22} />
+                  <FaChartBar size={20} />
                 </span>
                 <span style={styles.menuText}>Dashboard</span>
               </MenuLink>
             </li>
 
-            {/* Usuarios Link - Modificado para estar activo cuando la ruta empiece con /admin/usuarios */}
             <li style={styles.menuItem}>
-              <MenuLink 
-                to="/admin/usuarios" 
-                style={styles.menuLink}
-                activeStyle={styles.menuLinkActive}
-              >
+              <MenuLink to="/admin/usuarios" style={styles.menuLink} activeStyle={styles.menuLinkActive}>
                 <span style={styles.menuIcon}>
-                  <FaUsers size={22} />
+                  <FaUsers size={20} />
                 </span>
                 <span style={styles.menuText}>Usuarios</span>
               </MenuLink>
             </li>
+
+            <li style={styles.menuItem}>
+              <div
+                style={{
+                  ...styles.menuLink,
+                  ...(isActive("/admin/productos") ? styles.menuLinkActive : {}),
+                }}
+                onClick={() => toggleSubmenu("productos")}
+                role="button"
+                aria-expanded={expandedMenus.productos}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && toggleSubmenu("productos")}
+              >
+                <span style={styles.menuIcon}>
+                  <FaBox size={20} />
+                </span>
+                <span style={styles.menuText}>Productos</span>
+                {!isCollapsed && (
+                  <span style={styles.menuToggle}>
+                    <FaChevronDown
+                      size={12}
+                      style={{
+                        ...styles.submenuIcon,
+                        transform: expandedMenus.productos ? "rotate(0deg)" : "rotate(-90deg)",
+                      }}
+                    />
+                  </span>
+                )}
+              </div>
+
+              <div
+                style={{
+                  ...styles.submenuContainer,
+                  maxHeight: expandedMenus.productos && !isCollapsed ? "1000px" : "0",
+                  opacity: expandedMenus.productos && !isCollapsed ? 1 : 0,
+                }}
+              >
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/productos"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                    exact
+                  >
+                    <FaBoxOpen size={14} />
+                    <span style={styles.submenuText}>Todos los Productos</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/productos/nuevo"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaPlus size={14} />
+                    <span style={styles.submenuText}>Agregar Nuevo</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/productos/categorias"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaList size={14} />
+                    <span style={styles.submenuText}>Categorías</span>
+                  </MenuLink>
+                </div>
+              </div>
+            </li>
           </>
         )}
 
-        {/* Elementos comunes */}
         <li style={styles.menuItem}>
           <MenuLink to="/" style={styles.menuLink} activeStyle={styles.menuLinkActive}>
             <span style={styles.menuIcon}>
-              <FaHome size={22} />
+              <FaHome size={20} />
             </span>
             <span style={styles.menuText}>Ir al Sitio</span>
           </MenuLink>
         </li>
 
-        {/* Botón de logout */}
-        <li style={styles.menuItem}>
-          <button
-            onClick={handleLogout}
-            style={styles.menuLink}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "rgba(255,255,255,0.08)")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
-          >
+        <li style={styles.footer}>
+          <button onClick={handleLogout} style={styles.logoutBtn} aria-label="Cerrar sesión">
             <span style={styles.menuIcon}>
-              <FaSignOutAlt size={22} />
+              <FaSignOutAlt size={20} />
             </span>
-            <span style={styles.menuText}>Cerrar Sesión</span>
+            <span style={styles.logoutText}>Cerrar Sesión</span>
           </button>
         </li>
       </ul>
