@@ -28,7 +28,7 @@ import Perfil from "./pages/Private/Perfil";
 // Importación de componentes de administración
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminUsersView from "./pages/Admin/AdminUsersView";
-import AdminNuevoProducto from "./pages/Admin/NuevoProducto";
+import AdminNuevoProducto from "./pages/Admin/GestionProductos";
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
 // import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";

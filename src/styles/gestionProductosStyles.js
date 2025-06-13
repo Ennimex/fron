@@ -1,3 +1,4 @@
+// gestionProductosStyles.js
 export const styles = {
   pageContainer: {
     minHeight: "100vh",

@@ -16,7 +16,8 @@ const GestionProductos = () => {
   const [productos, setProductos] = useState([]);
 
   // Estados para UI
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // Unified modal state
+  const [isEditMode, setIsEditMode] = useState(false); // Track create vs edit mode
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -153,19 +154,53 @@ const GestionProductos = () => {
         formData.append("imagen", imageInput.files[0]);
       }
 
-      const response = await axios.post("http://localhost:5000/api/productos", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${user.token}`,
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        },
-      });
+      let response;
+      if (isEditMode) {
+        // Update product
+        response = await axios.put(
+          `http://localhost:5000/api/productos/${producto._id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${user.token}`,
+            },
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              setUploadProgress(percentCompleted);
+            },
+          }
+        );
+      } else {
+        // Create product
+        response = await axios.post("http://localhost:5000/api/productos", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${user.token}`,
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          },
+        });
+      }
 
-      if (response.status === 201) {
-        setProductos((prev) => [response.data, ...prev]);
+      if (response.status === 201 || response.status === 200) {
+        if (isEditMode) {
+          setProductos((prev) =>
+            prev.map((p) =>
+              p._id === producto._id ? response.data.producto : p
+            )
+          );
+          alert("Producto actualizado exitosamente");
+        } else {
+          setProductos((prev) => [response.data, ...prev]);
+          alert("Producto creado exitosamente");
+        }
         setProducto({
           nombre: "",
           descripcion: "",
@@ -174,11 +209,11 @@ const GestionProductos = () => {
           tallasDisponibles: [],
         });
         setImagePreview(null);
-        setShowCreateModal(false);
+        setShowModal(false);
+        setIsEditMode(false);
         setError(null);
-        alert("Producto creado exitosamente");
 
-        // Recargar los productos después de crear uno nuevo
+        // Recargar productos
         const productosResponse = await axios.get("http://localhost:5000/api/productos", {
           headers: { Authorization: `Bearer ${user.token}` },
         });
@@ -186,12 +221,28 @@ const GestionProductos = () => {
       }
     } catch (err) {
       setError(
-        err.response?.data?.message || err.message || "Error al crear el producto. Por favor, intenta nuevamente.",
+        err.response?.data?.message ||
+          err.message ||
+          `Error al ${isEditMode ? "actualizar" : "crear"} el producto. Por favor, intenta nuevamente.`
       );
     } finally {
       setLoading(false);
       setUploadProgress(0);
     }
+  };
+
+  const handleEditProduct = (product) => {
+    setProducto({
+      _id: product._id,
+      nombre: product.nombre,
+      descripcion: product.descripcion,
+      localidadId: product.localidadId?._id || product.localidadId,
+      tipoTela: product.tipoTela,
+      tallasDisponibles: product.tallasDisponibles || [],
+    });
+    setImagePreview(product.imagenURL || null);
+    setIsEditMode(true);
+    setShowModal(true);
   };
 
   const handleDeleteProduct = async (productId) => {
@@ -332,7 +383,18 @@ const GestionProductos = () => {
               <p style={styles.subtitle}>Administra tu catálogo de productos</p>
             </div>
 
-            <button className="add-button" style={styles.addButton} onClick={() => setShowCreateModal(true)}>
+            <button className="add-button" style={styles.addButton} onClick={() => {
+              setIsEditMode(false);
+              setProducto({
+                nombre: "",
+                descripcion: "",
+                localidadId: "",
+                tipoTela: "",
+                tallasDisponibles: [],
+              });
+              setImagePreview(null);
+              setShowModal(true);
+            }}>
               Agregar Producto
             </button>
           </div>
@@ -433,9 +495,7 @@ const GestionProductos = () => {
                             <button
                               className="action-button"
                               style={{ ...styles.actionButton, ...styles.editButton }}
-                              onClick={() => {
-                                alert("Función de edición próximamente");
-                              }}
+                              onClick={() => handleEditProduct(producto)}
                             >
                               Editar
                             </button>
@@ -469,13 +529,13 @@ const GestionProductos = () => {
         </div>
       </div>
 
-      {/* Modal para crear producto */}
-      {showCreateModal && (
-        <div style={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
+      {/* Modal para crear/editar producto */}
+      {showModal && (
+        <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <h2 style={styles.modalTitle}>Agregar Nuevo Producto</h2>
-              <button className="modal-close" onClick={() => setShowCreateModal(false)} style={styles.modalCloseButton}>
+              <h2 style={styles.modalTitle}>{isEditMode ? "Editar Producto" : "Agregar Nuevo Producto"}</h2>
+              <button className="modal-close" onClick={() => setShowModal(false)} style={styles.modalCloseButton}>
                 ×
               </button>
             </div>
@@ -570,7 +630,7 @@ const GestionProductos = () => {
                   {/* Campo Imagen */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      Imagen<span style={styles.requiredField}>*</span>
+                      Imagen{isEditMode ? "" : <span style={styles.requiredField}>*</span>}
                     </label>
                     <div
                       className="form-input"
@@ -586,7 +646,6 @@ const GestionProductos = () => {
                         name="imagen"
                         accept="image/*"
                         onChange={handleImageChange}
-                        required
                         disabled={loading}
                       />
                     </div>
@@ -666,7 +725,7 @@ const GestionProductos = () => {
                       cursor: "pointer",
                       flex: "1",
                     }}
-                    onClick={() => setShowCreateModal(false)}
+                    onClick={() => setShowModal(false)}
                     disabled={loading}
                   >
                     Cancelar
@@ -682,7 +741,7 @@ const GestionProductos = () => {
                     }}
                     disabled={loading}
                   >
-                    {loading ? "Procesando..." : "Guardar Producto"}
+                    {loading ? "Procesando..." : isEditMode ? "Actualizar Producto" : "Guardar Producto"}
                   </button>
                 </div>
               </form>
