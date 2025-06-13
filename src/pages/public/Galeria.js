@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Container, Table, Card } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
 import { closeOutline, chevronBackOutline, chevronForwardOutline, playCircleOutline } from 'ionicons/icons';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 const Galeria = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -122,12 +125,10 @@ const Galeria = () => {
       gap: '20px',
       marginTop: '30px'
     },
-    reelsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-      gap: '25px',
+    reelsCarousel: {
       marginTop: '30px',
-      padding: '0 15px'
+      padding: '0 15px',
+      position: 'relative',
     },
     galleryItem: {
       position: 'relative',
@@ -148,11 +149,12 @@ const Galeria = () => {
       borderRadius: '12px',
       boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
       cursor: 'pointer',
-      aspectRatio: '16/9',
-      height: 'auto',
+      aspectRatio: '9/16',
+      height: '450px',
+      margin: '0 10px',
       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       '&:hover': {
-        transform: 'translateY(-5px)',
+        transform: 'scale(1.05)',
         boxShadow: '0 12px 20px rgba(255, 0, 112, 0.3)'
       }
     },
@@ -162,14 +164,30 @@ const Galeria = () => {
       objectFit: 'cover',
       transition: 'transform 0.5s ease'
     },
+    reelVideo: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      borderRadius: '12px',
+    },
+    reelThumbnail: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      borderRadius: '12px',
+    },
     playIcon: {
       position: 'absolute',
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      fontSize: '50px',
+      fontSize: '60px',
       color: 'rgba(255, 255, 255, 0.9)',
-      zIndex: 2
+      zIndex: 2,
+      transition: 'opacity 0.3s ease',
+      '&:hover': {
+        opacity: 0.7
+      }
     },
     captionOverlay: {
       position: 'absolute',
@@ -354,40 +372,30 @@ const Galeria = () => {
     {
       id: 1,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-artisan-weaving-a-fabric-on-a-traditional-loom-51794-large.mp4',
       title: 'Proceso de bordado tradicional',
-      description: 'Conoce cómo nuestras artesanas crean cada pieza única con técnicas ancestrales transmitidas de generación en generación.'
+      description: 'Conoce cómo nuestras artesanas crean cada pieza'
     },
     {
       id: 2,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-a-photoshoot-51798-large.mp4',
       title: 'Desfile de moda huasteca',
-      description: 'Nuestra colección en la pasarela internacional, fusionando tradición y modernidad en cada diseño.'
+      description: 'Nuestra colección en la pasarela internacional'
     },
     {
       id: 3,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-woman-weaving-on-a-loom-51795-large.mp4',
       title: 'Entrevista con artesanas',
-      description: 'Historias detrás de cada creación contadas por las maestras que dan vida a nuestras piezas.'
+      description: 'Historias detrás de cada creación'
     },
     {
       id: 4,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-model-in-traditional-clothing-posing-51799-large.mp4',
       title: 'Tutorial: Cuidado de prendas',
-      description: 'Aprende cómo mantener tus prendas artesanales en perfecto estado para que duren toda la vida.'
-    },
-    {
-      id: 5,
-      src: 'https://www.youtube.com/embed/L_jWHffIx5E',
-      videoId: 'L_jWHffIx5E',
-      title: 'Colores de la Huasteca',
-      description: 'Descubre la paleta cromática que inspira nuestros diseños, extraída directamente de la naturaleza huasteca.'
-    },
-    {
-      id: 6,
-      src: 'https://www.youtube.com/embed/fJ9rUzIMcZQ',
-      videoId: 'fJ9rUzIMcZQ',
-      title: 'Técnicas ancestrales',
-      description: 'Un viaje por las técnicas milenarias que preservamos y adaptamos para el mundo contemporáneo.'
+      description: 'Cómo mantener tus prendas artesanales'
     }
   ];
 
@@ -631,58 +639,59 @@ const Galeria = () => {
                 Descubre el proceso detrás de cada creación
               </p>
               
-              <div style={styles.reelsGrid}>
-                {reels.map((reel, index) => (
-                  <Card
-                    key={reel.id}
-                    style={{
-                      ...styles.reelItem,
-                      opacity: animate ? 1 : 0,
-                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `all 0.8s ease ${index * 0.1}s`,
-                      padding: 0,
-                      border: 'none'
-                    }}
-                    onClick={() => openVideo(reel)}
-                  >
-                    <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
-                      <img
-                        src={`https://img.youtube.com/vi/${reel.src.split('/').pop()}/maxresdefault.jpg`}
-                        alt={reel.title}
+              <div style={styles.reelsCarousel}>
+                <Slider {...sliderSettings}>
+                  {reels.map((reel, index) => (
+                    <div key={reel.id}>
+                      <Card
                         style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
+                          ...styles.reelItem,
+                          opacity: animate ? 1 : 0,
+                          transform: animate ? 'translateY(0)' : 'translateY(20px)',
+                          transition: `all 0.8s ease ${index * 0.1}s`,
+                          padding: 0,
+                          border: 'none'
                         }}
-                      />
-                      <div style={styles.playIcon}>
-                        <IonIcon icon={playCircleOutline} style={{ fontSize: '60px' }} />
-                      </div>
-                      <Card.Body style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3), transparent)',
-                        padding: '20px',
-                        color: 'white'
-                      }}>
-                        <Card.Title style={{ 
-                          fontSize: '1.1rem',
-                          fontWeight: '600',
-                          marginBottom: '8px'
-                        }}>{reel.title}</Card.Title>
-                        <Card.Text style={{
-                          fontSize: '0.9rem',
-                          opacity: '0.9'
-                        }}>{reel.description}</Card.Text>
-                      </Card.Body>
+                        onClick={() => openVideo(reel)}
+                        onMouseEnter={() => handleVideoHover(index, true)}
+                        onMouseLeave={() => handleVideoHover(index, false)}
+                      >
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                          <video
+                            ref={(el) => (videoRefs.current[index] = el)}
+                            src={reel.previewSrc}
+                            muted
+                            loop
+                            style={styles.reelVideo}
+                            poster={`https://img.youtube.com/vi/${reel.src.split('/').pop()}/maxresdefault.jpg`}
+                          />
+                          <div style={styles.playIcon}>
+                            <IonIcon icon={playCircleOutline} style={{ fontSize: '60px' }} />
+                          </div>
+                          <Card.Body style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3), transparent)',
+                            padding: '20px',
+                            color: 'white'
+                          }}>
+                            <Card.Title style={{ 
+                              fontSize: '1.1rem',
+                              fontWeight: '600',
+                              marginBottom: '8px'
+                            }}>{reel.title}</Card.Title>
+                            <Card.Text style={{
+                              fontSize: '0.9rem',
+                              opacity: '0.9'
+                            }}>{reel.description}</Card.Text>
+                          </Card.Body>
+                        </div>
+                      </Card>
                     </div>
-                  </Card>
-                ))}
+                  ))}
+                </Slider>
               </div>
             </>
           )}
