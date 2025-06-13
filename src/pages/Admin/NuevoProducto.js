@@ -80,7 +80,6 @@ const GestionProductos = () => {
   // Manejadores de eventos para formulario
   const handleChange = (e) => {
     const { name, value } = e.target
-    console.log(`Input changed: ${name} = ${value}`)
     setProducto((prev) => ({
       ...prev,
       [name]: value,
@@ -91,14 +90,12 @@ const GestionProductos = () => {
     setProducto((prev) => {
       const exists = prev.tallasDisponibles.some((t) => t._id === tallaId)
       if (exists) {
-        console.log(`Talla removed: ${tallaId}`)
         return {
           ...prev,
           tallasDisponibles: prev.tallasDisponibles.filter((t) => t._id !== tallaId),
         }
       } else {
         const talla = tallas.find((t) => t._id === tallaId)
-        console.log(`Talla added: ${tallaId} (${talla.talla})`)
         return {
           ...prev,
           tallasDisponibles: [...prev.tallasDisponibles, talla],
@@ -109,19 +106,14 @@ const GestionProductos = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
-    if (!file) {
-      console.log("No image selected")
-      return
-    }
+    if (!file) return
 
     if (!file.type.match("image.*")) {
-      console.log("Invalid file type selected")
       setError("Por favor, selecciona un archivo de imagen válido")
       return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      console.log(`Image too large: ${file.size} bytes`)
       setError("La imagen no debe exceder los 5MB")
       return
     }
@@ -129,7 +121,6 @@ const GestionProductos = () => {
     setError(null)
     const reader = new FileReader()
     reader.onloadend = () => {
-      console.log(`Image preview generated: ${file.name}`)
       setImagePreview(reader.result)
     }
     reader.readAsDataURL(file)
@@ -139,15 +130,9 @@ const GestionProductos = () => {
     e.preventDefault()
 
     if (producto.tallasDisponibles.length === 0) {
-      console.log("Form submission failed: No tallas selected")
       setError("Selecciona al menos una talla disponible")
       return
     }
-
-    console.log("Submitting form with data:", {
-      ...producto,
-      tallasDisponibles: producto.tallasDisponibles.map((t) => t._id),
-    })
 
     setLoading(true)
     setError(null)
@@ -156,7 +141,6 @@ const GestionProductos = () => {
       const formData = new FormData()
       Object.entries(producto).forEach(([key, value]) => {
         if (key === "tallasDisponibles") {
-          // Append each talla ID as part of an array
           value.forEach((t) => formData.append(`tallasDisponibles[]`, t._id))
         } else {
           formData.append(key, value)
@@ -165,11 +149,9 @@ const GestionProductos = () => {
 
       const imageInput = document.querySelector('input[type="file"]')
       if (imageInput.files[0]) {
-        console.log(`Appending image to form: ${imageInput.files[0].name}`)
         formData.append("imagen", imageInput.files[0])
       }
 
-      console.log("Sending POST request to create product")
       const response = await axios.post("http://localhost:5000/api/productos", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -177,13 +159,11 @@ const GestionProductos = () => {
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          console.log(`Upload progress: ${percentCompleted}%`)
           setUploadProgress(percentCompleted)
         },
       })
 
       if (response.status === 201) {
-        console.log("Product created successfully:", response.data)
         setProductos((prev) => [response.data, ...prev])
         setProducto({
           nombre: "",
@@ -196,14 +176,18 @@ const GestionProductos = () => {
         setShowCreateModal(false)
         setError(null)
         alert("Producto creado exitosamente")
+
+        // Recargar los productos después de crear uno nuevo
+        const productosResponse = await axios.get("http://localhost:5000/api/productos", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+        setProductos(productosResponse.data)
       }
     } catch (err) {
-      console.error("Error during form submission:", err)
       setError(
         err.response?.data?.message || err.message || "Error al crear el producto. Por favor, intenta nuevamente.",
       )
     } finally {
-      console.log("Form submission completed, resetting loading state")
       setLoading(false)
       setUploadProgress(0)
     }
