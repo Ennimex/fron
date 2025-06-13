@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Container, Table, Card } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
 import { closeOutline, chevronBackOutline, chevronForwardOutline, playCircleOutline } from 'ionicons/icons';
-import ReelsCarousel from '../../components/shared/ReelsCarousel';
 
 const Galeria = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [animate, setAnimate] = useState(false);
   const [activeTab, setActiveTab] = useState('fotos');
+  const videoRefs = useRef([]);
 
   // Colores alineados con la paleta de La Aterciopelada
   const colors = {
@@ -55,7 +55,7 @@ const Galeria = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundImage: `radial-gradient(${colors.warmBeige} 1px, transparent 1px)`,
+      parliamentary: `radial-gradient(${colors.warmBeige} 1px, transparent 1px)`,
       backgroundSize: '20px 20px',
       opacity: 0.1,
     },
@@ -118,9 +118,16 @@ const Galeria = () => {
     },
     galleryGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
       gap: '20px',
       marginTop: '30px'
+    },
+    reelsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: '25px',
+      marginTop: '30px',
+      padding: '0 15px'
     },
     galleryItem: {
       position: 'relative',
@@ -128,7 +135,21 @@ const Galeria = () => {
       borderRadius: '12px',
       boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
       cursor: 'pointer',
-      height: '250px',
+      height: '350px',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: '0 12px 20px rgba(255, 0, 112, 0.3)'
+      }
+    },
+    reelItem: {
+      position: 'relative',
+      overflow: 'hidden',
+      borderRadius: '12px',
+      boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
+      cursor: 'pointer',
+      aspectRatio: '16/9',
+      height: 'auto',
       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       '&:hover': {
         transform: 'translateY(-5px)',
@@ -140,6 +161,15 @@ const Galeria = () => {
       height: '100%',
       objectFit: 'cover',
       transition: 'transform 0.5s ease'
+    },
+    playIcon: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '50px',
+      color: 'rgba(255, 255, 255, 0.9)',
+      zIndex: 2
     },
     captionOverlay: {
       position: 'absolute',
@@ -262,6 +292,21 @@ const Galeria = () => {
         background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
         color: 'white'
       }
+    },
+    carouselArrow: {
+      backgroundColor: colors.deepRed,
+      color: colors.warmBeige,
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 10,
+      transition: 'background 0.3s ease',
+      '&:hover': {
+        backgroundColor: colors.emeraldGreen
+      }
     }
   };
 
@@ -309,28 +354,24 @@ const Galeria = () => {
     {
       id: 1,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      videoId: 'dQw4w9WgXcQ',
       title: 'Proceso de bordado tradicional',
       description: 'Conoce cómo nuestras artesanas crean cada pieza única con técnicas ancestrales transmitidas de generación en generación.'
     },
     {
       id: 2,
-      src: 'https://www.youtube.com/embed/9bZkp7q19f0',
-      videoId: '9bZkp7q19f0',
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       title: 'Desfile de moda huasteca',
       description: 'Nuestra colección en la pasarela internacional, fusionando tradición y modernidad en cada diseño.'
     },
     {
       id: 3,
-      src: 'https://www.youtube.com/embed/ScMzIvxBSi4',
-      videoId: 'ScMzIvxBSi4',
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       title: 'Entrevista con artesanas',
       description: 'Historias detrás de cada creación contadas por las maestras que dan vida a nuestras piezas.'
     },
     {
       id: 4,
-      src: 'https://www.youtube.com/embed/kJQP7kiw5Fk',
-      videoId: 'kJQP7kiw5Fk',
+      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       title: 'Tutorial: Cuidado de prendas',
       description: 'Aprende cómo mantener tus prendas artesanales en perfecto estado para que duren toda la vida.'
     },
@@ -404,6 +445,9 @@ const Galeria = () => {
     setSelectedImage(null);
     setSelectedVideo(null);
     document.body.style.overflow = 'auto';
+    videoRefs.current.forEach((video) => {
+      if (video) video.pause();
+    });
   };
 
   const navigateMedia = (direction) => {
@@ -420,6 +464,60 @@ const Galeria = () => {
       if (newIndex >= reels.length) newIndex = 0;
       setSelectedVideo(reels[newIndex]);
     }
+  };
+
+  const handleVideoHover = (index, play) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      if (play) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+        video.currentTime = 0;
+      }
+    }
+  };
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    swipeToSlide: true,
+    arrows: true,
+    nextArrow: (
+      <div>
+        <div style={styles.carouselArrow}>
+          <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
+        </div>
+      </div>
+    ),
+    prevArrow: (
+      <div>
+        <div style={styles.carouselArrow}>
+          <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
+        </div>
+      </div>
+    ),
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          vertical: true,
+          verticalSwiping: true,
+        }
+      }
+    ]
   };
 
   return (
@@ -533,11 +631,59 @@ const Galeria = () => {
                 Descubre el proceso detrás de cada creación
               </p>
               
-              <ReelsCarousel 
-                reels={reels} 
-                autoplay={true} 
-                autoplayInterval={6000}
-              />
+              <div style={styles.reelsGrid}>
+                {reels.map((reel, index) => (
+                  <Card
+                    key={reel.id}
+                    style={{
+                      ...styles.reelItem,
+                      opacity: animate ? 1 : 0,
+                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
+                      transition: `all 0.8s ease ${index * 0.1}s`,
+                      padding: 0,
+                      border: 'none'
+                    }}
+                    onClick={() => openVideo(reel)}
+                  >
+                    <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' }}>
+                      <img
+                        src={`https://img.youtube.com/vi/${reel.src.split('/').pop()}/maxresdefault.jpg`}
+                        alt={reel.title}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      <div style={styles.playIcon}>
+                        <IonIcon icon={playCircleOutline} style={{ fontSize: '60px' }} />
+                      </div>
+                      <Card.Body style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3), transparent)',
+                        padding: '20px',
+                        color: 'white'
+                      }}>
+                        <Card.Title style={{ 
+                          fontSize: '1.1rem',
+                          fontWeight: '600',
+                          marginBottom: '8px'
+                        }}>{reel.title}</Card.Title>
+                        <Card.Text style={{
+                          fontSize: '0.9rem',
+                          opacity: '0.9'
+                        }}>{reel.description}</Card.Text>
+                      </Card.Body>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </>
           )}
         </section>

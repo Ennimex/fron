@@ -1,28 +1,29 @@
-import { useState, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
-import axios from "axios"
-import { useAuth } from "../../context/AuthContext"
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import { styles } from "../../styles/gestionProductosStyles";
 
 const GestionProductos = () => {
   // Hooks y estados
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { user } = useAuth()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   // Estados para datos
-  const [localidades, setLocalidades] = useState([])
-  const [tallas, setTallas] = useState([])
-  const [productos, setProductos] = useState([])
+  const [localidades, setLocalidades] = useState([]);
+  const [tallas, setTallas] = useState([]);
+  const [productos, setProductos] = useState([]);
 
   // Estados para UI
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterLocalidad, setFilterLocalidad] = useState("")
-  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterLocalidad, setFilterLocalidad] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [producto, setProducto] = useState({
     nombre: "",
@@ -30,27 +31,27 @@ const GestionProductos = () => {
     localidadId: "",
     tipoTela: "",
     tallasDisponibles: [],
-  })
+  });
 
   // Verificar autenticación y rol
   useEffect(() => {
     if (!user) {
-      navigate("/login", { state: { from: location } })
-      return
+      navigate("/login", { state: { from: location } });
+      return;
     }
     if (user.role !== "admin") {
-      navigate("/no-autorizado")
+      navigate("/no-autorizado");
     }
-  }, [user, navigate, location])
+  }, [user, navigate, location]);
 
   // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
-      if (!user || user.role !== "admin") return
+      if (!user || user.role !== "admin") return;
 
       try {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
 
         const [locResponse, tallasResponse, productosResponse] = await Promise.all([
           axios.get("http://localhost:5000/api/public/localidades", {
@@ -62,94 +63,94 @@ const GestionProductos = () => {
           axios.get("http://localhost:5000/api/productos", {
             headers: { Authorization: `Bearer ${user.token}` },
           }),
-        ])
+        ]);
 
-        setLocalidades(locResponse.data)
-        setTallas(tallasResponse.data)
-        setProductos(productosResponse.data)
+        setLocalidades(locResponse.data);
+        setTallas(tallasResponse.data);
+        setProductos(productosResponse.data);
       } catch (err) {
-        setError(err.response?.data?.message || err.message)
+        setError(err.response?.data?.message || err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [user])
+    fetchData();
+  }, [user]);
 
   // Manejadores de eventos para formulario
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setProducto((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleTallaChange = (tallaId) => {
     setProducto((prev) => {
-      const exists = prev.tallasDisponibles.some((t) => t._id === tallaId)
+      const exists = prev.tallasDisponibles.some((t) => t._id === tallaId);
       if (exists) {
         return {
           ...prev,
           tallasDisponibles: prev.tallasDisponibles.filter((t) => t._id !== tallaId),
-        }
+        };
       } else {
-        const talla = tallas.find((t) => t._id === tallaId)
+        const talla = tallas.find((t) => t._id === tallaId);
         return {
           ...prev,
           tallasDisponibles: [...prev.tallasDisponibles, talla],
-        }
+        };
       }
-    })
-  }
+    });
+  };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
 
     if (!file.type.match("image.*")) {
-      setError("Por favor, selecciona un archivo de imagen válido")
-      return
+      setError("Por favor, selecciona un archivo de imagen válido");
+      return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("La imagen no debe exceder los 5MB")
-      return
+      setError("La imagen no debe exceder los 5MB");
+      return;
     }
 
-    setError(null)
-    const reader = new FileReader()
+    setError(null);
+    const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result)
-    }
-    reader.readAsDataURL(file)
-  }
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (producto.tallasDisponibles.length === 0) {
-      setError("Selecciona al menos una talla disponible")
-      return
+      setError("Selecciona al menos una talla disponible");
+      return;
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const formData = new FormData()
+      const formData = new FormData();
       Object.entries(producto).forEach(([key, value]) => {
         if (key === "tallasDisponibles") {
-          value.forEach((t) => formData.append(`tallasDisponibles[]`, t._id))
+          value.forEach((t) => formData.append(`tallasDisponibles[]`, t._id));
         } else {
-          formData.append(key, value)
+          formData.append(key, value);
         }
-      })
+      });
 
-      const imageInput = document.querySelector('input[type="file"]')
+      const imageInput = document.querySelector('input[type="file"]');
       if (imageInput.files[0]) {
-        formData.append("imagen", imageInput.files[0])
+        formData.append("imagen", imageInput.files[0]);
       }
 
       const response = await axios.post("http://localhost:5000/api/productos", formData, {
@@ -158,560 +159,122 @@ const GestionProductos = () => {
           Authorization: `Bearer ${user.token}`,
         },
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          setUploadProgress(percentCompleted)
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
         },
-      })
+      });
 
       if (response.status === 201) {
-        setProductos((prev) => [response.data, ...prev])
+        setProductos((prev) => [response.data, ...prev]);
         setProducto({
           nombre: "",
           descripcion: "",
           localidadId: "",
           tipoTela: "",
           tallasDisponibles: [],
-        })
-        setImagePreview(null)
-        setShowCreateModal(false)
-        setError(null)
-        alert("Producto creado exitosamente")
+        });
+        setImagePreview(null);
+        setShowCreateModal(false);
+        setError(null);
+        alert("Producto creado exitosamente");
 
         // Recargar los productos después de crear uno nuevo
         const productosResponse = await axios.get("http://localhost:5000/api/productos", {
           headers: { Authorization: `Bearer ${user.token}` },
-        })
-        setProductos(productosResponse.data)
+        });
+        setProductos(productosResponse.data);
       }
     } catch (err) {
       setError(
         err.response?.data?.message || err.message || "Error al crear el producto. Por favor, intenta nuevamente.",
-      )
+      );
     } finally {
-      setLoading(false)
-      setUploadProgress(0)
+      setLoading(false);
+      setUploadProgress(0);
     }
-  }
+  };
 
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
-      return
+      return;
     }
 
     try {
       await axios.delete(`http://localhost:5000/api/productos/${productId}`, {
         headers: { Authorization: `Bearer ${user.token}` },
-      })
+      });
 
-      setProductos((prev) => prev.filter((p) => p._id !== productId))
-      alert("Producto eliminado exitosamente")
+      setProductos((prev) => prev.filter((p) => p._id !== productId));
+      alert("Producto eliminado exitosamente");
     } catch (err) {
-      alert("Error al eliminar el producto")
+      alert("Error al eliminar el producto");
     }
-  }
+  };
 
   // Filtrar productos
   const filteredProducts = productos.filter((producto) => {
     const matchesSearch =
       producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+      producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesLocalidad =
       !filterLocalidad ||
       (typeof producto.localidadId === "object" && producto.localidadId?._id === filterLocalidad) ||
-      producto.localidadId === filterLocalidad
+      producto.localidadId === filterLocalidad;
 
-    return matchesSearch && matchesLocalidad
-  })
+    return matchesSearch && matchesLocalidad;
+  });
 
   // Función para obtener el nombre de la localidad
   const getLocalidadNombre = (localidadId) => {
     if (typeof localidadId === "object" && localidadId !== null) {
       if (localidadId.nombre) {
-        return localidadId.nombre
+        return localidadId.nombre;
       }
-      const localidad = localidades.find((l) => l._id === localidadId._id)
-      if (localidad) return localidad.nombre
+      const localidad = localidades.find((l) => l._id === localidadId._id);
+      if (localidad) return localidad.nombre;
     }
 
-    const localidad = localidades.find((l) => l._id === localidadId)
-    if (localidad) return localidad.nombre
+    const localidad = localidades.find((l) => l._id === localidadId);
+    if (localidad) return localidad.nombre;
 
-    return "Sin localidad"
-  }
+    return "Sin localidad";
+  };
 
   // Función para obtener las tallas específicas de un producto
   const getProductSizes = (tallasDisponibles) => {
-    if (!tallasDisponibles || tallasDisponibles.length === 0) return []
+    if (!tallasDisponibles || tallasDisponibles.length === 0) return [];
     return tallasDisponibles.map((t) => ({
       _id: t._id,
       talla: t.talla,
       rangoEdad: t.rangoEdad,
       medida: t.medida,
       genero: t.genero,
-    }))
-  }
+    }));
+  };
 
   // Lógica para agrupar tallas
   const groupedTallas = tallas.reduce((acc, talla) => {
-    const genero = talla.genero || "Otro"
+    const genero = talla.genero || "Otro";
     if (!acc[genero]) {
-      acc[genero] = []
+      acc[genero] = [];
     }
-    acc[genero].push(talla)
-    return acc
-  }, {})
+    acc[genero].push(talla);
+    return acc;
+  }, {});
 
-  const genderOrder = ["Niño", "Niña", "Dama", "Caballero"]
+  const genderOrder = ["Niño", "Niña", "Dama", "Caballero"];
   const orderedGroupedTallas = Object.entries(groupedTallas).sort(([generoA], [generoB]) => {
-    const indexA = genderOrder.indexOf(generoA)
-    const indexB = genderOrder.indexOf(generoB)
-    if (indexA === -1 && indexB === -1) return 0
-    if (indexA === -1) return 1
-    if (indexB === -1) return -1
-    return indexA - indexB
-  })
-
-  // Estilos
-  const styles = {
-    pageContainer: {
-      minHeight: "100vh",
-      backgroundColor: "#f8f9fa",
-      padding: "1.5rem",
-    },
-    container: {
-      maxWidth: "1400px",
-      margin: "0 auto",
-      backgroundColor: "#ffffff",
-      borderRadius: "8px",
-      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-      overflow: "hidden",
-    },
-    header: {
-      background: "#1a2332",
-      padding: "1.5rem 2rem",
-      color: "white",
-      borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-    },
-    headerContent: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: "1rem",
-    },
-    title: {
-      fontSize: "1.75rem",
-      fontWeight: "600",
-      margin: "0",
-      color: "#ffffff",
-    },
-    subtitle: {
-      fontSize: "0.95rem",
-      opacity: "0.8",
-      margin: "0.5rem 0 0 0",
-      color: "#e2e8f0",
-    },
-    addButton: {
-      padding: "0.75rem 1.5rem",
-      borderRadius: "4px",
-      backgroundColor: "#3498db",
-      color: "white",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      fontWeight: "500",
-      fontSize: "0.95rem",
-      border: "none",
-    },
-    content: {
-      padding: "2rem",
-    },
-    controlsContainer: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "2rem",
-      flexWrap: "wrap",
-      gap: "1rem",
-    },
-    searchContainer: {
-      display: "flex",
-      gap: "1rem",
-      alignItems: "center",
-      flexWrap: "wrap",
-    },
-    searchInput: {
-      padding: "0.6rem 1rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "4px",
-      fontSize: "0.95rem",
-      minWidth: "250px",
-    },
-    filterSelect: {
-      padding: "0.6rem 1rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "4px",
-      fontSize: "0.95rem",
-      backgroundColor: "white",
-      minWidth: "200px",
-    },
-    tableContainer: {
-      overflowX: "auto",
-      border: "1px solid #e2e8f0",
-      borderRadius: "4px",
-    },
-    table: {
-      width: "100%",
-      borderCollapse: "collapse",
-      backgroundColor: "white",
-    },
-    tableHeader: {
-      backgroundColor: "#f8f9fa",
-      borderBottom: "1px solid #e2e8f0",
-    },
-    tableHeaderCell: {
-      padding: "1rem",
-      textAlign: "left",
-      fontWeight: "600",
-      color: "#1a2332",
-      fontSize: "0.9rem",
-      borderRight: "1px solid #e2e8f0",
-    },
-    tableRow: {
-      borderBottom: "1px solid #f1f3f4",
-      transition: "background-color 0.2s ease",
-    },
-    tableCell: {
-      padding: "1rem",
-      borderRight: "1px solid #f1f3f4",
-      fontSize: "0.9rem",
-      color: "#374151",
-      whiteSpace: "normal",
-    },
-    productImage: {
-      width: "50px",
-      height: "50px",
-      objectFit: "cover",
-      borderRadius: "4px",
-      border: "1px solid #e2e8f0",
-    },
-    productName: {
-      fontWeight: "600",
-      color: "#1a2332",
-      marginBottom: "0.25rem",
-    },
-    productDescription: {
-      color: "#64748b",
-      fontSize: "0.85rem",
-    },
-    badge: {
-      padding: "0.25rem 0.75rem",
-      borderRadius: "4px",
-      fontSize: "0.8rem",
-      fontWeight: "500",
-      backgroundColor: "#e2e8f0",
-      color: "#1a2332",
-    },
-    sizeBadge: {
-      padding: "0.2rem 0.5rem",
-      borderRadius: "3px",
-      fontSize: "0.7rem",
-      fontWeight: "500",
-      backgroundColor: "#3498db",
-      color: "white",
-      margin: "0.1rem",
-      display: "inline-block",
-    },
-    actionsContainer: {
-      display: "flex",
-      gap: "0.5rem",
-    },
-    actionButton: {
-      padding: "0.4rem 0.75rem",
-      borderRadius: "4px",
-      border: "none",
-      cursor: "pointer",
-      fontSize: "0.8rem",
-      fontWeight: "500",
-      transition: "all 0.2s ease",
-    },
-    editButton: {
-      backgroundColor: "#3498db",
-      color: "white",
-    },
-    deleteButton: {
-      backgroundColor: "#e74c3c",
-      color: "white",
-    },
-    viewButton: {
-      backgroundColor: "#2ecc71",
-      color: "white",
-    },
-    modalOverlay: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-    },
-    modalContent: {
-      backgroundColor: "white",
-      borderRadius: "6px",
-      width: "90%",
-      maxWidth: "800px",
-      maxHeight: "90vh",
-      overflow: "auto",
-      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)",
-    },
-    modalHeader: {
-      padding: "1rem 1.5rem",
-      borderBottom: "1px solid #e2e8f0",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      backgroundColor: "#1a2332",
-      color: "white",
-    },
-    modalTitle: {
-      margin: 0,
-      fontSize: "1.1rem",
-      fontWeight: "600",
-    },
-    modalBody: {
-      padding: "1.5rem",
-    },
-    formGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)",
-      gap: "1rem",
-    },
-    formGroup: {
-      marginBottom: "1rem",
-    },
-    label: {
-      display: "block",
-      marginBottom: "0.35rem",
-      fontWeight: "500",
-      color: "#1a2332",
-      fontSize: "0.85rem",
-    },
-    input: {
-      width: "100%",
-      padding: "0.6rem 0.75rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "4px",
-      fontSize: "0.9rem",
-      transition: "all 0.2s ease-in-out",
-      backgroundColor: "#ffffff",
-      boxSizing: "border-box",
-    },
-    textarea: {
-      width: "100%",
-      padding: "0.6rem 0.75rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "4px",
-      minHeight: "100px",
-      fontSize: "0.9rem",
-      resize: "vertical",
-      transition: "all 0.2s ease-in-out",
-      backgroundColor: "#ffffff",
-      fontFamily: "inherit",
-      boxSizing: "border-box",
-    },
-    select: {
-      width: "100%",
-      padding: "0.6rem 0.75rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "4px",
-      fontSize: "0.9rem",
-      backgroundColor: "#ffffff",
-      cursor: "pointer",
-      transition: "all 0.2s ease-in-out",
-      boxSizing: "border-box",
-    },
-    imageUploadArea: {
-      border: "1px dashed #cbd5e1",
-      borderRadius: "4px",
-      padding: "1rem",
-      textAlign: "center",
-      transition: "all 0.2s ease-in-out",
-      backgroundColor: "#f8fafc",
-      cursor: "pointer",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100px",
-    },
-    fileInput: {
-      display: "none",
-    },
-    uploadText: {
-      color: "#475569",
-      fontSize: "0.9rem",
-      marginBottom: "0.25rem",
-    },
-    uploadSubtext: {
-      color: "#94a3b8",
-      fontSize: "0.8rem",
-    },
-    previewContainer: {
-      marginTop: "0.75rem",
-      textAlign: "center",
-    },
-    previewImage: {
-      maxWidth: "150px",
-      maxHeight: "150px",
-      borderRadius: "4px",
-      objectFit: "cover",
-      border: "1px solid #e2e8f0",
-    },
-    tallasSection: {
-      gridColumn: "1 / -1",
-      marginTop: "0.5rem",
-    },
-    tallasContainer: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "1rem",
-      marginTop: "0.5rem",
-    },
-    genderGroup: {
-      backgroundColor: "#f8fafc",
-      borderRadius: "4px",
-      padding: "1rem",
-      border: "1px solid #e2e8f0",
-    },
-    genderTitle: {
-      marginBottom: "0.75rem",
-      color: "#1a2332",
-      fontSize: "0.9rem",
-      fontWeight: "600",
-    },
-    sizesGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
-      gap: "0.5rem",
-    },
-    tallaCheckbox: {
-      display: "flex",
-      alignItems: "center",
-      gap: "0.4rem",
-      padding: "0.4rem 0.6rem",
-      backgroundColor: "#ffffff",
-      borderRadius: "4px",
-      cursor: "pointer",
-      transition: "all 0.2s ease-in-out",
-      border: "1px solid #e2e8f0",
-      fontSize: "0.8rem",
-      fontWeight: "500",
-    },
-    tallaCheckboxSelected: {
-      backgroundColor: "#3498db",
-      borderColor: "#3498db",
-      color: "#ffffff",
-    },
-    checkbox: {
-      width: "16px",
-      height: "16px",
-      cursor: "pointer",
-      accentColor: "#3498db",
-    },
-    submitButton: {
-      backgroundColor: "#3498db",
-      color: "white",
-      padding: "0.75rem 1.5rem",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      fontSize: "1rem",
-      fontWeight: "600",
-      width: "100%",
-      marginTop: "1.5rem",
-      transition: "all 0.2s ease-in-out",
-    },
-    submitButtonDisabled: {
-      backgroundColor: "#94a3b8",
-      cursor: "not-allowed",
-    },
-    error: {
-      color: "#e74c3c",
-      backgroundColor: "#fef2f2",
-      border: "1px solid #fecaca",
-      padding: "0.75rem 1rem",
-      borderRadius: "4px",
-      textAlign: "center",
-      fontSize: "0.9rem",
-      marginBottom: "1.5rem",
-    },
-    progressContainer: {
-      marginTop: "1.5rem",
-    },
-    progressBar: {
-      width: "100%",
-      height: "6px",
-      backgroundColor: "#e2e8f0",
-      borderRadius: "3px",
-      overflow: "hidden",
-      marginBottom: "0.5rem",
-    },
-    progressBarFill: {
-      height: "100%",
-      borderRadius: "3px",
-      backgroundColor: "#3498db",
-      width: `${uploadProgress}%`,
-      transition: "width 0.3s ease",
-    },
-    progressText: {
-      textAlign: "center",
-      fontSize: "0.85rem",
-      color: "#64748b",
-      fontWeight: "500",
-    },
-    requiredField: {
-      color: "#e74c3c",
-      marginLeft: "4px",
-    },
-    helpText: {
-      fontSize: "0.85rem",
-      color: "#64748b",
-      marginTop: "0.5rem",
-    },
-    emptyState: {
-      textAlign: "center",
-      padding: "3rem 2rem",
-      color: "#64748b",
-    },
-    emptyStateText: {
-      fontSize: "1.1rem",
-      fontWeight: "600",
-      marginBottom: "0.5rem",
-      color: "#1a2332",
-    },
-    emptyStateSubtext: {
-      fontSize: "0.95rem",
-      color: "#64748b",
-    },
-    modalCloseButton: {
-      background: "none",
-      border: "none",
-      color: "white",
-      fontSize: "1.5rem",
-      cursor: "pointer",
-      padding: "0.5rem",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-  }
+    const indexA = genderOrder.indexOf(generoA);
+    const indexB = genderOrder.indexOf(generoB);
+    if (indexA === -1 && indexB === -1) return 0;
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
 
   if (!user || user.role !== "admin") {
-    return null
+    return null;
   }
 
   if (loading && localidades.length === 0) {
@@ -725,7 +288,7 @@ const GestionProductos = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -823,7 +386,7 @@ const GestionProductos = () => {
                 </thead>
                 <tbody>
                   {filteredProducts.map((producto) => {
-                    const productSizes = getProductSizes(producto.tallasDisponibles)
+                    const productSizes = getProductSizes(producto.tallasDisponibles);
                     return (
                       <tr key={producto._id} className="table-row" style={styles.tableRow}>
                         <td style={styles.tableCell}>
@@ -871,7 +434,7 @@ const GestionProductos = () => {
                               className="action-button"
                               style={{ ...styles.actionButton, ...styles.editButton }}
                               onClick={() => {
-                                alert("Función de edición próximamente")
+                                alert("Función de edición próximamente");
                               }}
                             >
                               Editar
@@ -886,7 +449,7 @@ const GestionProductos = () => {
                           </div>
                         </td>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </table>
@@ -1049,7 +612,7 @@ const GestionProductos = () => {
                         <h4 style={styles.genderTitle}>{genero}</h4>
                         <div style={styles.sizesGrid}>
                           {sizes.map((talla) => {
-                            const isSelected = producto.tallasDisponibles.some((t) => t._id === talla._id)
+                            const isSelected = producto.tallasDisponibles.some((t) => t._id === talla._id);
                             return (
                               <label
                                 key={talla._id}
@@ -1070,7 +633,7 @@ const GestionProductos = () => {
                                   talla.medida ? ` (${talla.medida})` : ""
                                 }`}
                               </label>
-                            )
+                            );
                           })}
                         </div>
                       </div>
@@ -1082,7 +645,7 @@ const GestionProductos = () => {
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div style={styles.progressContainer}>
                     <div style={styles.progressBar}>
-                      <div style={styles.progressBarFill}></div>
+                      <div style={{ ...styles.progressBarFill, width: `${uploadProgress}%` }}></div>
                     </div>
                     <div style={styles.progressText}>Subiendo... {uploadProgress}%</div>
                   </div>
@@ -1364,7 +927,7 @@ const GestionProductos = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default GestionProductos
+export default GestionProductos;
