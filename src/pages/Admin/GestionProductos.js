@@ -3,9 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { styles } from "../../styles/gestionProductosStyles";
+import { FaSearch, FaFilter, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 
 const GestionProductos = () => {
-  // Hooks y estados
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -16,8 +16,8 @@ const GestionProductos = () => {
   const [productos, setProductos] = useState([]);
 
   // Estados para UI
-  const [showModal, setShowModal] = useState(false); // Unified modal state
-  const [isEditMode, setIsEditMode] = useState(false); // Track create vs edit mode
+  const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -45,10 +45,22 @@ const GestionProductos = () => {
     }
   }, [user, navigate, location]);
 
+  // Función para cargar productos
+  const fetchProductos = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/productos", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      setProductos(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || "Error al cargar los productos");
+    }
+  };
+
   // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
-      if (!user || user.role !== "admin") return;
+      if (!user?.token || user.role !== "admin") return;
 
       try {
         setLoading(true);
@@ -70,14 +82,14 @@ const GestionProductos = () => {
         setTallas(tallasResponse.data);
         setProductos(productosResponse.data);
       } catch (err) {
-        setError(err.response?.data?.message || err.message);
+        setError(err.response?.data?.error || "Error al cargar los datos");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [user]);
+  }, [user?.token]);
 
   // Manejadores de eventos para formulario
   const handleChange = (e) => {
@@ -156,7 +168,6 @@ const GestionProductos = () => {
 
       let response;
       if (isEditMode) {
-        // Update product
         response = await axios.put(
           `http://localhost:5000/api/productos/${producto._id}`,
           formData,
@@ -174,7 +185,6 @@ const GestionProductos = () => {
           }
         );
       } else {
-        // Create product
         response = await axios.post("http://localhost:5000/api/productos", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -189,17 +199,21 @@ const GestionProductos = () => {
         });
       }
 
+      console.log("Backend response:", response.data); // Debug log
+
       if (response.status === 201 || response.status === 200) {
+        // Normalize response: handle both { producto: {...} } and direct product object
+        const newProduct = response.data.producto || response.data;
+        if (!newProduct || !newProduct._id || !newProduct.nombre) {
+          throw new Error("Producto inválido devuelto por el servidor");
+        }
         if (isEditMode) {
           setProductos((prev) =>
-            prev.map((p) =>
-              p._id === producto._id ? response.data.producto : p
-            )
+            prev.map((p) => (p._id === producto._id ? newProduct : p))
           );
-          alert("Producto actualizado exitosamente");
         } else {
-          setProductos((prev) => [response.data, ...prev]);
-          alert("Producto creado exitosamente");
+          // Refetch products to ensure the list is up-to-date
+          await fetchProductos();
         }
         setProducto({
           nombre: "",
@@ -212,18 +226,12 @@ const GestionProductos = () => {
         setShowModal(false);
         setIsEditMode(false);
         setError(null);
-
-        // Recargar productos
-        const productosResponse = await axios.get("http://localhost:5000/api/productos", {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setProductos(productosResponse.data);
       }
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          err.message ||
-          `Error al ${isEditMode ? "actualizar" : "crear"} el producto. Por favor, intenta nuevamente.`
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          `Error al ${isEditMode ? "actualizar" : "crear"} el producto`
       );
     } finally {
       setLoading(false);
@@ -234,10 +242,10 @@ const GestionProductos = () => {
   const handleEditProduct = (product) => {
     setProducto({
       _id: product._id,
-      nombre: product.nombre,
-      descripcion: product.descripcion,
-      localidadId: product.localidadId?._id || product.localidadId,
-      tipoTela: product.tipoTela,
+      nombre: product.nombre || "",
+      descripcion: product.descripcion || "",
+      localidadId: product.localidadId?._id || product.localidadId || "",
+      tipoTela: product.tipoTela || "",
       tallasDisponibles: product.tallasDisponibles || [],
     });
     setImagePreview(product.imagenURL || null);
@@ -256,17 +264,17 @@ const GestionProductos = () => {
       });
 
       setProductos((prev) => prev.filter((p) => p._id !== productId));
-      alert("Producto eliminado exitosamente");
     } catch (err) {
-      alert("Error al eliminar el producto");
+      setError(err.response?.data?.error || "Error al eliminar el producto");
     }
   };
 
   // Filtrar productos
   const filteredProducts = productos.filter((producto) => {
+    if (!producto || typeof producto !== "object") return false; // Skip invalid entries
     const matchesSearch =
-      producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+      (producto.nombre?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (producto.descripcion?.toLowerCase() || "").includes(searchTerm.toLowerCase());
 
     const matchesLocalidad =
       !filterLocalidad ||
@@ -279,17 +287,10 @@ const GestionProductos = () => {
   // Función para obtener el nombre de la localidad
   const getLocalidadNombre = (localidadId) => {
     if (typeof localidadId === "object" && localidadId !== null) {
-      if (localidadId.nombre) {
-        return localidadId.nombre;
-      }
-      const localidad = localidades.find((l) => l._id === localidadId._id);
-      if (localidad) return localidad.nombre;
+      return localidadId.nombre || "Sin localidad";
     }
-
     const localidad = localidades.find((l) => l._id === localidadId);
-    if (localidad) return localidad.nombre;
-
-    return "Sin localidad";
+    return localidad?.nombre || "Sin localidad";
   };
 
   // Función para obtener las tallas específicas de un producto
@@ -324,19 +325,45 @@ const GestionProductos = () => {
     return indexA - indexB;
   });
 
-  if (!user || user.role !== "admin") {
-    return null;
+  // Manejar loading y error
+  if (loading && !productos.length && !localidades.length && !tallas.length) {
+    return (
+      <div style={{ ...styles.pageContainer, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ textAlign: "center", padding: "2rem" }}>
+          <h3>Cargando datos...</h3>
+        </div>
+      </div>
+    );
   }
 
-  if (loading && localidades.length === 0) {
+  if (error && !user) {
     return (
-      <div style={styles.pageContainer}>
-        <div style={styles.container}>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
-            <div style={{ textAlign: "center" }}>
-              <p style={{ color: "#64748b", fontSize: "1rem" }}>Cargando sistema de productos...</p>
-            </div>
-          </div>
+      <div style={{ ...styles.pageContainer, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "2rem",
+            backgroundColor: "#fee2e2",
+            borderRadius: "8px",
+            color: "#991b1b",
+          }}
+        >
+          <h3>Error</h3>
+          <p>{error}</p>
+          <button
+            onClick={() => navigate("/login")}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#991b1b",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginTop: "1rem",
+            }}
+          >
+            Iniciar Sesión
+          </button>
         </div>
       </div>
     );
@@ -348,28 +375,23 @@ const GestionProductos = () => {
         {`
           .form-input:focus {
             outline: none !important;
-            border-color: #3498db !important;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1) !important;
+            border-color: #0D1B2A !important;
+            box-shadow: 0 0 0 2px rgba(13, 27, 42, 0.1) !important;
           }
-          
           .submit-button:hover:not(:disabled) {
-            background-color: #2980b9;
+            background-color: #1a2a44;
           }
-          
           .table-row:hover {
-            background-color: #f8f9fa;
+            background-color: #f8fafc;
           }
-          
           .action-button:hover {
             opacity: 0.9;
           }
-          
           .add-button:hover {
-            background-color: #2980b9;
+            background-color: #1a2a44;
           }
-          
           .modal-close:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.1);
           }
         `}
       </style>
@@ -382,19 +404,23 @@ const GestionProductos = () => {
               <h1 style={styles.title}>Gestión de Productos</h1>
               <p style={styles.subtitle}>Administra tu catálogo de productos</p>
             </div>
-
-            <button className="add-button" style={styles.addButton} onClick={() => {
-              setIsEditMode(false);
-              setProducto({
-                nombre: "",
-                descripcion: "",
-                localidadId: "",
-                tipoTela: "",
-                tallasDisponibles: [],
-              });
-              setImagePreview(null);
-              setShowModal(true);
-            }}>
+            <button
+              className="add-button"
+              style={{ ...styles.addButton, backgroundColor: "#0D1B2A", color: "#fff" }}
+              onClick={() => {
+                setIsEditMode(false);
+                setProducto({
+                  nombre: "",
+                  descripcion: "",
+                  localidadId: "",
+                  tipoTela: "",
+                  tallasDisponibles: [],
+                });
+                setImagePreview(null);
+                setShowModal(true);
+              }}
+            >
+              <FaPlus size={14} style={{ marginRight: "8px" }} />
               Agregar Producto
             </button>
           </div>
@@ -402,17 +428,22 @@ const GestionProductos = () => {
 
         {/* Content */}
         <div style={styles.content}>
-          {error && <div style={styles.error}>{error}</div>}
+          {error && (
+            <div style={{ ...styles.error, backgroundColor: "#fee2e2", color: "#991b1b", padding: "1rem", borderRadius: "8px" }}>
+              {error}
+            </div>
+          )}
 
           {/* Controles */}
           <div style={styles.controlsContainer}>
             <div style={styles.searchContainer}>
+              <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#64748b" }} size={16} />
               <input
                 type="text"
-                placeholder="Buscar productos..."
+                placeholder="Buscar productos por nombre o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={styles.searchInput}
+                style={{ ...styles.searchInput, paddingLeft: "3rem" }}
                 className="form-input"
               />
               <select
@@ -454,23 +485,23 @@ const GestionProductos = () => {
                         <td style={styles.tableCell}>
                           <img
                             src={producto.imagenURL || "/placeholder.svg?height=50&width=50"}
-                            alt={producto.nombre}
+                            alt={producto.nombre || "Producto"}
                             style={styles.productImage}
                           />
                         </td>
                         <td style={styles.tableCell}>
-                          <div style={styles.productName}>{producto.nombre}</div>
+                          <div style={styles.productName}>{producto.nombre || "Sin nombre"}</div>
                           <div style={styles.productDescription}>
-                            {producto.descripcion.length > 80
+                            {producto.descripcion?.length > 80
                               ? `${producto.descripcion.substring(0, 80)}...`
-                              : producto.descripcion}
+                              : producto.descripcion || "-"}
                           </div>
                         </td>
                         <td style={styles.tableCell}>
                           <span style={styles.badge}>{getLocalidadNombre(producto.localidadId)}</span>
                         </td>
                         <td style={styles.tableCell}>
-                          <span style={styles.badge}>{producto.tipoTela}</span>
+                          <span style={styles.badge}>{producto.tipoTela || "-"}</span>
                         </td>
                         <td style={styles.tableCell}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
@@ -487,24 +518,27 @@ const GestionProductos = () => {
                           <div style={styles.actionsContainer}>
                             <button
                               className="action-button"
-                              style={{ ...styles.actionButton, ...styles.viewButton }}
+                              style={{ ...styles.actionButton, backgroundColor: "#e0f2fe", color: "#0369a1" }}
                               onClick={() => setSelectedProduct(producto)}
+                              title="Ver detalles"
                             >
-                              Ver
+                              <FaEye size={14} />
                             </button>
                             <button
                               className="action-button"
-                              style={{ ...styles.actionButton, ...styles.editButton }}
+                              style={{ ...styles.actionButton, backgroundColor: "#fef3c7", color: "#92400e" }}
                               onClick={() => handleEditProduct(producto)}
+                              title="Editar producto"
                             >
-                              Editar
+                              <FaEdit size={14} />
                             </button>
                             <button
                               className="action-button"
-                              style={{ ...styles.actionButton, ...styles.deleteButton }}
+                              style={{ ...styles.actionButton, backgroundColor: "#fee2e2", color: "#991b1b" }}
                               onClick={() => handleDeleteProduct(producto._id)}
+                              title="Eliminar producto"
                             >
-                              Eliminar
+                              <FaTrash size={14} />
                             </button>
                           </div>
                         </td>
@@ -541,11 +575,14 @@ const GestionProductos = () => {
             </div>
 
             <div style={styles.modalBody}>
-              {error && <div style={styles.error}>{error}</div>}
+              {error && (
+                <div style={{ ...styles.error, backgroundColor: "#fee2e2", color: "#991b1b", padding: "1rem", borderRadius: "8px" }}>
+                  {error}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit}>
                 <div style={styles.formGrid}>
-                  {/* Campo Nombre */}
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="nombre">
                       Nombre<span style={styles.requiredField}>*</span>
@@ -564,7 +601,6 @@ const GestionProductos = () => {
                     />
                   </div>
 
-                  {/* Campo Localidad */}
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="localidadId">
                       Localidad<span style={styles.requiredField}>*</span>
@@ -588,7 +624,6 @@ const GestionProductos = () => {
                     </select>
                   </div>
 
-                  {/* Campo Tipo de Tela */}
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="tipoTela">
                       Tipo de Tela<span style={styles.requiredField}>*</span>
@@ -609,7 +644,6 @@ const GestionProductos = () => {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                  {/* Campo Descripción */}
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="descripcion">
                       Descripción<span style={styles.requiredField}>*</span>
@@ -627,7 +661,6 @@ const GestionProductos = () => {
                     />
                   </div>
 
-                  {/* Campo Imagen */}
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
                       Imagen{isEditMode ? "" : <span style={styles.requiredField}>*</span>}
@@ -651,13 +684,12 @@ const GestionProductos = () => {
                     </div>
                     {imagePreview && (
                       <div style={styles.previewContainer}>
-                        <img src={imagePreview || "/placeholder.svg"} alt="Vista previa" style={styles.previewImage} />
+                        <img src={imagePreview} alt="Vista previa" style={styles.previewImage} />
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Campo Tallas Disponibles */}
                 <div style={{ ...styles.formGroup, ...styles.tallasSection }}>
                   <label style={styles.label}>
                     Tallas Disponibles<span style={styles.requiredField}>*</span>
@@ -700,17 +732,15 @@ const GestionProductos = () => {
                   </div>
                 </div>
 
-                {/* Barra de progreso */}
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div style={styles.progressContainer}>
                     <div style={styles.progressBar}>
-                      <div style={{ ...styles.progressBarFill, width: `${uploadProgress}%` }}></div>
+                      <div style={{ ...styles.progressBarFill, width: `${uploadProgress}%`, backgroundColor: "#0D1B2A" }}></div>
                     </div>
                     <div style={styles.progressText}>Subiendo... {uploadProgress}%</div>
                   </div>
                 )}
 
-                {/* Botones de acción */}
                 <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                   <button
                     type="button"
@@ -735,6 +765,7 @@ const GestionProductos = () => {
                     className="submit-button"
                     style={{
                       ...styles.submitButton,
+                      backgroundColor: "#0D1B2A",
                       ...(loading ? styles.submitButtonDisabled : {}),
                       flex: "2",
                       marginTop: 0,
@@ -762,7 +793,6 @@ const GestionProductos = () => {
             </div>
 
             <div style={styles.modalBody}>
-              {/* Product Header Section */}
               <div
                 style={{
                   display: "grid",
@@ -771,7 +801,6 @@ const GestionProductos = () => {
                   marginBottom: "2rem",
                 }}
               >
-                {/* Product Image */}
                 <div
                   style={{
                     height: "200px",
@@ -786,7 +815,7 @@ const GestionProductos = () => {
                 >
                   <img
                     src={selectedProduct.imagenURL || "/placeholder.svg"}
-                    alt={selectedProduct.nombre}
+                    alt={selectedProduct.nombre || "Producto"}
                     style={{
                       width: "100%",
                       height: "100%",
@@ -795,18 +824,17 @@ const GestionProductos = () => {
                   />
                 </div>
 
-                {/* Product Basic Info */}
                 <div>
                   <h3
                     style={{
-                      color: "#1a2332",
+                      color: "#1e293b",
                       marginBottom: "0.75rem",
                       fontSize: "1.5rem",
                       fontWeight: "700",
                       lineHeight: "1.3",
                     }}
                   >
-                    {selectedProduct.nombre}
+                    {selectedProduct.nombre || "Sin nombre"}
                   </h3>
 
                   <div
@@ -821,7 +849,7 @@ const GestionProductos = () => {
                       style={{
                         ...styles.badge,
                         backgroundColor: "#e3f2fd",
-                        color: "#1565c0",
+                        color: "#0D1B2A",
                         fontWeight: "600",
                       }}
                     >
@@ -831,17 +859,17 @@ const GestionProductos = () => {
                       style={{
                         ...styles.badge,
                         backgroundColor: "#f3e5f5",
-                        color: "#7b1fa2",
+                        color: "#0D1B2A",
                         fontWeight: "600",
                       }}
                     >
-                      🧵 {selectedProduct.tipoTela}
+                      🧵 {selectedProduct.tipoTela || "-"}
                     </span>
                   </div>
 
                   <div
                     style={{
-                      backgroundColor: "#f8f9fa",
+                      backgroundColor: "#f8fafc",
                       padding: "1rem",
                       borderRadius: "8px",
                       border: "1px solid #e2e8f0",
@@ -867,13 +895,12 @@ const GestionProductos = () => {
                         margin: 0,
                       }}
                     >
-                      {selectedProduct.descripcion}
+                      {selectedProduct.descripcion || "Sin descripción"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Available Sizes Section */}
               <div
                 style={{
                   backgroundColor: "#f8fafc",
@@ -884,7 +911,7 @@ const GestionProductos = () => {
               >
                 <h4
                   style={{
-                    color: "#1a2332",
+                    color: "#1e293b",
                     marginBottom: "1.25rem",
                     fontSize: "1.2rem",
                     fontWeight: "600",
@@ -922,7 +949,7 @@ const GestionProductos = () => {
                           style={{
                             width: "8px",
                             height: "8px",
-                            backgroundColor: "#3498db",
+                            backgroundColor: "#0D1B2A",
                             borderRadius: "50%",
                           }}
                         ></span>
@@ -939,14 +966,14 @@ const GestionProductos = () => {
                           <div
                             key={talla._id}
                             style={{
-                              backgroundColor: "#3498db",
+                              backgroundColor: "#0D1B2A",
                               color: "white",
                               padding: "0.5rem 1rem",
                               borderRadius: "6px",
                               fontSize: "0.9rem",
                               fontWeight: "600",
-                              boxShadow: "0 2px 4px rgba(52, 152, 219, 0.2)",
-                              border: "1px solid #2980b9",
+                              boxShadow: "0 2px 4px rgba(13, 27, 42, 0.2)",
+                              border: "1px solid #1a2a44",
                             }}
                           >
                             {talla.talla}

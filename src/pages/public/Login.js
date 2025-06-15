@@ -16,9 +16,8 @@ const Login = () => {
   const [animating, setAnimating] = useState(false)
 
   // Form states
-  const [nombre, setNombre] = useState("")
-  const [apellido, setApellido] = useState("")
-  const [telefono, setTelefono] = useState("")
+  const [name, setName] = useState("") // Changed from nombre and apellido to name
+  const [phone, setPhone] = useState("") // Changed from telefono to phone
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -29,9 +28,8 @@ const Login = () => {
 
   // Field errors
   const [fieldErrors, setFieldErrors] = useState({
-    nombre: false,
-    apellido: false,
-    telefono: false,
+    name: false, // Changed from nombre and apellido
+    phone: false, // Changed from telefono
     email: false,
     password: false,
     confirmPassword: false,
@@ -86,9 +84,8 @@ const Login = () => {
       setError("")
       setSuccess("")
       setFieldErrors({
-        nombre: false,
-        apellido: false,
-        telefono: false,
+        name: false,
+        phone: false,
         email: false,
         password: false,
         confirmPassword: false,
@@ -105,6 +102,10 @@ const Login = () => {
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  const validatePhone = (phone) => {
+    return /^\+?\d{10,15}$/.test(phone.replace(/\s/g, "")) // Basic phone validation (10-15 digits, optional +)
   }
 
   const handleLoginSubmit = async (e) => {
@@ -130,7 +131,6 @@ const Login = () => {
         
         if (result.success) {
           setSuccess("¡Inicio de sesión exitoso!")
-          // Redirigir según el rol del usuario
           setTimeout(() => {
             if (result.role === 'admin') {
               navigate("/admin")
@@ -156,11 +156,10 @@ const Login = () => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault()
     const errors = {
-      nombre: !nombre,
-      apellido: !apellido,
-      telefono: !telefono,
+      name: !name,
+      phone: !phone || !validatePhone(phone),
       email: !email || !validateEmail(email),
-      password: !password,
+      password: !password || password.length < 8, // Enforce backend's minlength
       confirmPassword: !confirmPassword || password !== confirmPassword,
       acceptTerms: !acceptTerms,
     }
@@ -172,25 +171,22 @@ const Login = () => {
       setAnimating(true)
       try {
         const registerData = {
-          name: `${nombre} ${apellido}`, // Combinamos nombre y apellido
+          name,
           email,
           password,
-          phone: telefono, // Añadimos el teléfono
+          phone,
         }
 
         const result = await register(registerData)
         setAnimating(false)
         if (result.success) {
           setSuccess(result.message)
-          // Limpiar campos
-          setNombre("")
-          setApellido("")
-          setTelefono("")
+          setName("")
+          setPhone("")
           setEmail("")
           setPassword("")
           setConfirmPassword("")
           setAcceptTerms(false)
-          // Cambiar al formulario de login
           setTimeout(() => {
             toggleForm()
             setLoginEmail(email)
@@ -262,7 +258,7 @@ const Login = () => {
       background-blend-mode: overlay;
       padding: 15px;
       font-family: 'Roboto', sans-serif;
-      overflow-x: hidden; /* Prevenir scroll horizontal */
+      overflow-x: hidden;
     }
 
     .login-inner-container {
@@ -270,8 +266,8 @@ const Login = () => {
       max-width: 1100px;
       width: 100%;
       position: relative;
-      min-height: min-content; /* Cambiar de 600px a min-content */
-      margin: auto; /* Centrar el contenedor */
+      min-height: min-content;
+      margin: auto;
     }
 
     .login-left-panel {
@@ -352,7 +348,7 @@ const Login = () => {
       overflow: hidden;
       border: 1px solid rgba(232, 180, 184, 0.3);
       transition: all 0.3s ease;
-      margin: 20px auto; /* Añadir margen automático */
+      margin: 20px auto;
     }
 
     .login-form-slider {
@@ -367,9 +363,9 @@ const Login = () => {
       padding: ${isLogin ? "30px 25px" : "20px 20px"};
       transition: all 0.3s ease;
       opacity: ${animating ? 0.7 : 1};
-      max-height: calc(100vh - 40px); /* Ajustar altura máxima */
+      max-height: calc(100vh - 40px);
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch; /* Mejor scroll en iOS */
+      -webkit-overflow-scrolling: touch;
     }
 
     .login-form-panel::-webkit-scrollbar {
@@ -671,7 +667,6 @@ const Login = () => {
       font-size: ${isLogin ? "13px" : "12px"};
     }
 
-    /* Mejoras Responsivas */
     @media (max-width: 1200px) {
       .login-inner-container {
         max-width: 950px;
@@ -707,16 +702,16 @@ const Login = () => {
     @media (max-width: 576px) {
       .login-container {
         padding: 10px;
-        min-height: calc(100vh - 20px); /* Ajustar altura mínima */
+        min-height: calc(100vh - 20px);
       }
 
       .login-form-wrapper {
-        margin: 10px auto; /* Reducir margen en móviles */
+        margin: 10px auto;
       }
 
       .login-form-panel {
         padding: 15px;
-        max-height: calc(100vh - 30px); /* Ajustar altura máxima en móviles */
+        max-height: calc(100vh - 30px);
       }
 
       .login-input-row {
@@ -737,7 +732,7 @@ const Login = () => {
 
     @media (max-height: 600px) {
       .login-container {
-        align-items: flex-start; /* Alinear al inicio en pantallas bajas */
+        align-items: flex-start;
         padding: 10px 5px;
       }
 
@@ -770,7 +765,6 @@ const Login = () => {
     <>
       <style>{cssStyles}</style>
 
-      {/* Floating decorative elements */}
       <div
         className="floating-elements"
         style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
@@ -788,7 +782,6 @@ const Login = () => {
 
       <div className="login-container">
         <div className="login-inner-container">
-          {/* Left Panel - Welcome Content */}
           <div className="login-left-panel">
             <div className="login-left-content">
               <div style={{ marginBottom: "50px" }}>
@@ -813,11 +806,9 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Right Panel - Sliding Forms */}
           <div className="login-right-panel">
             <div className="login-form-wrapper">
               <div className="login-form-slider">
-                {/* Login Form Panel */}
                 <div className="login-form-panel">
                   <div className="login-logo">
                     <h1 className="login-logo-text">La Aterciopelada</h1>
@@ -831,7 +822,6 @@ const Login = () => {
                     {success && isLogin && <div className="login-alert-success">{success}</div>}
 
                     <form onSubmit={handleLoginSubmit}>
-                      {/* Email Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${loginEmail ? "label-float" : ""}`}>Correo Electrónico*</label>
                         <input
@@ -852,7 +842,6 @@ const Login = () => {
                         )}
                       </div>
 
-                      {/* Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${loginPassword ? "label-float" : ""}`}>Contraseña*</label>
                         <input
@@ -871,7 +860,6 @@ const Login = () => {
                         {fieldErrors.loginPassword && <p className="login-error-text">La contraseña es requerida</p>}
                       </div>
 
-                      {/* Remember Me & Forgot Password */}
                       <div className="login-checkbox-container">
                         <label className="login-checkbox-label">
                           <input
@@ -887,13 +875,11 @@ const Login = () => {
                         </Link>
                       </div>
 
-                      {/* Submit Button */}
                       <Button type="submit" className="login-button" disabled={animating}>
                         Iniciar Sesión
                       </Button>
                     </form>
 
-                    {/* Switch to Register */}
                     <div className="login-switch-form">
                       ¿No tienes una cuenta?{" "}
                       <span className="login-link" onClick={toggleForm}>
@@ -901,7 +887,6 @@ const Login = () => {
                       </span>
                     </div>
 
-                    {/* Terms */}
                     <div className="login-terms-text">
                       Al iniciar sesión, aceptas nuestras{" "}
                       <Link to="/politicas#cliente" className="login-highlight">
@@ -915,7 +900,6 @@ const Login = () => {
                   </div>
                 </div>
 
-                {/* Register Form Panel */}
                 <div className="login-form-panel">
                   <div className="login-logo">
                     <h1 className="login-logo-text">La Aterciopelada</h1>
@@ -929,62 +913,42 @@ const Login = () => {
                     {success && !isLogin && <div className="login-alert-success">{success}</div>}
 
                     <form onSubmit={handleRegisterSubmit}>
-                      {/* Name Inputs */}
-                      <div className="login-input-row">
-                        <div className="login-input-box">
-                          <label className={`login-label ${nombre ? "label-float" : ""}`}>Nombre*</label>
-                          <input
-                            type="text"
-                            placeholder="Nombre"
-                            value={nombre}
-                            onChange={(e) => {
-                              setNombre(e.target.value)
-                              setFieldErrors({ ...fieldErrors, nombre: false })
-                            }}
-                            className={`login-input ${fieldErrors.nombre ? "input-error" : ""}`}
-                          />
-                          <span className="login-icon">
-                            <IonIcon icon={personOutline} />
-                          </span>
-                          {fieldErrors.nombre && <p className="login-error-text">El nombre es requerido</p>}
-                        </div>
-
-                        <div className="login-input-box">
-                          <label className={`login-label ${apellido ? "label-float" : ""}`}>Apellido*</label>
-                          <input
-                            type="text"
-                            placeholder="Apellido"
-                            value={apellido}
-                            onChange={(e) => {
-                              setApellido(e.target.value)
-                              setFieldErrors({ ...fieldErrors, apellido: false })
-                            }}
-                            className={`login-input ${fieldErrors.apellido ? "input-error" : ""}`}
-                          />
-                          {fieldErrors.apellido && <p className="login-error-text">El apellido es requerido</p>}
-                        </div>
+                      <div className="login-input-box">
+                        <label className={`login-label ${name ? "label-float" : ""}`}>Nombre Completo*</label>
+                        <input
+                          type="text"
+                          placeholder="Nombre Completo"
+                          value={name}
+                          onChange={(e) => {
+                            setName(e.target.value)
+                            setFieldErrors({ ...fieldErrors, name: false })
+                          }}
+                          className={`login-input ${fieldErrors.name ? "input-error" : ""}`}
+                        />
+                        <span className="login-icon">
+                          <IonIcon icon={personOutline} />
+                        </span>
+                        {fieldErrors.name && <p className="login-error-text">El nombre es requerido</p>}
                       </div>
 
-                      {/* Phone Input */}
                       <div className="login-input-box">
-                        <label className={`login-label ${telefono ? "label-float" : ""}`}>Teléfono*</label>
+                        <label className={`login-label ${phone ? "label-float" : ""}`}>Teléfono*</label>
                         <input
                           type="tel"
-                          placeholder="Teléfono"
-                          value={telefono}
+                          placeholder="Teléfono (ej. +521234567890)"
+                          value={phone}
                           onChange={(e) => {
-                            setTelefono(e.target.value)
-                            setFieldErrors({ ...fieldErrors, telefono: false })
+                            setPhone(e.target.value)
+                            setFieldErrors({ ...fieldErrors, phone: false })
                           }}
-                          className={`login-input ${fieldErrors.telefono ? "input-error" : ""}`}
+                          className={`login-input ${fieldErrors.phone ? "input-error" : ""}`}
                         />
                         <span className="login-icon">
                           <IonIcon icon={callOutline} />
                         </span>
-                        {fieldErrors.telefono && <p className="login-error-text">El teléfono es requerido</p>}
+                        {fieldErrors.phone && <p className="login-error-text">Por favor ingresa un teléfono válido</p>}
                       </div>
 
-                      {/* Email Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${email ? "label-float" : ""}`}>Correo Electrónico*</label>
                         <input
@@ -1003,7 +967,6 @@ const Login = () => {
                         {fieldErrors.email && <p className="login-error-text">Por favor ingresa un correo válido</p>}
                       </div>
 
-                      {/* Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${password ? "label-float" : ""}`}>Contraseña*</label>
                         <input
@@ -1020,7 +983,6 @@ const Login = () => {
                           <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
                         </span>
 
-                        {/* Password Strength Meter */}
                         {password && (
                           <>
                             <div className="login-password-strength">
@@ -1038,10 +1000,9 @@ const Login = () => {
                           </>
                         )}
 
-                        {fieldErrors.password && <p className="login-error-text">La contraseña es requerida</p>}
+                        {fieldErrors.password && <p className="login-error-text">La contraseña debe tener al menos 8 caracteres</p>}
                       </div>
 
-                      {/* Confirm Password Input */}
                       <div className="login-input-box">
                         <label className={`login-label ${confirmPassword ? "label-float" : ""}`}>
                           Confirmar Contraseña*
@@ -1064,7 +1025,6 @@ const Login = () => {
                         )}
                       </div>
 
-                      {/* Terms Checkbox */}
                       <div style={{ marginBottom: "15px" }}>
                         <label className="login-checkbox-label">
                           <input
@@ -1081,13 +1041,11 @@ const Login = () => {
                         {fieldErrors.acceptTerms && <p className="login-error-text">Debes aceptar los términos</p>}
                       </div>
 
-                      {/* Submit Button */}
                       <Button type="submit" className="login-button" disabled={animating}>
                         Crear Cuenta
                       </Button>
                     </form>
 
-                    {/* Switch to Login */}
                     <div className="login-switch-form">
                       ¿Ya tienes una cuenta?{" "}
                       <span className="login-link" onClick={toggleForm}>
@@ -1095,7 +1053,6 @@ const Login = () => {
                       </span>
                     </div>
 
-                    {/* Newsletter Text */}
                     <div className="login-terms-text">
                       Al registrarte, aceptas recibir correos electrónicos sobre nuestros productos y eventos
                       culturales.

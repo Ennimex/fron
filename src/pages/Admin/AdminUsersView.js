@@ -1,5 +1,6 @@
+"use client"
+
 import { useState, useCallback, useMemo, useEffect } from "react"
-// Removemos useNavigate ya que no se usa
 import {
   FaSearch,
   FaFilter,
@@ -21,10 +22,9 @@ import { colors, typography } from "../../styles/styles"
 import { useAuth } from "../../context/AuthContext"
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
-  // Removemos la línea que declara navigate ya que no se usa
   const { user } = useAuth()
   const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([]) // Cambiado de mockUsers a array vacío
+  const [filteredUsers, setFilteredUsers] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRole, setSelectedRole] = useState("all")
   const [sortField, setSortField] = useState("name")
@@ -49,22 +49,22 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     header: {
       backgroundColor: colors.white,
       borderRadius: "12px",
-      padding: "1.5rem", // Ajustamos el padding
+      padding: "1.5rem",
       marginBottom: "1rem",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
       border: "1px solid #e2e8f0",
     },
     title: {
-      fontSize: "2.2rem", // Aumentado el tamaño de fuente
+      fontSize: "2.2rem",
       fontWeight: "bold",
       color: "#1e293b",
-      marginBottom: "1rem", // Aumentado el margen
+      marginBottom: "1rem",
       fontFamily: typography.fontPrimary,
     },
     subtitle: {
-      fontSize: "1.1rem", // Aumentado el tamaño de fuente
+      fontSize: "1.1rem",
       color: "#64748b",
-      marginBottom: "1.5rem", // Aumentado el margen
+      marginBottom: "1.5rem",
     },
     toolbar: {
       display: "flex",
@@ -80,10 +80,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     },
     searchInput: {
       width: "100%",
-      padding: "1rem 3rem 1rem 1.5rem", // Aumentado el padding
+      padding: "1rem 3rem 1rem 1.5rem",
       border: "2px solid #e2e8f0",
       borderRadius: "8px",
-      fontSize: "1rem", // Aumentado el tamaño de fuente
+      fontSize: "1rem",
       fontFamily: typography.fontSecondary,
       transition: "border-color 0.2s ease",
       backgroundColor: colors.white,
@@ -101,10 +101,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       alignItems: "center",
     },
     button: {
-      padding: "0.875rem 1.5rem", // Aumentado el padding
+      padding: "0.875rem 1.5rem",
       border: "none",
       borderRadius: "8px",
-      fontSize: "1rem", // Aumentado el tamaño de fuente
+      fontSize: "1rem",
       fontWeight: "500",
       cursor: "pointer",
       transition: "all 0.2s ease",
@@ -178,9 +178,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       borderBottom: "2px solid #e2e8f0",
     },
     tableHeaderCell: {
-      padding: "1.25rem", // Aumentado el padding
+      padding: "1.25rem",
       textAlign: "left",
-      fontSize: "1rem", // Aumentado el tamaño de fuente
+      fontSize: "1rem",
       fontWeight: "600",
       color: "#374151",
       cursor: "pointer",
@@ -192,21 +192,21 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       transition: "background-color 0.2s ease",
     },
     tableCell: {
-      padding: "1.25rem", // Aumentado el padding
-      fontSize: "1rem", // Aumentado el tamaño de fuente
+      padding: "1.25rem",
+      fontSize: "1rem",
       color: "#374151",
       fontFamily: typography.fontSecondary,
     },
     avatar: {
-      width: "48px", // Aumentado el tamaño
-      height: "48px", // Aumentado el tamaño
+      width: "48px",
+      height: "48px",
       borderRadius: "50%",
       backgroundColor: "#0D1B2A",
       color: colors.white,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "1.2rem", // Aumentado el tamaño de fuente
+      fontSize: "1.2rem",
       fontWeight: "bold",
     },
     userInfo: {
@@ -230,25 +230,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       textTransform: "uppercase",
       letterSpacing: "0.5px",
     },
-    statusActive: {
-      backgroundColor: "#dcfce7",
-      color: "#166534",
-    },
-    statusInactive: {
-      backgroundColor: "#fef3c7",
-      color: "#92400e",
-    },
-    statusSuspended: {
-      backgroundColor: "#fee2e2",
-      color: "#991b1b",
-    },
     roleAdmin: {
       backgroundColor: "#ddd6fe",
       color: "#5b21b6",
-    },
-    roleModerator: {
-      backgroundColor: "#bfdbfe",
-      color: "#1d4ed8",
     },
     roleUser: {
       backgroundColor: "#e5e7eb",
@@ -264,10 +248,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       alignItems: "center",
       justifyContent: "center",
       margin: "0 2px",
-    },
-    viewButton: {
-      backgroundColor: "#e0f2fe",
-      color: "#0369a1",
     },
     editButton: {
       backgroundColor: "#fef3c7",
@@ -343,25 +323,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       fontSize: "12px",
       transition: "all 0.2s ease",
     },
-    headerActions: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '20px'
-    },
-    backButton: {
-      backgroundColor: colors.primary,
-      color: colors.white,
-      border: 'none',
-      padding: '10px 20px',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      cursor: 'pointer',
-      fontSize: '0.9rem',
-      transition: 'all 0.3s ease'
-    }
   }
 
   // Obtener usuarios del backend
@@ -380,6 +341,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         }
 
         const data = await response.json()
+        // Log data to inspect for debugging
+        console.log("Fetched users:", data)
         setUsers(data)
         setFilteredUsers(data)
       } catch (error) {
@@ -389,26 +352,35 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       }
     }
 
-    fetchUsers()
-  }, [user.token])
+    if (user?.token) {
+      fetchUsers()
+    }
+  }, [user?.token])
 
   // Filtrar y ordenar usuarios
   const processedUsers = useMemo(() => {
     const filtered = users.filter((user) => {
-      const matchesSearch = user.email && 
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = selectedRole === "all" || user.role === selectedRole;
-
-      // Removemos matchesStatus ya que no tenemos ese campo
-      return matchesSearch && matchesRole;
+      const matchesSearch =
+        (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.phone && user.phone.includes(searchTerm))
+      const matchesRole = selectedRole === "all" || user.role === selectedRole
+      return matchesSearch && matchesRole
     })
 
-    // Ordenar
     filtered.sort((a, b) => {
       let aValue = a[sortField]
       let bValue = b[sortField]
 
-      if (typeof aValue === "string") {
+      // Handle undefined or null values
+      if (aValue == null) aValue = ""
+      if (bValue == null) bValue = ""
+
+      if (sortField === "createdAt") {
+        // Handle invalid dates
+        aValue = aValue ? new Date(aValue) : new Date(0)
+        bValue = bValue ? new Date(bValue) : new Date(0)
+      } else if (typeof aValue === "string") {
         aValue = aValue.toLowerCase()
         bValue = bValue.toLowerCase()
       }
@@ -456,14 +428,16 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           throw new Error("Error al eliminar el usuario")
         }
 
-        setUsers(users.filter((user) => user.id !== userId))
-        setFilteredUsers(filteredUsers.filter((user) => user.id !== userId))
+        setUsers(users.filter((user) => user._id !== userId))
+        setFilteredUsers(filteredUsers.filter((user) => user._id !== userId))
+        setSelectedUsers(new Set([...selectedUsers].filter((id) => id !== userId)))
       } catch (error) {
         setError(error.message)
       }
     }
   }
 
+  // Manejar actualización de rol
   const handleUpdateUserRole = async (userId, newRole) => {
     try {
       const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
@@ -480,7 +454,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       }
 
       const updatedUser = await response.json()
-      const updatedUsers = users.map((user) => (user.id === userId ? { ...user, role: updatedUser.role } : user))
+      const updatedUsers = users.map((user) =>
+        user._id === userId ? { ...user, role: updatedUser.role } : user
+      )
       setUsers(updatedUsers)
       setFilteredUsers(updatedUsers)
     } catch (error) {
@@ -506,7 +482,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     if (selectedUsers.size === paginatedUsers.length) {
       setSelectedUsers(new Set())
     } else {
-      setSelectedUsers(new Set(paginatedUsers.map((user) => user.id)))
+      setSelectedUsers(new Set(paginatedUsers.map((user) => user._id)))
     }
   }, [selectedUsers.size, paginatedUsers])
 
@@ -541,61 +517,72 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     )
   }
 
-  // Agregar manejo de loading y error
+  // Formatear fecha
+  const formatDate = (dateString) => {
+    if (!dateString) return "-"
+    return new Date(dateString).toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  // Manejar loading y error
   if (loading) {
     return (
-      <div style={{ ...styles.container, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
+      <div style={{ ...styles.container, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ textAlign: "center", padding: "2rem" }}>
           <h3>Cargando usuarios...</h3>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
     return (
-      <div style={{ ...styles.container, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '2rem', 
-          backgroundColor: '#fee2e2', 
-          borderRadius: '8px',
-          color: '#991b1b' 
-        }}>
+      <div style={{ ...styles.container, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "2rem",
+            backgroundColor: "#fee2e2",
+            borderRadius: "8px",
+            color: "#991b1b",
+          }}
+        >
           <h3>Error</h3>
           <p>{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             style={{
-              padding: '8px 16px',
-              backgroundColor: '#991b1b',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '1rem'
+              padding: "8px 16px",
+              backgroundColor: "#991b1b",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginTop: "1rem",
             }}
           >
             Reintentar
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div style={styles.container}>
-      {/* Header - Eliminamos el botón de "Volver al Dashboard" ya que ahora está en el Sidebar */}
       <div style={styles.header}>
         <h1 style={styles.title}>Gestión de Usuarios</h1>
         <p style={styles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
-        
+
         <div style={styles.toolbar}>
           <div style={styles.searchContainer}>
             <FaSearch style={styles.searchIcon} size={16} />
             <input
               type="text"
-              placeholder="Buscar usuarios por nombre o email..."
+              placeholder="Buscar por nombre, email o teléfono..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={styles.searchInput}
@@ -608,12 +595,12 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               Filtros
             </button>
 
-            <button style={{ ...styles.button, ...styles.secondaryButton }}>
+            <button style={{ ...styles.button, ...styles.secondaryButton }} disabled={true}>
               <FaDownload size={14} />
               Exportar
             </button>
 
-            <button style={{ ...styles.button, ...styles.primaryButton }}>
+            <button style={{ ...styles.button, ...styles.primaryButton }} disabled={true}>
               <FaPlus size={14} />
               Nuevo Usuario
             </button>
@@ -621,7 +608,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
 
-      {/* Filtros */}
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
           <div style={styles.filterGroup}>
@@ -648,21 +634,20 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
 
-      {/* Tabla */}
       <div style={styles.tableContainer}>
         {selectedUsers.size > 0 && (
           <div style={styles.bulkActions}>
             <span style={styles.bulkActionsText}>{selectedUsers.size} usuario(s) seleccionado(s)</span>
             <div style={styles.bulkActionsButtons}>
-              <button style={styles.bulkActionButton}>
+              <button style={styles.bulkActionButton} disabled={true}>
                 <FaUserCheck size={12} style={{ marginRight: "4px" }} />
                 Activar
               </button>
-              <button style={styles.bulkActionButton}>
+              <button style={styles.bulkActionButton} disabled={true}>
                 <FaUserTimes size={12} style={{ marginRight: "4px" }} />
                 Suspender
               </button>
-              <button style={styles.bulkActionButton}>
+              <button style={styles.bulkActionButton} disabled={true}>
                 <FaTrash size={12} style={{ marginRight: "4px" }} />
                 Eliminar
               </button>
@@ -681,10 +666,22 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   onChange={handleSelectAll}
                 />
               </th>
+              <th style={styles.tableHeaderCell} onClick={() => handleSort("name")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  Nombre
+                  {renderSortIcon("name")}
+                </div>
+              </th>
               <th style={styles.tableHeaderCell} onClick={() => handleSort("email")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  Usuario (Email)
+                  Email
                   {renderSortIcon("email")}
+                </div>
+              </th>
+              <th style={styles.tableHeaderCell} onClick={() => handleSort("phone")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  Teléfono
+                  {renderSortIcon("phone")}
                 </div>
               </th>
               <th style={styles.tableHeaderCell} onClick={() => handleSort("role")}>
@@ -693,12 +690,17 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   {renderSortIcon("role")}
                 </div>
               </th>
+              <th style={styles.tableHeaderCell} onClick={() => handleSort("createdAt")}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  Fecha de Registro
+                  {renderSortIcon("createdAt")}
+                </div>
+              </th>
               <th style={styles.tableHeaderCell}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {paginatedUsers.map((user) => (
-              // Cambiamos user.id por user._id ya que MongoDB usa _id
               <tr key={user._id} style={styles.tableRow}>
                 <td style={styles.tableCell}>
                   <input
@@ -710,15 +712,17 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 </td>
                 <td style={styles.tableCell}>
                   <div style={styles.userInfo}>
-                    <div style={styles.avatar}>
-                      {user.email[0].toUpperCase()}
+                    <div style={styles.avatar}>{user.name ? user.name[0].toUpperCase() : "-"}</div>
+                    <div>
+                      <div style={styles.userName}>{user.name || "Sin nombre"}</div>
+                      <div style={styles.userEmail}>{user.email}</div>
                     </div>
-                    <div style={styles.userEmail}>{user.email}</div>
                   </div>
                 </td>
-                <td style={styles.tableCell}>
-                  {renderRoleBadge(user.role)}
-                </td>
+                <td style={styles.tableCell}>{user.email}</td>
+                <td style={styles.tableCell}>{user.phone || "-"}</td>
+                <td style={styles.tableCell}>{renderRoleBadge(user.role)}</td>
+                <td style={styles.tableCell}>{formatDate(user.createdAt)}</td>
                 <td style={styles.tableCell}>
                   <div style={{ display: "flex", gap: "4px" }}>
                     <button
@@ -742,7 +746,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </tbody>
         </table>
 
-        {/* Paginación */}
         <div style={styles.pagination}>
           <div style={styles.paginationInfo}>
             Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}

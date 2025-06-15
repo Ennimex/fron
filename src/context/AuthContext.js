@@ -1,3 +1,4 @@
+// frontend/src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
@@ -18,20 +19,21 @@ export const AuthProvider = ({ children }) => {
         setUser({
           isAuthenticated: true,
           token,
-          role: decoded.role, // Asegurarnos de que el rol se guarde
-          ...decoded
+          id: decoded.id,
+          role: decoded.role,
+          // Opcional: incluir otros campos si los necesitas
         });
       } catch (error) {
+        console.error('Error decodificando token:', error);
         logout();
       }
     }
     setLoading(false);
   }, []);
 
-  // Login: consulta a tu API y guarda el token
+  // Login: consulta a la API y guarda el token
   const login = async (credentials) => {
     try {
-      // Validación más detallada de credenciales
       if (!credentials || typeof credentials !== 'object') {
         throw new Error('Datos de inicio de sesión inválidos');
       }
@@ -53,15 +55,15 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
-        body: JSON.stringify(loginData)
+        body: JSON.stringify(loginData),
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.message || 'Error en la autenticación');
+        throw new Error(data.error || 'Error en la autenticación');
       }
 
       if (!data.token) {
@@ -72,54 +74,73 @@ export const AuthProvider = ({ children }) => {
       const userData = {
         isAuthenticated: true,
         token: data.token,
-        role: decoded.role, // Asegurarnos de que el rol se guarde
-        ...decoded
+        id: decoded.id,
+        role: decoded.role,
+        name: data.user.name, // Nuevo: guardar nombre del usuario
+        email: data.user.email, // Nuevo: guardar email del usuario
       };
 
       setUser(userData);
       localStorage.setItem('token', data.token);
 
-      return { 
+      return {
         success: true,
-        role: decoded.role // Devolver el rol para poder redirigir según el tipo de usuario
+        role: decoded.role,
       };
     } catch (error) {
       console.error('Error de login:', error);
-      return { 
-        success: false, 
-        message: error.message || 'Error al iniciar sesión'
+      return {
+        success: false,
+        message: error.message || 'Error al iniciar sesión',
       };
     }
   };
 
+  // Register: enviar datos de registro, incluyendo phone
   const register = async (userData) => {
     try {
-      // Asegurarse que userData sea un objeto plano
       const registerData = {
-        name: userData.name?.toString(),
-        email: userData.email?.toString(),
-        password: userData.password?.toString()
+        name: userData.name?.toString().trim(),
+        email: userData.email?.toString().trim(),
+        password: userData.password?.toString(),
+        phone: userData.phone?.toString().trim(), // Nuevo: campo requerido
       };
+
+      // Validación básica en el frontend
+      if (!registerData.name) {
+        throw new Error('El nombre es requerido');
+      }
+      if (!registerData.email) {
+        throw new Error('El correo electrónico es requerido');
+      }
+      if (!registerData.password) {
+        throw new Error('La contraseña es requerida');
+      }
+      if (!registerData.phone) {
+        throw new Error('El número de teléfono es requerido');
+      }
 
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerData),
       });
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'No se pudo registrar');
       }
 
-      return { 
+      return {
         success: true,
-        message: data.message || 'Registro exitoso. Por favor inicia sesión.'
+        message: data.message || 'Registro exitoso. Por favor inicia sesión.',
       };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.message 
+      console.error('Error de registro:', error);
+      return {
+        success: false,
+        message: error.message,
       };
     }
   };
@@ -135,13 +156,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        login, 
-        logout, 
-        register, 
-        isAuthenticated: !!user && user.isAuthenticated // Aseguramos que isAuthenticated esté correctamente definido
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        register,
+        isAuthenticated: !!user?.isAuthenticated,
       }}
     >
       {children}
