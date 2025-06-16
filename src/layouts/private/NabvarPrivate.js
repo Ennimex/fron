@@ -1,140 +1,21 @@
-import React, { useState } from "react";
-import { Navbar, Container, Nav, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { colors } from "../../styles/styles";
-import { useAuth } from '../../context/AuthContext';
+// components/private/NavbarPrivate.js
+import React from "react";
+import { useAuth } from "../../context/AuthContext";
+import NavbarBase from "../../layouts/common/NavbarBase";
 
-const NavbarPrivate = () => {
-  const { logout } = useAuth(); // <--- Usa el logout del contexto
-  const [expanded, setExpanded] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/login"; // Recarga total de la app
-    setExpanded(false);
-  };
+const NavbarPrivate = ({ navLinks }) => {
+  const { user } = useAuth();
+  
+  if (!user) return null;
 
   return (
-    <Navbar
-      bg="light"
-      expand="lg"
-      expanded={expanded}
-      className="py-2 border-bottom shadow-sm"
-      sticky="top"
-    >
-      <Container fluid className="px-4">
-        <Navbar.Brand 
-          as={Link} 
-          to="/" 
-          className="fw-bold text-dark fs-4"
-          onClick={() => setExpanded(false)}
-          style={{ color: colors.primaryDark }}
-        >
-          JADA Company
-        </Navbar.Brand>
-
-        <Navbar.Toggle 
-          aria-controls="navbar-nav" 
-          onClick={() => setExpanded(!expanded)} 
-        />
-
-        <Navbar.Collapse id="navbar-nav">
-          <Nav className="mx-auto">
-            <Nav.Link 
-              as={Link} 
-              to="/" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Inicio
-            </Nav.Link>
-            
-            <Nav.Link 
-              as={Link} 
-              to="/productos" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Productos
-            </Nav.Link>
-            
-            <Nav.Link 
-              as={Link} 
-              to="/servicios" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Servicios
-            </Nav.Link>
-            
-            <Nav.Link 
-              as={Link} 
-              to="/nosotros" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Nosotros
-            </Nav.Link>
-            
-            <Nav.Link 
-              as={Link} 
-              to="/contacto" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Contacto
-            </Nav.Link>
-
-            <Nav.Link 
-              as={Link} 
-              to="/galeria" 
-              onClick={() => setExpanded(false)}
-              className="mx-2"
-              style={{ color: colors.primaryMedium }}
-            >
-              Galería
-            </Nav.Link>
-          </Nav>
-
-          <div className="d-flex align-items-center mt-3 mt-lg-0">
-            <Button 
-              as={Link} 
-              to="/perfil" 
-              style={{ 
-                backgroundColor: colors.primaryDark, 
-                borderColor: colors.primaryDark,
-                whiteSpace: "nowrap",
-                borderRadius: "20px",
-                marginLeft: "10px"
-              }} 
-              className="ms-2 px-3"
-              onClick={() => setExpanded(false)}
-            >
-              Profile
-            </Button>
-
-            <Button 
-              onClick={handleLogout}
-              style={{ 
-                backgroundColor: colors.primaryDark, 
-                borderColor: colors.primaryDark,
-                whiteSpace: "nowrap",
-                borderRadius: "20px",
-                marginLeft: "10px"
-              }} 
-              className="ms-2 px-3"
-            >
-              Logout
-            </Button>
-          </div>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+    <NavbarBase
+      isAuthenticated={true}
+      user={user}
+      onLogout={() => {}}
+      brandName="Mi App"
+      navLinks={navLinks}
+    />
   );
 };
 
