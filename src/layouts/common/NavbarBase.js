@@ -81,7 +81,7 @@ const NavbarBase = ({
                 {user?.role === "admin" && (
                   <Dropdown.Item
                     as={NavLink}
-                    to="/admin/dashboard"
+                    to="/admin"
                     onClick={() => setExpanded(false)}
                     className="d-flex align-items-center gap-2"
                   >

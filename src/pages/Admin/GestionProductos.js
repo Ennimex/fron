@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { styles } from "../../styles/gestionProductosStyles";
-import { FaSearch, FaFilter, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaSearch, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 
 const GestionProductos = () => {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const GestionProductos = () => {
     if (user.role !== "admin") {
       navigate("/no-autorizado");
     }
-  }, [user, navigate, location]);
+  }, [user, navigate, location, user?.role]);
 
   // Función para cargar productos
   const fetchProductos = async () => {
@@ -89,7 +89,7 @@ const GestionProductos = () => {
     };
 
     fetchData();
-  }, [user?.token]);
+  }, [user?.token, user?.role]);
 
   // Manejadores de eventos para formulario
   const handleChange = (e) => {

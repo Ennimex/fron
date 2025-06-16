@@ -1,6 +1,4 @@
-"use client"
-
-import { useState, useCallback, useMemo, useEffect } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   FaSearch,
   FaFilter,
@@ -17,313 +15,24 @@ import {
   FaSort,
   FaUserShield,
   FaUser,
-} from "react-icons/fa"
-import { colors, typography } from "../../styles/styles"
-import { useAuth } from "../../context/AuthContext"
+} from "react-icons/fa";
+import { usersAdminStyles } from "../../styles/styles";
+import { useAuth } from "../../context/AuthContext";
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
-  const { user } = useAuth()
-  const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedRole, setSelectedRole] = useState("all")
-  const [sortField, setSortField] = useState("name")
-  const [sortDirection, setSortDirection] = useState("asc")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [usersPerPage] = useState(10)
-  const [selectedUsers, setSelectedUsers] = useState(new Set())
-  const [showFilters, setShowFilters] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  // Estilos consistentes con el sidebar
-  const styles = {
-    container: {
-      padding: "2rem",
-      backgroundColor: "#f8fafc",
-      minHeight: "100vh",
-      width: "100%",
-      overflowX: "hidden",
-      fontFamily: typography.fontSecondary,
-    },
-    header: {
-      backgroundColor: colors.white,
-      borderRadius: "12px",
-      padding: "1.5rem",
-      marginBottom: "1rem",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      border: "1px solid #e2e8f0",
-    },
-    title: {
-      fontSize: "2.2rem",
-      fontWeight: "bold",
-      color: "#1e293b",
-      marginBottom: "1rem",
-      fontFamily: typography.fontPrimary,
-    },
-    subtitle: {
-      fontSize: "1.1rem",
-      color: "#64748b",
-      marginBottom: "1.5rem",
-    },
-    toolbar: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: "16px",
-    },
-    searchContainer: {
-      position: "relative",
-      flex: "1",
-      maxWidth: "400px",
-    },
-    searchInput: {
-      width: "100%",
-      padding: "1rem 3rem 1rem 1.5rem",
-      border: "2px solid #e2e8f0",
-      borderRadius: "8px",
-      fontSize: "1rem",
-      fontFamily: typography.fontSecondary,
-      transition: "border-color 0.2s ease",
-      backgroundColor: colors.white,
-    },
-    searchIcon: {
-      position: "absolute",
-      left: "16px",
-      top: "50%",
-      transform: "translateY(-50%)",
-      color: "#64748b",
-    },
-    buttonGroup: {
-      display: "flex",
-      gap: "12px",
-      alignItems: "center",
-    },
-    button: {
-      padding: "0.875rem 1.5rem",
-      border: "none",
-      borderRadius: "8px",
-      fontSize: "1rem",
-      fontWeight: "500",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      fontFamily: typography.fontSecondary,
-    },
-    primaryButton: {
-      backgroundColor: "#0D1B2A",
-      color: colors.white,
-    },
-    secondaryButton: {
-      backgroundColor: colors.white,
-      color: "#374151",
-      border: "2px solid #e2e8f0",
-    },
-    filterButton: {
-      backgroundColor: showFilters ? "#0D1B2A" : colors.white,
-      color: showFilters ? colors.white : "#374151",
-      border: "2px solid #e2e8f0",
-    },
-    filtersContainer: {
-      backgroundColor: colors.white,
-      borderRadius: "12px",
-      padding: "20px",
-      marginBottom: "24px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      border: "1px solid #e2e8f0",
-      display: showFilters ? "block" : "none",
-    },
-    filtersGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "16px",
-      alignItems: "end",
-    },
-    filterGroup: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
-    },
-    label: {
-      fontSize: "14px",
-      fontWeight: "500",
-      color: "#374151",
-      fontFamily: typography.fontSecondary,
-    },
-    select: {
-      padding: "10px 12px",
-      border: "2px solid #e2e8f0",
-      borderRadius: "6px",
-      fontSize: "14px",
-      fontFamily: typography.fontSecondary,
-      backgroundColor: colors.white,
-      cursor: "pointer",
-    },
-    tableContainer: {
-      backgroundColor: colors.white,
-      borderRadius: "12px",
-      overflow: "hidden",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      border: "1px solid #e2e8f0",
-    },
-    table: {
-      width: "100%",
-      borderCollapse: "collapse",
-    },
-    tableHeader: {
-      backgroundColor: "#f8fafc",
-      borderBottom: "2px solid #e2e8f0",
-    },
-    tableHeaderCell: {
-      padding: "1.25rem",
-      textAlign: "left",
-      fontSize: "1rem",
-      fontWeight: "600",
-      color: "#374151",
-      cursor: "pointer",
-      userSelect: "none",
-      fontFamily: typography.fontSecondary,
-    },
-    tableRow: {
-      borderBottom: "1px solid #f1f5f9",
-      transition: "background-color 0.2s ease",
-    },
-    tableCell: {
-      padding: "1.25rem",
-      fontSize: "1rem",
-      color: "#374151",
-      fontFamily: typography.fontSecondary,
-    },
-    avatar: {
-      width: "48px",
-      height: "48px",
-      borderRadius: "50%",
-      backgroundColor: "#0D1B2A",
-      color: colors.white,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "1.2rem",
-      fontWeight: "bold",
-    },
-    userInfo: {
-      display: "flex",
-      alignItems: "center",
-      gap: "12px",
-    },
-    userName: {
-      fontWeight: "500",
-      color: "#1e293b",
-    },
-    userEmail: {
-      fontSize: "13px",
-      color: "#64748b",
-    },
-    badge: {
-      padding: "4px 12px",
-      borderRadius: "20px",
-      fontSize: "12px",
-      fontWeight: "500",
-      textTransform: "uppercase",
-      letterSpacing: "0.5px",
-    },
-    roleAdmin: {
-      backgroundColor: "#ddd6fe",
-      color: "#5b21b6",
-    },
-    roleUser: {
-      backgroundColor: "#e5e7eb",
-      color: "#374151",
-    },
-    actionButton: {
-      padding: "8px",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: "0 2px",
-    },
-    editButton: {
-      backgroundColor: "#fef3c7",
-      color: "#92400e",
-    },
-    deleteButton: {
-      backgroundColor: "#fee2e2",
-      color: "#991b1b",
-    },
-    pagination: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "20px",
-      backgroundColor: "#f8fafc",
-      borderTop: "1px solid #e2e8f0",
-    },
-    paginationInfo: {
-      fontSize: "14px",
-      color: "#64748b",
-      fontFamily: typography.fontSecondary,
-    },
-    paginationButtons: {
-      display: "flex",
-      gap: "8px",
-      alignItems: "center",
-    },
-    paginationButton: {
-      padding: "8px 12px",
-      border: "1px solid #e2e8f0",
-      borderRadius: "6px",
-      backgroundColor: colors.white,
-      color: "#374151",
-      cursor: "pointer",
-      fontSize: "14px",
-      fontFamily: typography.fontSecondary,
-      transition: "all 0.2s ease",
-    },
-    paginationButtonActive: {
-      backgroundColor: "#0D1B2A",
-      color: colors.white,
-      borderColor: "#0D1B2A",
-    },
-    checkbox: {
-      width: "18px",
-      height: "18px",
-      cursor: "pointer",
-    },
-    bulkActions: {
-      backgroundColor: "#0D1B2A",
-      color: colors.white,
-      padding: "12px 20px",
-      borderRadius: "8px 8px 0 0",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    bulkActionsText: {
-      fontSize: "14px",
-      fontWeight: "500",
-    },
-    bulkActionsButtons: {
-      display: "flex",
-      gap: "8px",
-    },
-    bulkActionButton: {
-      padding: "6px 12px",
-      border: "1px solid rgba(255,255,255,0.3)",
-      borderRadius: "4px",
-      backgroundColor: "transparent",
-      color: colors.white,
-      cursor: "pointer",
-      fontSize: "12px",
-      transition: "all 0.2s ease",
-    },
-  }
+  const { user } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRole, setSelectedRole] = useState("all");
+  const [sortField, setSortField] = useState("name");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Obtener usuarios del backend
   useEffect(() => {
@@ -334,28 +43,26 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             Authorization: `Bearer ${user.token}`,
             "Content-Type": "application/json",
           },
-        })
+        });
 
         if (!response.ok) {
-          throw new Error("Error al cargar los usuarios")
+          throw new Error("Error al cargar los usuarios");
         }
 
-        const data = await response.json()
-        // Log data to inspect for debugging
-        console.log("Fetched users:", data)
-        setUsers(data)
-        setFilteredUsers(data)
+        const data = await response.json();
+        setUsers(data);
+        setFilteredUsers(data);
       } catch (error) {
-        setError(error.message)
+        setError(error.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (user?.token) {
-      fetchUsers()
+      fetchUsers();
     }
-  }, [user?.token])
+  }, [user?.token]);
 
   // Filtrar y ordenar usuarios
   const processedUsers = useMemo(() => {
@@ -363,55 +70,53 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       const matchesSearch =
         (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (user.phone && user.phone.includes(searchTerm))
-      const matchesRole = selectedRole === "all" || user.role === selectedRole
-      return matchesSearch && matchesRole
-    })
+        (user.phone && user.phone.includes(searchTerm));
+      const matchesRole = selectedRole === "all" || user.role === selectedRole;
+      return matchesSearch && matchesRole;
+    });
 
     filtered.sort((a, b) => {
-      let aValue = a[sortField]
-      let bValue = b[sortField]
+      let aValue = a[sortField];
+      let bValue = b[sortField];
 
-      // Handle undefined or null values
-      if (aValue == null) aValue = ""
-      if (bValue == null) bValue = ""
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
 
       if (sortField === "createdAt") {
-        // Handle invalid dates
-        aValue = aValue ? new Date(aValue) : new Date(0)
-        bValue = bValue ? new Date(bValue) : new Date(0)
+        aValue = aValue ? new Date(aValue) : new Date(0);
+        bValue = bValue ? new Date(bValue) : new Date(0);
       } else if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase()
-        bValue = bValue.toLowerCase()
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
       }
 
       if (sortDirection === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
-    })
+    });
 
-    return filtered
-  }, [users, searchTerm, selectedRole, sortField, sortDirection])
+    return filtered;
+  }, [users, searchTerm, selectedRole, sortField, sortDirection]);
 
   // Paginación
-  const totalPages = Math.ceil(processedUsers.length / usersPerPage)
-  const startIndex = (currentPage - 1) * usersPerPage
-  const paginatedUsers = processedUsers.slice(startIndex, startIndex + usersPerPage)
+  const totalPages = Math.ceil(processedUsers.length / usersPerPage);
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const paginatedUsers = processedUsers.slice(startIndex, startIndex + usersPerPage);
 
   // Manejar ordenamiento
   const handleSort = useCallback(
     (field) => {
       if (sortField === field) {
-        setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
       } else {
-        setSortField(field)
-        setSortDirection("asc")
+        setSortField(field);
+        setSortDirection("asc");
       }
     },
-    [sortField, sortDirection],
-  )
+    [sortField, sortDirection]
+  );
 
   // Manejar eliminación de usuario
   const handleDeleteUser = async (userId) => {
@@ -422,20 +127,20 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
-        })
+        });
 
         if (!response.ok) {
-          throw new Error("Error al eliminar el usuario")
+          throw new Error("Error al eliminar el usuario");
         }
 
-        setUsers(users.filter((user) => user._id !== userId))
-        setFilteredUsers(filteredUsers.filter((user) => user._id !== userId))
-        setSelectedUsers(new Set([...selectedUsers].filter((id) => id !== userId)))
+        setUsers(users.filter((user) => user._id !== userId));
+        setFilteredUsers(filteredUsers.filter((user) => user._id !== userId));
+        setSelectedUsers(new Set([...selectedUsers].filter((id) => id !== userId)));
       } catch (error) {
-        setError(error.message)
+        setError(error.message);
       }
     }
-  }
+  };
 
   // Manejar actualización de rol
   const handleUpdateUserRole = async (userId, newRole) => {
@@ -447,109 +152,101 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ role: newRole }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Error al actualizar el rol del usuario")
+        throw new Error("Error al actualizar el rol del usuario");
       }
 
-      const updatedUser = await response.json()
+      const updatedUser = await response.json();
       const updatedUsers = users.map((user) =>
         user._id === userId ? { ...user, role: updatedUser.role } : user
-      )
-      setUsers(updatedUsers)
-      setFilteredUsers(updatedUsers)
+      );
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
     } catch (error) {
-      setError(error.message)
+      setError(error.message);
     }
-  }
+  };
 
   // Manejar selección de usuarios
   const handleSelectUser = useCallback(
     (userId) => {
-      const newSelected = new Set(selectedUsers)
+      const newSelected = new Set(selectedUsers);
       if (newSelected.has(userId)) {
-        newSelected.delete(userId)
+        newSelected.delete(userId);
       } else {
-        newSelected.add(userId)
+        newSelected.add(userId);
       }
-      setSelectedUsers(newSelected)
+      setSelectedUsers(newSelected);
     },
-    [selectedUsers],
-  )
+    [selectedUsers]
+  );
 
   const handleSelectAll = useCallback(() => {
     if (selectedUsers.size === paginatedUsers.length) {
-      setSelectedUsers(new Set())
+      setSelectedUsers(new Set());
     } else {
-      setSelectedUsers(new Set(paginatedUsers.map((user) => user._id)))
+      setSelectedUsers(new Set(paginatedUsers.map((user) => user._id)));
     }
-  }, [selectedUsers.size, paginatedUsers])
+  }, [selectedUsers.size, paginatedUsers]);
 
   // Renderizar icono de ordenamiento
   const renderSortIcon = (field) => {
-    if (sortField !== field) return <FaSort size={12} style={{ opacity: 0.5 }} />
-    return sortDirection === "asc" ? <FaSortUp size={12} /> : <FaSortDown size={12} />
-  }
+    if (sortField !== field) return <FaSort size={12} style={{ opacity: 0.5 }} />;
+    return sortDirection === "asc" ? <FaSortUp size={12} /> : <FaSortDown size={12} />;
+  };
 
   // Renderizar badge de rol
   const renderRoleBadge = (role) => {
-    const roleStyles = {
-      admin: styles.roleAdmin,
-      user: styles.roleUser,
-    }
-
     const roleLabels = {
       admin: "Administrador",
       user: "Usuario",
-    }
+    };
 
     const roleIcons = {
       admin: <FaUserShield size={12} />,
       user: <FaUser size={12} />,
-    }
+    };
 
     return (
-      <span style={{ ...styles.badge, ...roleStyles[role], display: "flex", alignItems: "center", gap: "4px" }}>
+      <span
+        style={{
+          ...usersAdminStyles.badge,
+          ...(role === "admin" ? usersAdminStyles.roleAdmin : usersAdminStyles.roleUser),
+        }}
+      >
         {roleIcons[role]}
         {roleLabels[role]}
       </span>
-    )
-  }
+    );
+  };
 
   // Formatear fecha
   const formatDate = (dateString) => {
-    if (!dateString) return "-"
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("es-MX", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   // Manejar loading y error
   if (loading) {
     return (
-      <div style={{ ...styles.container, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div style={{ textAlign: "center", padding: "2rem" }}>
+      <div style={{ ...usersAdminStyles.container, ...usersAdminStyles.loadingContainer }}>
+        <div style={{ textAlign: "center" }}>
           <h3>Cargando usuarios...</h3>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div style={{ ...styles.container, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div
-          style={{
-            textAlign: "center",
-            padding: "2rem",
-            backgroundColor: "#fee2e2",
-            borderRadius: "8px",
-            color: "#991b1b",
-          }}
-        >
+      <div style={{ ...usersAdminStyles.container, ...usersAdminStyles.loadingContainer }}>
+        <div style={usersAdminStyles.errorContainer}>
           <h3>Error</h3>
           <p>{error}</p>
           <button
@@ -568,39 +265,46 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Gestión de Usuarios</h1>
-        <p style={styles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
+    <div style={usersAdminStyles.container}>
+      <div style={usersAdminStyles.header}>
+        <h1 style={usersAdminStyles.title}>Gestión de Usuarios</h1>
+        <p style={usersAdminStyles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
 
-        <div style={styles.toolbar}>
-          <div style={styles.searchContainer}>
-            <FaSearch style={styles.searchIcon} size={16} />
+        <div style={usersAdminStyles.toolbar}>
+          <div style={usersAdminStyles.searchContainer}>
+            <FaSearch style={usersAdminStyles.searchIcon} size={16} />
             <input
               type="text"
               placeholder="Buscar por nombre, email o teléfono..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={styles.searchInput}
+              style={usersAdminStyles.searchInput}
             />
           </div>
 
-          <div style={styles.buttonGroup}>
-            <button style={{ ...styles.button, ...styles.filterButton }} onClick={() => setShowFilters(!showFilters)}>
+          <div style={usersAdminStyles.buttonGroup}>
+            <button
+              style={{
+                ...usersAdminStyles.button,
+                ...usersAdminStyles.filterButton,
+                ...(showFilters ? usersAdminStyles.primaryButton : {}),
+              }}
+              onClick={() => setShowFilters(!showFilters)}
+            >
               <FaFilter size={14} />
               Filtros
             </button>
 
-            <button style={{ ...styles.button, ...styles.secondaryButton }} disabled={true}>
+            <button style={{ ...usersAdminStyles.button, ...usersAdminStyles.secondaryButton }} disabled={true}>
               <FaDownload size={14} />
               Exportar
             </button>
 
-            <button style={{ ...styles.button, ...styles.primaryButton }} disabled={true}>
+            <button style={{ ...usersAdminStyles.button, ...usersAdminStyles.primaryButton }} disabled={true}>
               <FaPlus size={14} />
               Nuevo Usuario
             </button>
@@ -608,24 +312,28 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
 
-      <div style={styles.filtersContainer}>
-        <div style={styles.filtersGrid}>
-          <div style={styles.filterGroup}>
-            <label style={styles.label}>Rol</label>
-            <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} style={styles.select}>
+      <div style={{ ...usersAdminStyles.filtersContainer, display: showFilters ? "block" : "none" }}>
+        <div style={usersAdminStyles.filtersGrid}>
+          <div style={usersAdminStyles.filterGroup}>
+            <label style={usersAdminStyles.label}>Rol</label>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              style={usersAdminStyles.select}
+            >
               <option value="all">Todos los roles</option>
               <option value="admin">Administrador</option>
               <option value="user">Usuario</option>
             </select>
           </div>
 
-          <div style={styles.filterGroup}>
+          <div style={usersAdminStyles.filterGroup}>
             <button
-              style={{ ...styles.button, ...styles.secondaryButton }}
+              style={{ ...usersAdminStyles.button, ...usersAdminStyles.secondaryButton }}
               onClick={() => {
-                setSearchTerm("")
-                setSelectedRole("all")
-                setCurrentPage(1)
+                setSearchTerm("");
+                setSelectedRole("all");
+                setCurrentPage(1);
               }}
             >
               Limpiar Filtros
@@ -634,20 +342,22 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
 
-      <div style={styles.tableContainer}>
+      <div style={usersAdminStyles.tableContainer}>
         {selectedUsers.size > 0 && (
-          <div style={styles.bulkActions}>
-            <span style={styles.bulkActionsText}>{selectedUsers.size} usuario(s) seleccionado(s)</span>
-            <div style={styles.bulkActionsButtons}>
-              <button style={styles.bulkActionButton} disabled={true}>
+          <div style={usersAdminStyles.bulkActions}>
+            <span style={usersAdminStyles.bulkActionsText}>
+              {selectedUsers.size} usuario(s) seleccionado(s)
+            </span>
+            <div style={usersAdminStyles.bulkActionsButtons}>
+              <button style={usersAdminStyles.bulkActionButton} disabled={true}>
                 <FaUserCheck size={12} style={{ marginRight: "4px" }} />
                 Activar
               </button>
-              <button style={styles.bulkActionButton} disabled={true}>
+              <button style={usersAdminStyles.bulkActionButton} disabled={true}>
                 <FaUserTimes size={12} style={{ marginRight: "4px" }} />
                 Suspender
               </button>
-              <button style={styles.bulkActionButton} disabled={true}>
+              <button style={usersAdminStyles.bulkActionButton} disabled={true}>
                 <FaTrash size={12} style={{ marginRight: "4px" }} />
                 Eliminar
               </button>
@@ -655,85 +365,87 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
         )}
 
-        <table style={styles.table}>
-          <thead style={styles.tableHeader}>
+        <table style={usersAdminStyles.table}>
+          <thead style={usersAdminStyles.tableHeader}>
             <tr>
-              <th style={styles.tableHeaderCell}>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "40px" }}>
                 <input
                   type="checkbox"
-                  style={styles.checkbox}
+                  style={usersAdminStyles.checkbox}
                   checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
                   onChange={handleSelectAll}
                 />
               </th>
-              <th style={styles.tableHeaderCell} onClick={() => handleSort("name")}>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("name")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   Nombre
                   {renderSortIcon("name")}
                 </div>
               </th>
-              <th style={styles.tableHeaderCell} onClick={() => handleSort("email")}>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("email")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   Email
                   {renderSortIcon("email")}
                 </div>
               </th>
-              <th style={styles.tableHeaderCell} onClick={() => handleSort("phone")}>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("phone")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   Teléfono
                   {renderSortIcon("phone")}
                 </div>
               </th>
-              <th style={styles.tableHeaderCell} onClick={() => handleSort("role")}>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("role")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   Rol
                   {renderSortIcon("role")}
                 </div>
               </th>
-              <th style={styles.tableHeaderCell} onClick={() => handleSort("createdAt")}>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("createdAt")}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   Fecha de Registro
                   {renderSortIcon("createdAt")}
                 </div>
               </th>
-              <th style={styles.tableHeaderCell}>Acciones</th>
+              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "10%" }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {paginatedUsers.map((user) => (
-              <tr key={user._id} style={styles.tableRow}>
-                <td style={styles.tableCell}>
+              <tr key={user._id} style={usersAdminStyles.tableRow}>
+                <td style={usersAdminStyles.tableCell}>
                   <input
                     type="checkbox"
-                    style={styles.checkbox}
+                    style={usersAdminStyles.checkbox}
                     checked={selectedUsers.has(user._id)}
                     onChange={() => handleSelectUser(user._id)}
                   />
                 </td>
-                <td style={styles.tableCell}>
-                  <div style={styles.userInfo}>
-                    <div style={styles.avatar}>{user.name ? user.name[0].toUpperCase() : "-"}</div>
+                <td style={usersAdminStyles.tableCell}>
+                  <div style={usersAdminStyles.userInfo}>
+                    <div style={usersAdminStyles.avatar}>
+                      {user.name ? user.name[0].toUpperCase() : "-"}
+                    </div>
                     <div>
-                      <div style={styles.userName}>{user.name || "Sin nombre"}</div>
-                      <div style={styles.userEmail}>{user.email}</div>
+                      <div style={usersAdminStyles.userName}>{user.name || "Sin nombre"}</div>
+                      <div style={usersAdminStyles.userEmail}>{user.email}</div>
                     </div>
                   </div>
                 </td>
-                <td style={styles.tableCell}>{user.email}</td>
-                <td style={styles.tableCell}>{user.phone || "-"}</td>
-                <td style={styles.tableCell}>{renderRoleBadge(user.role)}</td>
-                <td style={styles.tableCell}>{formatDate(user.createdAt)}</td>
-                <td style={styles.tableCell}>
+                <td style={usersAdminStyles.tableCell}>{user.email}</td>
+                <td style={usersAdminStyles.tableCell}>{user.phone || "-"}</td>
+                <td style={usersAdminStyles.tableCell}>{renderRoleBadge(user.role)}</td>
+                <td style={usersAdminStyles.tableCell}>{formatDate(user.createdAt)}</td>
+                <td style={usersAdminStyles.tableCell}>
                   <div style={{ display: "flex", gap: "4px" }}>
                     <button
-                      style={{ ...styles.actionButton, ...styles.editButton }}
+                      style={{ ...usersAdminStyles.actionButton, ...usersAdminStyles.editButton }}
                       onClick={() => handleUpdateUserRole(user._id, user.role === "user" ? "admin" : "user")}
                       title="Cambiar rol"
                     >
                       <FaEdit size={14} />
                     </button>
                     <button
-                      style={{ ...styles.actionButton, ...styles.deleteButton }}
+                      style={{ ...usersAdminStyles.actionButton, ...usersAdminStyles.deleteButton }}
                       onClick={() => handleDeleteUser(user._id)}
                       title="Eliminar usuario"
                     >
@@ -746,16 +458,16 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </tbody>
         </table>
 
-        <div style={styles.pagination}>
-          <div style={styles.paginationInfo}>
+        <div style={usersAdminStyles.pagination}>
+          <div style={usersAdminStyles.paginationInfo}>
             Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
             {processedUsers.length} usuarios
           </div>
 
-          <div style={styles.paginationButtons}>
+          <div style={usersAdminStyles.paginationButtons}>
             <button
               style={{
-                ...styles.paginationButton,
+                ...usersAdminStyles.paginationButton,
                 opacity: currentPage === 1 ? 0.5 : 1,
                 cursor: currentPage === 1 ? "not-allowed" : "pointer",
               }}
@@ -769,8 +481,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               <button
                 key={page}
                 style={{
-                  ...styles.paginationButton,
-                  ...(page === currentPage ? styles.paginationButtonActive : {}),
+                  ...usersAdminStyles.paginationButton,
+                  ...(page === currentPage ? usersAdminStyles.paginationButtonActive : {}),
                 }}
                 onClick={() => setCurrentPage(page)}
               >
@@ -780,7 +492,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
             <button
               style={{
-                ...styles.paginationButton,
+                ...usersAdminStyles.paginationButton,
                 opacity: currentPage === totalPages ? 0.5 : 1,
                 cursor: currentPage === totalPages ? "not-allowed" : "pointer",
               }}
@@ -793,7 +505,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UsersAdminView
+export default UsersAdminView; 
