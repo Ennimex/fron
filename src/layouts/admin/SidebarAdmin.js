@@ -495,6 +495,17 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                     <span style={styles.submenuText}>Categorías</span>
                   </MenuLink>
                 </div>
+                
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/productos/tallas"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                >
+                  <FaList size={14} />
+                  <span style={styles.submenuText}>Gestión de Tallas</span>
+                </MenuLink>
+              </div>
               </div>
             </li>
           </>
