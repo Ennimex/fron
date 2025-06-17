@@ -30,6 +30,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminUsersView from "./pages/Admin/AdminUsersView";
 import AdminNuevoProducto from "./pages/Admin/GestionProductos";
 import GestionTallas from "./pages/Admin/GestionTallas";
+import GestionCategorias from "./pages/Admin/GestionCategorias";
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
 // import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
@@ -67,7 +68,7 @@ function App() {
               <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={['admin']}><AdminUsersView /></PrivateRoute>} />
               <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={['admin']}><AdminNuevoProducto /></PrivateRoute>} />
               <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={['admin']}><GestionTallas /></PrivateRoute>} />
-            
+              <Route path="/admin/productos/categorias" element={<PrivateRoute allowedRoles={['admin']}><GestionCategorias /></PrivateRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />
