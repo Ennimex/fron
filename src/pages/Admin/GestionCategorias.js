@@ -89,10 +89,52 @@ const GestionCategorias = () => {
 
   // Validar formulario
   const validateForm = () => {
+    // Validar nombre
     if (!categoriaActual.nombre.trim()) {
-      setError("El nombre es obligatorio");
+      setError("El nombre de la categoría es obligatorio");
       return false;
     }
+    
+    if (categoriaActual.nombre.trim().length < 3) {
+      setError("El nombre debe tener al menos 3 caracteres");
+      return false;
+    }
+    
+    if (categoriaActual.nombre.trim().length > 50) {
+      setError("El nombre no puede exceder los 50 caracteres");
+      return false;
+    }
+    
+    // Validación de caracteres especiales en el nombre
+    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s-]+$/;
+    if (!nombreRegex.test(categoriaActual.nombre.trim())) {
+      setError("El nombre solo debe contener letras, números, espacios y guiones");
+      return false;
+    }
+    
+    // Validar descripción
+    if (categoriaActual.descripcion && categoriaActual.descripcion.length > 200) {
+      setError("La descripción no puede exceder los 200 caracteres");
+      return false;
+    }
+    
+    // Validar imagen
+    if (selectedFile) {
+      // Verificar tipo de archivo
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        setError("El archivo debe ser una imagen (JPEG, PNG, GIF o WEBP)");
+        return false;
+      }
+      
+      // Verificar tamaño (máximo 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+      if (selectedFile.size > maxSize) {
+        setError("La imagen no puede superar los 5MB");
+        return false;
+      }
+    }
+    
     setError(null);
     return true;
   };

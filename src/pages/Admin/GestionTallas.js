@@ -82,14 +82,47 @@ const GestionTallas = () => {
 
   // Validar formulario
   const validateForm = () => {
+    // Validar campo de talla
     if (!tallaActual.talla.trim()) {
       setError("La talla es obligatoria");
       return false;
     }
+    
+    if (tallaActual.talla.trim().length < 2) {
+      setError("La talla debe tener al menos 2 caracteres");
+      return false;
+    }
+    
+    if (tallaActual.talla.trim().length > 20) {
+      setError("La talla no puede exceder los 20 caracteres");
+      return false;
+    }
+    
+    // Validar selección de categoría
     if (!tallaActual.categoriaId) {
       setError("Debe seleccionar una categoría");
       return false;
     }
+    
+    // Validar rango de edad (si se proporciona)
+    if (tallaActual.rangoEdad && tallaActual.rangoEdad.length > 30) {
+      setError("El rango de edad no puede exceder los 30 caracteres");
+      return false;
+    }
+    
+    // Validar medida (si se proporciona)
+    if (tallaActual.medida && tallaActual.medida.length > 30) {
+      setError("La medida no puede exceder los 30 caracteres");
+      return false;
+    }
+    
+    // Validar que el género sea válido
+    const generosValidos = ["Unisex", "Niño", "Niña", "Dama", "Caballero"];
+    if (!generosValidos.includes(tallaActual.genero)) {
+      setError("El género seleccionado no es válido");
+      return false;
+    }
+    
     setError(null);
     return true;
   };
@@ -277,7 +310,7 @@ const GestionTallas = () => {
     tableContainer: {
       backgroundColor: "white",
       borderRadius: "12px",
-      boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05)",
+      boxShadow: "0 4px 6px -2px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05)",
       overflow: "hidden",
     },
     table: {
@@ -621,7 +654,9 @@ const GestionTallas = () => {
                 </div>
 
                 <div>
-                  <label style={styles.label}>Talla *</label>
+                  <label style={styles.label}>
+                    Talla * <span style={{fontSize: "0.7rem", color: "#718096"}}>({tallaActual.talla.length}/20)</span>
+                  </label>
                   <input
                     type="text"
                     name="talla"
@@ -630,6 +665,9 @@ const GestionTallas = () => {
                     style={styles.input}
                     required
                     disabled={loading.form}
+                    maxLength={20}
+                    minLength={2}
+                    placeholder="Ej: S, M, L, XL, 38, 40..."
                   />
                 </div>
 
@@ -652,7 +690,9 @@ const GestionTallas = () => {
                 </div>
 
                 <div>
-                  <label style={styles.label}>Rango de edad</label>
+                  <label style={styles.label}>
+                    Rango de edad <span style={{fontSize: "0.7rem", color: "#718096"}}>({tallaActual.rangoEdad?.length || 0}/30)</span>
+                  </label>
                   <input
                     type="text"
                     name="rangoEdad"
@@ -660,12 +700,15 @@ const GestionTallas = () => {
                     onChange={handleChange}
                     style={styles.input}
                     disabled={loading.form}
+                    maxLength={30}
                     placeholder="Ej: 2-4 años"
                   />
                 </div>
 
                 <div>
-                  <label style={styles.label}>Medida</label>
+                  <label style={styles.label}>
+                    Medida <span style={{fontSize: "0.7rem", color: "#718096"}}>({tallaActual.medida?.length || 0}/30)</span>
+                  </label>
                   <input
                     type="text"
                     name="medida"
@@ -673,6 +716,7 @@ const GestionTallas = () => {
                     onChange={handleChange}
                     style={styles.input}
                     disabled={loading.form}
+                    maxLength={30}
                     placeholder="Ej: 90cm"
                   />
                 </div>

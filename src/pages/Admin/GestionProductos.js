@@ -140,11 +140,12 @@ const GestionProductos = () => {
     reader.readAsDataURL(file);
   };
 
+  // Modificar el handleSubmit para incluir validación
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (producto.tallasDisponibles.length === 0) {
-      setError("Selecciona al menos una talla disponible");
+    
+    // Validación del formulario
+    if (!validateForm()) {
       return;
     }
 
@@ -248,6 +249,88 @@ const GestionProductos = () => {
       setLoading(false);
       setUploadProgress(0);
     }
+  };
+
+  // Agregar función de validación del formulario
+  const validateForm = () => {
+    // Validar nombre
+    if (!producto.nombre.trim()) {
+      setError("El nombre del producto es obligatorio");
+      return false;
+    }
+    
+    if (producto.nombre.trim().length < 3) {
+      setError("El nombre debe tener al menos 3 caracteres");
+      return false;
+    }
+    
+    if (producto.nombre.trim().length > 100) {
+      setError("El nombre no puede exceder los 100 caracteres");
+      return false;
+    }
+    
+    // Validar descripción
+    if (!producto.descripcion.trim()) {
+      setError("La descripción del producto es obligatoria");
+      return false;
+    }
+    
+    if (producto.descripcion.trim().length < 10) {
+      setError("La descripción debe tener al menos 10 caracteres");
+      return false;
+    }
+    
+    if (producto.descripcion.trim().length > 500) {
+      setError("La descripción no puede exceder los 500 caracteres");
+      return false;
+    }
+    
+    // Validar localidad
+    if (!producto.localidadId) {
+      setError("Debe seleccionar una localidad");
+      return false;
+    }
+    
+    // Validar tipo de tela
+    if (!producto.tipoTela.trim()) {
+      setError("El tipo de tela es obligatorio");
+      return false;
+    }
+    
+    if (producto.tipoTela.trim().length > 50) {
+      setError("El tipo de tela no puede exceder los 50 caracteres");
+      return false;
+    }
+    
+    // Validar tallas
+    if (producto.tallasDisponibles.length === 0) {
+      setError("Selecciona al menos una talla disponible");
+      return false;
+    }
+    
+    // Validar imagen en caso de producto nuevo
+    const imageInput = document.querySelector('input[type="file"]');
+    if (!isEditMode && !imagePreview && !imageInput.files[0]) {
+      setError("La imagen del producto es obligatoria");
+      return false;
+    }
+    
+    // Validar tipo y tamaño de imagen si se seleccionó un archivo
+    if (imageInput.files[0]) {
+      const file = imageInput.files[0];
+      
+      if (!file.type.match("image.*")) {
+        setError("Por favor, selecciona un archivo de imagen válido");
+        return false;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        setError("La imagen no debe exceder los 5MB");
+        return false;
+      }
+    }
+    
+    return true;
   };
 
   const handleEditProduct = (product) => {
@@ -597,6 +680,9 @@ const GestionProductos = () => {
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="nombre">
                       Nombre<span style={styles.requiredField}>*</span>
+                      <span style={{fontSize: "0.7rem", color: "#718096", marginLeft: "0.5rem"}}>
+                        ({producto.nombre.length}/100)
+                      </span>
                     </label>
                     <input
                       className="form-input"
@@ -609,6 +695,8 @@ const GestionProductos = () => {
                       required
                       disabled={loading}
                       placeholder="Nombre del producto"
+                      maxLength={100}
+                      minLength={3}
                     />
                   </div>
 
@@ -638,6 +726,9 @@ const GestionProductos = () => {
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="tipoTela">
                       Tipo de Tela<span style={styles.requiredField}>*</span>
+                      <span style={{fontSize: "0.7rem", color: "#718096", marginLeft: "0.5rem"}}>
+                        ({producto.tipoTela.length}/50)
+                      </span>
                     </label>
                     <input
                       className="form-input"
@@ -650,6 +741,7 @@ const GestionProductos = () => {
                       required
                       disabled={loading}
                       placeholder="Ej: Algodón"
+                      maxLength={50}
                     />
                   </div>
                 </div>
@@ -658,6 +750,9 @@ const GestionProductos = () => {
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="descripcion">
                       Descripción<span style={styles.requiredField}>*</span>
+                      <span style={{fontSize: "0.7rem", color: "#718096", marginLeft: "0.5rem"}}>
+                        ({producto.descripcion.length}/500)
+                      </span>
                     </label>
                     <textarea
                       className="form-input"
@@ -669,6 +764,8 @@ const GestionProductos = () => {
                       required
                       disabled={loading}
                       placeholder="Descripción del producto"
+                      maxLength={500}
+                      minLength={10}
                     />
                   </div>
 
