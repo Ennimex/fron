@@ -153,13 +153,24 @@ const GestionProductos = () => {
 
     try {
       const formData = new FormData();
-      Object.entries(producto).forEach(([key, value]) => {
-        if (key === "tallasDisponibles") {
-          value.forEach((t) => formData.append(`tallasDisponibles[]`, t._id));
-        } else {
-          formData.append(key, value);
-        }
-      });
+      // Aseguramos que no enviamos _id al crear un nuevo producto
+      // Solo incluimos _id para actualización
+      if (isEditMode && producto._id) {
+        formData.append("_id", producto._id);
+      }
+      
+      // Agregamos el resto de los campos
+      formData.append("nombre", producto.nombre);
+      formData.append("descripcion", producto.descripcion);
+      formData.append("localidadId", producto.localidadId);
+      formData.append("tipoTela", producto.tipoTela);
+      
+      // Procesamos las tallas disponibles
+      if (producto.tallasDisponibles && producto.tallasDisponibles.length > 0) {
+        producto.tallasDisponibles.forEach((t) => {
+          formData.append("tallasDisponibles[]", t._id);
+        });
+      }
 
       const imageInput = document.querySelector('input[type="file"]');
       if (imageInput.files[0]) {

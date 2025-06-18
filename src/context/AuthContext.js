@@ -1,27 +1,40 @@
-// frontend/src/context/AuthContext.js
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 
 export const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Verifica token al iniciar la app
+  // Definir logout con useCallback - redirige al login automáticamente
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setUser(null);
+    // Redirigir al login y recargar automáticamente
+    window.location.href = '/login';
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decoded.exp < currentTime) {
+          console.log('Token ya expirado al iniciar');
+          logout();
+          return;
+        }
+
         setUser({
           isAuthenticated: true,
           token,
           id: decoded.id,
           role: decoded.role,
-          // Opcional: incluir otros campos si los necesitas
         });
       } catch (error) {
         console.error('Error decodificando token:', error);
@@ -29,9 +42,29 @@ export const AuthProvider = ({ children }) => {
       }
     }
     setLoading(false);
-  }, []);
+  }, [logout]);
 
-  // Login: consulta a la API y guarda el token
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // Verificar si es error de token expirado desde el backend
+        if (error.response?.status === 401) {
+          const errorData = error.response.data;
+          if (errorData?.isExpired || errorData?.error === 'Token expirado') {
+            console.log('Token expirado detectado por el backend');
+          } else {
+            console.log('Token inválido o no autorizado');
+          }
+          logout(); // Esto automáticamente redirige al login
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [logout]);
+
   const login = async (credentials) => {
     try {
       if (!credentials || typeof credentials !== 'object') {
@@ -41,34 +74,18 @@ export const AuthProvider = ({ children }) => {
       const email = credentials?.email?.trim();
       const password = credentials?.password;
 
-      if (!email) {
-        throw new Error('El correo electrónico es requerido');
-      }
-      if (!password) {
-        throw new Error('La contraseña es requerida');
-      }
-
-      const loginData = { email, password };
-      console.log('Intentando login con:', { email }); // Para debug
+      if (!email) throw new Error('El correo electrónico es requerido');
+      if (!password) throw new Error('La contraseña es requerida');
 
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(loginData),
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error en la autenticación');
-      }
-
-      if (!data.token) {
-        throw new Error('No se recibió el token de autenticación');
-      }
+      if (!response.ok) throw new Error(data.error || 'Error en la autenticación');
+      if (!data.token) throw new Error('No se recibió el token de autenticación');
 
       const decoded = jwtDecode(data.token);
       const userData = {
@@ -76,49 +93,33 @@ export const AuthProvider = ({ children }) => {
         token: data.token,
         id: decoded.id,
         role: decoded.role,
-        name: data.user.name, // Nuevo: guardar nombre del usuario
-        email: data.user.email, // Nuevo: guardar email del usuario
+        name: data.user.name,
+        email: data.user.email,
       };
 
       setUser(userData);
       localStorage.setItem('token', data.token);
 
-      return {
-        success: true,
-        role: decoded.role,
-      };
+      return { success: true, role: decoded.role };
     } catch (error) {
       console.error('Error de login:', error);
-      return {
-        success: false,
-        message: error.message || 'Error al iniciar sesión',
-      };
+      return { success: false, message: error.message || 'Error al iniciar sesión' };
     }
   };
 
-  // Register: enviar datos de registro, incluyendo phone
   const register = async (userData) => {
     try {
       const registerData = {
-        name: userData.name?.toString().trim(),
-        email: userData.email?.toString().trim(),
-        password: userData.password?.toString(),
-        phone: userData.phone?.toString().trim(), // Nuevo: campo requerido
+        name: userData.name?.trim(),
+        email: userData.email?.trim(),
+        password: userData.password,
+        phone: userData.phone?.trim(),
       };
 
-      // Validación básica en el frontend
-      if (!registerData.name) {
-        throw new Error('El nombre es requerido');
-      }
-      if (!registerData.email) {
-        throw new Error('El correo electrónico es requerido');
-      }
-      if (!registerData.password) {
-        throw new Error('La contraseña es requerida');
-      }
-      if (!registerData.phone) {
-        throw new Error('El número de teléfono es requerido');
-      }
+      if (!registerData.name) throw new Error('El nombre es requerido');
+      if (!registerData.email) throw new Error('El correo electrónico es requerido');
+      if (!registerData.password) throw new Error('La contraseña es requerida');
+      if (!registerData.phone) throw new Error('El número de teléfono es requerido');
 
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -127,10 +128,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'No se pudo registrar');
-      }
+      if (!response.ok) throw new Error(data.error || 'No se pudo registrar');
 
       return {
         success: true,
@@ -138,22 +136,33 @@ export const AuthProvider = ({ children }) => {
       };
     } catch (error) {
       console.error('Error de registro:', error);
-      return {
-        success: false,
-        message: error.message,
-      };
+      return { success: false, message: error.message };
     }
   };
 
-  // Logout: limpia todo
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const checkTokenExpiration = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp < currentTime) {
+          logout();
+          window.location.reload();
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Error al decodificar token:', error);
+        logout();
+        window.location.reload();
+        return false;
+      }
+    }
+    return false;
   };
 
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
+  if (loading) return <div>Cargando...</div>;
 
   return (
     <AuthContext.Provider
@@ -163,6 +172,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         register,
         isAuthenticated: !!user?.isAuthenticated,
+        checkTokenExpiration,
       }}
     >
       {children}

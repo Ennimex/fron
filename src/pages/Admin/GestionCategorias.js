@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import {
   FaEdit,
@@ -12,6 +14,8 @@ import {
 } from "react-icons/fa";
 
 const GestionCategorias = () => {
+  const navigate = useNavigate();
+  const { checkTokenExpiration } = useAuth();
   const [categorias, setCategorias] = useState([]);
   const [categoriaActual, setCategoriaActual] = useState({
     _id: "",
@@ -37,18 +41,33 @@ const GestionCategorias = () => {
     });
   }, []);
 
+  // Función para verificar token antes de cada operación
+  const verifyTokenAndProceed = useCallback(async () => {
+    if (!checkTokenExpiration()) {
+      navigate('/login');
+      return false;
+    }
+    return true;
+  }, [checkTokenExpiration, navigate]);
+
   // Cargar categorías
   const fetchCategorias = useCallback(async () => {
+    if (!await verifyTokenAndProceed()) return;
+    
     try {
       setLoading(true);
       const response = await api.get("/categorias");
       setCategorias(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cargar categorías");
+      if (err.response?.status === 401) {
+        navigate('/login');
+      } else {
+        setError(err.response?.data?.error || "Error al cargar categorías");
+      }
     } finally {
       setLoading(false);
     }
-  }, [api]);
+  }, [api, navigate, verifyTokenAndProceed]);
 
   useEffect(() => {
     fetchCategorias();
@@ -81,6 +100,7 @@ const GestionCategorias = () => {
   // Guardar o actualizar categoría
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!await verifyTokenAndProceed()) return;
     if (!validateForm()) return;
 
     try {
@@ -105,10 +125,14 @@ const GestionCategorias = () => {
       await fetchCategorias();
       closeModal();
     } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          `Error al ${modoEdicion ? "actualizar" : "crear"} la categoría`
-      );
+      if (err.response?.status === 401) {
+        navigate('/login');
+      } else {
+        setError(
+          err.response?.data?.error ||
+            `Error al ${modoEdicion ? "actualizar" : "crear"} la categoría`
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -132,6 +156,7 @@ const GestionCategorias = () => {
 
   // Eliminar categoría
   const handleDelete = async (id) => {
+    if (!await verifyTokenAndProceed()) return;
     if (!window.confirm("¿Está seguro de eliminar esta categoría?")) return;
 
     try {
@@ -139,7 +164,11 @@ const GestionCategorias = () => {
       await api.delete(`/categorias/${id}`);
       await fetchCategorias();
     } catch (err) {
-      setError(err.response?.data?.error || "Error al eliminar la categoría");
+      if (err.response?.status === 401) {
+        navigate('/login');
+      } else {
+        setError(err.response?.data?.error || "Error al eliminar la categoría");
+      }
     } finally {
       setLoading(false);
     }
@@ -167,113 +196,101 @@ const GestionCategorias = () => {
   // Estilos mejorados
   const styles = {
     dashboardContainer: {
-      backgroundColor: "#f8fafc",
+      backgroundColor: "#f0f4f8",
       minHeight: "100vh",
-      padding: "2rem",
+      padding: "1.5rem",
       fontFamily: "'Inter', sans-serif",
+      fontSize: "0.9rem",
     },
     headerSection: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: "1.5rem",
-    },
-    statsContainer: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "1rem",
-      marginBottom: "2rem",
-    },
-    statCard: {
+      marginBottom: "1.2rem",
       backgroundColor: "white",
-      borderRadius: "12px",
-      padding: "1.5rem",
-      boxShadow:
-        "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05)",
-      transition: "transform 0.2s ease-in-out",
-      ":hover": {
-        transform: "translateY(-4px)",
-      },
+      padding: "1rem 1.5rem",
+      borderRadius: "10px",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
     },
-    statTitle: {
-      margin: "0 0 0.5rem 0",
-      color: "#6b7280",
-      fontSize: "0.875rem",
-      fontWeight: "500",
-      textTransform: "uppercase",
-    },
-    statValue: {
-      margin: 0,
-      fontSize: "1.5rem",
+    headerTitle: {
+      fontSize: "1.4rem",
       fontWeight: "600",
-      color: "#1f2937",
-    },
-    filterContainer: {
-      backgroundColor: "white",
-      borderRadius: "12px",
-      padding: "1.5rem",
-      boxShadow:
-        "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05)",
-      marginBottom: "1.5rem",
+      color: "#1a202c",
+      margin: 0,
     },
     tableContainer: {
       backgroundColor: "white",
-      borderRadius: "12px",
-      boxShadow:
-        "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05)",
+      borderRadius: "10px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
       overflow: "hidden",
+      transition: "box-shadow 0.3s ease",
     },
     table: {
       width: "100%",
       borderCollapse: "collapse",
+      fontSize: "0.85rem",
     },
     th: {
-      padding: "1rem 1.5rem",
+      padding: "0.8rem 1.2rem",
       textAlign: "left",
-      fontSize: "0.75rem",
-      fontWeight: "500",
-      color: "#6b7280",
+      fontSize: "0.7rem",
+      fontWeight: "600",
+      color: "#4a5568",
       textTransform: "uppercase",
       letterSpacing: "0.05em",
       backgroundColor: "#f9fafb",
+      borderBottom: "2px solid #e2e8f0",
     },
     td: {
-      padding: "1rem 1.5rem",
-      fontSize: "0.875rem",
-      color: "#374151",
-      borderTop: "1px solid #e5e7eb",
+      padding: "0.8rem 1.2rem",
+      fontSize: "0.85rem",
+      color: "#2d3748",
+      borderTop: "1px solid #edf2f7",
+      verticalAlign: "middle",
     },
     button: {
-      padding: "0.75rem 1.5rem",
-      borderRadius: "8px",
+      padding: "0.6rem 1.2rem",
+      borderRadius: "6px",
       border: "none",
       fontWeight: "500",
+      fontSize: "0.85rem",
       cursor: "pointer",
       transition: "all 0.2s ease-in-out",
       display: "flex",
       alignItems: "center",
-      gap: "0.5rem",
+      gap: "0.4rem",
     },
     primaryButton: {
-      backgroundColor: "#2563eb",
+      backgroundColor: "#3182ce",
       color: "white",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       ":hover": {
-        backgroundColor: "#1d4ed8",
+        backgroundColor: "#2c5282",
+        transform: "translateY(-1px)",
       },
     },
     secondaryButton: {
-      backgroundColor: "#e5e7eb",
-      color: "#374151",
+      backgroundColor: "#e2e8f0",
+      color: "#4a5568",
       ":hover": {
-        backgroundColor: "#d1d5db",
+        backgroundColor: "#cbd5e0",
       },
     },
     actionButton: {
       background: "none",
       border: "none",
       cursor: "pointer",
-      fontSize: "1.25rem",
-      transition: "color 0.2s ease-in-out",
+      fontSize: "1rem",
+      padding: "0.3rem",
+      borderRadius: "4px",
+      transition: "all 0.2s ease-in-out",
+    },
+    editButton: {
+      color: "#3182ce",
+      marginRight: "0.5rem",
+    },
+    deleteButton: {
+      color: "#e53e3e",
     },
     modalOverlay: {
       position: "fixed",
@@ -281,58 +298,89 @@ const GestionCategorias = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.6)",
+      backgroundColor: "rgba(0,0,0,0.5)",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       zIndex: 1000,
-      animation: "fadeIn 0.3s ease-in-out",
+      backdropFilter: "blur(3px)",
+      animation: "fadeIn 0.2s ease-in-out",
     },
     modalContent: {
       backgroundColor: "white",
-      padding: "2rem",
-      borderRadius: "12px",
+      padding: "1.5rem",
+      borderRadius: "10px",
       width: "90%",
-      maxWidth: "600px",
-      maxHeight: "90vh",
+      maxWidth: "500px",
+      maxHeight: "85vh",
       overflow: "auto",
-      boxShadow:
-        "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
+      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
       animation: "slideIn 0.3s ease-in-out",
+    },
+    modalHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "1.2rem",
+      paddingBottom: "0.8rem",
+      borderBottom: "1px solid #e2e8f0",
+    },
+    modalTitle: {
+      margin: 0,
+      fontSize: "1.2rem",
+      fontWeight: "600",
+      color: "#1a202c",
+    },
+    closeButton: {
+      background: "none",
+      border: "none",
+      color: "#718096",
+      fontSize: "1.2rem",
+      cursor: "pointer",
+      transition: "color 0.2s ease",
+      ":hover": {
+        color: "#2d3748",
+      },
     },
     input: {
       width: "100%",
-      padding: "0.75rem",
-      border: "1px solid #d1d5db",
-      borderRadius: "8px",
-      fontSize: "0.875rem",
+      padding: "0.6rem 0.8rem",
+      border: "1px solid #e2e8f0",
+      borderRadius: "6px",
+      fontSize: "0.85rem",
       transition: "all 0.2s ease-in-out",
+      backgroundColor: "#f8fafc",
       ":focus": {
         outline: "none",
-        borderColor: "#2563eb",
-        boxShadow: "0 0 0 3px rgba(37,99,235,0.1)",
+        borderColor: "#3182ce",
+        boxShadow: "0 0 0 3px rgba(49,130,206,0.1)",
+        backgroundColor: "white",
       },
     },
     label: {
       display: "block",
-      fontSize: "0.875rem",
-      color: "#6b7280",
-      marginBottom: "0.5rem",
+      fontSize: "0.8rem",
+      color: "#4a5568",
+      marginBottom: "0.4rem",
       fontWeight: "500",
     },
     error: {
-      backgroundColor: "#fef2f2",
-      borderLeft: "4px solid #dc2626",
-      color: "#991b1b",
-      padding: "1rem",
-      borderRadius: "8px",
+      backgroundColor: "#FEF2F2",
+      borderLeft: "4px solid #DC2626",
+      color: "#991B1B",
+      padding: "0.8rem 1rem",
+      borderRadius: "6px",
       marginBottom: "1rem",
+      fontSize: "0.85rem",
     },
     searchContainer: {
-      marginBottom: "1.5rem",
+      marginBottom: "1.2rem",
     },
     searchWrapper: {
       position: "relative",
+      backgroundColor: "white",
+      borderRadius: "8px",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
     },
     searchIcon: {
       position: "absolute",
@@ -343,15 +391,15 @@ const GestionCategorias = () => {
     },
     searchInput: {
       width: "100%",
-      padding: "0.75rem 2rem 0.75rem 3rem",
-      border: "1px solid #d1d5db",
+      padding: "0.6rem 1rem 0.6rem 2.5rem",
+      border: "1px solid #e2e8f0",
       borderRadius: "8px",
-      fontSize: "0.875rem",
+      fontSize: "0.85rem",
       transition: "all 0.2s ease-in-out",
       ":focus": {
         outline: "none",
-        borderColor: "#2563eb",
-        boxShadow: "0 0 0 3px rgba(37,99,235,0.1)",
+        borderColor: "#3182ce",
+        boxShadow: "0 0 0 3px rgba(49,130,206,0.1)",
       },
     },
     loading: {
@@ -361,36 +409,69 @@ const GestionCategorias = () => {
       padding: "2rem",
     },
     thumbnail: {
-      width: "50px",
-      height: "50px",
-      borderRadius: "8px",
+      width: "45px",
+      height: "45px",
+      borderRadius: "6px",
       objectFit: "cover",
+      border: "1px solid #e2e8f0",
     },
     placeholderImage: {
-      width: "50px",
-      height: "50px",
+      width: "45px",
+      height: "45px",
       color: "#9ca3af",
+      padding: "0.5rem",
+      backgroundColor: "#f3f4f6",
+      borderRadius: "6px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
     },
     formGroup: {
-      marginBottom: "1.5rem",
+      marginBottom: "1.2rem",
     },
     imagePreview: {
       marginTop: "0.5rem",
       maxWidth: "100%",
-      borderRadius: "8px",
+      maxHeight: "150px",
+      borderRadius: "6px",
+      objectFit: "contain",
+      border: "1px solid #e2e8f0",
     },
     modalActions: {
       display: "flex",
       justifyContent: "flex-end",
-      gap: "1rem",
-      marginTop: "2rem",
+      gap: "0.8rem",
+      marginTop: "1.5rem",
+      paddingTop: "1rem",
+      borderTop: "1px solid #e2e8f0",
+    },
+    fileInput: {
+      fontSize: "0.8rem",
+    },
+    tableRow: {
+      transition: "background-color 0.2s",
+      ":hover": {
+        backgroundColor: "#f9fafb",
+      },
+    },
+    spinAnimation: {
+      animation: "spin 1s linear infinite",
+      fontSize: "1.2rem",
+    },
+    // Clases adicionales para mejorar la interactividad
+    hoverTransition: {
+      transition: "transform 0.2s, box-shadow 0.2s",
+      ":hover": {
+        transform: "translateY(-2px)",
+        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)",
+      },
     },
   };
 
   return (
     <div style={styles.dashboardContainer}>
       <div style={styles.headerSection}>
-        <h2>Gestión de Categorías</h2>
+        <h2 style={styles.headerTitle}>Gestión de Categorías</h2>
         <button
           onClick={() => openModal()}
           style={{ ...styles.button, ...styles.primaryButton }}
@@ -417,28 +498,22 @@ const GestionCategorias = () => {
       <div style={styles.tableContainer}>
         {loading ? (
           <div style={styles.loading}>
-            <FaSpinner
-              style={{
-                fontSize: "1.5rem",
-                color: "#2563eb",
-                animation: "spin 1s linear infinite",
-              }}
-            />
+            <FaSpinner style={styles.spinAnimation} />
           </div>
         ) : (
           <table style={styles.table}>
             <thead>
               <tr>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
+                <th style={styles.th}>Imagen</th>
+                <th style={styles.th}>Nombre</th>
+                <th style={styles.th}>Descripción</th>
+                <th style={styles.th}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filteredCategorias.map((categoria) => (
-                <tr key={categoria._id}>
-                  <td>
+                <tr key={categoria._id} style={styles.tableRow}>
+                  <td style={styles.td}>
                     {categoria.imagenURL ? (
                       <img
                         src={categoria.imagenURL}
@@ -446,20 +521,19 @@ const GestionCategorias = () => {
                         style={styles.thumbnail}
                       />
                     ) : (
-                      <FaImage style={styles.placeholderImage} />
+                      <div style={styles.placeholderImage}>
+                        <FaImage />
+                      </div>
                     )}
                   </td>
-                  <td>{categoria.nombre}</td>
-                  <td>{categoria.descripcion}</td>
-                  <td>
+                  <td style={styles.td}>{categoria.nombre}</td>
+                  <td style={styles.td}>{categoria.descripcion}</td>
+                  <td style={styles.td}>
                     <button
                       onClick={() => openModal(categoria)}
                       style={{
                         ...styles.actionButton,
-                        color: "#2563eb",
-                        ":hover": {
-                          color: "#1d4ed8",
-                        },
+                        ...styles.editButton,
                       }}
                       title="Editar"
                       disabled={loading}
@@ -470,10 +544,7 @@ const GestionCategorias = () => {
                       onClick={() => handleDelete(categoria._id)}
                       style={{
                         ...styles.actionButton,
-                        color: "#dc2626",
-                        ":hover": {
-                          color: "#b91c1c",
-                        },
+                        ...styles.deleteButton,
                       }}
                       title="Eliminar"
                       disabled={loading}
@@ -492,27 +563,13 @@ const GestionCategorias = () => {
       {modalVisible && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: "600" }}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>
                 {modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
               </h3>
               <button
                 onClick={closeModal}
-                style={{
-                  ...styles.actionButton,
-                  color: "#6b7280",
-                  fontSize: "1.5rem",
-                  ":hover": {
-                    color: "#374151",
-                  },
-                }}
+                style={styles.closeButton}
               >
                 <FaTimes />
               </button>
@@ -522,7 +579,7 @@ const GestionCategorias = () => {
               {error && <div style={styles.error}>{error}</div>}
 
               <div style={styles.formGroup}>
-                <label>Nombre *</label>
+                <label style={styles.label}>Nombre *</label>
                 <input
                   type="text"
                   name="nombre"
@@ -530,26 +587,29 @@ const GestionCategorias = () => {
                   onChange={handleChange}
                   required
                   style={styles.input}
+                  placeholder="Ingrese el nombre de la categoría"
                 />
               </div>
 
               <div style={styles.formGroup}>
-                <label>Descripción</label>
+                <label style={styles.label}>Descripción</label>
                 <textarea
                   name="descripcion"
                   value={categoriaActual.descripcion}
                   onChange={handleChange}
                   style={styles.input}
+                  rows="3"
+                  placeholder="Descripción breve de la categoría"
                 />
               </div>
 
               <div style={styles.formGroup}>
-                <label>Imagen</label>
+                <label style={styles.label}>Imagen</label>
                 <input
                   type="file"
                   onChange={handleFileChange}
                   accept="image/*"
-                  style={styles.input}
+                  style={{...styles.input, ...styles.fileInput}}
                 />
                 {categoriaActual.imagenURL && (
                   <img
@@ -574,7 +634,7 @@ const GestionCategorias = () => {
                   disabled={loading}
                 >
                   {loading ? (
-                    <FaSpinner className="spin" />
+                    <FaSpinner style={styles.spinAnimation} />
                   ) : (
                     <FaSave />
                   )}

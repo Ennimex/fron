@@ -103,7 +103,6 @@ const GestionTallas = () => {
       setLoading({ ...loading, form: true });
       const tallaData = {
         ...tallaActual,
-        _id: tallaActual._id || Date.now().toString(),
         categoriaId: tallaActual.categoriaId?._id || tallaActual.categoriaId,
       };
 
