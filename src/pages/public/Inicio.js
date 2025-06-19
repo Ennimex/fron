@@ -3,10 +3,12 @@ import { Container, Button, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import productos from '../../services/base';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const Inicio = () => {
   const navigate = useNavigate();
   const [categorias, setCategorias] = useState([]);
+  const [localidades, setLocalidades] = useState([]);
   const [isVisible, setIsVisible] = useState({
     hero: false,
     reasons: false,
@@ -20,22 +22,96 @@ const Inicio = () => {
   const [comentarioTexto, setComentarioTexto] = useState('');
   const { user } = useAuth();
   const isAuthenticated = user && user.isAuthenticated;
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingLocalidades, setIsLoadingLocalidades] = useState(true);
 
   useEffect(() => {
+    // Datos estáticos para fallback de localidades (declarados dentro del useEffect)
+    const regions = [
+      { nombre: "Huasteca Potosina", descripcion: "Cuna de técnicas ancestrales donde cada puntada cuenta la historia de generaciones de maestras artesanas." },
+      { nombre: "Huasteca Veracruzana", descripcion: "Paleta cromática rica en matices naturales que captura la esencia tropical de la región." },
+      { nombre: "Huasteca Hidalguense", descripcion: "Precisión geométrica en patrones que reflejan la arquitectura cultural de pueblos originarios." },
+      { nombre: "Huasteca Tamaulipas", descripcion: "Convergencia de influencias que enriquecen nuestra identidad textil contemporánea." },
+    ];
 
-    // Obtener categorías únicas y su información
-    const categoriasUnicas = [...new Set(productos.map(p => p.category))];
-    const categoriasData = categoriasUnicas.map(categoria => {
-      const productosCategoria = productos.filter(p => p.category === categoria);
-      return {
-        nombre: categoria,
-        cantidad: productosCategoria.length,
-        imagen: productosCategoria[0]?.image || '',
-        descripcion: `Colección de ${categoria.toLowerCase()} con detalles artesanales únicos`,
-      };
-    });
-    setCategorias(categoriasData);
+    // Cargar categorías desde la API
+    const cargarCategorias = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('http://localhost:5000/api/public/categorias');
+        
+        if (response.data && response.data.length > 0) {
+          // Mapear los datos de la API al formato requerido (adaptado para la estructura real)
+          const categoriasData = response.data.map(categoria => {
+            return {
+              nombre: categoria.nombre,
+              cantidad: categoria.productos?.length || 0,
+              imagen: categoria.imagenURL || '', // Usar imagenURL de Cloudinary
+              descripcion: categoria.descripcion || `Colección de ${categoria.nombre.toLowerCase()} con detalles artesanales únicos`,
+            };
+          });
+          console.log('Categorías cargadas:', categoriasData);
+          setCategorias(categoriasData);
+        } else {
+          console.log('No se encontraron categorías en la API, usando datos locales');
+          // Fallback a las categorías basadas en productos locales si la API no devuelve datos
+          const categoriasUnicas = [...new Set(productos.map(p => p.category))];
+          const categoriasData = categoriasUnicas.map(categoria => {
+            const productosCategoria = productos.filter(p => p.category === categoria);
+            return {
+              nombre: categoria,
+              cantidad: productosCategoria.length,
+              imagen: productosCategoria[0]?.image || '',
+              descripcion: `Colección de ${categoria.toLowerCase()} con detalles artesanales únicos`,
+            };
+          });
+          setCategorias(categoriasData);
+        }
+      } catch (error) {
+        console.error("Error al cargar categorías:", error);
+        // Fallback a las categorías basadas en productos locales en caso de error
+        const categoriasUnicas = [...new Set(productos.map(p => p.category))];
+        const categoriasData = categoriasUnicas.map(categoria => {
+          const productosCategoria = productos.filter(p => p.category === categoria);
+          return {
+            nombre: categoria,
+            cantidad: productosCategoria.length,
+            imagen: productosCategoria[0]?.image || '',
+            descripcion: `Colección de ${categoria.toLowerCase()} con detalles artesanales únicos`,
+          };
+        });
+        setCategorias(categoriasData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    // Cargar localidades desde la API
+    const cargarLocalidades = async () => {
+      try {
+        setIsLoadingLocalidades(true);
+        const response = await axios.get('http://localhost:5000/api/public/localidades');
+        
+        if (response.data && response.data.length > 0) {
+          console.log('Localidades cargadas:', response.data);
+          setLocalidades(response.data);
+        } else {
+          console.log('No se encontraron localidades en la API, usando datos estáticos');
+          // Fallback a datos estáticos si la API no devuelve datos
+          setLocalidades(regions);
+        }
+      } catch (error) {
+        console.error("Error al cargar localidades:", error);
+        // Fallback a datos estáticos en caso de error
+        setLocalidades(regions);
+      } finally {
+        setIsLoadingLocalidades(false);
+      }
+    };
+
+    cargarCategorias();
+    cargarLocalidades();
+    
     // Animaciones
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, reasons: true })), 500);
@@ -44,7 +120,7 @@ const Inicio = () => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, collections: true })), 1500);
     setTimeout(() => setIsVisible(prev => ({ ...prev, comments: true })), 1700);
     setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 2100);
-  }, []);
+  }, []); // Ya no necesitamos incluir regions porque está dentro del useEffect
 
   const handleSubmitComentario = (e) => {
     e.preventDefault();
@@ -72,13 +148,6 @@ const Inicio = () => {
     { name: "Exclusividad", description: "Ofrecemos diseños únicos que combinan tradición y modernidad, perfectos para quienes buscan piezas irrepetibles." },
     { name: "Sostenibilidad", description: "Nuestros procesos respetan el medio ambiente, utilizando materiales naturales y apoyando comunidades locales." },
     { name: "Conexión Cultural", description: "Cada creación celebra la rica herencia huasteca, conectándote con siglos de historia y tradición." },
-  ];
-
-  const regions = [
-    { name: "Huasteca Potosina", description: "Cuna de técnicas ancestrales donde cada puntada cuenta la historia de generaciones de maestras artesanas." },
-    { name: "Huasteca Veracruzana", description: "Paleta cromática rica en matices naturales que captura la esencia tropical de la región." },
-    { name: "Huasteca Hidalguense", description: "Precisión geométrica en patrones que reflejan la arquitectura cultural de pueblos originarios." },
-    { name: "Huasteca Tamaulipas", description: "Convergencia de influencias que enriquecen nuestra identidad textil contemporánea." },
   ];
 
   // Actualizar clothingItems con datos reales
@@ -318,29 +387,87 @@ const Inicio = () => {
         </Container>
       </section>
 
-      {/* Regions Section */}
+      {/* Regions/Localidades Section */}
       <section style={styles.regionsSection}>
         <div style={styles.regionsOverlay}></div>
         <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>
           <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
-            Raíces de Tradición
+            Localidades de la Huasteca
             <span style={{ ...styles.titleUnderline, ...styles.whiteUnderline }}></span>
           </h2>
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
-            Explora la herencia cultural que inspira nuestras creaciones
+            Descubre la riqueza cultural que inspira nuestras creaciones artesanales
           </p>
-          <Row className="g-4">
-            {regions.map((region, idx) => (
-              <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <Card className="region-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
-                  <Card.Body>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{region.name}</h3>
-                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{region.description}</p>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          
+          {isLoadingLocalidades ? (
+            <div className="text-center py-5">
+              <div className="spinner-border" role="status" style={{ color: "#ffffff" }}>
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+              <p className="mt-3" style={{ color: "#ffffff" }}>Cargando localidades...</p>
+            </div>
+          ) : localidades.length > 0 ? (
+            <Row className="g-4">
+              {localidades.map((localidad, idx) => (
+                <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                  <Card 
+                    className="region-card h-100 shadow" 
+                    style={{ 
+                      background: "#ffffff", 
+                      borderRadius: "12px", 
+                      padding: "2.5rem 2rem", 
+                      textAlign: "center", 
+                      boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
+                  >
+                    <Card.Body>
+                      <div 
+                        style={{ 
+                          fontSize: "2.5rem", 
+                          marginBottom: "1rem",
+                          width: "70px",
+                          height: "70px",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : 
+                                    idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : 
+                                    idx === 2 ? "linear-gradient(135deg, #ff1030, #ff0070)" : 
+                                    "linear-gradient(135deg, #8840b8, #23102d)",
+                          color: "#ffffff",
+                          margin: "0 auto 1.5rem",
+                          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15)"
+                        }}
+                      >
+                        {idx === 0 ? "🏞️" : idx === 1 ? "🌄" : idx === 2 ? "🌿" : "🏡"}
+                      </div>
+                      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>
+                        {localidad.nombre}
+                      </h3>
+                      <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>
+                        {localidad.descripcion}
+                      </p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <div className="text-center py-5">
+              <div style={{ fontSize: "4rem", color: "#ffffff", marginBottom: "1rem" }}>
+                <i className="bi bi-geo-alt"></i>
+              </div>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: "#ffffff", marginBottom: "1rem" }}>
+                No se encontraron localidades
+              </h3>
+              <p style={{ fontSize: "1.1rem", color: "#ffffff", opacity: 0.8 }}>
+                Estamos trabajando para agregar nuevas localidades pronto.
+              </p>
+            </div>
+          )}
         </Container>
       </section>
 
@@ -354,19 +481,54 @@ const Inicio = () => {
           <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
             Descubre piezas únicas tejidas con la esencia de la tradición huasteca
           </p>
-          <Row className="g-4">
-            {clothingItems.map((item, idx) => (
-              <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <Card className="clothing-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
-                  <Card.Img variant="top" src={item.image} alt={item.name} className="clothing-image" style={{ maxWidth: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", margin: "0 auto 1.5rem" }} />
-                  <Card.Body>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{item.name}</h3>
-                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{item.description}</p>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          {isLoading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border" role="status" style={{ color: "#ff4060" }}>
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+              <p className="mt-3">Cargando categorías...</p>
+            </div>
+          ) : clothingItems.length > 0 ? (
+            <Row className="g-4">
+              {clothingItems.map((item, idx) => (
+                <Col md={6} lg={clothingItems.length <= 3 ? 4 : 3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                  <Card 
+                    className="clothing-card h-100 shadow" 
+                    style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)", cursor: "pointer" }}
+                    onClick={item.onClick}
+                  >
+                    <Card.Img 
+                      variant="top" 
+                      src={item.image || 'https://via.placeholder.com/200x150?text=Sin+Imagen'} 
+                      alt={item.name} 
+                      className="clothing-image" 
+                      style={{ maxWidth: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", margin: "0 auto 1.5rem" }} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/200x150?text=Imagen+No+Disponible';
+                      }}
+                    />
+                    <Card.Body>
+                      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{item.name}</h3>
+                      <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{item.description}</p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <div className="text-center py-5">
+              <div style={{ fontSize: "4rem", color: "#ff4060", marginBottom: "1rem" }}>
+                <i className="bi bi-emoji-frown"></i>
+              </div>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: "#23102d", marginBottom: "1rem" }}>
+                No se encontraron categorías
+              </h3>
+              <p style={{ fontSize: "1.1rem", color: "#403a3c" }}>
+                Estamos trabajando para agregar nuevas categorías pronto.
+              </p>
+            </div>
+          )}
         </Container>
       </section>
 

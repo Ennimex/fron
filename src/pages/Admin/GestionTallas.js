@@ -92,8 +92,8 @@ const GestionTallas = () => {
       return false;
     }
     
-    if (tallaActual.talla.trim().length < 2) {
-      setError("La talla debe tener al menos 2 caracteres");
+    if (tallaActual.talla.trim().length < 1) {
+      setError("La talla debe tener al menos 1 caracter");
       return false;
     }
     
@@ -693,7 +693,7 @@ const GestionTallas = () => {
                     required
                     disabled={loading.form}
                     maxLength={20}
-                    minLength={2}
+                    minLength={1}
                     placeholder="Ej: S, M, L, XL, 38, 40..."
                   />
                 </div>

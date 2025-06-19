@@ -15,9 +15,387 @@ import {
   FaSort,
   FaUserShield,
   FaUser,
+  FaUsers, // Añadimos el import de FaUsers
 } from "react-icons/fa";
-import { usersAdminStyles } from "../../styles/styles";
 import { useAuth } from "../../context/AuthContext";
+
+// Estilos mejorados para el componente
+const enhancedStyles = {
+  container: {
+    backgroundColor: "#f9fafb",
+    padding: "2rem",
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    maxWidth: "1500px",
+    margin: "0 auto",
+    fontFamily: "'Inter', sans-serif",
+  },
+  header: {
+    marginBottom: "2rem",
+  },
+  title: {
+    fontSize: "1.8rem",
+    fontWeight: "700",
+    color: "#111827",
+    margin: "0 0 0.5rem 0",
+  },
+  subtitle: {
+    fontSize: "1rem",
+    color: "#4b5563",
+    margin: "0 0 1.5rem 0",
+  },
+  toolbar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "1rem",
+    marginBottom: "1.5rem",
+  },
+  searchContainer: {
+    position: "relative",
+    flex: "1",
+    minWidth: "280px",
+    maxWidth: "500px",
+  },
+  searchIcon: {
+    position: "absolute",
+    left: "12px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    color: "#9ca3af",
+  },
+  searchInput: {
+    width: "100%",
+    padding: "0.75rem 1rem 0.75rem 2.5rem",
+    borderRadius: "8px",
+    border: "1px solid #e5e7eb",
+    fontSize: "0.95rem",
+    backgroundColor: "white",
+    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+    outline: "none",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+    "&:focus": {
+      borderColor: "#60a5fa",
+      boxShadow: "0 0 0 3px rgba(96, 165, 250, 0.2)",
+    },
+  },
+  buttonGroup: {
+    display: "flex",
+    gap: "0.75rem",
+    flexWrap: "wrap",
+  },
+  button: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    padding: "0.65rem 1rem",
+    borderRadius: "8px",
+    border: "none",
+    fontSize: "0.9rem",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+  },
+  primaryButton: {
+    backgroundColor: "#3b82f6",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#2563eb",
+    },
+    "&:disabled": {
+      backgroundColor: "#93c5fd",
+      cursor: "not-allowed",
+    },
+  },
+  secondaryButton: {
+    backgroundColor: "white",
+    color: "#4b5563",
+    border: "1px solid #e5e7eb",
+    "&:hover": {
+      backgroundColor: "#f9fafb",
+      borderColor: "#d1d5db",
+    },
+    "&:disabled": {
+      opacity: 0.6,
+      cursor: "not-allowed",
+    },
+  },
+  filterButton: {
+    backgroundColor: "white",
+    color: "#4b5563",
+    border: "1px solid #e5e7eb",
+  },
+  filtersContainer: {
+    backgroundColor: "white",
+    borderRadius: "8px",
+    padding: "1.25rem",
+    marginBottom: "1.5rem",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid #e5e7eb",
+    animation: "fadeIn 0.3s ease",
+  },
+  filtersGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+    gap: "1.25rem",
+    alignItems: "end",
+  },
+  filterGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+  },
+  label: {
+    fontSize: "0.875rem",
+    color: "#4b5563",
+    fontWeight: "500",
+  },
+  select: {
+    padding: "0.65rem 1rem",
+    borderRadius: "8px",
+    border: "1px solid #e5e7eb",
+    fontSize: "0.95rem",
+    backgroundColor: "white",
+    outline: "none",
+    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+    "&:focus": {
+      borderColor: "#60a5fa",
+      boxShadow: "0 0 0 3px rgba(96, 165, 250, 0.2)",
+    },
+  },
+  tableContainer: {
+    backgroundColor: "white",
+    borderRadius: "8px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    border: "1px solid #e5e7eb",
+    overflow: "hidden",
+  },
+  bulkActions: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0.75rem 1rem",
+    backgroundColor: "#f3f4f6",
+    borderBottom: "1px solid #e5e7eb",
+  },
+  bulkActionsText: {
+    fontSize: "0.9rem",
+    color: "#4b5563",
+    fontWeight: "500",
+  },
+  bulkActionsButtons: {
+    display: "flex",
+    gap: "0.5rem",
+  },
+  bulkActionButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.25rem",
+    padding: "0.4rem 0.75rem",
+    borderRadius: "6px",
+    border: "1px solid #e5e7eb",
+    backgroundColor: "white",
+    fontSize: "0.8rem",
+    color: "#4b5563",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor: "#f9fafb",
+      borderColor: "#d1d5db",
+    },
+    "&:disabled": {
+      opacity: 0.6,
+      cursor: "not-allowed",
+    },
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+  },
+  tableHeader: {
+    backgroundColor: "#f9fafb",
+    borderBottom: "1px solid #e5e7eb",
+  },
+  tableHeaderCell: {
+    padding: "1rem",
+    textAlign: "left",
+    color: "#4b5563",
+    fontWeight: "600",
+    fontSize: "0.875rem",
+    cursor: "pointer",
+    transition: "background-color 0.2s ease",
+    "&:hover": {
+      backgroundColor: "#f3f4f6",
+    },
+  },
+  tableRow: {
+    borderBottom: "1px solid #e5e7eb",
+    transition: "background-color 0.2s ease",
+    "&:hover": {
+      backgroundColor: "#f9fafb",
+    },
+    "&:last-child": {
+      borderBottom: "none",
+    },
+  },
+  tableCell: {
+    padding: "1rem",
+    fontSize: "0.9rem",
+    color: "#111827",
+    verticalAlign: "middle",
+  },
+  checkbox: {
+    width: "16px",
+    height: "16px",
+    cursor: "pointer",
+    accentColor: "#3b82f6",
+  },
+  userInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+  },
+  avatar: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    backgroundColor: "#3b82f6",
+    color: "white",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "1rem",
+    fontWeight: "600",
+  },
+  userName: {
+    fontWeight: "500",
+    color: "#111827",
+    marginBottom: "0.25rem",
+  },
+  userEmail: {
+    fontSize: "0.8rem",
+    color: "#6b7280",
+  },
+  badge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.25rem",
+    padding: "0.3rem 0.6rem",
+    borderRadius: "20px",
+    fontSize: "0.75rem",
+    fontWeight: "500",
+  },
+  roleAdmin: {
+    backgroundColor: "#dbeafe",
+    color: "#1e40af",
+  },
+  roleUser: {
+    backgroundColor: "#e0f2fe",
+    color: "#0369a1",
+  },
+  actionButton: {
+    width: "32px",
+    height: "32px",
+    borderRadius: "6px",
+    border: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "background-color 0.2s ease, transform 0.1s ease",
+    "&:hover": {
+      transform: "translateY(-2px)",
+    },
+  },
+  editButton: {
+    backgroundColor: "#dbeafe",
+    color: "#2563eb",
+    "&:hover": {
+      backgroundColor: "#bfdbfe",
+    },
+  },
+  deleteButton: {
+    backgroundColor: "#fee2e2",
+    color: "#dc2626",
+    "&:hover": {
+      backgroundColor: "#fecaca",
+    },
+  },
+  pagination: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "1rem",
+    borderTop: "1px solid #e5e7eb",
+    flexWrap: "wrap",
+    gap: "1rem",
+  },
+  paginationInfo: {
+    fontSize: "0.875rem",
+    color: "#6b7280",
+  },
+  paginationButtons: {
+    display: "flex",
+    gap: "0.25rem",
+  },
+  paginationButton: {
+    width: "32px",
+    height: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid #e5e7eb",
+    borderRadius: "6px",
+    backgroundColor: "white",
+    color: "#4b5563",
+    fontSize: "0.875rem",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    "&:hover:not(:disabled)": {
+      backgroundColor: "#f3f4f6",
+      borderColor: "#d1d5db",
+    },
+  },
+  paginationButtonActive: {
+    backgroundColor: "#3b82f6",
+    borderColor: "#3b82f6",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#2563eb",
+    },
+  },
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "400px",
+  },
+  errorContainer: {
+    maxWidth: "500px",
+    margin: "2rem auto",
+    padding: "2rem",
+    textAlign: "center",
+    backgroundColor: "#fee2e2",
+    borderRadius: "8px",
+    border: "1px solid #fecaca",
+    color: "#b91c1c",
+  },
+  emptyState: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "3rem 1rem",
+    textAlign: "center",
+    color: "#6b7280",
+  },
+  responsiveTableContainer: {
+    overflowX: "auto",
+  },
+};
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const { user } = useAuth();
@@ -212,8 +590,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     return (
       <span
         style={{
-          ...usersAdminStyles.badge,
-          ...(role === "admin" ? usersAdminStyles.roleAdmin : usersAdminStyles.roleUser),
+          ...enhancedStyles.badge,
+          ...(role === "admin" ? enhancedStyles.roleAdmin : enhancedStyles.roleUser),
         }}
       >
         {roleIcons[role]}
@@ -235,7 +613,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   // Manejar loading y error
   if (loading) {
     return (
-      <div style={{ ...usersAdminStyles.container, ...usersAdminStyles.loadingContainer }}>
+      <div style={{ ...enhancedStyles.container, ...enhancedStyles.loadingContainer }}>
         <div style={{ textAlign: "center" }}>
           <h3>Cargando usuarios...</h3>
         </div>
@@ -245,8 +623,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
   if (error) {
     return (
-      <div style={{ ...usersAdminStyles.container, ...usersAdminStyles.loadingContainer }}>
-        <div style={usersAdminStyles.errorContainer}>
+      <div style={{ ...enhancedStyles.container }}>
+        <div style={enhancedStyles.errorContainer}>
           <h3>Error</h3>
           <p>{error}</p>
           <button
@@ -256,9 +634,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               backgroundColor: "#991b1b",
               color: "white",
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "8px",
               cursor: "pointer",
               marginTop: "1rem",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+              transition: "all 0.2s ease",
             }}
           >
             Reintentar
@@ -268,30 +648,33 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     );
   }
 
-  return (
-    <div style={usersAdminStyles.container}>
-      <div style={usersAdminStyles.header}>
-        <h1 style={usersAdminStyles.title}>Gestión de Usuarios</h1>
-        <p style={usersAdminStyles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
+  // Comprobar si no hay usuarios
+  const noUsers = processedUsers.length === 0;
 
-        <div style={usersAdminStyles.toolbar}>
-          <div style={usersAdminStyles.searchContainer}>
-            <FaSearch style={usersAdminStyles.searchIcon} size={16} />
+  return (
+    <div style={enhancedStyles.container}>
+      <div style={enhancedStyles.header}>
+        <h1 style={enhancedStyles.title}>Gestión de Usuarios</h1>
+        <p style={enhancedStyles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
+
+        <div style={enhancedStyles.toolbar}>
+          <div style={enhancedStyles.searchContainer}>
+            <FaSearch style={enhancedStyles.searchIcon} size={16} />
             <input
               type="text"
               placeholder="Buscar por nombre, email o teléfono..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={usersAdminStyles.searchInput}
+              style={enhancedStyles.searchInput}
             />
           </div>
 
-          <div style={usersAdminStyles.buttonGroup}>
+          <div style={enhancedStyles.buttonGroup}>
             <button
               style={{
-                ...usersAdminStyles.button,
-                ...usersAdminStyles.filterButton,
-                ...(showFilters ? usersAdminStyles.primaryButton : {}),
+                ...enhancedStyles.button,
+                ...enhancedStyles.filterButton,
+                ...(showFilters ? { backgroundColor: "#dbeafe", color: "#2563eb", borderColor: "#bfdbfe" } : {}),
               }}
               onClick={() => setShowFilters(!showFilters)}
             >
@@ -299,12 +682,12 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               Filtros
             </button>
 
-            <button style={{ ...usersAdminStyles.button, ...usersAdminStyles.secondaryButton }} disabled={true}>
+            <button style={{ ...enhancedStyles.button, ...enhancedStyles.secondaryButton }} disabled={true}>
               <FaDownload size={14} />
               Exportar
             </button>
 
-            <button style={{ ...usersAdminStyles.button, ...usersAdminStyles.primaryButton }} disabled={true}>
+            <button style={{ ...enhancedStyles.button, ...enhancedStyles.primaryButton }} disabled={true}>
               <FaPlus size={14} />
               Nuevo Usuario
             </button>
@@ -312,52 +695,54 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
       </div>
 
-      <div style={{ ...usersAdminStyles.filtersContainer, display: showFilters ? "block" : "none" }}>
-        <div style={usersAdminStyles.filtersGrid}>
-          <div style={usersAdminStyles.filterGroup}>
-            <label style={usersAdminStyles.label}>Rol</label>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              style={usersAdminStyles.select}
-            >
-              <option value="all">Todos los roles</option>
-              <option value="admin">Administrador</option>
-              <option value="user">Usuario</option>
-            </select>
-          </div>
+      {showFilters && (
+        <div style={enhancedStyles.filtersContainer}>
+          <div style={enhancedStyles.filtersGrid}>
+            <div style={enhancedStyles.filterGroup}>
+              <label style={enhancedStyles.label}>Rol</label>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                style={enhancedStyles.select}
+              >
+                <option value="all">Todos los roles</option>
+                <option value="admin">Administrador</option>
+                <option value="user">Usuario</option>
+              </select>
+            </div>
 
-          <div style={usersAdminStyles.filterGroup}>
-            <button
-              style={{ ...usersAdminStyles.button, ...usersAdminStyles.secondaryButton }}
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedRole("all");
-                setCurrentPage(1);
-              }}
-            >
-              Limpiar Filtros
-            </button>
+            <div style={{...enhancedStyles.filterGroup, justifyContent: "flex-end"}}>
+              <button
+                style={{ ...enhancedStyles.button, ...enhancedStyles.secondaryButton }}
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedRole("all");
+                  setCurrentPage(1);
+                }}
+              >
+                Limpiar Filtros
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div style={usersAdminStyles.tableContainer}>
+      <div style={enhancedStyles.tableContainer}>
         {selectedUsers.size > 0 && (
-          <div style={usersAdminStyles.bulkActions}>
-            <span style={usersAdminStyles.bulkActionsText}>
+          <div style={enhancedStyles.bulkActions}>
+            <span style={enhancedStyles.bulkActionsText}>
               {selectedUsers.size} usuario(s) seleccionado(s)
             </span>
-            <div style={usersAdminStyles.bulkActionsButtons}>
-              <button style={usersAdminStyles.bulkActionButton} disabled={true}>
+            <div style={enhancedStyles.bulkActionsButtons}>
+              <button style={enhancedStyles.bulkActionButton} disabled={true}>
                 <FaUserCheck size={12} style={{ marginRight: "4px" }} />
                 Activar
               </button>
-              <button style={usersAdminStyles.bulkActionButton} disabled={true}>
+              <button style={enhancedStyles.bulkActionButton} disabled={true}>
                 <FaUserTimes size={12} style={{ marginRight: "4px" }} />
                 Suspender
               </button>
-              <button style={usersAdminStyles.bulkActionButton} disabled={true}>
+              <button style={enhancedStyles.bulkActionButton} disabled={true}>
                 <FaTrash size={12} style={{ marginRight: "4px" }} />
                 Eliminar
               </button>
@@ -365,147 +750,159 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
         )}
 
-        <table style={usersAdminStyles.table}>
-          <thead style={usersAdminStyles.tableHeader}>
-            <tr>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "40px" }}>
-                <input
-                  type="checkbox"
-                  style={usersAdminStyles.checkbox}
-                  checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
-                  onChange={handleSelectAll}
-                />
-              </th>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("name")}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  Nombre
-                  {renderSortIcon("name")}
-                </div>
-              </th>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("email")}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  Email
-                  {renderSortIcon("email")}
-                </div>
-              </th>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("phone")}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  Teléfono
-                  {renderSortIcon("phone")}
-                </div>
-              </th>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("role")}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  Rol
-                  {renderSortIcon("role")}
-                </div>
-              </th>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("createdAt")}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  Fecha de Registro
-                  {renderSortIcon("createdAt")}
-                </div>
-              </th>
-              <th style={{ ...usersAdminStyles.tableHeaderCell, width: "10%" }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedUsers.map((user) => (
-              <tr key={user._id} style={usersAdminStyles.tableRow}>
-                <td style={usersAdminStyles.tableCell}>
-                  <input
-                    type="checkbox"
-                    style={usersAdminStyles.checkbox}
-                    checked={selectedUsers.has(user._id)}
-                    onChange={() => handleSelectUser(user._id)}
-                  />
-                </td>
-                <td style={usersAdminStyles.tableCell}>
-                  <div style={usersAdminStyles.userInfo}>
-                    <div style={usersAdminStyles.avatar}>
-                      {user.name ? user.name[0].toUpperCase() : "-"}
+        <div style={enhancedStyles.responsiveTableContainer}>
+          {noUsers ? (
+            <div style={enhancedStyles.emptyState}>
+              <FaUsers size={40} style={{ opacity: 0.3, marginBottom: "1rem" }} />
+              <h3>No se encontraron usuarios</h3>
+              <p>Intenta ajustar los filtros de búsqueda o añade nuevos usuarios.</p>
+            </div>
+          ) : (
+            <table style={enhancedStyles.table}>
+              <thead style={enhancedStyles.tableHeader}>
+                <tr>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "40px", padding: "0.75rem" }}>
+                    <input
+                      type="checkbox"
+                      style={enhancedStyles.checkbox}
+                      checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("name")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      Nombre
+                      {renderSortIcon("name")}
                     </div>
-                    <div>
-                      <div style={usersAdminStyles.userName}>{user.name || "Sin nombre"}</div>
-                      <div style={usersAdminStyles.userEmail}>{user.email}</div>
+                  </th>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("email")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      Email
+                      {renderSortIcon("email")}
                     </div>
-                  </div>
-                </td>
-                <td style={usersAdminStyles.tableCell}>{user.email}</td>
-                <td style={usersAdminStyles.tableCell}>{user.phone || "-"}</td>
-                <td style={usersAdminStyles.tableCell}>{renderRoleBadge(user.role)}</td>
-                <td style={usersAdminStyles.tableCell}>{formatDate(user.createdAt)}</td>
-                <td style={usersAdminStyles.tableCell}>
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    <button
-                      style={{ ...usersAdminStyles.actionButton, ...usersAdminStyles.editButton }}
-                      onClick={() => handleUpdateUserRole(user._id, user.role === "user" ? "admin" : "user")}
-                      title="Cambiar rol"
-                    >
-                      <FaEdit size={14} />
-                    </button>
-                    <button
-                      style={{ ...usersAdminStyles.actionButton, ...usersAdminStyles.deleteButton }}
-                      onClick={() => handleDeleteUser(user._id)}
-                      title="Eliminar usuario"
-                    >
-                      <FaTrash size={14} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div style={usersAdminStyles.pagination}>
-          <div style={usersAdminStyles.paginationInfo}>
-            Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
-            {processedUsers.length} usuarios
-          </div>
-
-          <div style={usersAdminStyles.paginationButtons}>
-            <button
-              style={{
-                ...usersAdminStyles.paginationButton,
-                opacity: currentPage === 1 ? 0.5 : 1,
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              }}
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-            >
-              <FaChevronLeft size={12} />
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                style={{
-                  ...usersAdminStyles.paginationButton,
-                  ...(page === currentPage ? usersAdminStyles.paginationButtonActive : {}),
-                }}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              style={{
-                ...usersAdminStyles.paginationButton,
-                opacity: currentPage === totalPages ? 0.5 : 1,
-                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-              }}
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-            >
-              <FaChevronRight size={12} />
-            </button>
-          </div>
+                  </th>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("phone")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      Teléfono
+                      {renderSortIcon("phone")}
+                    </div>
+                  </th>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("role")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      Rol
+                      {renderSortIcon("role")}
+                    </div>
+                  </th>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("createdAt")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      Fecha de Registro
+                      {renderSortIcon("createdAt")}
+                    </div>
+                  </th>
+                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "10%" }}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedUsers.map((user) => (
+                  <tr key={user._id} style={enhancedStyles.tableRow}>
+                    <td style={{ ...enhancedStyles.tableCell, padding: "0.75rem" }}>
+                      <input
+                        type="checkbox"
+                        style={enhancedStyles.checkbox}
+                        checked={selectedUsers.has(user._id)}
+                        onChange={() => handleSelectUser(user._id)}
+                      />
+                    </td>
+                    <td style={enhancedStyles.tableCell}>
+                      <div style={enhancedStyles.userInfo}>
+                        <div style={enhancedStyles.avatar}>
+                          {user.name ? user.name[0].toUpperCase() : "-"}
+                        </div>
+                        <div>
+                          <div style={enhancedStyles.userName}>{user.name || "Sin nombre"}</div>
+                          <div style={enhancedStyles.userEmail}>{user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={enhancedStyles.tableCell}>{user.email}</td>
+                    <td style={enhancedStyles.tableCell}>{user.phone || "-"}</td>
+                    <td style={enhancedStyles.tableCell}>{renderRoleBadge(user.role)}</td>
+                    <td style={enhancedStyles.tableCell}>{formatDate(user.createdAt)}</td>
+                    <td style={{...enhancedStyles.tableCell, padding: "0.5rem 1rem"}}>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                          style={{ ...enhancedStyles.actionButton, ...enhancedStyles.editButton }}
+                          onClick={() => handleUpdateUserRole(user._id, user.role === "user" ? "admin" : "user")}
+                          title="Cambiar rol"
+                        >
+                          <FaEdit size={14} />
+                        </button>
+                        <button
+                          style={{ ...enhancedStyles.actionButton, ...enhancedStyles.deleteButton }}
+                          onClick={() => handleDeleteUser(user._id)}
+                          title="Eliminar usuario"
+                        >
+                          <FaTrash size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
+
+        {!noUsers && (
+          <div style={enhancedStyles.pagination}>
+            <div style={enhancedStyles.paginationInfo}>
+              Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
+              {processedUsers.length} usuarios
+            </div>
+
+            <div style={enhancedStyles.paginationButtons}>
+              <button
+                style={{
+                  ...enhancedStyles.paginationButton,
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                }}
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                <FaChevronLeft size={12} />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  style={{
+                    ...enhancedStyles.paginationButton,
+                    ...(page === currentPage ? enhancedStyles.paginationButtonActive : {}),
+                  }}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                style={{
+                  ...enhancedStyles.paginationButton,
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                }}
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <FaChevronRight size={12} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default UsersAdminView; 
+export default UsersAdminView;

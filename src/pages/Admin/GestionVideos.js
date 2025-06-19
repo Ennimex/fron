@@ -128,6 +128,9 @@ const GestionVideos = () => {
       
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
+      } else if (!currentVideo) {
+        // Si no se sube una imagen y es un video nuevo, indicamos que queremos generar miniatura automáticamente
+        formDataToSend.append('generarMiniatura', 'true');
       }
       
       const config = {
@@ -584,7 +587,7 @@ const GestionVideos = () => {
                 </small>
               </div>
               <p style={styles.youtubeHelp}>
-                Si no subes una imagen, se utilizará un fotograma del video como miniatura.
+                Si no subes una imagen, se generará automáticamente una miniatura a partir del video.
               </p>
               
               {formData.imagenPreview && (
