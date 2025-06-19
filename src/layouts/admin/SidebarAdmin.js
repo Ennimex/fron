@@ -4,16 +4,21 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 import {
-  FaChartBar,
+  FaTachometerAlt,
   FaUsers,
   FaHome,
   FaBars,
   FaSignOutAlt,
-  FaBox,
-  FaBoxOpen,
+  FaTshirt,
+  FaBoxes,
   FaChevronDown,
   FaPlus,
-  FaList,
+  FaTags,
+  FaRuler,
+  FaMapMarkerAlt,
+  FaImages,
+  FaImage,
+  FaVideo,
 } from "react-icons/fa"
 import { colors, typography } from "../../styles/styles"
 
@@ -36,6 +41,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
           informacion: false,
           politicas: false,
           preguntas: false,
+          galeria: false,
         }
   })
 
@@ -127,6 +133,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
         informacion: false,
         politicas: false,
         preguntas: false,
+        galeria: false,
       })
     }
 
@@ -403,24 +410,37 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
       </div>
 
       <div style={styles.userInfo}>
-        {!isCollapsed && <span style={styles.userName}>{user?.name || "Admin"}</span>}
-        <div style={styles.userAvatar}>{user?.name ? user.name[0].toUpperCase() : "A"}</div>
+        {!isCollapsed && (
+          <span style={styles.userName}>{user?.name || "Admin"}</span>
+        )}
+        <div style={styles.userAvatar}>
+          {user?.name ? user.name[0].toUpperCase() : "A"}
+        </div>
       </div>
 
       <ul style={styles.menuItems}>
         {user?.role === "admin" && (
           <>
             <li style={styles.menuItem}>
-              <MenuLink to="/admin" style={styles.menuLink} activeStyle={styles.menuLinkActive} exact>
+              <MenuLink
+                to="/admin"
+                style={styles.menuLink}
+                activeStyle={styles.menuLinkActive}
+                exact
+              >
                 <span style={styles.menuIcon}>
-                  <FaChartBar size={20} />
+                  <FaTachometerAlt size={20} />
                 </span>
                 <span style={styles.menuText}>Dashboard</span>
               </MenuLink>
             </li>
 
             <li style={styles.menuItem}>
-              <MenuLink to="/admin/usuarios" style={styles.menuLink} activeStyle={styles.menuLinkActive}>
+              <MenuLink
+                to="/admin/usuarios"
+                style={styles.menuLink}
+                activeStyle={styles.menuLinkActive}
+              >
                 <span style={styles.menuIcon}>
                   <FaUsers size={20} />
                 </span>
@@ -432,16 +452,18 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
               <div
                 style={{
                   ...styles.menuLink,
-                  ...(isActive("/admin/productos") ? styles.menuLinkActive : {}),
+                  ...(isActive("/admin/productos") ? styles.menuLinkActive : {})
                 }}
                 onClick={() => toggleSubmenu("productos")}
                 role="button"
                 aria-expanded={expandedMenus.productos}
                 tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && toggleSubmenu("productos")}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && toggleSubmenu("productos")
+                }
               >
                 <span style={styles.menuIcon}>
-                  <FaBox size={20} />
+                  <FaTshirt size={20} />
                 </span>
                 <span style={styles.menuText}>Productos</span>
                 {!isCollapsed && (
@@ -450,7 +472,9 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                       size={12}
                       style={{
                         ...styles.submenuIcon,
-                        transform: expandedMenus.productos ? "rotate(0deg)" : "rotate(-90deg)",
+                        transform: expandedMenus.productos
+                          ? "rotate(0deg)"
+                          : "rotate(-90deg)"
                       }}
                     />
                   </span>
@@ -460,8 +484,9 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
               <div
                 style={{
                   ...styles.submenuContainer,
-                  maxHeight: expandedMenus.productos && !isCollapsed ? "1000px" : "0",
-                  opacity: expandedMenus.productos && !isCollapsed ? 1 : 0,
+                  maxHeight:
+                    expandedMenus.productos && !isCollapsed ? "1000px" : "0",
+                  opacity: expandedMenus.productos && !isCollapsed ? 1 : 0
                 }}
               >
                 <div style={styles.submenuItem}>
@@ -471,7 +496,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                     activeStyle={styles.submenuLinkActive}
                     exact
                   >
-                    <FaBoxOpen size={14} />
+                    <FaBoxes size={14} />
                     <span style={styles.submenuText}>Todos los Productos</span>
                   </MenuLink>
                 </div>
@@ -491,28 +516,109 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                     style={styles.submenuLink}
                     activeStyle={styles.submenuLinkActive}
                   >
-                    <FaList size={14} />
+                    <FaTags size={14} />
                     <span style={styles.submenuText}>Categorías</span>
                   </MenuLink>
                 </div>
-                
+
                 <div style={styles.submenuItem}>
                   <MenuLink
                     to="/admin/productos/tallas"
                     style={styles.submenuLink}
                     activeStyle={styles.submenuLinkActive}
-                >
-                  <FaList size={14} />
-                  <span style={styles.submenuText}>Gestión de Tallas</span>
-                </MenuLink>
+                  >
+                    <FaRuler size={14} />
+                    <span style={styles.submenuText}>Gestión de Tallas</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/localidades"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaMapMarkerAlt size={14} />
+                    <span style={styles.submenuText}>
+                      Gestion de Localidades
+                    </span>
+                  </MenuLink>
+                </div>
               </div>
+            </li>
+
+            {/* Nuevo menú de Galería */}
+            <li style={styles.menuItem}>
+              <div
+                style={{
+                  ...styles.menuLink,
+                  ...(isActive("/admin/galeria") ? styles.menuLinkActive : {})
+                }}
+                onClick={() => toggleSubmenu("galeria")}
+                role="button"
+                aria-expanded={expandedMenus.galeria}
+                tabIndex={0}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && toggleSubmenu("galeria")
+                }
+              >
+                <span style={styles.menuIcon}>
+                  <FaImages size={20} />
+                </span>
+                <span style={styles.menuText}>Galería</span>
+                {!isCollapsed && (
+                  <span style={styles.menuToggle}>
+                    <FaChevronDown
+                      size={12}
+                      style={{
+                        ...styles.submenuIcon,
+                        transform: expandedMenus.galeria
+                          ? "rotate(0deg)"
+                          : "rotate(-90deg)"
+                      }}
+                    />
+                  </span>
+                )}
+              </div>
+
+              <div
+                style={{
+                  ...styles.submenuContainer,
+                  maxHeight:
+                    expandedMenus.galeria && !isCollapsed ? "1000px" : "0",
+                  opacity: expandedMenus.galeria && !isCollapsed ? 1 : 0
+                }}
+              >
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/galeria/fotos"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaImage size={14} />
+                    <span style={styles.submenuText}>Gestión de Fotos</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/galeria/videos"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaVideo size={14} />
+                    <span style={styles.submenuText}>Gestión de Videos</span>
+                  </MenuLink>
+                </div>
               </div>
             </li>
           </>
         )}
 
         <li style={styles.menuItem}>
-          <MenuLink to="/" style={styles.menuLink} activeStyle={styles.menuLinkActive}>
+          <MenuLink
+            to="/"
+            style={styles.menuLink}
+            activeStyle={styles.menuLinkActive}
+          >
             <span style={styles.menuIcon}>
               <FaHome size={20} />
             </span>
@@ -521,7 +627,11 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
         </li>
 
         <li style={styles.footer}>
-          <button onClick={handleLogout} style={styles.logoutBtn} aria-label="Cerrar sesión">
+          <button
+            onClick={handleLogout}
+            style={styles.logoutBtn}
+            aria-label="Cerrar sesión"
+          >
             <span style={styles.menuIcon}>
               <FaSignOutAlt size={20} />
             </span>
@@ -530,7 +640,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
         </li>
       </ul>
     </div>
-  )
+  );
 }
 
 export default SidebarAdmin

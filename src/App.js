@@ -31,6 +31,10 @@ import AdminUsersView from "./pages/Admin/AdminUsersView";
 import AdminNuevoProducto from "./pages/Admin/GestionProductos";
 import GestionTallas from "./pages/Admin/GestionTallas";
 import GestionCategorias from "./pages/Admin/GestionCategorias";
+import GestorLocalidades from "./pages/Admin/GestorLocalidades";
+import GestionFotos from "./pages/Admin/GestionFotos";
+import GestionVideos from "./pages/Admin/GestionVideos";
+
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
 // import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
@@ -69,6 +73,9 @@ function App() {
               <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={['admin']}><AdminNuevoProducto /></PrivateRoute>} />
               <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={['admin']}><GestionTallas /></PrivateRoute>} />
               <Route path="/admin/productos/categorias" element={<PrivateRoute allowedRoles={['admin']}><GestionCategorias /></PrivateRoute>} />
+              <Route path="/admin/localidades" element={<PrivateRoute allowedRoles={['admin']}><GestorLocalidades /></PrivateRoute>} />
+              <Route path="/admin/galeria/fotos" element={<PrivateRoute allowedRoles={['admin']}><GestionFotos /></PrivateRoute>} />
+              <Route path="/admin/galeria/videos" element={<PrivateRoute allowedRoles={['admin']}><GestionVideos /></PrivateRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

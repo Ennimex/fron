@@ -8,9 +8,13 @@ import {
   FaTimes,
   FaSpinner,
   FaSearch,
+  FaLock
 } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const GestionTallas = () => {
+  const { user, isAuthenticated } = useAuth();
   // Estados principales
   const [tallas, setTallas] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -418,6 +422,29 @@ const GestionTallas = () => {
       marginBottom: "1rem",
     },
   };
+
+  // Verificar si el usuario está autenticado y tiene rol de administrador
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (user?.role !== 'admin') {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        height: '80vh',
+        textAlign: 'center',
+        padding: '2rem'
+      }}>
+        <FaLock size={50} style={{ color: '#e74c3c', marginBottom: '1rem' }} />
+        <h2>Acceso Denegado</h2>
+        <p>No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.dashboardContainer}>
