@@ -8,56 +8,51 @@ const stylesPublic = {
   // ===============================
   // PALETA DE COLORES
   // ===============================
-  colors: {
-    // Colores primarios
+  colors: {    // Colores primarios
     primary: {
-      main: '#ff0070',    // Rosa intenso - Color principal de la marca
-      light: '#ff8090',   // Rosa suave
-      dark: '#c5005c',    // Rosa oscuro
+      main: '#ff005a',    // Rosa intenso - Color principal de la marca (más saturado)
+      light: '#ff6b84',   // Rosa suave (más saturado)
+      dark: '#d10054',    // Rosa oscuro (más saturado)
     },
     
     // Colores secundarios
     secondary: {
-      main: '#1f8a80',    // Verde esmeralda
-      light: '#4bbcb2',   // Verde esmeralda claro
-      dark: '#005a52',    // Verde esmeralda oscuro
-    },
-    
-    // Colores de fondo
+      main: '#00a396',    // Verde esmeralda (más saturado)
+      light: '#30d9c8',   // Verde esmeralda claro (más saturado)
+      dark: '#00655e',    // Verde esmeralda oscuro (más saturado)
+    },    // Colores de fondo
     background: {
       main: '#fffffc',    // Blanco puro con tinte cálido
-      alt: '#F5E8C7',     // Beige cálido
+      alt: '#FFE9C0',     // Beige cálido (más saturado)
       gradient: {
-        primary: 'linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)',
-        secondary: 'linear-gradient(to bottom, #F5E8C7, #FFF8E1)',
-        accent: 'linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)',
-        cta: 'linear-gradient(135deg, #ff0070 0%, #1f8a80 100%)',
+        primary: 'linear-gradient(135deg, #fffffc 0%, #ff6b84 30%, rgba(0, 163, 150, 0.5) 60%, #fffffc 100%)',
+        secondary: 'linear-gradient(to bottom, #FFE9C0 0%, #FFF4D6 50%, #FFE9C0 100%)',
+        accent: 'linear-gradient(135deg, #ff6b84 0%, #00a396 50%, #ff6b84 100%)',
+        cta: 'linear-gradient(135deg, #ff005a 0%, #00a396 50%, #ff005a 100%)',
       },
     },
-    
-    // Colores de texto
+      // Colores de texto
     text: {
-      primary: '#23102d',   // Morado oscuro casi negro
-      secondary: '#403a3c', // Gris oscuro
-      light: '#757575',     // Gris medio
-      accent: '#ff0070',    // Acento rosa para textos destacados
+      primary: '#1a0023',   // Morado oscuro casi negro (más saturado)
+      secondary: '#332a2d', // Gris oscuro (más saturado)
+      light: '#656565',     // Gris medio (más contrastado)
+      accent: '#ff005a',    // Acento rosa para textos destacados (actualizado)
     },
-    
-    // Estados y mensajes
+      // Estados y mensajes
     state: {
-      error: '#d32f2f',     // Rojo error
-      success: '#2e7d32',   // Verde éxito
-      warning: '#f57c00',   // Naranja advertencia
-      info: '#0288d1',      // Azul información
+      error: '#e60000',     // Rojo error (más saturado)
+      success: '#00a12a',   // Verde éxito (más saturado)
+      warning: '#ff7800',   // Naranja advertencia (más saturado)
+      info: '#0077e6',      // Azul información (más saturado)
       disabled: '#bdbdbd',  // Gris deshabilitado
     },
     
     // Colores complementarios
     accent: {
-      yellow: '#FFC107',    // Amarillo vibrante
-      purple: '#673AB7',    // Púrpura
-      orange: '#FF9800',    // Naranja
-      teal: '#009688',      // Verde azulado
+      yellow: '#FFBF00',    // Amarillo vibrante (más saturado)
+      purple: '#6a00ff',    // Púrpura (más saturado)
+      orange: '#FF7A00',    // Naranja (más saturado)
+      teal: '#00C9B6',      // Verde azulado (más saturado)
     },
   },
 
@@ -201,14 +196,13 @@ const stylesPublic = {
       thicker: '3px',
       thickest: '4px',
     },
-    
-    // Estilos de borde predefinidos
+      // Estilos de borde predefinidos
     style: {
       solid: 'solid',
       dashed: 'dashed',
       dotted: 'dotted',
-      accent: '1px solid rgba(232, 180, 184, 0.15)', // Borde estándar de tarjetas
-      active: `3px solid #ff0070`, // Borde para elementos activos
+      accent: '1px solid rgba(255, 0, 90, 0.2)', // Borde estándar de tarjetas (actualizado)
+      active: `3px solid #ff005a`, // Borde para elementos activos (actualizado)
     },
   },
 
@@ -219,11 +213,10 @@ const stylesPublic = {
     md: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
     lg: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
     xl: '0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.1)',
-    
-    // Sombras con colores de la marca
-    card: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)',
-    button: '0 8px 24px rgba(232, 180, 184, 0.45)',
-    hover: '0 20px 40px rgba(255, 0, 112, 0.35), 0 10px 20px rgba(31, 138, 128, 0.25), 0 6px 12px rgba(44, 35, 41, 0.18)',
+      // Sombras con colores de la marca
+    card: '0 8px 16px rgba(255, 0, 90, 0.25), 0 4px 8px rgba(0, 163, 150, 0.2), 0 2px 4px rgba(44, 35, 41, 0.12)',
+    button: '0 8px 24px rgba(255, 0, 90, 0.5)',
+    hover: '0 20px 40px rgba(255, 0, 90, 0.4), 0 10px 20px rgba(0, 163, 150, 0.3), 0 6px 12px rgba(44, 35, 41, 0.18)',
     inset: 'inset 0 2px 4px rgba(0, 0, 0, 0.15)',
   },
 
@@ -278,26 +271,26 @@ const stylesPublic = {
   // ===============================
   elements: {
     // Estilos de botones
-    buttons: {
-      primary: {
-        backgroundColor: '#ff4060',
-        borderColor: '#ff4060',
+    buttons: {      primary: {
+        backgroundColor: '#ff005a',
+        borderColor: '#ff005a',
         color: '#ffffff',
         borderRadius: '30px',
         padding: '12px 30px',
         fontWeight: 500,
         fontSize: '1.1rem',
-        boxShadow: '0 8px 24px rgba(232, 180, 184, 0.45)',
+        background: 'linear-gradient(135deg, #ff005a 0%, #ff4585 50%, #ff005a 100%)',
+        boxShadow: '0 8px 24px rgba(255, 0, 90, 0.5)',
         transition: 'all 0.3s ease',
-      },
-      secondary: {
+      },      secondary: {
         backgroundColor: 'transparent',
-        borderColor: '#1f8a80',
-        color: '#1f8a80',
+        borderColor: '#00a396',
+        color: '#00a396',
         borderRadius: '30px',
         padding: '10px 25px',
         fontWeight: 500,
         fontSize: '1rem',
+        background: 'linear-gradient(135deg, rgba(0, 163, 150, 0.05) 0%, rgba(48, 217, 200, 0.1) 50%, rgba(0, 163, 150, 0.05) 100%)',
         boxShadow: 'none',
         transition: 'all 0.3s ease',
       },
@@ -312,18 +305,17 @@ const stylesPublic = {
       default: {
         background: '#ffffff',
         borderRadius: '12px',
-        padding: '2.5rem 2rem',
-        boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)',
+        padding: '2.5rem 2rem',        boxShadow: '0 8px 16px rgba(255, 0, 90, 0.25), 0 4px 8px rgba(0, 163, 150, 0.2), 0 2px 4px rgba(44, 35, 41, 0.12)',
         transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        border: '1px solid rgba(232, 180, 184, 0.15)',
-      },
-      hover: {
+        border: '1px solid rgba(255, 107, 132, 0.2)',
+      },      hover: {
         transform: 'translateY(-10px)',
-        boxShadow: '0 20px 40px rgba(255, 0, 112, 0.35), 0 10px 20px rgba(31, 138, 128, 0.25), 0 6px 12px rgba(44, 35, 41, 0.18)',
+        boxShadow: '0 20px 40px rgba(255, 0, 90, 0.45), 0 10px 20px rgba(0, 163, 150, 0.35), 0 6px 12px rgba(44, 35, 41, 0.2)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 252, 1) 0%, rgba(255, 233, 192, 0.1) 100%)',
       },
       flat: {
         boxShadow: 'none',
-        border: '1px solid rgba(232, 180, 184, 0.3)',
+        border: '1px solid rgba(255, 107, 132, 0.35)',
       },
     },
     
@@ -337,43 +329,38 @@ const stylesPublic = {
         backgroundColor: '#FFFFFF',
         fontSize: '16px',
         transition: 'all 0.3s ease',
-      },
-      focus: {
-        borderColor: '#1f8a80',
-        boxShadow: '0 4px 20px rgba(31, 138, 128, 0.15)',
+      },      focus: {
+        borderColor: '#00a396',
+        boxShadow: '0 4px 20px rgba(0, 163, 150, 0.2)',
         outline: 'none',
       },
       error: {
-        borderColor: '#d32f2f',
+        borderColor: '#e60000',
       },
     },
     
     // Separadores y decoraciones
-    decorative: {
-      underline: {
-        display: 'block',
+    decorative: {      underline: {        display: 'block',
         width: '60px',
-        height: '2px',
-        background: 'linear-gradient(90deg, #ff0070, #1f8a80)',
+        height: '3px',
+        background: 'linear-gradient(90deg, #ff005a 0%, #00a396 50%, #ff005a 100%)',
         borderRadius: '1px',
         margin: '15px auto',
-      },
-      circle: {
+      },      circle: {
         width: '70px',
         height: '70px',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 8px 24px rgba(232, 180, 184, 0.45)',
+        background: 'linear-gradient(135deg, #ff005a 0%, #00a396 50%, #ff005a 100%)',
+        boxShadow: '0 8px 24px rgba(255, 0, 90, 0.5)',
         margin: '0 auto 1.5rem',
       },
-    },
-    
-    // Fondos decorativos (patrones SVG)
+    },    // Fondos decorativos (patrones SVG)
     backgroundPatterns: {
-      floral: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
-      geometric: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      floral: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="2" fill="%23ff005a" opacity="0.6"/><circle cx="35" cy="25" r="1.5" fill="%2300a396" opacity="0.55"/><circle cx="25" cy="35" r="1.8" fill="%23ff0050" opacity="0.57"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      geometric: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff005a" opacity="0.6"/><polygon points="35,25 40,35 30,35" fill="%2300a396" opacity="0.55"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff0050" opacity="0.57"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
     },
   },
 
@@ -403,14 +390,13 @@ const stylesPublic = {
         bottom: 0,
         background: 'rgba(0, 0, 0, 0.5)',
         zIndex: 1,
-      },
-      gradient: {
+      },      gradient: {
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(135deg, rgba(255, 0, 112, 0.2) 0%, rgba(31, 138, 128, 0.2) 100%)',
+        background: 'linear-gradient(135deg, rgba(255, 0, 90, 0.4) 0%, rgba(0, 163, 150, 0.4) 50%, rgba(255, 0, 90, 0.4) 100%)',
         zIndex: 1,
       },
       radial: {
@@ -419,7 +405,7 @@ const stylesPublic = {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'radial-gradient(circle at 30% 40%, #FFF8E1 0%, rgba(245,232,199,0) 50%)',
+        background: 'radial-gradient(circle at 30% 40%, #FFF4D6 0%, rgba(255,233,192,0.3) 40%, rgba(255,233,192,0) 70%)',
         zIndex: 1,
       },
     },

@@ -411,6 +411,19 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    role: 'user'
+  });
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+  const [formLoading, setFormLoading] = useState(false);
 
   // Obtener usuarios del backend
   useEffect(() => {
@@ -541,10 +554,127 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         user._id === userId ? { ...user, role: updatedUser.role } : user
       );
       setUsers(updatedUsers);
-      setFilteredUsers(updatedUsers);
     } catch (error) {
-      setError(error.message);
+      console.error("Error:", error);
     }
+  };
+
+  // Manejar la edición de usuario
+  const handleEditUser = (userId) => {
+    const userToEdit = users.find(u => u._id === userId);
+    if (!userToEdit) return;
+    
+    setEditingUserId(userId);
+    setFormData({
+      name: userToEdit.name || '',
+      email: userToEdit.email || '',
+      phone: userToEdit.phone || '',
+      password: '', // No incluimos la contraseña por seguridad
+      role: userToEdit.role || 'user'
+    });
+    setShowEditForm(true);
+  };
+
+  // Manejar el envío del formulario de edición
+  const handleEditFormSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    setFormLoading(true);
+
+    // Preparar datos para actualizar (excluir la contraseña si está vacía)
+    const updateData = {...formData};
+    if (!updateData.password) delete updateData.password;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/users/${editingUserId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al actualizar el usuario');
+      }
+
+      // Actualizar el usuario en la lista
+      const updatedUsers = users.map(user => 
+        user._id === editingUserId ? { ...user, ...data.data } : user
+      );
+      setUsers(updatedUsers);
+      
+      setFormSuccess('Usuario actualizado con éxito');
+      setTimeout(() => {
+        setShowEditForm(false);
+        setEditingUserId(null);
+        setFormSuccess('');
+      }, 2000);
+    } catch (error) {
+      setFormError(error.message);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  // Manejar el envío del formulario de nuevo usuario
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    setFormLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/admin/users", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear el usuario');
+      }
+
+      // Agregar el nuevo usuario a la lista
+      setUsers([...users, data.data]);
+      
+      // Resetear el formulario
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        password: '',
+        role: 'user'
+      });
+      
+      setFormSuccess('Usuario creado con éxito');
+      setTimeout(() => {
+        setShowUserForm(false);
+        setFormSuccess('');
+      }, 2000);
+    } catch (error) {
+      setFormError(error.message);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  // Manejar cambios en los campos del formulario
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   // Manejar selección de usuarios
@@ -687,7 +817,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               Exportar
             </button>
 
-            <button style={{ ...enhancedStyles.button, ...enhancedStyles.primaryButton }} disabled={true}>
+            <button
+              style={{ ...enhancedStyles.button, ...enhancedStyles.primaryButton }}
+              onClick={() => setShowUserForm(true)}
+            >
               <FaPlus size={14} />
               Nuevo Usuario
             </button>
@@ -827,13 +960,12 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     <td style={enhancedStyles.tableCell}>{user.email}</td>
                     <td style={enhancedStyles.tableCell}>{user.phone || "-"}</td>
                     <td style={enhancedStyles.tableCell}>{renderRoleBadge(user.role)}</td>
-                    <td style={enhancedStyles.tableCell}>{formatDate(user.createdAt)}</td>
-                    <td style={{...enhancedStyles.tableCell, padding: "0.5rem 1rem"}}>
+                    <td style={enhancedStyles.tableCell}>{formatDate(user.createdAt)}</td>                    <td style={{...enhancedStyles.tableCell, padding: "0.5rem 1rem"}}>
                       <div style={{ display: "flex", gap: "8px" }}>
                         <button
                           style={{ ...enhancedStyles.actionButton, ...enhancedStyles.editButton }}
-                          onClick={() => handleUpdateUserRole(user._id, user.role === "user" ? "admin" : "user")}
-                          title="Cambiar rol"
+                          onClick={() => handleEditUser(user._id)}
+                          title="Editar usuario"
                         >
                           <FaEdit size={14} />
                         </button>
@@ -901,6 +1033,501 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
         )}
       </div>
+
+      {/* Formulario Modal para Nuevo Usuario */}
+      {showUserForm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '2rem',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+          }}>
+            <button 
+              onClick={() => setShowUserForm(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                background: 'none',
+                border: 'none',
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                color: '#4b5563',
+              }}
+            >
+              ✕
+            </button>
+            
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              marginBottom: '1.5rem',
+              color: '#111827',
+            }}>
+              Agregar Nuevo Usuario
+            </h2>
+            
+            {formError && (
+              <div style={{
+                backgroundColor: '#fee2e2',
+                color: '#b91c1c',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                marginBottom: '1rem',
+                fontSize: '0.9rem',
+              }}>
+                {formError}
+              </div>
+            )}
+            
+            {formSuccess && (
+              <div style={{
+                backgroundColor: '#d1fae5',
+                color: '#065f46',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                marginBottom: '1rem',
+                fontSize: '0.9rem',
+              }}>
+                {formSuccess}
+              </div>
+            )}
+            
+            <form onSubmit={handleFormSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="name"
+                >
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleFormChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="email"
+                >
+                  Correo Electrónico
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleFormChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="phone"
+                >
+                  Teléfono
+                </label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleFormChange}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="password"
+                >
+                  Contraseña
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleFormChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="role"
+                >
+                  Rol
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleFormChange}
+                  style={enhancedStyles.select}
+                >
+                  <option value="user">Usuario</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowUserForm(false)}
+                  style={{
+                    padding: '0.65rem 1.25rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'white',
+                    color: '#4b5563',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  style={{
+                    padding: '0.65rem 1.25rem',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    cursor: formLoading ? 'not-allowed' : 'pointer',
+                    opacity: formLoading ? 0.7 : 1,
+                  }}
+                >
+                  {formLoading ? 'Guardando...' : 'Guardar Usuario'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Formulario Modal para Editar Usuario */}
+      {showEditForm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '2rem',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+          }}>
+            <button 
+              onClick={() => setShowEditForm(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                background: 'none',
+                border: 'none',
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                color: '#4b5563',
+              }}
+            >
+              ✕
+            </button>
+            
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              marginBottom: '1.5rem',
+              color: '#111827',
+            }}>
+              Editar Usuario
+            </h2>
+            
+            {formError && (
+              <div style={{
+                backgroundColor: '#fee2e2',
+                color: '#b91c1c',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                marginBottom: '1rem',
+                fontSize: '0.9rem',
+              }}>
+                {formError}
+              </div>
+            )}
+            
+            {formSuccess && (
+              <div style={{
+                backgroundColor: '#d1fae5',
+                color: '#065f46',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                marginBottom: '1rem',
+                fontSize: '0.9rem',
+              }}>
+                {formSuccess}
+              </div>
+            )}
+            
+            <form onSubmit={handleEditFormSubmit}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="name"
+                >
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleFormChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="email"
+                >
+                  Correo Electrónico
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleFormChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="phone"
+                >
+                  Teléfono
+                </label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleFormChange}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label 
+                  style={{
+                    display: 'block',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    color: '#4b5563',
+                  }}
+                  htmlFor="role"
+                >
+                  Rol
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleFormChange}
+                  style={enhancedStyles.select}
+                >
+                  <option value="user">Usuario</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEditForm(false)}
+                  style={{
+                    padding: '0.65rem 1.25rem',
+                    borderRadius: '6px',
+                    border: '1px solid #e5e7eb',
+                    backgroundColor: 'white',
+                    color: '#4b5563',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  style={{
+                    padding: '0.65rem 1.25rem',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    cursor: formLoading ? 'not-allowed' : 'pointer',
+                    opacity: formLoading ? 0.7 : 1,
+                  }}
+                >
+                  {formLoading ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

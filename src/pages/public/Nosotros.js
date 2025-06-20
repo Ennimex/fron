@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Image, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import stylesPublic from '../../styles/stylesPublic';
+import api from '../../services/api';
 
 const Nosotros = () => {
   const navigate = useNavigate();
@@ -9,41 +10,37 @@ const Nosotros = () => {
     hero: false,
     historia: false,
     mision: false,
-    equipo: false,
+    colaboradores: false,
     valores: false,
     cta: false,
   });
+  
+  const [colaboradores, setColaboradores] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Animaciones escalonadas como en Inicio.js
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, historia: true })), 300);
     setTimeout(() => setIsVisible(prev => ({ ...prev, mision: true })), 600);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, equipo: true })), 900);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, colaboradores: true })), 900);
     setTimeout(() => setIsVisible(prev => ({ ...prev, valores: true })), 1200);
     setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1500);
+    
+    // Obtener colaboradores de la API
+    const fetchColaboradores = async () => {
+      try {
+        const data = await api.get('/public/colaboradores');
+        setColaboradores(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error al cargar colaboradores:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchColaboradores();
   }, []);
-
-  const equipo = [
-    { 
-      nombre: "María Hernández", 
-      rol: "Fundadora & Diseñadora", 
-      bio: "Maestra artesana con 25 años de experiencia en bordado tradicional huasteco.",
-      imagen: "/team/maria.jpg"
-    },
-    { 
-      nombre: "Carlos Méndez", 
-      rol: "Director Comercial", 
-      bio: "Especialista en comercio justo y desarrollo comunitario.",
-      imagen: "/team/carlos.jpg"
-    },
-    { 
-      nombre: "Luisa Torres", 
-      rol: "Coordinadora de Producción", 
-      bio: "Encargada de mantener los más altos estándares de calidad artesanal.",
-      imagen: "/team/luisa.jpg"
-    },
-  ];
 
   const valores = [
     { icon: "🤝", titulo: "Comercio Justo", descripcion: "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas." },
@@ -92,10 +89,10 @@ const Nosotros = () => {
       transform: isVisible.mision ? "translateY(0)" : "translateY(20px)",
       transition: stylesPublic.transitions.preset.default,
     },
-    equipoSection: {
+    colaboradoresSection: {
       background: stylesPublic.colors.background.gradient.secondary,
-      opacity: isVisible.equipo ? 1 : 0,
-      transform: isVisible.equipo ? "translateY(0)" : "translateY(20px)",
+      opacity: isVisible.colaboradores ? 1 : 0,
+      transform: isVisible.colaboradores ? "translateY(0)" : "translateY(20px)",
       transition: stylesPublic.transitions.preset.default,
     },
     valoresSection: {
@@ -305,8 +302,8 @@ const Nosotros = () => {
         </Container>
       </section>
 
-      {/* Equipo Section */}
-      <section style={customStyles.equipoSection}>
+      {/* Colaboradores Section */}
+      <section style={customStyles.colaboradoresSection}>
         <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
             fontFamily: stylesPublic.typography.fontFamily.heading, 
             fontSize: stylesPublic.typography.fontSize.h2, 
@@ -314,7 +311,7 @@ const Nosotros = () => {
             color: stylesPublic.colors.text.primary, 
             marginBottom: stylesPublic.spacing.lg 
           }}>
-            Nuestro Equipo
+            Nuestros Colaboradores
             <span style={customStyles.titleUnderline}></span>
           </h2>
           <p className="text-center" style={{ 
@@ -325,47 +322,45 @@ const Nosotros = () => {
             maxWidth: "800px", 
             margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
           }}>
-            Conoce al equipo apasionado que da vida a La Aterciopelada
+            Conoce a los colaboradores que hacen posible nuestra labor
           </p>
-          
-          <Row className="g-4">
-            {equipo.map((miembro, idx) => (
-              <Col md={4} key={idx}>
-                <Card className="h-100" style={customStyles.card}>
-                  <Card.Body className="text-center">
-                    <Image 
-                      src={miembro.imagen} 
-                      alt={miembro.nombre} 
-                      style={customStyles.teamImage}
-                    />                    <h3 style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.heading, 
-                      fontSize: stylesPublic.typography.fontSize.xl, 
-                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-                      color: stylesPublic.colors.text.primary, 
-                      marginBottom: stylesPublic.spacing.xs 
-                    }}>
-                      {miembro.nombre}
-                    </h3>
-                    <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.primary.main, 
-                      fontWeight: stylesPublic.typography.fontWeight.medium, 
-                      marginBottom: stylesPublic.spacing.md 
-                    }}>
-                      {miembro.rol}
-                    </p>
-                    <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph 
-                    }}>
-                      {miembro.bio}
-                    </p>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+            {loading ? (
+            <div className="text-center my-5">
+              <p>Cargando colaboradores...</p>
+            </div>
+          ) : (
+            <Row className="g-4">
+              {colaboradores.map((colaborador, idx) => (
+                <Col md={4} key={idx}>
+                  <Card className="h-100" style={customStyles.card}>
+                    <Card.Body className="text-center">
+                      <Image 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(colaborador.nombre)}&background=random&color=fff&size=150`}
+                        alt={colaborador.nombre} 
+                        style={customStyles.teamImage}
+                      />                    <h3 style={{ 
+                        fontFamily: stylesPublic.typography.fontFamily.heading, 
+                        fontSize: stylesPublic.typography.fontSize.xl, 
+                        fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                        color: stylesPublic.colors.text.primary, 
+                        marginBottom: stylesPublic.spacing.xs 
+                      }}>
+                        {colaborador.nombre}
+                      </h3>
+                      <p style={{ 
+                        fontFamily: stylesPublic.typography.fontFamily.body, 
+                        color: stylesPublic.colors.primary.main, 
+                        fontWeight: stylesPublic.typography.fontWeight.medium, 
+                        marginBottom: stylesPublic.spacing.md 
+                      }}>
+                        {colaborador.rol}
+                      </p>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
         </Container>
       </section>
 
