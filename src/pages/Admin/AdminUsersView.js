@@ -7,7 +7,6 @@ import {
   FaTrash,
   FaUserCheck,
   FaUserTimes,
-  FaDownload,
   FaChevronLeft,
   FaChevronRight,
   FaSortUp,
@@ -534,6 +533,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   };
 
   // Manejar actualización de rol
+  // eslint-disable-next-line no-unused-vars
   const handleUpdateUserRole = async (userId, newRole) => {
     try {
       const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
@@ -797,9 +797,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={enhancedStyles.searchInput}
             />
-          </div>
-
-          <div style={enhancedStyles.buttonGroup}>
+          </div>          <div style={enhancedStyles.buttonGroup}>
             <button
               style={{
                 ...enhancedStyles.button,
@@ -810,11 +808,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             >
               <FaFilter size={14} />
               Filtros
-            </button>
-
-            <button style={{ ...enhancedStyles.button, ...enhancedStyles.secondaryButton }} disabled={true}>
-              <FaDownload size={14} />
-              Exportar
             </button>
 
             <button

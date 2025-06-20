@@ -8,6 +8,7 @@ const GestionFotos = () => {
   const [fotos, setFotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentFoto, setCurrentFoto] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,15 +22,16 @@ const GestionFotos = () => {
   useEffect(() => {
     fetchFotos();
   }, []);
-
   // Obtener lista de fotos
   const fetchFotos = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('http://localhost:5000/api/fotos');
       
       if (!response.ok) {
-        throw new Error('Error al cargar las fotos');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al cargar las fotos');
       }
       
       const data = await response.json();
@@ -88,10 +90,10 @@ const GestionFotos = () => {
     });
     setModalOpen(true);
   };
-
   // Cerrar modal
   const handleCloseModal = () => {
     setModalOpen(false);
+    setError(null); // Limpiar cualquier mensaje de error al cerrar el modal
   };
 
   // Cerrar modal al hacer clic fuera del contenido
@@ -99,39 +101,43 @@ const GestionFotos = () => {
     if (e.target.className === 'modal-overlay') {
       handleCloseModal();
     }
-  };
-
-  // Función para manejar la eliminación de una foto
+  };  // Función para manejar la eliminación de una foto
   const handleDelete = async (id) => {
     if (window.confirm('¿Estás seguro que deseas eliminar esta foto?')) {
       try {
+        setError(null);
         const response = await fetch(`http://localhost:5000/api/fotos/${id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            // Añadir token de autorización si es necesario
-            // 'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${user.token}`
           }
         });
 
         if (!response.ok) {
-          throw new Error('Error al eliminar la foto');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al eliminar la foto');
         }
 
         // Actualizar la lista de fotos excluyendo la eliminada
         setFotos(fotos.filter(foto => foto._id !== id));
+        setSuccess('Foto eliminada correctamente');
+        
+        // Limpiar mensaje de éxito después de 3 segundos
+        setTimeout(() => {
+          setSuccess(null);
+        }, 3000);
       } catch (err) {
         setError(err.message);
         console.error('Error al eliminar foto:', err);
       }
     }
-  };
-
-  // Función para manejar el envío del formulario
+  };  // Función para manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
+      setError(null);
       const formDataToSend = new FormData();
       formDataToSend.append('titulo', formData.titulo);
       formDataToSend.append('descripcion', formData.descripcion);
@@ -148,19 +154,34 @@ const GestionFotos = () => {
         response = await fetch(`http://localhost:5000/api/fotos/${currentFoto._id}`, {
           method: 'PUT',
           body: formDataToSend,
-          // No incluir Content-Type para que el navegador establezca el boundary correcto para FormData
+          headers: {
+            // No incluir Content-Type para que el navegador establezca el boundary correcto para FormData
+            'Authorization': `Bearer ${user.token}`
+          }
         });
       } else {
         // Crear nueva foto
         response = await fetch('http://localhost:5000/api/fotos', {
           method: 'POST',
           body: formDataToSend,
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
         });
       }
 
       if (!response.ok) {
-        throw new Error(currentFoto ? 'Error al actualizar la foto' : 'Error al crear la foto');
+        const errorData = await response.json();
+        throw new Error(errorData.error || (currentFoto ? 'Error al actualizar la foto' : 'Error al crear la foto'));
       }
+
+      // Mostrar mensaje de éxito
+      setSuccess(currentFoto ? 'Foto actualizada correctamente' : 'Foto creada correctamente');
+      
+      // Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
 
       // Cerrar modal y actualizar lista de fotos
       handleCloseModal();
@@ -413,10 +434,12 @@ const GestionFotos = () => {
         <button style={styles.addButton} onClick={handleOpenCreateModal}>
           <FaPlus /> Agregar Foto
         </button>
-      </div>
+      </div>      {/* Mensaje de error */}
+      {error && <div style={{ color: 'red', marginBottom: '1rem', padding: '10px', backgroundColor: '#ffebee', borderRadius: '4px' }}>{error}</div>}
 
-      {/* Mensaje de error */}
-      {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+      {/* Mensaje de éxito */}
+      {success && <div style={{ color: 'green', marginBottom: '1rem', padding: '10px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>{success}</div>}
+      {success && <div style={{ color: 'green', marginBottom: '1rem' }}>{success}</div>}
 
       {/* Cuadrícula de fotos */}
       {fotos.length === 0 ? (

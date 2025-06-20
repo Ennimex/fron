@@ -99,7 +99,7 @@ const GestionVideos = () => {
       descripcion: video.descripcion || '',
       video: null,
       imagen: null,
-      imagenPreview: video.urlImagen
+      imagenPreview: video.miniatura || null
     });
     setModalOpen(true);
   };
@@ -128,9 +128,6 @@ const GestionVideos = () => {
       
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
-      } else if (!currentVideo) {
-        // Si no se sube una imagen y es un video nuevo, indicamos que queremos generar miniatura automáticamente
-        formDataToSend.append('generarMiniatura', 'true');
       }
       
       const config = {
@@ -471,9 +468,9 @@ const GestionVideos = () => {
                 style={styles.imageContainer}
                 onClick={() => handlePlayVideo(video.url)}
               >
-                {video.urlImagen ? (
+                {video.miniatura ? (
                   <>
-                    <img src={video.urlImagen} alt={video.titulo} style={styles.image} />
+                    <img src={video.miniatura} alt={video.titulo} style={styles.image} />
                     <div style={styles.playButton}>
                       <FaPlay size={20} />
                     </div>
@@ -587,7 +584,7 @@ const GestionVideos = () => {
                 </small>
               </div>
               <p style={styles.youtubeHelp}>
-                Si no subes una imagen, se generará automáticamente una miniatura a partir del video.
+                El sistema generará automáticamente una miniatura a partir del video si no subes una imagen personalizada.
               </p>
               
               {formData.imagenPreview && (
