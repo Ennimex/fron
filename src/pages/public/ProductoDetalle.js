@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Image } from 'react-bootstrap';
 import productos from "../../services/base";
 import "bootstrap-icons/font/bootstrap-icons.min.css";
+import stylesPublic from "../../styles/stylesPublic"; // Importamos el sistema centralizado de estilos
 
 const ProductoDetalle = () => {
   const { id } = useParams();
@@ -28,14 +29,13 @@ const ProductoDetalle = () => {
       navigate('/productos');
     }
   }, [id, navigate]);
-
   if (!producto) {
     return <div style={{ 
       display: 'flex', 
       justifyContent: 'center', 
       alignItems: 'center', 
       height: '100vh',
-      backgroundColor: '#F5E8C7'
+      backgroundColor: stylesPublic.colors.background.alt
     }}>
       Cargando...
     </div>;
@@ -43,12 +43,12 @@ const ProductoDetalle = () => {
 
   const customStyles = {
     heroSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
       padding: "80px 0 40px",
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
       transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: "all 1.2s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
     },
     heroOverlay: {
       position: "absolute",
@@ -56,27 +56,26 @@ const ProductoDetalle = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-      zIndex: 1,
+      zIndex: stylesPublic.utils.zIndex.background,
     },
     productContainer: {
-      maxWidth: "1400px",
-      margin: "0 auto",
-      padding: "40px 20px",
-      backgroundColor: "#ffffff",
-      borderRadius: "15px",
-      boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
-      opacity: isVisible.details ? 1 : 0,
+      maxWidth: stylesPublic.utils.container.maxWidth,
+      margin: stylesPublic.spacing.margin.auto,
+      padding: stylesPublic.spacing.section.small,
+      backgroundColor: stylesPublic.colors.background.main,
+      borderRadius: stylesPublic.borders.radius.xl,
+      boxShadow: stylesPublic.shadows.card,      opacity: isVisible.details ? 1 : 0,
       transform: isVisible.details ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
     },
     imageContainer: {
       position: "relative",
       overflow: "hidden",
-      borderRadius: "12px",
-      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15)",
-      transition: "all 0.3s ease",
+      borderRadius: stylesPublic.borders.radius.lg,
+      boxShadow: stylesPublic.shadows.lg,
+      transition: stylesPublic.transitions.preset.default,
     },
     image: {
       width: "100%",
@@ -85,58 +84,57 @@ const ProductoDetalle = () => {
       transition: "transform 0.5s ease",
     },
     title: {
-      fontFamily: "'Playfair Display', serif",
-      fontSize: "clamp(2rem, 4vw, 2.8rem)",
-      fontWeight: 600,
-      color: "#23102d",
-      marginBottom: "1.5rem",
+      fontFamily: stylesPublic.typography.fontFamily.heading,
+      fontSize: stylesPublic.typography.fontSize.h2,
+      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      color: stylesPublic.colors.text.primary,
+      marginBottom: stylesPublic.spacing.md,
     },
     description: {
-      fontFamily: "'Roboto', sans-serif",
-      fontSize: "1.1rem",
-      color: "#403a3c",
-      lineHeight: "1.7",
-      marginBottom: "2rem",
+      fontFamily: stylesPublic.typography.fontFamily.body,
+      fontSize: stylesPublic.typography.fontSize.p,
+      color: stylesPublic.colors.text.secondary,
+      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+      marginBottom: stylesPublic.spacing.lg,
     },
     infoGrid: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-      gap: "20px",
-      marginBottom: "2rem",
+      gap: stylesPublic.spacing.gap.lg,
+      marginBottom: stylesPublic.spacing.lg,
       opacity: isVisible.info ? 1 : 0,
       transform: isVisible.info ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out 0.3s",
-    },
-    infoItem: {
-      backgroundColor: "#FFF8E1",
-      padding: "20px",
-      borderRadius: "12px",
-      boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-      transition: "all 0.3s ease",
-      borderLeft: "3px solid #ff4060",
+      transition: stylesPublic.transitions.preset.pageIn,
+    },    infoItem: {
+      backgroundColor: stylesPublic.colors.background.alt,
+      padding: stylesPublic.spacing.md,
+      borderRadius: stylesPublic.borders.radius.lg,
+      boxShadow: stylesPublic.shadows.md,
+      transition: stylesPublic.transitions.preset.default,
+      borderLeft: `${stylesPublic.borders.width.thick} solid ${stylesPublic.colors.primary.light}`,
     },
     infoLabel: {
-      fontFamily: "'Roboto', sans-serif",
-      fontSize: "0.9rem",
-      fontWeight: "bold",
-      color: "#1f8a80",
-      marginBottom: "0.5rem",
+      fontFamily: stylesPublic.typography.fontFamily.body,
+      fontSize: stylesPublic.typography.fontSize.small,
+      fontWeight: stylesPublic.typography.fontWeight.bold,
+      color: stylesPublic.colors.secondary.main,
+      marginBottom: stylesPublic.spacing.xs,
       textTransform: "uppercase",
     },
     infoValue: {
-      fontFamily: "'Roboto', sans-serif",
-      fontSize: "1rem",
-      color: "#403a3c",
+      fontFamily: stylesPublic.typography.fontFamily.body,
+      fontSize: stylesPublic.typography.fontSize.md,
+      color: stylesPublic.colors.text.secondary,
     },
     ctaSection: {
-      background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
-      padding: "40px 20px",
-      borderRadius: "15px",
-      marginTop: "40px",
+      background: stylesPublic.colors.background.gradient.accent,
+      padding: stylesPublic.spacing.section.small,
+      borderRadius: stylesPublic.borders.radius.xl,
+      marginTop: stylesPublic.spacing.xl,
       textAlign: "center",
       opacity: isVisible.cta ? 1 : 0,
       transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
       position: "relative",
       overflow: "hidden",
     },
@@ -146,13 +144,12 @@ const ProductoDetalle = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: `radial-gradient(circle at 30% 40%, #FFF8E1 0%, rgba(245,232,199,0) 50%)`,
-      zIndex: 1,
+      background: stylesPublic.utils.overlay.radial.background,
+      zIndex: stylesPublic.utils.zIndex.background,
     },
   };
-
   return (
-    <div style={{ backgroundColor: "#F5E8C7", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: stylesPublic.colors.background.alt, minHeight: "100vh" }}>
       {/* Hero Section */}
       <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
@@ -199,20 +196,18 @@ const ProductoDetalle = () => {
                   <div style={customStyles.infoLabel}>Tallas</div>
                   <div style={customStyles.infoValue}>{producto.talla.join(", ")}</div>
                 </div>
-              </div>
-
-              <Button 
+              </div>              <Button 
                 variant="primary" 
                 size="lg" 
                 onClick={() => navigate('/productos')}
                 style={{ 
-                  backgroundColor: "#ff4060",
-                  borderColor: "#ff4060",
-                  borderRadius: "30px",
-                  padding: "12px 30px",
-                  fontWeight: "500",
-                  fontSize: "1.1rem",
-                  marginTop: "20px",
+                  backgroundColor: stylesPublic.colors.primary.light,
+                  borderColor: stylesPublic.colors.primary.light,
+                  borderRadius: stylesPublic.borders.radius.button,
+                  padding: stylesPublic.spacing.sm + " " + stylesPublic.spacing.lg,
+                  fontWeight: stylesPublic.typography.fontWeight.medium,
+                  fontSize: stylesPublic.typography.fontSize.lg,
+                  marginTop: stylesPublic.spacing.md,
                 }}
               >
                 <i className="bi bi-arrow-left me-2"></i>
@@ -224,13 +219,12 @@ const ProductoDetalle = () => {
 
         {/* CTA Section */}
         <div style={customStyles.ctaSection}>
-          <div style={customStyles.ctaOverlay}></div>
-          <Container style={{ position: "relative", zIndex: 2 }}>
+          <div style={customStyles.ctaOverlay}></div>          <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised }}>
             <h2 style={{ 
-              fontFamily: "'Playfair Display', serif", 
-              fontSize: "clamp(1.8rem, 3vw, 2.5rem)", 
-              fontWeight: 600, 
-              color: "#ffffff", 
+              fontFamily: stylesPublic.typography.fontFamily.heading, 
+              fontSize: stylesPublic.typography.fontSize.h3, 
+              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+              color: "#ffffff",
               marginBottom: "1rem" 
             }}>
               ¿Te encanta este diseño?

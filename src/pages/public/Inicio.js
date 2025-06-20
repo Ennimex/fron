@@ -5,6 +5,7 @@ import productos from '../../services/base';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { FaMountain, FaWater, FaLeaf, FaTree, FaUmbrellaBeach, FaCity, FaMonument, FaSeedling, FaLandmark, FaMapMarkedAlt } from 'react-icons/fa';
+import stylesPublic from '../../styles/stylesPublic';
 
 const Inicio = () => {
   const navigate = useNavigate();
@@ -183,7 +184,6 @@ const Inicio = () => {
     { icon: "👶", title: "Herencia Infantil", description: "Piezas delicadas para las nuevas generaciones, sembrando el amor por la tradición." },
     { icon: "🌟", title: "Fusión Moderna", description: "Reinterpretación contemporánea de técnicas milenarias para el guardarropa urbano." },
   ];
-
   const animationStyles = `
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
@@ -195,21 +195,29 @@ const Inicio = () => {
     }
     .animate-in { animation: fadeInUp 0.8s forwards; }
     .reason-card, .region-card, .clothing-card, .collection-card {
-      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      border: 1px solid rgba(232, 180, 184, 0.15);
+      transition: ${stylesPublic.transitions.preset.bounce};
+      border: ${stylesPublic.borders.style.accent};
     }
     .reason-card:hover, .region-card:hover, .clothing-card:hover, .collection-card:hover {
       transform: translateY(-10px);
-      box-shadow: 0 20px 40px rgba(255, 0, 112, 0.35), 0 10px 20px rgba(31, 138, 128, 0.25), 0 6px 12px rgba(44, 35, 41, 0.18);
-      border-color: #ff4060;
+      box-shadow: ${stylesPublic.shadows.hover};
+      border-color: ${stylesPublic.colors.primary.main};
     }
-    .reason-card:nth-child(1), .clothing-card:nth-child(1), .region-card:nth-child(1), .collection-card:nth-child(1) { border-left: 3px solid #ff0070; }
-    .reason-card:nth-child(2), .clothing-card:nth-child(2), .region-card:nth-child(2), .collection-card:nth-child(2) { border-left: 3px solid #1f8a80; }
-    .reason-card:nth-child(3), .clothing-card:nth-child(3), .region-card:nth-child(3), .collection-card:nth-child(3) { border-left: 3px solid #ff1030; }
-    .reason-card:nth-child(4), .clothing-card:nth-child(4), .region-card:nth-child(4), .collection-card:nth-child(4) { border-left: 3px solid #8840b8; }
-    .clothing-image { transition: transform 0.3s ease; }
+    .reason-card:nth-child(1), .clothing-card:nth-child(1), .region-card:nth-child(1), .collection-card:nth-child(1) { 
+      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.main}; 
+    }
+    .reason-card:nth-child(2), .clothing-card:nth-child(2), .region-card:nth-child(2), .collection-card:nth-child(2) { 
+      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.secondary.main}; 
+    }
+    .reason-card:nth-child(3), .clothing-card:nth-child(3), .region-card:nth-child(3), .collection-card:nth-child(3) { 
+      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.dark}; 
+    }
+    .reason-card:nth-child(4), .clothing-card:nth-child(4), .region-card:nth-child(4), .collection-card:nth-child(4) { 
+      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.accent.purple}; 
+    }
+    .clothing-image { transition: ${stylesPublic.transitions.preset.default}; }
     .clothing-card:hover .clothing-image { transform: scale(1.05); }
-    .collection-icon { transition: transform 0.3s ease; }
+    .collection-icon { transition: ${stylesPublic.transitions.preset.default}; }
     .collection-card:hover .collection-icon { transform: scale(1.1); }
     .floating-element {
       position: fixed;
@@ -219,17 +227,17 @@ const Inicio = () => {
       opacity: 0.7;
       animation: float 8s ease-in-out infinite;
     }
-    .floating-element:nth-child(1) { top: 20%; left: 10%; background: #ff0070; }
-    .floating-element:nth-child(2) { top: 60%; right: 15%; background: #1f8a80; animation-delay: 2s; }
-    .floating-element:nth-child(3) { bottom: 30%; left: 20%; background: #ff1030; animation-delay: 4s; }
+    .floating-element:nth-child(1) { top: 20%; left: 10%; background: ${stylesPublic.colors.primary.main}; }
+    .floating-element:nth-child(2) { top: 60%; right: 15%; background: ${stylesPublic.colors.secondary.main}; animation-delay: 2s; }
+    .floating-element:nth-child(3) { bottom: 30%; left: 20%; background: ${stylesPublic.colors.primary.dark}; animation-delay: 4s; }
   `;
-
+  // Aplicamos los estilos centralizados del stylesPublic, añadiendo estados de visibilidad
   const styles = {
     pageContainer: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff4080 30%, rgba(31, 138, 128, 0.45) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
     },
     heroSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff4080 30%, rgba(31, 138, 128, 0.45) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
       height: "85vh",
       display: "flex",
       alignItems: "center",
@@ -238,125 +246,79 @@ const Inicio = () => {
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
       transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: "all 1.2s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
     },
     heroOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      ...stylesPublic.utils.overlay.standard,
+      background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-      zIndex: 1,
     },
     section: {
-      padding: "6rem 2rem",
-      maxWidth: "1400px",
-      margin: "0 auto",
+      padding: stylesPublic.spacing.section.large,
+      maxWidth: stylesPublic.utils.container.maxWidth,
+      margin: stylesPublic.spacing.margin.auto,
       position: "relative",
     },
     reasonsSection: {
       background: `linear-gradient(to bottom, #FFE0B2, #FFD180)`,
       opacity: isVisible.reasons ? 1 : 0,
       transform: isVisible.reasons ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     regionsSection: {
       background: `linear-gradient(135deg, #FFB74D 0%, #FF8A65 100%)`,
       opacity: isVisible.regions ? 1 : 0,
       transform: isVisible.regions ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     regionsOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      ...stylesPublic.utils.overlay.standard,
+      background: stylesPublic.elements.backgroundPatterns.geometric,
       opacity: 0.8,
-      zIndex: 1,
     },
     clothingSection: {
       opacity: isVisible.clothing ? 1 : 0,
       transform: isVisible.clothing ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      transition: stylesPublic.transitions.preset.default,
+      background: stylesPublic.colors.background.gradient.secondary,
     },
     collectionsSection: {
       background: `linear-gradient(135deg, #FF8A65 0%, #FF5252 100%)`,
       opacity: isVisible.collections ? 1 : 0,
       transform: isVisible.collections ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     collectionsOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      ...stylesPublic.utils.overlay.standard,
+      background: stylesPublic.elements.backgroundPatterns.geometric,
       opacity: 0.8,
-      zIndex: 1,
     },
     commentsSection: {
       opacity: isVisible.comments ? 1 : 0,
       transform: isVisible.comments ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      transition: stylesPublic.transitions.preset.default,
+      background: stylesPublic.colors.background.gradient.secondary,
     },
     ctaSection: {
-      background: `linear-gradient(135deg, #ff4080 0%, #1f8a80 100%)`,
+      background: stylesPublic.colors.background.gradient.accent,
       opacity: isVisible.cta ? 1 : 0,
       transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
       position: "relative",
     },
     ctaOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `radial-gradient(circle at 30% 40%, #FFF8E1 0%, rgba(245,232,199,0) 50%)`,
-      zIndex: 1,
+      ...stylesPublic.utils.overlay.radial,
     },
-    titleUnderline: {
-      display: "block",
-      width: "60px",
-      height: "2px",
-      background: `linear-gradient(90deg, #ff0070, #1f8a80)`,
-      borderRadius: "1px",
-      margin: "15px auto",
-    },
+    titleUnderline: stylesPublic.elements.decorative.underline,
     whiteUnderline: {
       background: `#ffffff`,
-      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+      boxShadow: stylesPublic.shadows.sm,
     },
-    pinkButton: {
-      backgroundColor: '#ff2060',
-      borderColor: '#ff2060',
-      color: '#ffffff',
-      borderRadius: "30px",
-      padding: "12px 30px",
-      fontWeight: "500",
-      fontSize: "1.1rem",
-    },
-    collectionIcon: {
-      width: "70px",
-      height: "70px",
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "1.8rem",
-      color: "#ffffff",
-      boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
-    },
+    pinkButton: stylesPublic.elements.buttons.primary,
+    collectionIcon: stylesPublic.elements.decorative.circle,
     card: {
-      boxShadow: "0 8px 16px rgba(255, 32, 96, 0.3), 0 4px 8px rgba(31, 138, 128, 0.25), 0 2px 4px rgba(44, 35, 41, 0.12)",
-      borderLeft: "3px solid #ff2060"
+      ...stylesPublic.elements.cards.default,
+      borderLeft: stylesPublic.borders.style.active
     }
   };
 
@@ -371,13 +333,34 @@ const Inicio = () => {
 
       {/* Hero Section */}
       <section style={styles.heroSection}>
-        <div style={styles.heroOverlay}></div>
-        <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
-          <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
+        <div style={styles.heroOverlay}></div>        <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, maxWidth: "900px", padding: stylesPublic.spacing.section.medium }}>
+          <h1 className="animate-in" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h1, 
+            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg, 
+            letterSpacing: stylesPublic.typography.letterSpacing.tight, 
+            lineHeight: stylesPublic.typography.lineHeight.tight, 
+            animationDelay: "0.3s" 
+          }}>
             La Aterciopelada
           </h1>
-          <div className="animate-in" style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #ff0070, #1f8a80, transparent)", margin: "0 auto 2rem", animationDelay: "0.9s" }}></div>
-          <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>
+          <div className="animate-in" style={{ 
+            width: "80px", 
+            height: "2px", 
+            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main}, transparent)`, 
+            margin: "0 auto 2rem", 
+            animationDelay: "0.9s" 
+          }}></div>
+          <p className="animate-in" style={{ 
+            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            marginBottom: stylesPublic.spacing["3xl"], 
+            letterSpacing: stylesPublic.typography.letterSpacing.wide, 
+            animationDelay: "0.6s" 
+          }}>
             Boutique Huasteca · Tradición Artesanal Refinada
           </p>
           <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "1.2s" }} onClick={() => navigate("/productos")}>
@@ -388,21 +371,46 @@ const Inicio = () => {
 
       {/* Reasons Section */}
       <section style={styles.reasonsSection}>
-        <Container style={styles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+        <Container style={styles.section}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg, 
+            position: "relative" 
+          }}>
             ¿Por qué elegir La Aterciopelada?
             <span style={styles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+          <p className="text-center" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}`, 
+            letterSpacing: stylesPublic.typography.letterSpacing.wide 
+          }}>
             Sumérgete en la pasión y el arte de la artesanía huasteca
           </p>
           <Row className="g-4">
             {reasons.map((reason, idx) => (
               <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <Card className="reason-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
+                <Card className="reason-card h-100 shadow" style={stylesPublic.elements.cards.default}>
                   <Card.Body>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{reason.name}</h3>
-                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{reason.description}</p>
+                    <h3 style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.heading, 
+                      fontSize: stylesPublic.typography.fontSize.xl, 
+                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      color: stylesPublic.colors.text.primary, 
+                      marginBottom: stylesPublic.spacing.md, 
+                      letterSpacing: stylesPublic.typography.letterSpacing.tight 
+                    }}>{reason.name}</h3>
+                    <p style={{ 
+                      fontSize: stylesPublic.typography.fontSize.sm, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph, 
+                      fontWeight: stylesPublic.typography.fontWeight.regular 
+                    }}>{reason.description}</p>
                   </Card.Body>
                 </Card>
               </Col>
@@ -414,12 +422,26 @@ const Inicio = () => {
       {/* Regions/Localidades Section */}
       <section style={styles.regionsSection}>
         <div style={styles.regionsOverlay}></div>
-        <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+        <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg, 
+            position: "relative" 
+          }}>
             Localidades de la Huasteca
             <span style={{ ...styles.titleUnderline, ...styles.whiteUnderline }}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+          <p className="text-center" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: "#ffffff", 
+            textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}`, 
+            letterSpacing: stylesPublic.typography.letterSpacing.wide 
+          }}>
             Descubre la riqueza cultural que inspira nuestras creaciones artesanales
           </p>
           
@@ -435,15 +457,10 @@ const Inicio = () => {
               {localidades.map((localidad, idx) => {
                 const { icon, color } = getLocalidadIcon(localidad.nombre);
                 return (
-                  <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                    <Card 
+                  <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>                    <Card 
                       className="region-card h-100 shadow" 
                       style={{ 
-                        background: "#ffffff", 
-                        borderRadius: "12px", 
-                        padding: "2.5rem 2rem", 
-                        textAlign: "center", 
-                        boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
+                        ...stylesPublic.elements.cards.default,
                         cursor: "pointer"
                       }}
                       onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
@@ -451,24 +468,29 @@ const Inicio = () => {
                       <Card.Body>
                         <div 
                           style={{ 
-                            width: "70px",
-                            height: "70px",
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
+                            ...stylesPublic.elements.decorative.circle,
                             background: color,
                             color: "#ffffff",
-                            margin: "0 auto 1.5rem",
-                            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15)"
                           }}
                         >
                           {icon}
                         </div>
-                        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>
+                        <h3 style={{ 
+                          fontFamily: stylesPublic.typography.fontFamily.heading, 
+                          fontSize: stylesPublic.typography.fontSize.xl, 
+                          fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                          color: stylesPublic.colors.text.primary, 
+                          marginBottom: stylesPublic.spacing.md, 
+                          letterSpacing: stylesPublic.typography.letterSpacing.tight 
+                        }}>
                           {localidad.nombre}
                         </h3>
-                        <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>
+                        <p style={{ 
+                          fontSize: stylesPublic.typography.fontSize.sm, 
+                          color: stylesPublic.colors.text.secondary, 
+                          lineHeight: stylesPublic.typography.lineHeight.paragraph, 
+                          fontWeight: stylesPublic.typography.fontWeight.regular 
+                        }}>
                           {localidad.descripcion}
                         </p>
                       </Card.Body>

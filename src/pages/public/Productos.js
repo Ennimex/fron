@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom"
 import productos from "../../services/base"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
-import { useAuth } from '../../context/AuthContext' // Agregar este import
+import { useAuth } from '../../context/AuthContext'
+import stylesPublic from "../../styles/stylesPublic" // Importamos el sistema centralizado de estilos
 
 const ProductoCard = React.memo(({ producto, vistaGrilla, handleProductClick, animationDelay }) => {
   const key = `${producto._id}-${vistaGrilla ? 'grid' : 'list'}`;
@@ -211,16 +212,15 @@ const Productos = () => {
     setProductosFiltrados(resultado)
     setFiltrosActivos(contadorFiltros)
   }, [location.search, filtrarProductos])
-
   const customStyles = {
     section: {
-      padding: "6rem 2rem",
-      maxWidth: "1400px",
-      margin: "0 auto",
-      background: "linear-gradient(to bottom, #F5E8C7, #FFF8E1)",
+      padding: stylesPublic.spacing.section.large,
+      maxWidth: stylesPublic.utils.container.maxWidth,
+      margin: stylesPublic.spacing.margin.auto,
+      background: stylesPublic.colors.background.gradient.secondary,
       opacity: isVisible ? 1 : 0,
       transform: isVisible ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
       position: "relative",
     },
     overlay: {
@@ -229,46 +229,31 @@ const Productos = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      background:
-        'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff0070" opacity="0.45"/><polygon points="35,25 40,35 30,35" fill="%231f8a80" opacity="0.4"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>\')',
+      background: stylesPublic.elements.backgroundPatterns.geometric,
       opacity: 0.8,
-      zIndex: 1,
+      zIndex: stylesPublic.utils.zIndex.background,
     },
-    titleUnderline: {
-      display: "block",
-      width: "60px",
-      height: "2px",
-      background: "linear-gradient(90deg, #ff0070, #1f8a80)",
-      borderRadius: "1px",
-      margin: "15px auto",
-    },
+    titleUnderline: stylesPublic.elements.decorative.underline,
     pinkButton: {
-      backgroundColor: "#ff4060",
-      borderColor: "#ff4060",
-      color: "#ffffff",
-      borderRadius: "30px",
-      padding: "8px 20px",
-      fontWeight: "500",
-      fontSize: "0.9rem",
-      fontFamily: "'Playfair Display', serif",
+      ...stylesPublic.elements.buttons.primary,
+      ...stylesPublic.elements.buttons.small,
     },
   }
-
   const cssStyles = `
     :root {
-      --huasteca-red: #ff0070;
-      --huasteca-green: #1f8a80;
-      --huasteca-beige: #F5E8C7;
-      --huasteca-yellow: #FFF8E1;
-      --huasteca-dark: #23102d;
+      --huasteca-red: ${stylesPublic.colors.primary.main};
+      --huasteca-green: ${stylesPublic.colors.secondary.main};
+      --huasteca-beige: ${stylesPublic.colors.background.alt};
+      --huasteca-yellow: ${stylesPublic.colors.background.main};
+      --huasteca-dark: ${stylesPublic.colors.text.primary};
     }
 
     .productos-container {
-      background: linear-gradient(to bottom, #F5E8C7, #FFF8E1);
+      background: ${stylesPublic.colors.background.gradient.secondary};
       min-height: calc(100vh - 76px);
       padding-top: 30px;
       padding-bottom: 60px;
-      font-family: 'Playfair Display', serif;
+      font-family: ${stylesPublic.typography.fontFamily.heading};
     }
 
     .productos-header {

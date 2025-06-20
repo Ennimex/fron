@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import { mailOutline, callOutline, locationOutline, timeOutline, logoFacebook, logoInstagram, logoTwitter } from 'ionicons/icons';
+import stylesPublic from '../../styles/stylesPublic';
 
 const Contacto = () => {
   const navigate = useNavigate();
@@ -13,8 +14,7 @@ const Contacto = () => {
     mensaje: ''
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formError, setFormError] = useState(false);
-  const [isVisible, setIsVisible] = useState({
+  const [formError, setFormError] = useState(false);  const [isVisible, setIsVisible] = useState({
     hero: false,
     contactInfo: false,
     formSection: false,
@@ -22,17 +22,6 @@ const Contacto = () => {
     map: false,
     cta: false
   });
-
-  // Paleta de colores alineada con La Aterciopelada
-  const colors = {
-    deepRed: '#ff0070',
-    emeraldGreen: '#1f8a80',
-    warmBeige: '#F5E8C7',
-    vibrantYellow: '#FFC107',
-    darkGrey: '#4A4A4A',
-    softPink: '#ff8090',
-    darkPurple: '#23102d'
-  };
 
   // Animation trigger on mount
   useEffect(() => {
@@ -70,53 +59,50 @@ const Contacto = () => {
       setFormError(true);
     }
   };
-
   const contactInfo = [
     {
-      icon: <IonIcon icon={locationOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={locationOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
       title: "Dirección",
       content: "Calle Artesanal #123, Centro, Huejutla de Reyes, Hidalgo",
       link: "https://maps.app.goo.gl/UzrK1BW2QVNirmmt8",
       linkText: "Ver en mapa"
     },
     {
-      icon: <IonIcon icon={callOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={callOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
       title: "Teléfono",
       content: "+52 771 123 4567 (Ventas)\n+52 771 987 6543 (Consultas)"
     },
     {
-      icon: <IonIcon icon={mailOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={mailOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
       title: "Correo Electrónico",
       content: "ventas@laaterciopelada.com\nconsultas@laaterciopelada.com"
     },
     {
-      icon: <IonIcon icon={timeOutline} style={{ fontSize: '32px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={timeOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
       title: "Horario de Atención",
       content: "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM"
     }
   ];
-
   const socialNetworks = [
     {
-      icon: <IonIcon icon={logoFacebook} style={{ fontSize: '24px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={logoFacebook} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
       name: "Facebook",
       handle: "@LaAterciopeladaOficial",
       url: "https://facebook.com/laaterciopelada"
     },
     {
-      icon: <IonIcon icon={logoInstagram} style={{ fontSize: '24px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={logoInstagram} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
       name: "Instagram",
       handle: "@LaAterciopelada",
       url: "https://instagram.com/laaterciopelada"
     },
     {
-      icon: <IonIcon icon={logoTwitter} style={{ fontSize: '24px', color: colors.deepRed }} />,
+      icon: <IonIcon icon={logoTwitter} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
       name: "Twitter",
       handle: "@AterciopeladaMX",
       url: "https://twitter.com/aterciopeladamx"
     }
   ];
-
   const animationStyles = `
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -145,7 +131,7 @@ const Contacto = () => {
 
     .form-input input:focus,
     .form-input textarea:focus {
-      border-color: ${colors.emeraldGreen};
+      border-color: ${stylesPublic.colors.secondary.main};
       box-shadow: 0 4px 20px rgba(31, 138, 128, 0.15);
       outline: none;
     }
@@ -157,7 +143,7 @@ const Contacto = () => {
       transform: translateY(-50%);
       background: #FFFFFF;
       padding: 0 5px;
-      color: #757575;
+      color: ${stylesPublic.colors.text.light};
       transition: all 0.3s ease;
       pointer-events: none;
     }
@@ -173,24 +159,22 @@ const Contacto = () => {
     .form-input textarea:not(:placeholder-shown) ~ label {
       top: 0;
       transform: translateY(-50%) scale(0.85);
-      color: ${colors.emeraldGreen};
+      color: ${stylesPublic.colors.secondary.main};
     }
 
     .hover-card {
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      border: 1px solid rgba(232, 180, 184, 0.15);
+      transition: ${stylesPublic.transitions.preset.bounce};
+      border: ${stylesPublic.borders.style.accent};
     }
     .hover-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 20px 40px rgba(255, 0, 112, 0.35), 
-                  0 10px 20px rgba(31, 138, 128, 0.25), 
-                  0 6px 12px rgba(44, 35, 41, 0.18);
-      border-color: ${colors.deepRed};
+      transform: ${stylesPublic.elements.cards.hover.transform};
+      box-shadow: ${stylesPublic.shadows.hover};
+      border-color: ${stylesPublic.colors.primary.main};
     }
     
     .social-card {
-      transition: all 0.3s ease;
-      border-left: 3px solid ${colors.deepRed};
+      transition: ${stylesPublic.transitions.preset.default};
+      border-left: ${stylesPublic.borders.width.thick} solid ${stylesPublic.colors.primary.main};
     }
     .social-card:hover {
       transform: translateY(-5px);
@@ -198,17 +182,17 @@ const Contacto = () => {
     }
     
     .submit-button {
-      background: linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%);
+      background: ${stylesPublic.colors.background.gradient.cta};
       color: white;
       border: none;
       padding: 15px 30px;
-      border-radius: 30px;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      border-radius: ${stylesPublic.borders.radius.button};
+      font-weight: ${stylesPublic.typography.fontWeight.semiBold};
+      transition: ${stylesPublic.transitions.preset.buttonHover};
     }
     .submit-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(255, 0, 112, 0.3);
+      box-shadow: ${stylesPublic.shadows.button};
     }
     
     .floating-element {
@@ -224,74 +208,61 @@ const Contacto = () => {
       50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
     }
   `;
-
   const customStyles = {
     heroSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
       padding: "100px 0",
-      color: colors.darkPurple,  // Cambiado a darkPurple para mejor contraste
+      color: stylesPublic.colors.text.primary,
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
       transform: isVisible.hero ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
+      transition: stylesPublic.transitions.preset.default
     },
     heroOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      ...stylesPublic.utils.overlay.standard,
+      background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-      zIndex: 1,
       pointerEvents: 'none'
     },
     section: {
-      marginBottom: "80px",
+      marginBottom: stylesPublic.spacing["4xl"],
       opacity: isVisible.contactInfo ? 1 : 0,
       transform: isVisible.contactInfo ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
+      transition: stylesPublic.transitions.preset.default
     },
     formSection: {
       opacity: isVisible.formSection ? 1 : 0,
       transform: isVisible.formSection ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
+      transition: stylesPublic.transitions.preset.default
     },
     socialSection: {
       opacity: isVisible.social ? 1 : 0,
       transform: isVisible.social ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
+      transition: stylesPublic.transitions.preset.default
     },
     mapSection: {
       opacity: isVisible.map ? 1 : 0,
       transform: isVisible.map ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
+      transition: stylesPublic.transitions.preset.default
     },
     ctaSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
-      padding: "80px 0",
-      color: colors.darkPurple,  // Cambiado a darkPurple para mejor contraste
+      background: stylesPublic.colors.background.gradient.primary,
+      padding: stylesPublic.spacing["4xl"] + " 0",
+      color: stylesPublic.colors.text.primary,
       position: "relative",
       opacity: isVisible.cta ? 1 : 0,
       transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out"
+      transition: stylesPublic.transitions.preset.default
     },
-    titleUnderline: {
-      display: "block",
-      width: "60px",
-      height: "2px",
-      background: `linear-gradient(90deg, ${colors.deepRed}, ${colors.emeraldGreen})`,
-      borderRadius: "1px",
-      margin: "15px auto",
-    },
+    titleUnderline: stylesPublic.elements.decorative.underline,
     whiteUnderline: {
-      background: colors.warmBeige,
-      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+      background: stylesPublic.colors.background.alt,
+      boxShadow: stylesPublic.shadows.sm,
     },
     contactCard: {
-      borderLeft: `3px solid ${colors.deepRed}`,
-      borderRadius: "12px",
-      transition: "all 0.3s ease",
+      borderLeft: `${stylesPublic.borders.width.thick} solid ${stylesPublic.colors.primary.main}`,
+      borderRadius: stylesPublic.borders.radius.card,
+      transition: stylesPublic.transitions.preset.default,
       height: "100%"
     }
   };
@@ -299,33 +270,32 @@ const Contacto = () => {
   return (
     <>
       <style>{animationStyles}</style>
-      
-      {/* Hero Section */}
+        {/* Hero Section */}
       <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
-        <Container style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+        <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, textAlign: "center" }}>
           <h1 className="animate-in" style={{ 
-            fontFamily: "'Playfair Display', serif", 
-            fontSize: "clamp(2.5rem, 5vw, 4rem)", 
-            fontWeight: 700, 
-            marginBottom: "1.5rem",
-            color: colors.darkPurple  // Asegurar color oscuro para el título
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h1, 
+            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            marginBottom: stylesPublic.spacing.lg,
+            color: stylesPublic.colors.text.primary
           }}>
             Contacto
           </h1>
           <div className="animate-in" style={{ 
             width: "80px", 
             height: "2px", 
-            background: `linear-gradient(90deg, ${colors.deepRed}, ${colors.emeraldGreen})`,
+            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main})`,
             margin: "0 auto 2rem" 
           }}></div>
           <p className="animate-in" style={{ 
             fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
-            fontWeight: 300, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
             maxWidth: "700px", 
             margin: "0 auto", 
-            lineHeight: "1.6",
-            color: colors.darkGrey  // Asegurar color oscuro para el texto
+            lineHeight: stylesPublic.typography.lineHeight.paragraph,
+            color: stylesPublic.colors.text.secondary
           }}>
             Conéctate con nosotros y descubre el arte textil de la Huasteca
           </p>
@@ -334,12 +304,23 @@ const Contacto = () => {
 
       <Container>
         {/* Información de Contacto */}
-        <section style={customStyles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+        <section style={customStyles.section}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Información de Contacto
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem" }}>
+          <p className="text-center" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+          }}>
             Estamos aquí para responder tus preguntas y ayudarte con tus pedidos especiales
           </p>
           
@@ -347,14 +328,23 @@ const Contacto = () => {
             {contactInfo.map((info, index) => (
               <Col md={6} lg={3} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
                 <Card className="hover-card h-100" style={customStyles.contactCard}>
-                  <Card.Body className="text-center d-flex flex-column">
-                    <div className="mb-3">
+                  <Card.Body className="text-center d-flex flex-column">                    <div className="mb-3">
                       {info.icon}
                     </div>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: colors.darkPurple, marginBottom: "1rem" }}>
+                    <h3 style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.heading, 
+                      fontSize: stylesPublic.typography.fontSize.xl, 
+                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      color: stylesPublic.colors.text.primary, 
+                      marginBottom: stylesPublic.spacing.md 
+                    }}>
                       {info.title}
                     </h3>
-                    <p style={{ color: colors.darkGrey, lineHeight: "1.6", flexGrow: 1 }}>
+                    <p style={{ 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph, 
+                      flexGrow: 1 
+                    }}>
                       {info.content.split('\n').map((line, i) => (
                         <span key={i}>
                           {line}
@@ -367,7 +357,11 @@ const Contacto = () => {
                         href={info.link} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        style={{ color: colors.emeraldGreen, fontWeight: "600", marginTop: "15px" }}
+                        style={{ 
+                          color: stylesPublic.colors.secondary.main, 
+                          fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                          marginTop: stylesPublic.spacing.lg 
+                        }}
                       >
                         {info.linkText} →
                       </a>
@@ -382,23 +376,33 @@ const Contacto = () => {
         {/* Formulario y Redes Sociales */}
         <section style={customStyles.formSection}>
           <Row>
-            <Col lg={7} className="mb-5 mb-lg-0">
-              <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+            <Col lg={7} className="mb-5 mb-lg-0">              <h2 className="text-center" style={{ 
+                fontFamily: stylesPublic.typography.fontFamily.heading, 
+                fontSize: stylesPublic.typography.fontSize.h2, 
+                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                color: stylesPublic.colors.text.primary, 
+                marginBottom: stylesPublic.spacing.lg 
+              }}>
                 Envíanos un Mensaje
                 <span style={customStyles.titleUnderline}></span>
               </h2>
-              
-              {formSubmitted && (
-                <Alert variant="success" className="mb-4" style={{ background: "rgba(31, 138, 128, 0.1)", borderColor: colors.emeraldGreen }}>
-                  <Alert.Heading style={{ color: colors.emeraldGreen }}>¡Mensaje Enviado!</Alert.Heading>
-                  <p style={{ color: colors.darkGrey }}>Gracias por contactarnos. Te responderemos en breve.</p>
+                {formSubmitted && (
+                <Alert variant="success" className="mb-4" style={{ 
+                  background: `rgba(${parseInt(stylesPublic.colors.secondary.main.slice(1, 3), 16)}, ${parseInt(stylesPublic.colors.secondary.main.slice(3, 5), 16)}, ${parseInt(stylesPublic.colors.secondary.main.slice(5, 7), 16)}, 0.1)`, 
+                  borderColor: stylesPublic.colors.secondary.main 
+                }}>
+                  <Alert.Heading style={{ color: stylesPublic.colors.secondary.main }}>¡Mensaje Enviado!</Alert.Heading>
+                  <p style={{ color: stylesPublic.colors.text.secondary }}>Gracias por contactarnos. Te responderemos en breve.</p>
                 </Alert>
               )}
               
               {formError && (
-                <Alert variant="danger" className="mb-4" style={{ background: "rgba(255, 0, 112, 0.1)", borderColor: colors.deepRed }}>
-                  <Alert.Heading style={{ color: colors.deepRed }}>Error en el formulario</Alert.Heading>
-                  <p style={{ color: colors.darkGrey }}>Por favor completa los campos requeridos.</p>
+                <Alert variant="danger" className="mb-4" style={{ 
+                  background: `rgba(${parseInt(stylesPublic.colors.primary.main.slice(1, 3), 16)}, ${parseInt(stylesPublic.colors.primary.main.slice(3, 5), 16)}, ${parseInt(stylesPublic.colors.primary.main.slice(5, 7), 16)}, 0.1)`, 
+                  borderColor: stylesPublic.colors.primary.main 
+                }}>
+                  <Alert.Heading style={{ color: stylesPublic.colors.primary.main }}>Error en el formulario</Alert.Heading>
+                  <p style={{ color: stylesPublic.colors.text.secondary }}>Por favor completa los campos requeridos.</p>
                 </Alert>
               )}
               
@@ -457,8 +461,13 @@ const Contacto = () => {
               </form>
             </Col>
             
-            <Col lg={5}>
-              <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+            <Col lg={5}>              <h2 className="text-center" style={{ 
+                fontFamily: stylesPublic.typography.fontFamily.heading, 
+                fontSize: stylesPublic.typography.fontSize.h2, 
+                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                color: stylesPublic.colors.text.primary, 
+                marginBottom: stylesPublic.spacing.lg 
+              }}>
                 Síguenos
                 <span style={customStyles.titleUnderline}></span>
               </h2>
@@ -469,16 +478,22 @@ const Contacto = () => {
                     key={index}
                     href={social.url}
                     target="_blank"
-                    rel="noopener noreferrer"
-                    className="d-flex align-items-center mb-3 p-3 rounded social-card"
-                    style={{ background: colors.warmBeige, textDecoration: "none", color: colors.darkPurple }}
+                    rel="noopener noreferrer"                    className="d-flex align-items-center mb-3 p-3 rounded social-card"
+                    style={{ background: stylesPublic.colors.background.alt, textDecoration: "none", color: stylesPublic.colors.text.primary }}
                   >
                     <div className="me-3">
                       {social.icon}
                     </div>
                     <div>
-                      <h4 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.25rem" }}>{social.name}</h4>
-                      <p style={{ color: colors.darkGrey, marginBottom: "0" }}>{social.handle}</p>
+                      <h4 style={{ 
+                        fontSize: stylesPublic.typography.fontSize.lg, 
+                        fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                        marginBottom: "0.25rem" 
+                      }}>{social.name}</h4>
+                      <p style={{ 
+                        color: stylesPublic.colors.text.secondary, 
+                        marginBottom: "0" 
+                      }}>{social.handle}</p>
                     </div>
                   </a>
                 ))}
@@ -488,12 +503,23 @@ const Contacto = () => {
         </section>
 
         {/* Mapa */}
-        <section style={customStyles.mapSection}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: colors.darkPurple, marginBottom: "1.5rem" }}>
+        <section style={customStyles.mapSection}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Visítanos
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem" }}>
+          <p className="text-center" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+          }}>
             Nuestro taller está ubicado en el corazón de la Huasteca
           </p>
           
@@ -510,25 +536,35 @@ const Contacto = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section style={customStyles.ctaSection}>
-          <Container style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-            <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, marginBottom: "1rem" }}>
+        {/* CTA Section */}        <section style={customStyles.ctaSection}>
+          <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, textAlign: "center" }}>
+            <h2 className="animate-in" style={{ 
+              fontFamily: stylesPublic.typography.fontFamily.heading, 
+              fontSize: stylesPublic.typography.fontSize.h2, 
+              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+              marginBottom: stylesPublic.spacing.md 
+            }}>
               ¿Listo para descubrir más?
             </h2>
-            <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, opacity: 0.9, maxWidth: "700px", margin: "0 auto 2rem" }}>
+            <p className="animate-in" style={{ 
+              fontSize: stylesPublic.typography.fontSize.lg, 
+              fontWeight: stylesPublic.typography.fontWeight.light, 
+              opacity: 0.9, 
+              maxWidth: "700px", 
+              margin: `0 auto ${stylesPublic.spacing.xl}` 
+            }}>
               Explora nuestra colección completa de prendas y accesorios artesanales
             </p>
             <Button 
               className="animate-in" 
               style={{ 
-                background: colors.warmBeige, 
-                color: colors.deepRed, 
+                background: stylesPublic.colors.background.alt, 
+                color: stylesPublic.colors.primary.main, 
                 border: "none",
-                padding: "12px 30px",
-                fontWeight: "600",
-                fontSize: "1.1rem",
-                borderRadius: "30px"
+                padding: stylesPublic.spacing.md + " " + stylesPublic.spacing.xl,
+                fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                fontSize: stylesPublic.typography.fontSize.lg,
+                borderRadius: stylesPublic.borders.radius.button
               }}
               onClick={() => navigate("/productos")}
             >

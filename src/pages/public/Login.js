@@ -6,6 +6,7 @@ import { IonIcon } from "@ionic/react"
 import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from "ionicons/icons"
 import { Link, useSearchParams, useNavigate } from "react-router-dom"
 import { AuthContext } from "../../context/AuthContext"
+import stylesPublic from "../../styles/stylesPublic"
 
 const Login = () => {
   const [searchParams] = useSearchParams()
@@ -37,19 +38,9 @@ const Login = () => {
     loginPassword: false,
     acceptTerms: false,
   })
-
   // Contexto y navegación
   const { login, register } = useContext(AuthContext)
   const navigate = useNavigate()
-
-  // Color palette for La Aterciopelada
-  const colors = {
-    deepRed: "#ff0070",
-    emeraldGreen: "#1f8a80",
-    warmBeige: "#F5E8C7",
-    darkPurple: "#23102d",
-    softPink: "#ff8090",
-  }
 
   // Background images
   const backgroundImages = useMemo(
@@ -217,14 +208,13 @@ const Login = () => {
     if (/[^A-Za-z0-9]/.test(pass)) strength += 1
     return strength
   }
-
   const getPasswordStrengthColor = () => {
     const strength = passwordStrength(password)
-    if (strength === 0) return colors.deepRed
-    if (strength === 1) return "#ff9800"
-    if (strength === 2) return "#ffeb3b"
-    if (strength === 3) return colors.emeraldGreen
-    if (strength === 4) return "#1B5E20"
+    if (strength === 0) return stylesPublic.colors.state.error
+    if (strength === 1) return stylesPublic.colors.accent.orange
+    if (strength === 2) return stylesPublic.colors.accent.yellow
+    if (strength === 3) return stylesPublic.colors.secondary.main
+    if (strength === 4) return stylesPublic.colors.secondary.dark
   }
 
   const getPasswordStrengthText = () => {
@@ -235,14 +225,13 @@ const Login = () => {
     if (strength === 3) return "Fuerte"
     if (strength === 4) return "Muy fuerte"
   }
-
   const cssStyles = `
     :root {
-      --huasteca-red: ${colors.deepRed};
-      --huasteca-green: ${colors.emeraldGreen};
-      --huasteca-beige: ${colors.warmBeige};
-      --huasteca-dark: ${colors.darkPurple};
-      --huasteca-pink: ${colors.softPink};
+      --huasteca-red: ${stylesPublic.colors.primary.main};
+      --huasteca-green: ${stylesPublic.colors.secondary.main};
+      --huasteca-beige: ${stylesPublic.colors.background.alt};
+      --huasteca-dark: ${stylesPublic.colors.text.primary};
+      --huasteca-pink: ${stylesPublic.colors.primary.light};
     }
 
     .login-container {
@@ -287,14 +276,12 @@ const Login = () => {
       max-width: 450px;
       margin-left: auto;
       margin-right: 20px;
-    }
-
-    .login-welcome-title {
-      font-size: 2.2rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-      font-family: 'Playfair Display', serif;
+    }    .login-welcome-title {
+      font-size: ${stylesPublic.typography.fontSize.h1};
+      font-weight: ${stylesPublic.typography.fontWeight.bold};
+      margin-bottom: ${stylesPublic.spacing.md};
+      line-height: ${stylesPublic.typography.lineHeight.tight};
+      font-family: ${stylesPublic.typography.fontFamily.heading};
       color: var(--huasteca-beige);
     }
 
@@ -335,20 +322,18 @@ const Login = () => {
       justify-content: center;
       align-items: center;
       padding: 15px;
-    }
-
-    .login-form-wrapper {
+    }    .login-form-wrapper {
       position: relative;
       width: 100%;
       max-width: 450px;
       background: rgba(255, 248, 225, 0.95);
       backdrop-filter: blur(10px);
-      border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      border-radius: ${stylesPublic.borders.radius.xl};
+      box-shadow: ${stylesPublic.shadows.xl};
       overflow: hidden;
-      border: 1px solid rgba(232, 180, 184, 0.3);
-      transition: all 0.3s ease;
-      margin: 20px auto;
+      border: ${stylesPublic.borders.style.accent};
+      transition: ${stylesPublic.transitions.preset.default};
+      margin: ${stylesPublic.spacing.md} auto;
     }
 
     .login-form-slider {
@@ -384,14 +369,12 @@ const Login = () => {
     .login-logo {
       text-align: center;
       margin-bottom: ${isLogin ? "25px" : "15px"};
-    }
-
-    .login-logo-text {
-      font-size: 1.8rem;
-      font-weight: bold;
+    }    .login-logo-text {
+      font-size: ${stylesPublic.typography.fontSize['3xl']};
+      font-weight: ${stylesPublic.typography.fontWeight.bold};
       color: var(--huasteca-red);
       margin: 0;
-      font-family: 'Playfair Display', serif;
+      font-family: ${stylesPublic.typography.fontFamily.heading};
     }
 
     .login-logo-subtext {
@@ -435,18 +418,16 @@ const Login = () => {
       font-size: ${isLogin ? "0.9rem" : "0.8rem"};
       font-weight: 600;
       color: var(--huasteca-green);
-    }
-
-    .login-input {
+    }    .login-input {
       width: 100%;
       background: rgba(255, 128, 144, 0.1);
-      border: 2px solid var(--huasteca-green);
+      border: ${stylesPublic.borders.width.thick} solid var(--huasteca-green);
       outline: none;
       color: var(--huasteca-dark);
       padding: ${isLogin ? "12px 45px 12px 15px" : "10px 40px 10px 12px"};
-      border-radius: 8px;
-      font-size: ${isLogin ? "0.95rem" : "0.85rem"};
-      transition: all 0.3s ease;
+      border-radius: ${stylesPublic.borders.radius.md};
+      font-size: ${isLogin ? stylesPublic.typography.fontSize.md : stylesPublic.typography.fontSize.sm};
+      transition: ${stylesPublic.transitions.preset.default};
     }
 
     .login-input:focus {
@@ -558,22 +539,20 @@ const Login = () => {
     .login-forgot-password:hover {
       color: var(--huasteca-dark);
       text-decoration: underline;
-    }
-
-    .login-button {
+    }    .login-button {
       width: 100%;
       padding: ${isLogin ? "14px" : "12px"};
-      background: linear-gradient(135deg, var(--huasteca-red), var(--huasteca-green));
+      background: ${stylesPublic.colors.background.gradient.cta};
       border: none;
       outline: none;
-      border-radius: 25px;
+      border-radius: ${stylesPublic.borders.radius.button};
       cursor: pointer;
-      font-size: ${isLogin ? "15px" : "13px"};
+      font-size: ${isLogin ? stylesPublic.typography.fontSize.lg : stylesPublic.typography.fontSize.md};
       color: var(--huasteca-beige);
-      font-weight: 600;
-      transition: all 0.3s ease;
-      margin-top: ${isLogin ? "10px" : "8px"};
-      box-shadow: 0 4px 15px rgba(255, 0, 112, 0.3);
+      font-weight: ${stylesPublic.typography.fontWeight.semiBold};
+      transition: ${stylesPublic.transitions.preset.buttonHover};
+      margin-top: ${isLogin ? stylesPublic.spacing.sm : stylesPublic.spacing.xs};
+      box-shadow: ${stylesPublic.shadows.button};
       position: relative;
       overflow: hidden;
     }
@@ -645,26 +624,24 @@ const Login = () => {
       text-decoration: underline;
       cursor: pointer;
       font-weight: 600;
-    }
-
-    .login-alert-success {
+    }    .login-alert-success {
       background-color: rgba(31, 138, 128, 0.2);
-      color: var(--huasteca-green);
+      color: ${stylesPublic.colors.state.success};
       padding: ${isLogin ? "12px 15px" : "10px 12px"};
-      border-radius: 8px;
-      border-left: 3px solid var(--huasteca-green);
-      margin-bottom: ${isLogin ? "20px" : "15px"};
-      font-size: ${isLogin ? "13px" : "12px"};
+      border-radius: ${stylesPublic.borders.radius.md};
+      border-left: ${stylesPublic.borders.width.thicker} solid var(--huasteca-green);
+      margin-bottom: ${isLogin ? stylesPublic.spacing.md : stylesPublic.spacing.sm};
+      font-size: ${isLogin ? stylesPublic.typography.fontSize.sm : stylesPublic.typography.fontSize.xs};
     }
 
     .login-alert-error {
       background-color: rgba(255, 0, 112, 0.2);
-      color: var(--huasteca-red);
+      color: ${stylesPublic.colors.state.error};
       padding: ${isLogin ? "12px 15px" : "10px 12px"};
-      border-radius: 8px;
-      border-left: 3px solid var(--huasteca-red);
-      margin-bottom: ${isLogin ? "20px" : "15px"};
-      font-size: ${isLogin ? "13px" : "12px"};
+      border-radius: ${stylesPublic.borders.radius.md};
+      border-left: ${stylesPublic.borders.width.thicker} solid var(--huasteca-red);
+      margin-bottom: ${isLogin ? stylesPublic.spacing.md : stylesPublic.spacing.sm};
+      font-size: ${isLogin ? stylesPublic.typography.fontSize.sm : stylesPublic.typography.fontSize.xs};
     }
 
     @media (max-width: 1200px) {
@@ -768,15 +745,14 @@ const Login = () => {
       <div
         className="floating-elements"
         style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
-      >
-        <div className="floating-element" style={{ top: "20%", left: "10%", background: colors.deepRed }}></div>
+      >        <div className="floating-element" style={{ top: "20%", left: "10%", background: stylesPublic.colors.primary.main }}></div>
         <div
           className="floating-element"
-          style={{ top: "60%", right: "15%", background: colors.emeraldGreen, animationDelay: "2s" }}
+          style={{ top: "60%", right: "15%", background: stylesPublic.colors.secondary.main, animationDelay: "2s" }}
         ></div>
         <div
           className="floating-element"
-          style={{ bottom: "30%", left: "20%", background: colors.softPink, animationDelay: "4s" }}
+          style={{ bottom: "30%", left: "20%", background: stylesPublic.colors.primary.light, animationDelay: "4s" }}
         ></div>
       </div>
 

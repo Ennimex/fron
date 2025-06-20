@@ -5,6 +5,7 @@ import { closeOutline, chevronBackOutline, chevronForwardOutline, playCircleOutl
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import stylesPublic from '../../styles/stylesPublic';
 
 const Galeria = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -13,20 +14,9 @@ const Galeria = () => {
   const [activeTab, setActiveTab] = useState('fotos');
   const videoRefs = useRef([]);
 
-  // Colores alineados con la paleta de La Aterciopelada
-  const colors = {
-    deepRed: '#ff0070',
-    emeraldGreen: '#1f8a80',
-    warmBeige: '#F5E8C7',
-    vibrantYellow: '#FFC107',
-    darkGrey: '#4A4A4A',
-    softPink: '#ff8090',
-    darkPurple: '#23102d'
-  };
-
   const styles = {
     pageContainer: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
       minHeight: '100vh',
       paddingTop: '30px',
       paddingBottom: '60px',
@@ -38,15 +28,15 @@ const Galeria = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
       zIndex: 1,
       pointerEvents: 'none',
     },
     hero: {
-      backgroundImage: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
+      backgroundImage: stylesPublic.colors.background.gradient.accent,
       padding: '80px 0',
-      color: colors.warmBeige,
+      color: stylesPublic.colors.background.alt,
       marginBottom: '50px',
       position: 'relative',
       overflow: 'hidden',
@@ -58,123 +48,110 @@ const Galeria = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      parliamentary: `radial-gradient(${colors.warmBeige} 1px, transparent 1px)`,
+      parliamentary: `radial-gradient(${stylesPublic.colors.background.alt} 1px, transparent 1px)`,
       backgroundSize: '20px 20px',
       opacity: 0.1,
     },
     sectionTitle: {
-      fontFamily: "'Playfair Display', serif",
-      fontSize: "clamp(2rem, 4vw, 2.8rem)",
-      fontWeight: 600,
-      color: colors.darkPurple,
-      marginBottom: "1.5rem",
+      fontFamily: stylesPublic.typography.fontFamily.heading,
+      fontSize: stylesPublic.typography.fontSize.h2,
+      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      color: stylesPublic.colors.text.primary,
+      marginBottom: stylesPublic.spacing.md,
       position: "relative",
       textAlign: "center"
     },
     titleUnderline: {
-      display: "block",
-      width: "60px",
-      height: "2px",
-      background: `linear-gradient(90deg, ${colors.deepRed}, ${colors.emeraldGreen})`,
-      borderRadius: "1px",
-      margin: "15px auto",
+      ...stylesPublic.elements.decorative.underline,
     },
     contentGrid: {
       display: 'grid',
       gridTemplateColumns: '1fr',
-      gap: '50px',
-      padding: '0 20px',
+      gap: stylesPublic.spacing['2xl'],
+      padding: `0 ${stylesPublic.spacing.md}`,
     },
     eventsSection: {
       width: '100%',
-      backgroundColor: 'white',
-      borderRadius: '15px',
-      padding: '30px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-      border: `1px solid ${colors.softPink}`,
+      backgroundColor: stylesPublic.colors.background.main,
+      borderRadius: stylesPublic.borders.radius.lg,
+      padding: stylesPublic.spacing.xl,
+      boxShadow: stylesPublic.shadows.md,
+      border: `1px solid ${stylesPublic.colors.primary.light}`,
     },
     eventsTitle: {
-      fontSize: '28px',
-      fontWeight: 700,
-      color: colors.deepRed,
+      fontSize: stylesPublic.typography.fontSize['2xl'],
+      fontWeight: stylesPublic.typography.fontWeight.bold,
+      color: stylesPublic.colors.primary.main,
       textAlign: 'center',
-      marginBottom: '20px',
+      marginBottom: stylesPublic.spacing.md,
     },
     eventsTable: {
-      backgroundColor: '#FFFFFF',
-      borderRadius: '12px',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-      border: `1px solid ${colors.emeraldGreen}`,
+      backgroundColor: stylesPublic.colors.background.main,
+      borderRadius: stylesPublic.borders.radius.md,
+      boxShadow: stylesPublic.shadows.md,
+      border: `1px solid ${stylesPublic.colors.secondary.main}`,
       overflow: 'hidden',
-      fontSize: '14px',
+      fontSize: stylesPublic.typography.fontSize.sm,
     },
     tableHeader: {
-      background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
-      color: colors.warmBeige,
-      fontWeight: 600,
-      padding: '12px',
+      background: stylesPublic.colors.background.gradient.accent,
+      color: stylesPublic.colors.background.alt,
+      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      padding: stylesPublic.spacing.md,
     },
     tableCell: {
-      padding: '12px',
-      borderBottom: `1px solid ${colors.warmBeige}`,
+      padding: stylesPublic.spacing.md,
+      borderBottom: `1px solid ${stylesPublic.colors.background.alt}`,
       verticalAlign: 'middle',
     },
     galleryGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-      gap: '20px',
-      marginTop: '30px'
+      gap: stylesPublic.spacing.md,
+      marginTop: stylesPublic.spacing.xl
     },
     reelsCarousel: {
-      marginTop: '30px',
-      padding: '0 15px',
+      marginTop: stylesPublic.spacing.xl,
+      padding: `0 ${stylesPublic.spacing.md}`,
       position: 'relative',
     },
     galleryItem: {
       position: 'relative',
       overflow: 'hidden',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
+      borderRadius: stylesPublic.borders.radius.card,
+      boxShadow: stylesPublic.shadows.card,
       cursor: 'pointer',
       height: '350px',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-      '&:hover': {
-        transform: 'translateY(-5px)',
-        boxShadow: '0 12px 20px rgba(255, 0, 112, 0.3)'
-      }
+      transition: stylesPublic.transitions.preset.bounce,
     },
     reelItem: {
       position: 'relative',
       overflow: 'hidden',
-      borderRadius: '12px',
-      boxShadow: '0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15)',
+      borderRadius: stylesPublic.borders.radius.card,
+      boxShadow: stylesPublic.shadows.card,
       cursor: 'pointer',
       aspectRatio: '9/16',
       height: '450px',
-      margin: '0 10px',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-      '&:hover': {
-        transform: 'scale(1.05)',
-        boxShadow: '0 12px 20px rgba(255, 0, 112, 0.3)'
-      }
+      margin: `0 ${stylesPublic.spacing.sm}`,
+      transition: stylesPublic.transitions.preset.bounce,
     },
     galleryImage: {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      transition: 'transform 0.5s ease'
+      transition: `transform ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut}`
     },
     reelVideo: {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      borderRadius: '12px',
+      borderRadius: stylesPublic.borders.radius.card,
     },
     reelThumbnail: {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      borderRadius: '12px',
+      borderRadius: stylesPublic.borders.radius.card,
     },
     playIcon: {
       position: 'absolute',
@@ -183,11 +160,8 @@ const Galeria = () => {
       transform: 'translate(-50%, -50%)',
       fontSize: '60px',
       color: 'rgba(255, 255, 255, 0.9)',
-      zIndex: 2,
-      transition: 'opacity 0.3s ease',
-      '&:hover': {
-        opacity: 0.7
-      }
+      zIndex: stylesPublic.utils.zIndex.raised,
+      transition: `opacity ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
     },
     captionOverlay: {
       position: 'absolute',
@@ -196,7 +170,7 @@ const Galeria = () => {
       right: 0,
       background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
       color: 'white',
-      padding: '15px',
+      padding: stylesPublic.spacing.md,
       textAlign: 'center'
     },
     lightbox: {
@@ -209,8 +183,8 @@ const Galeria = () => {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 1000,
-      padding: '20px',
+      zIndex: stylesPublic.utils.zIndex.modal,
+      padding: stylesPublic.spacing.md,
     },
     lightboxImageWrapper: {
       position: 'relative',
@@ -228,7 +202,7 @@ const Galeria = () => {
       maxWidth: '100%',
       maxHeight: '80vh',
       objectFit: 'contain',
-      borderRadius: '8px',
+      borderRadius: stylesPublic.borders.radius.md,
       boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
     },
     lightboxVideo: {
@@ -236,17 +210,17 @@ const Galeria = () => {
       maxWidth: '90vw',
       height: '450px',
       maxHeight: '90vh',
-      borderRadius: '8px'
+      borderRadius: stylesPublic.borders.radius.md
     },
     lightboxCaption: {
       position: 'absolute',
       bottom: '30px',
-      color: colors.warmBeige,
-      fontSize: '18px',
+      color: stylesPublic.colors.background.alt,
+      fontSize: stylesPublic.typography.fontSize.lg,
       textAlign: 'center',
       background: 'rgba(0, 0, 0, 0.5)',
-      padding: '10px 20px',
-      borderRadius: '8px',
+      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
+      borderRadius: stylesPublic.borders.radius.md,
       left: '50%',
       transform: 'translateX(-50%)',
       width: '80%'
@@ -255,8 +229,8 @@ const Galeria = () => {
       position: 'absolute',
       top: '20px',
       right: '20px',
-      backgroundColor: colors.deepRed,
-      color: colors.warmBeige,
+      backgroundColor: stylesPublic.colors.primary.main,
+      color: stylesPublic.colors.background.alt,
       border: 'none',
       borderRadius: '50%',
       width: '40px',
@@ -265,18 +239,15 @@ const Galeria = () => {
       justifyContent: 'center',
       alignItems: 'center',
       cursor: 'pointer',
-      transition: 'background 0.3s ease',
-      zIndex: 1001,
-      '&:hover': {
-        backgroundColor: colors.emeraldGreen
-      }
+      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      zIndex: stylesPublic.utils.zIndex.popover,
     },
     navButton: {
       position: 'fixed',
       top: '50%',
       transform: 'translateY(-50%)',
-      backgroundColor: colors.deepRed,
-      color: colors.warmBeige,
+      backgroundColor: stylesPublic.colors.primary.main,
+      color: stylesPublic.colors.background.alt,
       border: 'none',
       borderRadius: '50%',
       width: '50px',
@@ -285,46 +256,36 @@ const Galeria = () => {
       justifyContent: 'center',
       alignItems: 'center',
       cursor: 'pointer',
-      transition: 'background 0.3s ease',
-      zIndex: 1001,
-      '&:hover': {
-        backgroundColor: colors.emeraldGreen
-      }
+      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      zIndex: stylesPublic.utils.zIndex.popover,
     },
     tabButtons: {
       display: 'flex',
       justifyContent: 'center',
-      marginBottom: '30px',
-      gap: '15px'
+      marginBottom: stylesPublic.spacing.xl,
+      gap: stylesPublic.spacing.md
     },
     tabButton: {
-      padding: '10px 25px',
-      borderRadius: '30px',
+      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.lg}`,
+      borderRadius: stylesPublic.borders.radius.button,
       border: 'none',
       background: 'transparent',
-      color: colors.darkPurple,
-      fontWeight: '600',
+      color: stylesPublic.colors.text.primary,
+      fontWeight: stylesPublic.typography.fontWeight.semiBold,
       cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      '&.active': {
-        background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`,
-        color: 'white'
-      }
+      transition: stylesPublic.transitions.preset.buttonHover,
     },
     carouselArrow: {
-      backgroundColor: colors.deepRed,
-      color: colors.warmBeige,
+      backgroundColor: stylesPublic.colors.primary.main,
+      color: stylesPublic.colors.background.alt,
       borderRadius: '50%',
       width: '40px',
       height: '40px',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 10,
-      transition: 'background 0.3s ease',
-      '&:hover': {
-        backgroundColor: colors.emeraldGreen
-      }
+      zIndex: stylesPublic.utils.zIndex.dropdown,
+      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
     }
   };
 
@@ -536,17 +497,17 @@ const Galeria = () => {
         <div style={styles.hero}>
           <div style={styles.heroPattern}></div>
           <Container>
-            <h1 className="display-3 fw-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="display-3 fw-bold mb-4" style={{ fontFamily: stylesPublic.typography.fontFamily.heading }}>
               Galería Artesanal
             </h1>
-            <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px", fontFamily: "'Playfair Display', serif" }}>
+            <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px", fontFamily: stylesPublic.typography.fontFamily.heading }}>
               Descubre la belleza y tradición de nuestras creaciones huastecas
             </p>
           </Container>
         </div>
 
         {/* Sección de Eventos */}
-        <section style={{ marginBottom: '60px' }}>
+        <section style={{ marginBottom: stylesPublic.spacing['3xl'] }}>
           <h2 style={styles.sectionTitle}>Próximos Eventos</h2>
           <div style={styles.titleUnderline}></div>
           
@@ -567,12 +528,12 @@ const Galeria = () => {
                     style={{
                       opacity: animate ? 1 : 0,
                       transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `opacity 0.8s ease ${0.6 + index * 0.1}s, transform 0.8s ease ${0.6 + index * 0.1}s`,
-                      backgroundColor: index % 2 === 0 ? 'white' : colors.warmBeige
+                      transition: `opacity ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${0.6 + index * 0.1}s, transform ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${0.6 + index * 0.1}s`,
+                      backgroundColor: index % 2 === 0 ? stylesPublic.colors.background.main : stylesPublic.colors.background.alt
                     }}
                   >
                     <td style={styles.tableCell}>{event.date}</td>
-                    <td style={{ ...styles.tableCell, fontWeight: '600' }}>{event.name}</td>
+                    <td style={{ ...styles.tableCell, fontWeight: stylesPublic.typography.fontWeight.semiBold }}>{event.name}</td>
                     <td style={styles.tableCell}>{event.location}</td>
                     <td style={styles.tableCell}>{event.description}</td>
                   </tr>
@@ -583,16 +544,28 @@ const Galeria = () => {
         </section>
 
         {/* Pestañas de Galería y Reels */}
-        <section style={{ marginBottom: '60px' }}>
+        <section style={{ marginBottom: stylesPublic.spacing['3xl'] }}>
           <div style={styles.tabButtons}>
             <button 
-              style={{ ...styles.tabButton, ...(activeTab === 'fotos' ? { background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`, color: 'white' } : {}) }}
+              style={{ 
+                ...styles.tabButton, 
+                ...(activeTab === 'fotos' ? { 
+                  background: stylesPublic.colors.background.gradient.accent, 
+                  color: 'white' 
+                } : {}) 
+              }}
               onClick={() => setActiveTab('fotos')}
             >
               Galería
             </button>
             <button 
-              style={{ ...styles.tabButton, ...(activeTab === 'videos' ? { background: `linear-gradient(135deg, ${colors.deepRed} 0%, ${colors.emeraldGreen} 100%)`, color: 'white' } : {}) }}
+              style={{ 
+                ...styles.tabButton, 
+                ...(activeTab === 'videos' ? { 
+                  background: stylesPublic.colors.background.gradient.accent, 
+                  color: 'white' 
+                } : {}) 
+              }}
               onClick={() => setActiveTab('videos')}
             >
               Reels
@@ -603,19 +576,32 @@ const Galeria = () => {
             <>
               <h2 style={styles.sectionTitle}>Nuestros Productos</h2>
               <div style={styles.titleUnderline}></div>
-              <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+              <p className="text-center" style={{ 
+                fontSize: stylesPublic.typography.fontSize.lg, 
+                fontWeight: stylesPublic.typography.fontWeight.light, 
+                color: stylesPublic.colors.text.secondary, 
+                maxWidth: "800px", 
+                margin: `0 auto ${stylesPublic.spacing.xl}`, 
+                letterSpacing: stylesPublic.typography.letterSpacing.wide 
+              }}>
                 Cada pieza cuenta una historia de tradición y artesanía
               </p>
-              
-              <div style={styles.galleryGrid}>
-                {images.map((image, index) => (
-                  <div
+                <div style={styles.galleryGrid}>
+                {images.map((image, index) => (                  <div
                     key={image.id}
                     style={{
                       ...styles.galleryItem,
                       opacity: animate ? 1 : 0,
                       transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `all 0.8s ease ${index * 0.1}s`
+                      transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.1}s`,
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-10px)';
+                      e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
                     }}
                     onClick={() => openLightbox(image)}
                   >
@@ -625,7 +611,10 @@ const Galeria = () => {
                       style={styles.galleryImage}
                     />
                     <div style={styles.captionOverlay}>
-                      <p style={{ margin: 0, fontWeight: '500' }}>{image.caption}</p>
+                      <p style={{ 
+                        margin: 0, 
+                        fontWeight: stylesPublic.typography.fontWeight.medium 
+                      }}>{image.caption}</p>
                     </div>
                   </div>
                 ))}
@@ -635,22 +624,36 @@ const Galeria = () => {
             <>
               <h2 style={styles.sectionTitle}>Reels Artesanales</h2>
               <div style={styles.titleUnderline}></div>
-              <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: colors.darkGrey, maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+              <p className="text-center" style={{ 
+                fontSize: stylesPublic.typography.fontSize.lg, 
+                fontWeight: stylesPublic.typography.fontWeight.light, 
+                color: stylesPublic.colors.text.secondary, 
+                maxWidth: "800px", 
+                margin: `0 auto ${stylesPublic.spacing.xl}`, 
+                letterSpacing: stylesPublic.typography.letterSpacing.wide 
+              }}>
                 Descubre el proceso detrás de cada creación
               </p>
               
               <div style={styles.reelsCarousel}>
                 <Slider {...sliderSettings}>
                   {reels.map((reel, index) => (
-                    <div key={reel.id}>
-                      <Card
+                    <div key={reel.id}>                      <Card
                         style={{
                           ...styles.reelItem,
                           opacity: animate ? 1 : 0,
                           transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                          transition: `all 0.8s ease ${index * 0.1}s`,
+                          transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.1}s`,
                           padding: 0,
                           border: 'none'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
                         }}
                         onClick={() => openVideo(reel)}
                         onMouseEnter={() => handleVideoHover(index, true)}
@@ -674,16 +677,16 @@ const Galeria = () => {
                             left: 0,
                             right: 0,
                             background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3), transparent)',
-                            padding: '20px',
+                            padding: stylesPublic.spacing.md,
                             color: 'white'
                           }}>
                             <Card.Title style={{ 
-                              fontSize: '1.1rem',
-                              fontWeight: '600',
-                              marginBottom: '8px'
+                              fontSize: stylesPublic.typography.fontSize.lg,
+                              fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                              marginBottom: stylesPublic.spacing.xs
                             }}>{reel.title}</Card.Title>
                             <Card.Text style={{
-                              fontSize: '0.9rem',
+                              fontSize: stylesPublic.typography.fontSize.sm,
                               opacity: '0.9'
                             }}>{reel.description}</Card.Text>
                           </Card.Body>
@@ -709,7 +712,12 @@ const Galeria = () => {
           </button>
           
           <div style={styles.lightboxImageWrapper}>
-            <button style={styles.closeButton} onClick={closeLightbox}>
+            <button 
+              style={styles.closeButton} 
+              onClick={closeLightbox}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
+            >
               <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
             </button>
             <img
@@ -723,6 +731,8 @@ const Galeria = () => {
           <button
             style={{ ...styles.navButton, right: '20px' }}
             onClick={() => navigateMedia('next')}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
           >
             <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
           </button>
@@ -735,12 +745,19 @@ const Galeria = () => {
           <button
             style={{ ...styles.navButton, left: '20px' }}
             onClick={() => navigateMedia('prev')}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
           >
             <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
           </button>
           
           <div style={styles.lightboxImageWrapper}>
-            <button style={styles.closeButton} onClick={closeLightbox}>
+            <button 
+              style={styles.closeButton} 
+              onClick={closeLightbox}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
+            >
               <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
             </button>
             <div style={styles.lightboxContent}>
@@ -764,6 +781,8 @@ const Galeria = () => {
           <button
             style={{ ...styles.navButton, right: '20px' }}
             onClick={() => navigateMedia('next')}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
           >
             <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
           </button>

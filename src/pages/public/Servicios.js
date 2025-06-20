@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import stylesPublic from '../../styles/stylesPublic';
 
 const Servicios = () => {
   const navigate = useNavigate();
@@ -32,11 +33,10 @@ const Servicios = () => {
     artesanos: "👐",
     exclusividad: "✨",
   }), []);
-
   // Estilos consistentes con Inicio.js
   const customStyles = {
     heroSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
       height: "60vh",
       display: "flex",
       alignItems: "center",
@@ -45,81 +45,44 @@ const Servicios = () => {
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
       transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: "all 1.2s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
     },
     heroOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      ...stylesPublic.utils.overlay.standard,
+      background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-      zIndex: 1,
     },
     section: {
-      padding: "6rem 2rem",
-      maxWidth: "1400px",
-      margin: "0 auto",
+      padding: stylesPublic.spacing.section.large,
+      maxWidth: stylesPublic.utils.container.maxWidth,
+      margin: stylesPublic.spacing.margin.auto,
       position: "relative",
     },
     serviciosSection: {
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      background: stylesPublic.colors.background.gradient.secondary,
       opacity: isVisible.servicios ? 1 : 0,
       transform: isVisible.servicios ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     beneficiosSection: {
-      background: `linear-gradient(135deg, #FFB199 0%, #F58DAD 100%)`, // Colores más intensos
+      background: `linear-gradient(135deg, #FFB199 0%, #F58DAD 100%)`,
       opacity: isVisible.beneficios ? 1 : 0,
       transform: isVisible.beneficios ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     ctaSection: {
-      background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
+      background: stylesPublic.colors.background.gradient.accent,
       opacity: isVisible.cta ? 1 : 0,
       transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
       position: "relative",
     },
-    titleUnderline: {
-      display: "block",
-      width: "60px",
-      height: "2px",
-      background: `linear-gradient(90deg, #ff0070, #1f8a80)`,
-      borderRadius: "1px",
-      margin: "15px auto",
-    },
-    pinkButton: {
-      backgroundColor: '#ff4060',
-      borderColor: '#ff4060',
-      color: '#ffffff',
-      borderRadius: "30px",
-      padding: "12px 30px",
-      fontWeight: "500",
-      fontSize: "1.1rem",
-    },
-    serviceCard: {
-      background: "#ffffff",
-      borderRadius: "12px",
-      padding: "2.5rem 2rem",
-      textAlign: "center",
-      boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
-      transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      border: "1px solid rgba(232, 180, 184, 0.15)",
-      height: "100%",
-    },
+    titleUnderline: stylesPublic.elements.decorative.underline,
+    pinkButton: stylesPublic.elements.buttons.primary,
+    serviceCard: stylesPublic.elements.cards.default,
     benefitIcon: {
-      width: "70px",
-      height: "70px",
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
+      ...stylesPublic.elements.decorative.circle,
       fontSize: "1.8rem",
-      color: "#ffffff",
-      boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
-      margin: "0 auto 1.5rem",
     },
   };
 
@@ -178,7 +141,6 @@ const Servicios = () => {
       color: "linear-gradient(135deg, #8840b8, #23102d)",
     },
   ], []);
-
   // Renderizado de cards de servicios
   const renderServiceCards = useCallback(() => {
     return serviciosData.map((servicio, idx) => (
@@ -187,29 +149,47 @@ const Servicios = () => {
           className="service-card h-100 shadow" 
           style={{ 
             ...customStyles.serviceCard,
-            transform: hoveredService === servicio.id ? "translateY(-10px)" : "translateY(0)",
-            borderLeft: `3px solid ${idx === 0 ? "#ff0070" : idx === 1 ? "#1f8a80" : idx === 2 ? "#ff1030" : "#8840b8"}`,
+            transform: hoveredService === servicio.id ? stylesPublic.elements.cards.hover.transform : "translateY(0)",
+            borderLeft: `${stylesPublic.borders.width.thick} solid ${
+              idx === 0 ? stylesPublic.colors.primary.main : 
+              idx === 1 ? stylesPublic.colors.secondary.main : 
+              idx === 2 ? stylesPublic.colors.accent.orange : 
+              stylesPublic.colors.accent.purple
+            }`,
           }}
           onMouseEnter={() => setHoveredService(servicio.id)}
           onMouseLeave={() => setHoveredService(null)}
         >
-          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>
+          <div style={{ 
+            fontSize: stylesPublic.typography.fontSize["2xl"], 
+            marginBottom: stylesPublic.spacing.md 
+          }}>
             {ServiceIcons[servicio.id]}
           </div>
           <Card.Body>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+            <h3 style={{ 
+              fontFamily: stylesPublic.typography.fontFamily.heading, 
+              fontSize: stylesPublic.typography.fontSize.xl, 
+              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+              color: stylesPublic.colors.text.primary, 
+              marginBottom: stylesPublic.spacing.md 
+            }}>
               {servicio.titulo}
             </h3>
-            <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6 }}>
+            <p style={{ 
+              fontSize: stylesPublic.typography.fontSize.sm, 
+              color: stylesPublic.colors.text.secondary, 
+              lineHeight: stylesPublic.typography.lineHeight.paragraph 
+            }}>
               {servicio.descripcion}
             </p>
             <Button 
               variant="outline-primary" 
               style={{ 
-                borderColor: "#ff4060", 
-                color: "#ff4060",
-                borderRadius: "20px",
-                marginTop: "1rem",
+                borderColor: stylesPublic.colors.primary.main, 
+                color: stylesPublic.colors.primary.main,
+                borderRadius: stylesPublic.borders.radius.button,
+                marginTop: stylesPublic.spacing.md,
               }}
               onClick={() => navigate(`/servicios/${servicio.id}`)}
             >
@@ -220,7 +200,6 @@ const Servicios = () => {
       </Col>
     ));
   }, [serviciosData, hoveredService, navigate, ServiceIcons, customStyles.serviceCard]);
-
   // Renderizado de beneficios
   const renderBenefitCards = useCallback(() => {
     return beneficiosData.map((beneficio, idx) => (
@@ -228,21 +207,31 @@ const Servicios = () => {
         <Card 
           className="h-100 shadow" 
           style={{ 
-            background: "#ffffff", 
-            borderRadius: "12px", 
-            padding: "2rem 1.5rem",
+            ...stylesPublic.elements.cards.default,
             textAlign: "center",
-            transition: "all 0.3s ease",
           }}
         >
-          <div style={{ ...customStyles.benefitIcon, background: beneficio.color }}>
+          <div style={{ 
+            ...customStyles.benefitIcon, 
+            background: beneficio.color 
+          }}>
             {ServiceIcons[beneficio.id]}
           </div>
           <Card.Body>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+            <h3 style={{ 
+              fontFamily: stylesPublic.typography.fontFamily.heading, 
+              fontSize: stylesPublic.typography.fontSize.lg, 
+              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+              color: stylesPublic.colors.text.primary, 
+              marginBottom: stylesPublic.spacing.md 
+            }}>
               {beneficio.titulo}
             </h3>
-            <p style={{ fontSize: "0.9rem", color: "#403a3c", lineHeight: 1.6 }}>
+            <p style={{ 
+              fontSize: stylesPublic.typography.fontSize.sm, 
+              color: stylesPublic.colors.text.secondary, 
+              lineHeight: stylesPublic.typography.lineHeight.paragraph 
+            }}>
               {beneficio.descripcion}
             </p>
           </Card.Body>
@@ -252,66 +241,141 @@ const Servicios = () => {
   }, [beneficiosData, ServiceIcons, customStyles.benefitIcon]);
 
   return (
-    <>
-      {/* Hero Section */}
+    <>      {/* Hero Section */}
       <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
-        <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
-          <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
+        <Container style={{ 
+          position: "relative", 
+          zIndex: stylesPublic.utils.zIndex.raised, 
+          maxWidth: "900px", 
+          padding: stylesPublic.spacing.section.medium 
+        }}>
+          <h1 className="animate-in" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: "clamp(3rem, 6vw, 5rem)", 
+            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg, 
+            letterSpacing: stylesPublic.typography.letterSpacing.tight, 
+            lineHeight: stylesPublic.typography.lineHeight.tight, 
+            animationDelay: "0.3s" 
+          }}>
             Servicios Exclusivos
           </h1>
-          <div className="animate-in" style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #ff0070, #1f8a80, transparent)", margin: "0 auto 2rem", animationDelay: "0.9s" }}></div>
-          <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>
+          <div className="animate-in" style={{ 
+            width: "80px", 
+            height: "2px", 
+            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main}, transparent)`, 
+            margin: "0 auto 2rem", 
+            animationDelay: "0.9s" 
+          }}></div>
+          <p className="animate-in" style={{ 
+            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            marginBottom: stylesPublic.spacing["3xl"], 
+            letterSpacing: stylesPublic.typography.letterSpacing.wide, 
+            animationDelay: "0.6s" 
+          }}>
             Descubre nuestros servicios artesanales que celebran la tradición huasteca
           </p>
-          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "1.2s" }} onClick={() => navigate("/contacto")}>
+          <Button className="animate-in" style={{ 
+            ...customStyles.pinkButton, 
+            animationDelay: "1.2s" 
+          }} onClick={() => navigate("/contacto")}>
             Contáctanos
           </Button>
         </Container>
-      </section>
-
-      {/* Servicios Section */}
+      </section>      {/* Servicios Section */}
       <section style={customStyles.serviciosSection}>
         <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem" }}>
+          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Nuestros Servicios
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem" }}>
+          <p className="text-center" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+          }}>
             Ofrecemos una experiencia única en diseño y confección de moda huasteca
           </p>
           <Row className="g-4">
             {renderServiceCards()}
           </Row>
         </Container>
-      </section>
-
-      {/* Beneficios Section */}
+      </section>      {/* Beneficios Section */}
       <section style={customStyles.beneficiosSection}>
         <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", marginBottom: "1.5rem" }}>
+          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: "#ffffff", 
+            textShadow: stylesPublic.shadows.sm, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Beneficios Exclusivos
-            <span style={{ ...customStyles.titleUnderline, background: "#ffffff" }}></span>
+            <span style={{ 
+              ...customStyles.titleUnderline, 
+              background: "#ffffff" 
+            }}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem" }}>
+          <p className="text-center" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: "#ffffff", 
+            textShadow: stylesPublic.shadows.sm, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+          }}>
             Razones para elegir los servicios de La Aterciopelada
           </p>
           <Row className="g-4">
             {renderBenefitCards()}
           </Row>
         </Container>
-      </section>
-
-      {/* CTA Section */}
+      </section>      {/* CTA Section */}
       <section style={customStyles.ctaSection}>
-        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
-          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
+        <Container style={{ 
+          ...customStyles.section, 
+          position: "relative", 
+          zIndex: stylesPublic.utils.zIndex.raised, 
+          textAlign: "center" 
+        }}>
+          <h2 className="animate-in" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: "#ffffff", 
+            marginBottom: stylesPublic.spacing.md, 
+            animationDelay: "0.3s" 
+          }}>
             ¿Listo para vivir la experiencia Aterciopelada?
           </h2>
-          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
+          <p className="animate-in" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: "#ffffff", 
+            opacity: 0.75, 
+            maxWidth: "700px", 
+            margin: `0 auto ${stylesPublic.spacing.xl}`, 
+            animationDelay: "0.5s" 
+          }}>
             Agenda una cita con nuestros diseñadores y descubre cómo podemos crear piezas únicas para ti
           </p>
-          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/contacto")}>
+          <Button className="animate-in" style={{ 
+            ...customStyles.pinkButton, 
+            animationDelay: "0.7s" 
+          }} onClick={() => navigate("/contacto")}>
             Agendar cita
           </Button>
         </Container>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Image, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import stylesPublic from '../../styles/stylesPublic';
 
 const Nosotros = () => {
   const navigate = useNavigate();
@@ -56,10 +57,9 @@ const Nosotros = () => {
     { año: "2015", evento: "Reconocimiento por la UNESCO como patrimonio cultural" },
     { año: "2020", evento: "Lanzamiento de la plataforma digital" },
   ];
-
   const customStyles = {
     heroSection: {
-      background: `linear-gradient(135deg, #fffffc 0%, #ff8090 30%, rgba(31, 138, 128, 0.25) 60%, #fffffc 100%)`,
+      background: stylesPublic.colors.background.gradient.primary,
       height: "60vh",
       display: "flex",
       alignItems: "center",
@@ -68,111 +68,72 @@ const Nosotros = () => {
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
       transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: "all 1.2s ease-out",
+      transition: stylesPublic.transitions.preset.pageIn,
     },
     heroOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="1.5" fill="%23ff0070" opacity="0.45"/><circle cx="35" cy="25" r="1" fill="%231f8a80" opacity="0.4"/><circle cx="25" cy="35" r="1.2" fill="%23ff1030" opacity="0.42"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      ...stylesPublic.utils.overlay.standard,
+      background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-      zIndex: 1,
     },
     section: {
-      padding: "6rem 2rem",
-      maxWidth: "1400px",
-      margin: "0 auto",
+      padding: stylesPublic.spacing.section.large,
+      maxWidth: stylesPublic.utils.container.maxWidth,
+      margin: stylesPublic.spacing.margin.auto,
       position: "relative",
     },
     historiaSection: {
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      background: stylesPublic.colors.background.gradient.secondary,
       opacity: isVisible.historia ? 1 : 0,
       transform: isVisible.historia ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
-    },
-    misionSection: {
+      transition: stylesPublic.transitions.preset.default,
+    },    misionSection: {
       background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
       opacity: isVisible.mision ? 1 : 0,
       transform: isVisible.mision ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     equipoSection: {
-      background: `linear-gradient(to bottom, #F5E8C7, #FFF8E1)`,
+      background: stylesPublic.colors.background.gradient.secondary,
       opacity: isVisible.equipo ? 1 : 0,
       transform: isVisible.equipo ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     valoresSection: {
       background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
       opacity: isVisible.valores ? 1 : 0,
       transform: isVisible.valores ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
     },
     ctaSection: {
-      background: `linear-gradient(135deg, #ff8090 0%, #1f8a80 100%)`,
+      background: stylesPublic.colors.background.gradient.accent,
       opacity: isVisible.cta ? 1 : 0,
       transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease-out",
+      transition: stylesPublic.transitions.preset.default,
       position: "relative",
     },
-    titleUnderline: {
-      display: "block",
-      width: "60px",
-      height: "2px",
-      background: `linear-gradient(90deg, #ff0070, #1f8a80)`,
-      borderRadius: "1px",
-      margin: "15px auto",
-    },
+    titleUnderline: stylesPublic.elements.decorative.underline,
     whiteUnderline: {
       background: `#ffffff`,
-      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+      boxShadow: stylesPublic.shadows.sm,
     },
-    pinkButton: {
-      backgroundColor: '#ff4060',
-      borderColor: '#ff4060',
-      color: '#ffffff',
-      borderRadius: "30px",
-      padding: "12px 30px",
-      fontWeight: "500",
-      fontSize: "1.1rem",
-    },
-    card: {
-      background: "#ffffff",
-      borderRadius: "12px",
-      padding: "2.5rem 2rem",
-      textAlign: "center",
-      boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
-      transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-      border: "1px solid rgba(232, 180, 184, 0.15)",
-      height: "100%",
-    },
+    pinkButton: stylesPublic.elements.buttons.primary,    card: stylesPublic.elements.cards.default,
     teamImage: {
       width: "150px",
       height: "150px",
       borderRadius: "50%",
       objectFit: "cover",
-      border: "3px solid #ff4060",
-      margin: "0 auto 1.5rem",
+      border: `3px solid ${stylesPublic.colors.primary.main}`,
+      margin: `0 auto ${stylesPublic.spacing.lg}`,
     },
     valueIcon: {
-      width: "70px",
-      height: "70px",
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
+      ...stylesPublic.elements.decorative.circle,
       fontSize: "1.8rem",
-      color: "#ffffff",
-      boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
-      margin: "0 auto 1.5rem",
     },
     timelineItem: {
       position: "relative",
-      paddingLeft: "30px",
-      marginBottom: "30px",
-      borderLeft: "3px solid #ff4060",
+      paddingLeft: stylesPublic.spacing.xl,
+      marginBottom: stylesPublic.spacing.xl,
+      borderLeft: `${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.main}`,
     },
   };
 
@@ -180,13 +141,34 @@ const Nosotros = () => {
     <>
       {/* Hero Section */}
       <section style={customStyles.heroSection}>
-        <div style={customStyles.heroOverlay}></div>
-        <Container style={{ position: "relative", zIndex: 2, maxWidth: "900px", padding: "4rem 2rem" }}>
-          <h1 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(3rem, 6vw, 5rem)", fontWeight: 700, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.02em", lineHeight: 1.1, animationDelay: "0.3s" }}>
+        <div style={customStyles.heroOverlay}></div>        <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, maxWidth: "900px", padding: stylesPublic.spacing.section.medium }}>
+          <h1 className="animate-in" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h1, 
+            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg, 
+            letterSpacing: stylesPublic.typography.letterSpacing.tight, 
+            lineHeight: stylesPublic.typography.lineHeight.tight, 
+            animationDelay: "0.3s" 
+          }}>
             Nosotros
           </h1>
-          <div className="animate-in" style={{ width: "80px", height: "2px", background: "linear-gradient(90deg, #ff0070, #1f8a80, transparent)", margin: "0 auto 2rem", animationDelay: "0.9s" }}></div>
-          <p className="animate-in" style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", fontWeight: 300, color: "#403a3c", marginBottom: "3rem", letterSpacing: "0.5px", animationDelay: "0.6s" }}>
+          <div className="animate-in" style={{ 
+            width: "80px", 
+            height: "2px", 
+            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main}, transparent)`, 
+            margin: "0 auto 2rem", 
+            animationDelay: "0.9s" 
+          }}></div>
+          <p className="animate-in" style={{ 
+            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            marginBottom: stylesPublic.spacing["3xl"], 
+            letterSpacing: stylesPublic.typography.letterSpacing.wide, 
+            animationDelay: "0.6s" 
+          }}>
             Nuestra historia, valores y pasión por la artesanía huasteca
           </p>
         </Container>
@@ -204,19 +186,33 @@ const Nosotros = () => {
                 style={{ borderRadius: "12px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
               />
             </Col>
-            <Col md={6}>
-              <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem" }}>
+            <Col md={6}>              <h2 className="text-center" style={{ 
+                fontFamily: stylesPublic.typography.fontFamily.heading, 
+                fontSize: stylesPublic.typography.fontSize.h2, 
+                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                color: stylesPublic.colors.text.primary, 
+                marginBottom: stylesPublic.spacing.lg 
+              }}>
                 Nuestra Historia
                 <span style={customStyles.titleUnderline}></span>
               </h2>
               
               <div style={{ marginTop: "2rem" }}>
-                {historia.map((item, idx) => (
-                  <div key={idx} style={customStyles.timelineItem}>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "0.5rem" }}>
+                {historia.map((item, idx) => (                <div key={idx} style={customStyles.timelineItem}>
+                    <h3 style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.heading, 
+                      fontSize: stylesPublic.typography.fontSize.xl, 
+                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      color: stylesPublic.colors.text.primary, 
+                      marginBottom: stylesPublic.spacing.xs 
+                    }}>
                       {item.año}
                     </h3>
-                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                    }}>
                       {item.evento}
                     </p>
                   </div>
@@ -229,8 +225,14 @@ const Nosotros = () => {
 
       {/* Misión Section */}
       <section style={customStyles.misionSection}>
-        <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", marginBottom: "1.5rem" }}>
+        <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: "#ffffff", 
+            textShadow: stylesPublic.shadows.sm, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Nuestra Misión
             <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
           </h2>
@@ -238,11 +240,20 @@ const Nosotros = () => {
           <Row className="g-4">
             <Col md={4}>
               <Card className="h-100" style={customStyles.card}>
-                <Card.Body>
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                <Card.Body>                  <h3 style={{ 
+                    fontFamily: stylesPublic.typography.fontFamily.heading, 
+                    fontSize: stylesPublic.typography.fontSize.xl, 
+                    fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                    color: stylesPublic.colors.text.primary, 
+                    marginBottom: stylesPublic.spacing.md 
+                  }}>
                     Misión
                   </h3>
-                  <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                  <p style={{ 
+                    fontFamily: stylesPublic.typography.fontFamily.body, 
+                    color: stylesPublic.colors.text.secondary, 
+                    lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                  }}>
                     Preservar y modernizar las técnicas artesanales huastecas, creando piezas únicas que celebren nuestra herencia cultural mientras apoyamos a las comunidades artesanas.
                   </p>
                 </Card.Body>
@@ -250,11 +261,20 @@ const Nosotros = () => {
             </Col>
             <Col md={4}>
               <Card className="h-100" style={customStyles.card}>
-                <Card.Body>
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                <Card.Body>                  <h3 style={{ 
+                    fontFamily: stylesPublic.typography.fontFamily.heading, 
+                    fontSize: stylesPublic.typography.fontSize.xl, 
+                    fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                    color: stylesPublic.colors.text.primary, 
+                    marginBottom: stylesPublic.spacing.md 
+                  }}>
                     Visión
                   </h3>
-                  <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                  <p style={{ 
+                    fontFamily: stylesPublic.typography.fontFamily.body, 
+                    color: stylesPublic.colors.text.secondary, 
+                    lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                  }}>
                     Ser reconocidos como el referente en moda artesanal huasteca, combinando tradición y diseño contemporáneo para llevar nuestra cultura al mundo.
                   </p>
                 </Card.Body>
@@ -262,11 +282,20 @@ const Nosotros = () => {
             </Col>
             <Col md={4}>
               <Card className="h-100" style={customStyles.card}>
-                <Card.Body>
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                <Card.Body>                  <h3 style={{ 
+                    fontFamily: stylesPublic.typography.fontFamily.heading, 
+                    fontSize: stylesPublic.typography.fontSize.xl, 
+                    fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                    color: stylesPublic.colors.text.primary, 
+                    marginBottom: stylesPublic.spacing.md 
+                  }}>
                     Filosofía
                   </h3>
-                  <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                  <p style={{ 
+                    fontFamily: stylesPublic.typography.fontFamily.body, 
+                    color: stylesPublic.colors.text.secondary, 
+                    lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                  }}>
                     Cada puntada cuenta una historia, cada diseño honra una tradición. Creemos en la moda con propósito y el comercio justo como pilares fundamentales.
                   </p>
                 </Card.Body>
@@ -278,12 +307,24 @@ const Nosotros = () => {
 
       {/* Equipo Section */}
       <section style={customStyles.equipoSection}>
-        <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem" }}>
+        <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Nuestro Equipo
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontFamily: "'Roboto', sans-serif", fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem" }}>
+          <p className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.body, 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+          }}>
             Conoce al equipo apasionado que da vida a La Aterciopelada
           </p>
           
@@ -296,14 +337,28 @@ const Nosotros = () => {
                       src={miembro.imagen} 
                       alt={miembro.nombre} 
                       style={customStyles.teamImage}
-                    />
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "0.5rem" }}>
+                    />                    <h3 style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.heading, 
+                      fontSize: stylesPublic.typography.fontSize.xl, 
+                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      color: stylesPublic.colors.text.primary, 
+                      marginBottom: stylesPublic.spacing.xs 
+                    }}>
                       {miembro.nombre}
                     </h3>
-                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#ff4060", fontWeight: "500", marginBottom: "1rem" }}>
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.primary.main, 
+                      fontWeight: stylesPublic.typography.fontWeight.medium, 
+                      marginBottom: stylesPublic.spacing.md 
+                    }}>
                       {miembro.rol}
                     </p>
-                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                    }}>
                       {miembro.bio}
                     </p>
                   </Card.Body>
@@ -316,8 +371,14 @@ const Nosotros = () => {
 
       {/* Valores Section */}
       <section style={customStyles.valoresSection}>
-        <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", marginBottom: "1.5rem" }}>
+        <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: "#ffffff", 
+            textShadow: stylesPublic.shadows.sm, 
+            marginBottom: stylesPublic.spacing.lg 
+          }}>
             Nuestros Valores
             <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
           </h2>
@@ -334,11 +395,20 @@ const Nosotros = () => {
                                   "linear-gradient(135deg, #8840b8, #23102d)"
                     }}>
                       {valor.icon}
-                    </div>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>
+                    </div>                    <h3 style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.heading, 
+                      fontSize: stylesPublic.typography.fontSize.xl, 
+                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      color: stylesPublic.colors.text.primary, 
+                      marginBottom: stylesPublic.spacing.md 
+                    }}>
                       {valor.titulo}
                     </h3>
-                    <p style={{ fontFamily: "'Roboto', sans-serif", color: "#403a3c", lineHeight: 1.6 }}>
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                    }}>
                       {valor.descripcion}
                     </p>
                   </Card.Body>
@@ -351,14 +421,31 @@ const Nosotros = () => {
 
       {/* CTA Section */}
       <section style={customStyles.ctaSection}>
-        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
-          <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
+        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>          <h2 className="animate-in" style={{ 
+            fontFamily: stylesPublic.typography.fontFamily.heading, 
+            fontSize: stylesPublic.typography.fontSize.h2, 
+            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            color: "#ffffff", 
+            marginBottom: stylesPublic.spacing.md, 
+            animationDelay: "0.3s" 
+          }}>
             Únete a Nuestra Comunidad
           </h2>
-          <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
+          <p className="animate-in" style={{ 
+            fontSize: stylesPublic.typography.fontSize.lg, 
+            fontWeight: stylesPublic.typography.fontWeight.light, 
+            color: "#ffffff", 
+            opacity: 0.75, 
+            maxWidth: "700px", 
+            margin: `0 auto ${stylesPublic.spacing.xl}`, 
+            animationDelay: "0.5s" 
+          }}>
             Descubre la belleza de la artesanía huasteca y forma parte de esta tradición
           </p>
-          <Button className="animate-in" style={{ ...customStyles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/contacto")}>
+          <Button className="animate-in" style={{ 
+            ...customStyles.pinkButton, 
+            animationDelay: "0.7s" 
+          }} onClick={() => navigate("/contacto")}>
             Contáctanos
           </Button>
         </Container>
