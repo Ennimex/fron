@@ -4,18 +4,7 @@ import { useNavigate } from "react-router-dom";
 import productos from '../../services/base';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import { 
-  FaMountain, 
-  FaWater, 
-  FaLeaf, 
-  FaTree, 
-  FaUmbrellaBeach, 
-  FaCity, 
-  FaMonument,
-  FaSeedling,
-  FaLandmark,
-  FaMapMarkedAlt
-} from 'react-icons/fa';
+import { FaMountain, FaWater, FaLeaf, FaTree, FaUmbrellaBeach, FaCity, FaMonument, FaSeedling, FaLandmark, FaMapMarkedAlt } from 'react-icons/fa';
 
 const Inicio = () => {
   const navigate = useNavigate();
