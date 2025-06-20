@@ -4,6 +4,18 @@ import { useNavigate } from "react-router-dom";
 import productos from '../../services/base';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
+import { 
+  FaMountain, 
+  FaWater, 
+  FaLeaf, 
+  FaTree, 
+  FaUmbrellaBeach, 
+  FaCity, 
+  FaMonument,
+  FaSeedling,
+  FaLandmark,
+  FaMapMarkedAlt
+} from 'react-icons/fa';
 
 const Inicio = () => {
   const navigate = useNavigate();
@@ -24,6 +36,29 @@ const Inicio = () => {
   const isAuthenticated = user && user.isAuthenticated;
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingLocalidades, setIsLoadingLocalidades] = useState(true);
+
+  // Función para obtener un icono consistente basado en el nombre de la localidad
+  const getLocalidadIcon = (nombre) => {
+    // Hashear el nombre para obtener un valor numérico consistente
+    const hash = nombre.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    
+    // Lista de iconos disponibles con sus colores
+    const iconos = [
+      { icon: <FaMountain size={32} />, color: "linear-gradient(135deg, #ff0070, #ff1030)" },
+      { icon: <FaWater size={32} />, color: "linear-gradient(135deg, #1f8a80, #8840b8)" },
+      { icon: <FaLeaf size={32} />, color: "linear-gradient(135deg, #4CAF50, #8BC34A)" },
+      { icon: <FaTree size={32} />, color: "linear-gradient(135deg, #3E2723, #795548)" },
+      { icon: <FaUmbrellaBeach size={32} />, color: "linear-gradient(135deg, #FF9800, #FFC107)" },
+      { icon: <FaCity size={32} />, color: "linear-gradient(135deg, #607D8B, #9E9E9E)" },
+      { icon: <FaMonument size={32} />, color: "linear-gradient(135deg, #795548, #5D4037)" },
+      { icon: <FaLandmark size={32} />, color: "linear-gradient(135deg, #9C27B0, #673AB7)" },
+      { icon: <FaSeedling size={32} />, color: "linear-gradient(135deg, #2E7D32, #4CAF50)" },
+      { icon: <FaMapMarkedAlt size={32} />, color: "linear-gradient(135deg, #2196F3, #03A9F4)" }
+    ];
+    
+    // Seleccionar un icono basado en el hash (siempre el mismo para la misma localidad)
+    return iconos[hash % iconos.length];
+  };
 
   useEffect(() => {
     // Datos estáticos para fallback de localidades (declarados dentro del useEffect)
@@ -120,7 +155,7 @@ const Inicio = () => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, collections: true })), 1500);
     setTimeout(() => setIsVisible(prev => ({ ...prev, comments: true })), 1700);
     setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 2100);
-  }, []); // Ya no necesitamos incluir regions porque está dentro del useEffect
+  }, []);
 
   const handleSubmitComentario = (e) => {
     e.preventDefault();
@@ -331,7 +366,7 @@ const Inicio = () => {
       boxShadow: "0 8px 24px rgba(232, 180, 184, 0.45)",
     },
     card: {
-      boxShadow: "0 8px 16px rgba(255, 32, 96, 0.3), 0 4px 8px rgba(31, 138, 128, 0.25)",
+      boxShadow: "0 8px 16px rgba(255, 32, 96, 0.3), 0 4px 8px rgba(31, 138, 128, 0.25), 0 2px 4px rgba(44, 35, 41, 0.12)",
       borderLeft: "3px solid #ff2060"
     }
   };
@@ -408,52 +443,50 @@ const Inicio = () => {
             </div>
           ) : localidades.length > 0 ? (
             <Row className="g-4">
-              {localidades.map((localidad, idx) => (
-                <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                  <Card 
-                    className="region-card h-100 shadow" 
-                    style={{ 
-                      background: "#ffffff", 
-                      borderRadius: "12px", 
-                      padding: "2.5rem 2rem", 
-                      textAlign: "center", 
-                      boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
-                      cursor: "pointer"
-                    }}
-                    onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
-                  >
-                    <Card.Body>
-                      <div 
-                        style={{ 
-                          fontSize: "2.5rem", 
-                          marginBottom: "1rem",
-                          width: "70px",
-                          height: "70px",
-                          borderRadius: "50%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : 
-                                    idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : 
-                                    idx === 2 ? "linear-gradient(135deg, #ff1030, #ff0070)" : 
-                                    "linear-gradient(135deg, #8840b8, #23102d)",
-                          color: "#ffffff",
-                          margin: "0 auto 1.5rem",
-                          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15)"
-                        }}
-                      >
-                        {idx === 0 ? "🏞️" : idx === 1 ? "🌄" : idx === 2 ? "🌿" : "🏡"}
-                      </div>
-                      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>
-                        {localidad.nombre}
-                      </h3>
-                      <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>
-                        {localidad.descripcion}
-                      </p>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
+              {localidades.map((localidad, idx) => {
+                const { icon, color } = getLocalidadIcon(localidad.nombre);
+                return (
+                  <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                    <Card 
+                      className="region-card h-100 shadow" 
+                      style={{ 
+                        background: "#ffffff", 
+                        borderRadius: "12px", 
+                        padding: "2.5rem 2rem", 
+                        textAlign: "center", 
+                        boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)",
+                        cursor: "pointer"
+                      }}
+                      onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
+                    >
+                      <Card.Body>
+                        <div 
+                          style={{ 
+                            width: "70px",
+                            height: "70px",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: color,
+                            color: "#ffffff",
+                            margin: "0 auto 1.5rem",
+                            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.15)"
+                          }}
+                        >
+                          {icon}
+                        </div>
+                        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>
+                          {localidad.nombre}
+                        </h3>
+                        <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>
+                          {localidad.descripcion}
+                        </p>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                );
+              })}
             </Row>
           ) : (
             <div className="text-center py-5">
