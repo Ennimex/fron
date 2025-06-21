@@ -6,6 +6,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import stylesPublic from '../../styles/stylesPublic';
+import api from '../../services/api';
 
 const Galeria = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -13,6 +14,8 @@ const Galeria = () => {
   const [animate, setAnimate] = useState(false);
   const [activeTab, setActiveTab] = useState('fotos');
   const videoRefs = useRef([]);
+  const [fotos, setFotos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const styles = {
     pageContainer: {
@@ -288,46 +291,13 @@ const Galeria = () => {
       transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
     }
   };
-
-  // Datos de ejemplo - imágenes de productos y eventos
-  const images = [
-    {
-      id: 1,
-      src: 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787',
-      alt: 'Vestido tradicional huasteco',
-      caption: 'Vestido tradicional con bordados artesanales'
-    },
-    {
-      id: 2,
-      src: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2787',
-      alt: 'Bordados huastecos',
-      caption: 'Detalle de bordados tradicionales'
-    },
-    {
-      id: 3,
-      src: 'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?q=80&w=2942',
-      alt: 'Accesorios artesanales',
-      caption: 'Collares y accesorios hechos a mano'
-    },
-    {
-      id: 4,
-      src: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2874',
-      alt: 'Tejidos tradicionales',
-      caption: 'Tejidos con técnicas ancestrales'
-    },
-    {
-      id: 5,
-      src: 'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?q=80&w=2942',
-      alt: 'Modelo con vestido huasteco',
-      caption: 'Nuestra colección primavera-verano'
-    },
-    {
-      id: 6,
-      src: 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787',
-      alt: 'Detalle de bordado',
-      caption: 'Cada puntada cuenta una historia'
-    }
-  ];
+  // Transformar los datos de fotos de la API para usarlos en la galería
+  const images = fotos.map(foto => ({
+    id: foto._id,
+    src: foto.url,
+    alt: foto.titulo,
+    caption: foto.descripcion
+  }));
 
   const reels = [
     {
@@ -360,6 +330,7 @@ const Galeria = () => {
     }
   ];
 
+  // Datos de eventos (esto podría venir de una API)
   const events = [
     {
       id: 1,
@@ -390,6 +361,23 @@ const Galeria = () => {
       description: 'Moda contemporánea inspirada en tradiciones'
     }
   ];
+
+  // Efecto para cargar las fotos desde la API
+  useEffect(() => {
+    const fetchFotos = async () => {
+      try {
+        setLoading(true);
+        const data = await api.get('/public/galeria/fotos');
+        setFotos(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error al cargar las fotos:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchFotos();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -585,9 +573,17 @@ const Galeria = () => {
                 letterSpacing: stylesPublic.typography.letterSpacing.wide 
               }}>
                 Cada pieza cuenta una historia de tradición y artesanía
-              </p>
-                <div style={styles.galleryGrid}>
-                {images.map((image, index) => (                  <div
+              </p>                <div style={styles.galleryGrid}>
+                {loading ? (
+                  <div className="text-center w-100">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Cargando...</span>
+                    </div>
+                    <p className="mt-2">Cargando imágenes...</p>
+                  </div>
+                ) : images.length > 0 ? (
+                  images.map((image, index) => (
+                  <div
                     key={image.id}
                     style={{
                       ...styles.galleryItem,
@@ -617,7 +613,11 @@ const Galeria = () => {
                       }}>{image.caption}</p>
                     </div>
                   </div>
-                ))}
+                ))) : (
+                  <div className="text-center w-100">
+                    <p>No hay imágenes disponibles.</p>
+                  </div>
+                )}
               </div>
             </>
           ) : (

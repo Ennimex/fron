@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Alert } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
-import { mailOutline, callOutline, locationOutline, timeOutline, logoFacebook, logoInstagram, logoTwitter } from 'ionicons/icons';
+import { mailOutline, callOutline, locationOutline, timeOutline, logoFacebook, logoWhatsapp } from 'ionicons/icons';
 import stylesPublic from '../../styles/stylesPublic';
 
 const Contacto = () => {
-  const navigate = useNavigate();
   const [formState, setFormState] = useState({
     nombre: '',
     email: '',
@@ -18,19 +16,13 @@ const Contacto = () => {
     hero: false,
     contactInfo: false,
     formSection: false,
-    social: false,
-    map: false,
-    cta: false
-  });
-
-  // Animation trigger on mount
+    social: false
+  });  // Animation trigger on mount
   useEffect(() => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, contactInfo: true })), 300);
     setTimeout(() => setIsVisible(prev => ({ ...prev, formSection: true })), 500);
     setTimeout(() => setIsVisible(prev => ({ ...prev, social: true })), 700);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, map: true })), 900);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1100);
   }, []);
 
   const handleInputChange = (e) => {
@@ -58,14 +50,11 @@ const Contacto = () => {
     } else {
       setFormError(true);
     }
-  };
-  const contactInfo = [
+  };  const contactInfo = [
     {
       icon: <IonIcon icon={locationOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
       title: "Dirección",
-      content: "Calle Artesanal #123, Centro, Huejutla de Reyes, Hidalgo",
-      link: "https://maps.app.goo.gl/UzrK1BW2QVNirmmt8",
-      linkText: "Ver en mapa"
+      content: "Calle Artesanal #123, Centro, Huejutla de Reyes, Hidalgo"
     },
     {
       icon: <IonIcon icon={callOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
@@ -82,8 +71,7 @@ const Contacto = () => {
       title: "Horario de Atención",
       content: "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM"
     }
-  ];
-  const socialNetworks = [
+  ];  const socialNetworks = [
     {
       icon: <IonIcon icon={logoFacebook} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
       name: "Facebook",
@@ -91,16 +79,10 @@ const Contacto = () => {
       url: "https://facebook.com/laaterciopelada"
     },
     {
-      icon: <IonIcon icon={logoInstagram} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
-      name: "Instagram",
-      handle: "@LaAterciopelada",
-      url: "https://instagram.com/laaterciopelada"
-    },
-    {
-      icon: <IonIcon icon={logoTwitter} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
-      name: "Twitter",
-      handle: "@AterciopeladaMX",
-      url: "https://twitter.com/aterciopeladamx"
+      icon: <IonIcon icon={logoWhatsapp} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
+      name: "WhatsApp",
+      handle: "+52 771 123 4567",
+      url: "https://wa.me/527711234567"
     }
   ];
   const animationStyles = `
@@ -229,29 +211,14 @@ const Contacto = () => {
       opacity: isVisible.contactInfo ? 1 : 0,
       transform: isVisible.contactInfo ? "translateY(0)" : "translateY(20px)",
       transition: stylesPublic.transitions.preset.default
-    },
-    formSection: {
+    },    formSection: {
       opacity: isVisible.formSection ? 1 : 0,
       transform: isVisible.formSection ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default
-    },
-    socialSection: {
+      transition: stylesPublic.transitions.preset.default,
+      marginBottom: "80px" // Añadiendo espacio en la parte inferior
+    },    socialSection: {
       opacity: isVisible.social ? 1 : 0,
       transform: isVisible.social ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default
-    },
-    mapSection: {
-      opacity: isVisible.map ? 1 : 0,
-      transform: isVisible.map ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default
-    },
-    ctaSection: {
-      background: stylesPublic.colors.background.gradient.primary,
-      padding: stylesPublic.spacing["4xl"] + " 0",
-      color: stylesPublic.colors.text.primary,
-      position: "relative",
-      opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
       transition: stylesPublic.transitions.preset.default
     },
     titleUnderline: stylesPublic.elements.decorative.underline,
@@ -300,9 +267,7 @@ const Contacto = () => {
             Conéctate con nosotros y descubre el arte textil de la Huasteca
           </p>
         </Container>
-      </section>
-
-      <Container>
+      </section>      <Container style={{ paddingBottom: "40px" }}>
         {/* Información de Contacto */}
         <section style={customStyles.section}>          <h2 className="text-center" style={{ 
             fontFamily: stylesPublic.typography.fontFamily.heading, 
@@ -499,79 +464,7 @@ const Contacto = () => {
                 ))}
               </div>
             </Col>
-          </Row>
-        </section>
-
-        {/* Mapa */}
-        <section style={customStyles.mapSection}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-            color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg 
-          }}>
-            Visítanos
-            <span style={customStyles.titleUnderline}></span>
-          </h2>
-          <p className="text-center" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
-            color: stylesPublic.colors.text.secondary, 
-            maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
-          }}>
-            Nuestro taller está ubicado en el corazón de la Huasteca
-          </p>
-          
-          <div className="rounded-3 overflow-hidden shadow-lg" style={{ height: "450px" }}>
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.222715667089!2d-98.4072127!3d20.4536186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d61b1a6e8d5e3f%3A0x5f1a5e5b5e5b5e5b!2sHuejutla%20de%20Reyes%2C%20Hgo.!5e0!3m2!1sen!2smx!4v1620000000000!5m2!1sen!2smx"
-              width="100%"
-              height="100%"
-              style={{ border: "0" }}
-              allowFullScreen=""
-              loading="lazy"
-              title="Ubicación de La Aterciopelada"
-            ></iframe>
-          </div>
-        </section>
-
-        {/* CTA Section */}        <section style={customStyles.ctaSection}>
-          <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, textAlign: "center" }}>
-            <h2 className="animate-in" style={{ 
-              fontFamily: stylesPublic.typography.fontFamily.heading, 
-              fontSize: stylesPublic.typography.fontSize.h2, 
-              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-              marginBottom: stylesPublic.spacing.md 
-            }}>
-              ¿Listo para descubrir más?
-            </h2>
-            <p className="animate-in" style={{ 
-              fontSize: stylesPublic.typography.fontSize.lg, 
-              fontWeight: stylesPublic.typography.fontWeight.light, 
-              opacity: 0.9, 
-              maxWidth: "700px", 
-              margin: `0 auto ${stylesPublic.spacing.xl}` 
-            }}>
-              Explora nuestra colección completa de prendas y accesorios artesanales
-            </p>
-            <Button 
-              className="animate-in" 
-              style={{ 
-                background: stylesPublic.colors.background.alt, 
-                color: stylesPublic.colors.primary.main, 
-                border: "none",
-                padding: stylesPublic.spacing.md + " " + stylesPublic.spacing.xl,
-                fontWeight: stylesPublic.typography.fontWeight.semiBold,
-                fontSize: stylesPublic.typography.fontSize.lg,
-                borderRadius: stylesPublic.borders.radius.button
-              }}
-              onClick={() => navigate("/productos")}
-            >
-              Ver Colección
-            </Button>
-          </Container>
-        </section>
+          </Row>        </section>
       </Container>
     </>
   );
