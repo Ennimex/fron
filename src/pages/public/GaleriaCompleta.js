@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Container } from 'react-bootstrap';
+import { IonIcon } from '@ionic/react';
+import { closeOutline, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import stylesPublic from '../../styles/stylesPublic';
 import api from '../../services/api';
 
 const GaleriaCompleta = () => {
   const [fotos, setFotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const styles = {
     pageContainer: {
@@ -58,8 +61,7 @@ const GaleriaCompleta = () => {
       height: '100%',
       objectFit: 'cover',
       transition: `transform ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut}`
-    },
-    captionOverlay: {
+    },    captionOverlay: {
       position: 'absolute',
       bottom: 0,
       left: 0,
@@ -68,6 +70,81 @@ const GaleriaCompleta = () => {
       color: 'white',
       padding: stylesPublic.spacing.md,
       textAlign: 'center'
+    },
+    lightbox: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'rgba(0, 0, 0, 0.9)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: stylesPublic.utils.zIndex.modal,
+      padding: stylesPublic.spacing.md,
+    },
+    lightboxImageWrapper: {
+      position: 'relative',
+      maxWidth: '80%',
+      maxHeight: '80%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    lightboxImage: {
+      maxWidth: '100%',
+      maxHeight: '80vh',
+      objectFit: 'contain',
+      borderRadius: stylesPublic.borders.radius.md,
+      boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
+    },
+    lightboxCaption: {
+      position: 'absolute',
+      bottom: '30px',
+      color: stylesPublic.colors.background.alt,
+      fontSize: stylesPublic.typography.fontSize.lg,
+      textAlign: 'center',
+      background: 'rgba(0, 0, 0, 0.5)',
+      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
+      borderRadius: stylesPublic.borders.radius.md,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '80%'
+    },
+    closeButton: {
+      position: 'absolute',
+      top: '20px',
+      right: '20px',
+      backgroundColor: stylesPublic.colors.primary.main,
+      color: stylesPublic.colors.background.alt,
+      border: 'none',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: 'pointer',
+      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      zIndex: stylesPublic.utils.zIndex.popover,
+    },
+    navButton: {
+      position: 'fixed',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      backgroundColor: stylesPublic.colors.primary.main,
+      color: stylesPublic.colors.background.alt,
+      border: 'none',
+      borderRadius: '50%',
+      width: '50px',
+      height: '50px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: 'pointer',
+      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      zIndex: stylesPublic.utils.zIndex.popover,
     },
   };
 
@@ -86,13 +163,32 @@ const GaleriaCompleta = () => {
 
     fetchFotos();
   }, []);
-
   const images = fotos.map(foto => ({
     id: foto._id,
     src: foto.url,
     alt: foto.titulo,
     caption: foto.descripcion
   }));
+
+  const openLightbox = (image) => {
+    setSelectedImage(image);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeLightbox = () => {
+    setSelectedImage(null);
+    document.body.style.overflow = 'auto';
+  };
+
+  const navigateMedia = (direction) => {
+    if (selectedImage) {
+      const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
+      let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+      if (newIndex < 0) newIndex = images.length - 1;
+      if (newIndex >= images.length) newIndex = 0;
+      setSelectedImage(images[newIndex]);
+    }
+  };
 
   return (
     <div style={styles.pageContainer}>
@@ -118,8 +214,7 @@ const GaleriaCompleta = () => {
               </div>
               <p className="mt-2">Cargando imágenes...</p>
             </div>
-          ) : images.length > 0 ? (
-            images.map((image, index) => (
+          ) : images.length > 0 ? (            images.map((image, index) => (
               <div
                 key={image.id}
                 style={{
@@ -128,6 +223,15 @@ const GaleriaCompleta = () => {
                   transform: 'translateY(0)',
                   transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.05}s`,
                 }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-10px)';
+                  e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
+                }}
+                onClick={() => openLightbox(image)}
               >
                 <img
                   src={image.src}
@@ -135,9 +239,17 @@ const GaleriaCompleta = () => {
                   style={styles.galleryImage}
                 />
                 <div style={styles.captionOverlay}>
+                  <h5 style={{ 
+                    margin: 0,
+                    marginBottom: stylesPublic.spacing.xs,
+                    fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                    fontSize: stylesPublic.typography.fontSize.lg
+                  }}>{image.alt}</h5>
                   <p style={{
                     margin: 0,
-                    fontWeight: stylesPublic.typography.fontWeight.medium
+                    fontWeight: stylesPublic.typography.fontWeight.light,
+                    fontSize: stylesPublic.typography.fontSize.sm,
+                    opacity: 0.9
                   }}>{image.caption}</p>
                 </div>
               </div>
@@ -146,9 +258,49 @@ const GaleriaCompleta = () => {
             <div className="text-center w-100">
               <p>No hay imágenes disponibles.</p>
             </div>
-          )}
-        </div>
+          )}        </div>
       </Container>
+
+      {/* Lightbox para imágenes */}
+      {selectedImage && (
+        <div style={styles.lightbox}>
+          <button
+            style={{ ...styles.navButton, left: '20px' }}
+            onClick={() => navigateMedia('prev')}
+          >
+            <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
+          </button>
+          
+          <div style={styles.lightboxImageWrapper}>
+            <button 
+              style={styles.closeButton} 
+              onClick={closeLightbox}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
+            >
+              <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
+            </button>
+            <img
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              style={styles.lightboxImage}
+            />
+            <div style={styles.lightboxCaption}>
+              <h4 style={{ marginBottom: stylesPublic.spacing.sm }}>{selectedImage.alt}</h4>
+              <p style={{ margin: 0 }}>{selectedImage.caption}</p>
+            </div>
+          </div>
+          
+          <button
+            style={{ ...styles.navButton, right: '20px' }}
+            onClick={() => navigateMedia('next')}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
+          >
+            <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

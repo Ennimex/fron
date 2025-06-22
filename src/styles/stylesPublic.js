@@ -10,35 +10,34 @@ const stylesPublic = {
   // ===============================
   colors: {    // Colores primarios
     primary: {
-      main: '#ff005a',    // Rosa intenso - Color principal de la marca (más saturado)
-      light: '#ff6b84',   // Rosa suave (más saturado)
-      dark: '#d10054',    // Rosa oscuro (más saturado)
+      main: '#e00050',    // Rosa intenso ligeramente más oscuro
+      light: '#ff4c7a',   // Rosa suave ligeramente más oscuro
+      dark: '#b8003e',    // Rosa oscuro ligeramente más oscuro
     },
-    
     // Colores secundarios
     secondary: {
-      main: '#00a396',    // Verde esmeralda (más saturado)
-      light: '#30d9c8',   // Verde esmeralda claro (más saturado)
-      dark: '#00655e',    // Verde esmeralda oscuro (más saturado)
+      main: '#009885',    // Verde esmeralda ligeramente más oscuro
+      light: '#26bfae',   // Verde esmeralda claro ligeramente más oscuro
+      dark: '#005e54',    // Verde esmeralda oscuro ligeramente más oscuro
     },    // Colores de fondo
     background: {
-      main: '#fffffc',    // Blanco puro con tinte cálido
-      alt: '#FFE9C0',     // Beige cálido (más saturado)
+      main: '#f7f5f0',    // Blanco cálido ligeramente más oscuro
+      alt: '#ffe0a0',     // Beige cálido ligeramente más oscuro
       gradient: {
-        primary: 'linear-gradient(135deg, #fffffc 0%, #ff6b84 30%, rgba(0, 163, 150, 0.5) 60%, #fffffc 100%)',
-        secondary: 'linear-gradient(to bottom, #FFE9C0 0%, #FFF4D6 50%, #FFE9C0 100%)',
-        accent: 'linear-gradient(135deg, #ff6b84 0%, #00a396 50%, #ff6b84 100%)',
-        cta: 'linear-gradient(135deg, #ff005a 0%, #00a396 50%, #ff005a 100%)',
+        primary: 'linear-gradient(135deg, #f7f5f0 0%, #ff4c7a 30%, rgba(0, 152, 133, 0.7) 60%, #f7f5f0 100%)',
+        secondary: 'linear-gradient(to bottom, #ffe0a0 0%, #ffe9c0 50%, #ffe0a0 100%)',
+        accent: 'linear-gradient(135deg, #ff4c7a 0%, #009885 50%, #ff4c7a 100%)',
+        cta: 'linear-gradient(135deg, #e00050 0%, #009885 50%, #e00050 100%)',
       },
     },
-      // Colores de texto
+    // Colores de texto
     text: {
-      primary: '#1a0023',   // Morado oscuro casi negro (más saturado)
-      secondary: '#332a2d', // Gris oscuro (más saturado)
-      light: '#656565',     // Gris medio (más contrastado)
-      accent: '#ff005a',    // Acento rosa para textos destacados (actualizado)
+      primary: '#1a0023',   // Morado oscuro casi negro (sin cambios)
+      secondary: '#332a2d', // Gris oscuro (sin cambios)
+      light: '#4d4d4d',     // Gris medio ligeramente más oscuro
+      accent: '#e00050',    // Acento rosa ligeramente más oscuro
     },
-      // Estados y mensajes
+    // Estados y mensajes
     state: {
       error: '#e60000',     // Rojo error (más saturado)
       success: '#00a12a',   // Verde éxito (más saturado)
@@ -46,13 +45,12 @@ const stylesPublic = {
       info: '#0077e6',      // Azul información (más saturado)
       disabled: '#bdbdbd',  // Gris deshabilitado
     },
-    
     // Colores complementarios
     accent: {
-      yellow: '#FFBF00',    // Amarillo vibrante (más saturado)
-      purple: '#6a00ff',    // Púrpura (más saturado)
-      orange: '#FF7A00',    // Naranja (más saturado)
-      teal: '#00C9B6',      // Verde azulado (más saturado)
+      yellow: '#e6ac00',    // Amarillo vibrante ligeramente más oscuro
+      purple: '#5a00cc',    // Púrpura ligeramente más oscuro
+      orange: '#e66a00',    // Naranja ligeramente más oscuro
+      teal: '#009885',      // Verde azulado ligeramente más oscuro
     },
   },
 
@@ -66,7 +64,6 @@ const stylesPublic = {
       body: "'Roboto', sans-serif",          // Texto general
       accent: "'Dancing Script', cursive",   // Textos decorativos
     },
-    
     // Tamaños de fuente
     fontSize: {
       xs: '0.75rem',     // 12px
@@ -79,7 +76,6 @@ const stylesPublic = {
       '4xl': '2.25rem',  // 36px
       '5xl': '3rem',     // 48px
       '6xl': '4rem',     // 64px
-      
       // Tamaños responsivos con clamp
       h1: 'clamp(2.5rem, 5vw, 4rem)',      // 40px - 64px
       h2: 'clamp(2rem, 4vw, 2.8rem)',      // 32px - 45px
@@ -90,7 +86,6 @@ const stylesPublic = {
       p: '1.1rem',                          // 17.6px
       small: '0.875rem',                    // 14px
     },
-    
     // Pesos de fuente
     fontWeight: {
       thin: 100,
@@ -103,7 +98,6 @@ const stylesPublic = {
       extraBold: 800,
       black: 900,
     },
-    
     // Altura de línea
     lineHeight: {
       none: 1,
@@ -114,7 +108,6 @@ const stylesPublic = {
       loose: 2,
       paragraph: 1.7,  // Específico para párrafos largos
     },
-    
     // Espaciado entre letras
     letterSpacing: {
       tighter: '-0.05em',
@@ -132,7 +125,6 @@ const stylesPublic = {
   spacing: {
     // Unidades base de espaciado
     unit: '8px', // Unidad base de espaciado
-    
     // Espaciados predefinidos
     xs: '4px',     // Extra pequeño
     sm: '8px',     // Pequeño
@@ -143,7 +135,6 @@ const stylesPublic = {
     '3xl': '64px', // 3x extra grande
     '4xl': '80px', // 4x extra grande
     '5xl': '96px', // 5x extra grande
-    
     // Padding estándar para secciones
     section: {
       xSmall: '2rem 1rem',
@@ -152,13 +143,11 @@ const stylesPublic = {
       large: '6rem 2rem',
       xLarge: '8rem 2rem',
     },
-    
     // Margins
     margin: {
       auto: '0 auto',
       pageTop: '80px 0 0', // Margen superior para páginas (debajo del navbar)
     },
-    
     // Gaps para grids y flexbox
     gap: {
       xs: '4px',
@@ -187,7 +176,6 @@ const stylesPublic = {
       button: '30px', // Específico para botones
       card: '12px',   // Específico para tarjetas
     },
-    
     // Anchos de borde
     width: {
       none: '0',
@@ -196,7 +184,7 @@ const stylesPublic = {
       thicker: '3px',
       thickest: '4px',
     },
-      // Estilos de borde predefinidos
+    // Estilos de borde predefinidos
     style: {
       solid: 'solid',
       dashed: 'dashed',
@@ -213,7 +201,7 @@ const stylesPublic = {
     md: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
     lg: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
     xl: '0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.1)',
-      // Sombras con colores de la marca
+    // Sombras con colores de la marca
     card: '0 8px 16px rgba(255, 0, 90, 0.25), 0 4px 8px rgba(0, 163, 150, 0.2), 0 2px 4px rgba(44, 35, 41, 0.12)',
     button: '0 8px 24px rgba(255, 0, 90, 0.5)',
     hover: '0 20px 40px rgba(255, 0, 90, 0.4), 0 10px 20px rgba(0, 163, 150, 0.3), 0 6px 12px rgba(44, 35, 41, 0.18)',
@@ -245,7 +233,6 @@ const stylesPublic = {
       slowest: '0.8s',
       pageTransition: '1.2s',
     },
-    
     // Curvas de aceleración
     easing: {
       easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -254,7 +241,6 @@ const stylesPublic = {
       sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
       bounce: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     },
-    
     // Transiciones predefinidas
     preset: {
       default: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -299,7 +285,6 @@ const stylesPublic = {
         fontSize: '0.9rem',
       },
     },
-    
     // Estilos de tarjetas
     cards: {
       default: {
@@ -318,7 +303,6 @@ const stylesPublic = {
         border: '1px solid rgba(255, 107, 132, 0.35)',
       },
     },
-    
     // Estilos de inputs
     inputs: {
       default: {
@@ -338,12 +322,11 @@ const stylesPublic = {
         borderColor: '#e60000',
       },
     },
-    
     // Separadores y decoraciones
     decorative: {      underline: {        display: 'block',
         width: '60px',
         height: '3px',
-        background: 'linear-gradient(90deg, #ff005a 0%, #00a396 50%, #ff005a 100%)',
+        background: 'linear-gradient(90deg, #e00050 0%, #009885 50%, #e00050 100%)',
         borderRadius: '1px',
         margin: '15px auto',
       },      circle: {
@@ -353,14 +336,14 @@ const stylesPublic = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #ff005a 0%, #00a396 50%, #ff005a 100%)',
-        boxShadow: '0 8px 24px rgba(255, 0, 90, 0.5)',
+        background: 'linear-gradient(135deg, #e00050 0%, #009885 50%, #e00050 100%)',
+        boxShadow: '0 8px 24px rgba(224, 0, 80, 0.5)',
         margin: '0 auto 1.5rem',
       },
     },    // Fondos decorativos (patrones SVG)
     backgroundPatterns: {
-      floral: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="2" fill="%23ff005a" opacity="0.6"/><circle cx="35" cy="25" r="1.5" fill="%2300a396" opacity="0.55"/><circle cx="25" cy="35" r="1.8" fill="%23ff0050" opacity="0.57"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
-      geometric: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23ff005a" opacity="0.6"/><polygon points="35,25 40,35 30,35" fill="%2300a396" opacity="0.55"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23ff0050" opacity="0.57"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
+      floral: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="2" fill="%23e00050" opacity="0.75"/><circle cx="35" cy="25" r="1.5" fill="%23009885" opacity="0.7"/><circle cx="25" cy="35" r="1.8" fill="%23e00050" opacity="0.72"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
+      geometric: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23e00050" opacity="0.75"/><polygon points="35,25 40,35 30,35" fill="%23009885" opacity="0.7"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23e00050" opacity="0.72"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
     },
   },
 
@@ -379,7 +362,6 @@ const stylesPublic = {
       xl: '1140px',
       xxl: '1320px',
     },
-    
     // Overlay de fondo
     overlay: {
       standard: {
@@ -409,7 +391,6 @@ const stylesPublic = {
         zIndex: 1,
       },
     },
-    
     // Z-index
     zIndex: {
       background: -1,

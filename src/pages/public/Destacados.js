@@ -14,9 +14,20 @@ const Destacados = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [animate, setAnimate] = useState(false);
   const [activeTab, setActiveTab] = useState('fotos');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const videoRefs = useRef([]);
   const [fotos, setFotos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Hook para detectar cambios en el tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const styles = {
     pageContainer: {
@@ -107,16 +118,15 @@ const Destacados = () => {
       padding: stylesPublic.spacing.md,
       borderBottom: `1px solid ${stylesPublic.colors.background.alt}`,
       verticalAlign: 'middle',
-    },
-    galleryGrid: {
+    },    galleryGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-      gap: stylesPublic.spacing.md,
-      marginTop: stylesPublic.spacing.xl
-    },
-    reelsCarousel: {
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: stylesPublic.spacing.lg,
       marginTop: stylesPublic.spacing.xl,
-      padding: `0 ${stylesPublic.spacing.md}`,
+      padding: `0 ${stylesPublic.spacing.md}`
+    },reelsCarousel: {
+      marginTop: stylesPublic.spacing.xl,
+      padding: `0 ${stylesPublic.spacing.lg}`,
       position: 'relative',
     },
     galleryItem: {
@@ -127,17 +137,17 @@ const Destacados = () => {
       cursor: 'pointer',
       height: '350px',
       transition: stylesPublic.transitions.preset.bounce,
-    },
-    reelItem: {
+    },    reelItem: {
       position: 'relative',
       overflow: 'hidden',
       borderRadius: stylesPublic.borders.radius.card,
       boxShadow: stylesPublic.shadows.card,
       cursor: 'pointer',
       aspectRatio: '9/16',
-      height: '450px',
-      margin: `0 ${stylesPublic.spacing.sm}`,
+      height: '400px',
+      margin: `0 ${stylesPublic.spacing.md}`,
       transition: stylesPublic.transitions.preset.bounce,
+      background: stylesPublic.colors.background.main,
     },
     galleryImage: {
       width: '100%',
@@ -176,8 +186,7 @@ const Destacados = () => {
       color: 'white',
       padding: stylesPublic.spacing.md,
       textAlign: 'center'
-    },
-    lightbox: {
+    },    lightbox: {
       position: 'fixed',
       top: 0,
       left: 0,
@@ -189,14 +198,23 @@ const Destacados = () => {
       alignItems: 'center',
       zIndex: stylesPublic.utils.zIndex.modal,
       padding: stylesPublic.spacing.md,
-    },
-    lightboxImageWrapper: {
+      overflow: 'auto'
+    },lightboxImageWrapper: {
       position: 'relative',
       maxWidth: '80%',
       maxHeight: '80%',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center'
+    },    lightboxVideoWrapper: {
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      maxWidth: '85vw',
+      maxHeight: '85vh',
+      margin: '0 auto'
     },
     lightboxContent: {
       maxWidth: '90%',
@@ -208,13 +226,12 @@ const Destacados = () => {
       objectFit: 'contain',
       borderRadius: stylesPublic.borders.radius.md,
       boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
-    },
-    lightboxVideo: {
-      width: '800px',
-      maxWidth: '90vw',
+    },    lightboxVideo: {
+      width: '100%',
+      maxWidth: '800px',
       height: '450px',
-      maxHeight: '90vh',
-      borderRadius: stylesPublic.borders.radius.md
+      borderRadius: stylesPublic.borders.radius.md,
+      boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`
     },
     lightboxCaption: {
       position: 'absolute',
@@ -245,9 +262,8 @@ const Destacados = () => {
       cursor: 'pointer',
       transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
       zIndex: stylesPublic.utils.zIndex.popover,
-    },
-    navButton: {
-      position: 'fixed',
+    },    navButton: {
+      position: 'absolute',
       top: '50%',
       transform: 'translateY(-50%)',
       backgroundColor: stylesPublic.colors.primary.main,
@@ -381,7 +397,6 @@ const Destacados = () => {
       description: 'Evento de gala con nuestras creaciones destacadas'
     }
   ];
-
   // Efecto para cargar las fotos destacadas desde la API
   useEffect(() => {
     const fetchFotos = async () => {
@@ -406,6 +421,38 @@ const Destacados = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Agregar estilos CSS personalizados para el carousel
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .slick-slide {
+        padding: 0 8px;
+      }
+      .slick-track {
+        display: flex;
+        align-items: center;
+      }
+      .slick-slide > div {
+        height: 100%;
+      }
+      .slick-dots {
+        bottom: -50px;
+      }
+      .slick-dots li button:before {
+        color: ${stylesPublic.colors.primary.main};
+        font-size: 12px;
+      }
+      .slick-dots li.slick-active button:before {
+        color: ${stylesPublic.colors.secondary.main};
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const openLightbox = (image) => {
     setSelectedImage(image);
     setSelectedVideo(null);
@@ -417,13 +464,21 @@ const Destacados = () => {
     setSelectedImage(null);
     document.body.style.overflow = 'hidden';
   };
-
   const closeLightbox = () => {
     setSelectedImage(null);
     setSelectedVideo(null);
     document.body.style.overflow = 'auto';
+    
+    // Pause all videos when closing lightbox
     videoRefs.current.forEach((video) => {
-      if (video) video.pause();
+      if (video) {
+        try {
+          video.pause();
+          video.currentTime = 0;
+        } catch (error) {
+          console.warn('Error pausing video:', error);
+        }
+      }
     });
   };
 
@@ -442,27 +497,33 @@ const Destacados = () => {
       setSelectedVideo(reels[newIndex]);
     }
   };
-
   const handleVideoHover = (index, play) => {
     const video = videoRefs.current[index];
     if (video) {
-      if (play) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-        video.currentTime = 0;
+      try {
+        if (play) {
+          video.play().catch(() => {
+            // Silently handle autoplay restrictions
+          });
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      } catch (error) {
+        console.warn('Error handling video hover:', error);
       }
     }
   };
-
   const sliderSettings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: 4,
     slidesToScroll: 1,
     swipeToSlide: true,
     arrows: true,
+    centerMode: false,
+    variableWidth: false,
     nextArrow: (
       <div>
         <div style={styles.carouselArrow}>
@@ -479,19 +540,26 @@ const Destacados = () => {
     ),
     responsive: [
       {
-        breakpoint: 1024,
+        breakpoint: 1200,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 3,
           slidesToScroll: 1,
         }
       },
       {
         breakpoint: 768,
         settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
-          vertical: true,
-          verticalSwiping: true,
+          centerMode: true,
+          centerPadding: '40px'
         }
       }
     ]
@@ -512,10 +580,8 @@ const Destacados = () => {
               Descubre lo mejor de nuestras creaciones artesanales huastecas
             </p>
           </Container>
-        </div>
-
-        {/* Sección de Eventos Destacados */}
-        <section style={{ marginBottom: stylesPublic.spacing['3xl'] }}>
+        </div>        {/* Sección de Eventos Destacados */}
+        <section style={{ marginBottom: stylesPublic.spacing['4xl'] }}>
           <h2 style={styles.sectionTitle}>Eventos Destacados</h2>
           <div style={styles.titleUnderline}></div>
           
@@ -549,10 +615,8 @@ const Destacados = () => {
               </tbody>
             </Table>
           </div>
-        </section>
-
-        {/* Pestañas de Contenido Destacado */}
-        <section style={{ marginBottom: stylesPublic.spacing['3xl'] }}>
+        </section>        {/* Pestañas de Contenido Destacado */}
+        <section style={{ marginBottom: stylesPublic.spacing['4xl'] }}>
           <div style={styles.tabButtons}>
             <button 
               style={{ 
@@ -609,10 +673,13 @@ const Destacados = () => {
                 letterSpacing: stylesPublic.typography.letterSpacing.wide 
               }}>
                 Nuestras piezas más especiales seleccionadas especialmente para ti
-              </p>
-              <div style={styles.galleryGrid}>
+              </p>              <div style={{
+                ...styles.galleryGrid,
+                gap: stylesPublic.spacing.lg,
+                marginTop: stylesPublic.spacing['2xl']
+              }}>
                 {loading ? (
-                  <div className="text-center w-100">
+                  <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
                     <div className="spinner-border text-primary" role="status">
                       <span className="visually-hidden">Cargando...</span>
                     </div>
@@ -626,10 +693,10 @@ const Destacados = () => {
                       ...styles.galleryItem,
                       opacity: animate ? 1 : 0,
                       transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.1}s`,
+                      transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.15}s`,
                     }}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-10px)';
+                      e.currentTarget.style.transform = 'translateY(-8px)';
                       e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
                     }}
                     onMouseOut={(e) => {
@@ -642,16 +709,23 @@ const Destacados = () => {
                       src={image.src}
                       alt={image.alt}
                       style={styles.galleryImage}
-                    />
-                    <div style={styles.captionOverlay}>
+                    />                    <div style={styles.captionOverlay}>
+                      <h5 style={{ 
+                        margin: 0,
+                        marginBottom: stylesPublic.spacing.xs,
+                        fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                        fontSize: stylesPublic.typography.fontSize.lg
+                      }}>{image.alt}</h5>
                       <p style={{ 
                         margin: 0, 
-                        fontWeight: stylesPublic.typography.fontWeight.medium 
+                        fontWeight: stylesPublic.typography.fontWeight.light,
+                        fontSize: stylesPublic.typography.fontSize.sm,
+                        opacity: 0.9
                       }}>{image.caption}</p>
                     </div>
                   </div>
                 ))) : (
-                  <div className="text-center w-100">
+                  <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
                     <p>No hay contenido destacado disponible.</p>
                   </div>
                 )}
@@ -670,12 +744,14 @@ const Destacados = () => {
                 letterSpacing: stylesPublic.typography.letterSpacing.wide 
               }}>
                 Los momentos más especiales de nuestro trabajo artesanal
-              </p>
-              
-              <div style={styles.reelsCarousel}>
+              </p>              <div style={{
+                ...styles.reelsCarousel,
+                marginTop: stylesPublic.spacing['2xl'],
+                marginBottom: stylesPublic.spacing['2xl']
+              }}>
                 <Slider {...sliderSettings}>
                   {reels.map((reel, index) => (
-                    <div key={reel.id}>
+                    <div key={reel.id} style={{ padding: `0 ${stylesPublic.spacing.sm}` }}>
                       <Card
                         style={{
                           ...styles.reelItem,
@@ -683,14 +759,16 @@ const Destacados = () => {
                           transform: animate ? 'translateY(0)' : 'translateY(20px)',
                           transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.1}s`,
                           padding: 0,
-                          border: 'none'
+                          border: 'none',
+                          margin: 0,
+                          width: '100%'
                         }}
                         onMouseOver={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.transform = 'scale(1.03)';
                           e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
                         }}
                         onMouseOut={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.transform = 'scale(1)';
                           e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
                         }}
                         onClick={() => openVideo(reel)}
@@ -707,25 +785,31 @@ const Destacados = () => {
                             poster={`https://img.youtube.com/vi/${reel.src.split('/').pop()}/maxresdefault.jpg`}
                           />
                           <div style={styles.playIcon}>
-                            <IonIcon icon={playCircleOutline} style={{ fontSize: '60px' }} />
+                            <IonIcon icon={playCircleOutline} style={{ fontSize: '50px' }} />
                           </div>
                           <Card.Body style={{
                             position: 'absolute',
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3), transparent)',
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
                             padding: stylesPublic.spacing.md,
                             color: 'white'
                           }}>
                             <Card.Title style={{ 
-                              fontSize: stylesPublic.typography.fontSize.lg,
+                              fontSize: stylesPublic.typography.fontSize.md,
                               fontWeight: stylesPublic.typography.fontWeight.semiBold,
-                              marginBottom: stylesPublic.spacing.xs
+                              marginBottom: stylesPublic.spacing.xs,
+                              lineHeight: '1.2'
                             }}>{reel.title}</Card.Title>
                             <Card.Text style={{
-                              fontSize: stylesPublic.typography.fontSize.sm,
-                              opacity: '0.9'
+                              fontSize: stylesPublic.typography.fontSize.xs,
+                              opacity: '0.9',
+                              lineHeight: '1.3',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden'
                             }}>{reel.description}</Card.Text>
                           </Card.Body>
                         </div>
@@ -763,7 +847,10 @@ const Destacados = () => {
               alt={selectedImage.alt}
               style={styles.lightboxImage}
             />
-            <div style={styles.lightboxCaption}>{selectedImage.caption}</div>
+            <div style={styles.lightboxCaption}>
+              <h4 style={{ marginBottom: stylesPublic.spacing.sm }}>{selectedImage.alt}</h4>
+              <p style={{ margin: 0 }}>{selectedImage.caption}</p>
+            </div>
           </div>
           
           <button
@@ -775,9 +862,7 @@ const Destacados = () => {
             <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
           </button>
         </div>
-      )}
-
-      {/* Lightbox para videos */}
+      )}      {/* Lightbox para videos */}
       {selectedVideo && (
         <div style={styles.lightbox}>
           <button
@@ -789,7 +874,7 @@ const Destacados = () => {
             <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
           </button>
           
-          <div style={styles.lightboxImageWrapper}>
+          <div style={styles.lightboxVideoWrapper}>
             <button 
               style={styles.closeButton} 
               onClick={closeLightbox}
@@ -798,21 +883,42 @@ const Destacados = () => {
             >
               <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
             </button>
-            <div style={styles.lightboxContent}>
               <iframe
-                width="100%"
-                height="100%"
-                src={selectedVideo.src}
-                title={selectedVideo.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={styles.lightboxVideo}
-              ></iframe>
-            </div>
-            <div style={styles.lightboxCaption}>
-              <h4>{selectedVideo.title}</h4>
-              <p>{selectedVideo.description}</p>
+              width="100%"
+              height="100%"
+              src={selectedVideo.src}
+              title={selectedVideo.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{
+                ...styles.lightboxVideo,
+                maxWidth: isMobile ? '90vw' : '800px',
+                height: isMobile ? '250px' : '450px'
+              }}
+            ></iframe>
+            
+            <div style={{
+              position: 'relative',
+              marginTop: stylesPublic.spacing.md,
+              textAlign: 'center',
+              color: stylesPublic.colors.background.alt,
+              background: 'rgba(0, 0, 0, 0.7)',
+              padding: stylesPublic.spacing.md,
+              borderRadius: stylesPublic.borders.radius.md,
+              maxWidth: '800px',
+              width: '100%'
+            }}>
+              <h4 style={{ 
+                marginBottom: stylesPublic.spacing.sm, 
+                fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                fontSize: stylesPublic.typography.fontSize.lg
+              }}>{selectedVideo.title}</h4>
+              <p style={{ 
+                margin: 0, 
+                fontSize: stylesPublic.typography.fontSize.sm,
+                opacity: 0.9
+              }}>{selectedVideo.description}</p>
             </div>
           </div>
           
