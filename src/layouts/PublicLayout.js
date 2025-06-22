@@ -10,7 +10,8 @@ const publicNavLinks = [
   { to: "/servicios", label: "Servicios" },
   { to: "/nosotros", label: "Nosotros" },
   { to: "/contacto", label: "Contacto" },
-  { to: "/galeria", label: "Galería" }
+  { to: "/destacados", label: "Destacados" },
+  { to: "/catalogofotos", label: "Galería" }
 ];
 
 const PublicLayout = () => {

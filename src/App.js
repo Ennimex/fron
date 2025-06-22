@@ -15,8 +15,9 @@ import Servicios from "./pages/public/Servicios";
 import Nosotros from "./pages/public/Nosotros";
 import Contacto from "./pages/public/Contacto";
 import Login from "./pages/public/Login";
-import Galeria from "./pages/public/Galeria";
+import Destacados from "./pages/public/Destacados";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
+import GaleriaCompleta from "./pages/public/GaleriaCompleta";
 
 // Importación de componentes privados
 import Perfil from "./pages/Private/Perfil";
@@ -53,12 +54,11 @@ function App() {
               <Route path="/" element={<Inicio />} />
               <Route path="/productos" element={<Productos />} />
               <Route path="/producto/:id" element={<ProductoDetalle />} />
-              <Route path="/servicios" element={<Servicios />} />
-              <Route path="/nosotros" element={<Nosotros />} />
+              <Route path="/servicios" element={<Servicios />} />              <Route path="/nosotros" element={<Nosotros />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/galeria" element={<Galeria />} />
-            </Route>
+              <Route path="/destacados" element={<Destacados />} />
+              <Route path="/catalogofotos" element={<GaleriaCompleta />} /></Route>
 
             {/* Rutas Privadas usando PrivateLayout */}
             <Route element={<PrivateLayout />}>
@@ -68,14 +68,14 @@ function App() {
 
             {/* Rutas de administración usando AdminLayout */}
             <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>} />
-              <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={['admin']}><AdminUsersView /></PrivateRoute>} />
-              <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={['admin']}><AdminNuevoProducto /></PrivateRoute>} />
-              <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={['admin']}><GestionTallas /></PrivateRoute>} />
-              <Route path="/admin/productos/categorias" element={<PrivateRoute allowedRoles={['admin']}><GestionCategorias /></PrivateRoute>} />
-              <Route path="/admin/localidades" element={<PrivateRoute allowedRoles={['admin']}><GestorLocalidades /></PrivateRoute>} />
-              <Route path="/admin/galeria/fotos" element={<PrivateRoute allowedRoles={['admin']}><GestionFotos /></PrivateRoute>} />
-              <Route path="/admin/galeria/videos" element={<PrivateRoute allowedRoles={['admin']}><GestionVideos /></PrivateRoute>} />
+              <Route path="/admin" element={<PrivateRoute allowedRoles={["admin"]}><AdminDashboard /></PrivateRoute>} />
+              <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={["admin"]}><AdminUsersView /></PrivateRoute>} />
+              <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={["admin"]}><AdminNuevoProducto /></PrivateRoute>} />
+              <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={["admin"]}><GestionTallas /></PrivateRoute>} />
+              <Route path="/admin/productos/categorias" element={<PrivateRoute allowedRoles={["admin"]}><GestionCategorias /></PrivateRoute>} />
+              <Route path="/admin/localidades" element={<PrivateRoute allowedRoles={["admin"]}><GestorLocalidades /></PrivateRoute>} />
+              <Route path="/admin/galeria/fotos" element={<PrivateRoute allowedRoles={["admin"]}><GestionFotos /></PrivateRoute>} />
+              <Route path="/admin/galeria/videos" element={<PrivateRoute allowedRoles={["admin"]}><GestionVideos /></PrivateRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

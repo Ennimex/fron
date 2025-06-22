@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Container, Table, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import { closeOutline, chevronBackOutline, chevronForwardOutline, playCircleOutline } from 'ionicons/icons';
 import Slider from 'react-slick';
@@ -8,7 +9,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import stylesPublic from '../../styles/stylesPublic';
 import api from '../../services/api';
 
-const Galeria = () => {
+const Destacados = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [animate, setAnimate] = useState(false);
@@ -289,8 +290,27 @@ const Galeria = () => {
       alignItems: 'center',
       zIndex: stylesPublic.utils.zIndex.dropdown,
       transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+    },
+    sectionHeader: {
+      position: 'relative',
+      marginBottom: stylesPublic.spacing.lg,
+    },
+    viewAllLink: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      backgroundColor: stylesPublic.colors.primary.main,
+      color: stylesPublic.colors.background.alt,
+      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
+      borderRadius: stylesPublic.borders.radius.button,
+      textDecoration: 'none',
+      fontSize: stylesPublic.typography.fontSize.sm,
+      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      transition: stylesPublic.transitions.preset.buttonHover,
+      zIndex: stylesPublic.utils.zIndex.raised,
     }
   };
+
   // Transformar los datos de fotos de la API para usarlos en la galería
   const images = fotos.map(foto => ({
     id: foto._id,
@@ -312,57 +332,57 @@ const Galeria = () => {
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-a-photoshoot-51798-large.mp4',
       title: 'Desfile de moda huasteca',
-      description: 'Nuestra colección en la pasarela internacional'
+      description: 'Nuestra colección featured en eventos especiales'
     },
     {
       id: 3,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-woman-weaving-on-a-loom-51795-large.mp4',
-      title: 'Entrevista con artesanas',
-      description: 'Historias detrás de cada creación'
+      title: 'Entrevista con artesanas destacadas',
+      description: 'Historias detrás de nuestras piezas más especiales'
     },
     {
       id: 4,
       src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
       previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-model-in-traditional-clothing-posing-51799-large.mp4',
-      title: 'Tutorial: Cuidado de prendas',
-      description: 'Cómo mantener tus prendas artesanales'
+      title: 'Colección Premium',
+      description: 'Nuestras creaciones más exclusivas'
     }
   ];
 
-  // Datos de eventos (esto podría venir de una API)
+  // Datos de eventos destacados
   const events = [
     {
       id: 1,
       date: '15/07/2024',
-      name: 'Exposición de Arte Textil',
-      location: 'Galería Municipal, Huejutla',
-      description: 'Muestra de las mejores piezas artesanales de la región'
+      name: 'Exposición Premium "Arte Textil"',
+      location: 'Galería Nacional, CDMX',
+      description: 'Exhibición exclusiva de nuestras piezas más destacadas'
     },
     {
       id: 2,
       date: '22/08/2024',
-      name: 'Taller de Bordado Huasteco',
-      location: 'Casa de Cultura, San Luis Potosí',
-      description: 'Aprende las técnicas tradicionales con maestras artesanas'
+      name: 'Taller Maestro de Bordado Huasteco',
+      location: 'Centro Cultural, San Luis Potosí',
+      description: 'Experiencia premium con nuestras mejores artesanas'
     },
     {
       id: 3,
       date: '10/09/2024',
-      name: 'Feria Artesanal Anual',
-      location: 'Plaza Principal, Tampico',
-      description: 'Evento con más de 100 expositores de arte popular'
+      name: 'Presentación Colección Especial',
+      location: 'Fashion Week, Tampico',
+      description: 'Lanzamiento de nuestra línea más exclusiva'
     },
     {
       id: 4,
       date: '05/10/2024',
-      name: 'Pasarela "Raíces Huastecas"',
-      location: 'Centro de Convenciones, CDMX',
-      description: 'Moda contemporánea inspirada en tradiciones'
+      name: 'Gala "Raíces Huastecas Premium"',
+      location: 'Palacio de Bellas Artes, CDMX',
+      description: 'Evento de gala con nuestras creaciones destacadas'
     }
   ];
 
-  // Efecto para cargar las fotos desde la API
+  // Efecto para cargar las fotos destacadas desde la API
   useEffect(() => {
     const fetchFotos = async () => {
       try {
@@ -371,7 +391,7 @@ const Galeria = () => {
         setFotos(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error al cargar las fotos:', error);
+        console.error('Error al cargar las fotos destacadas:', error);
         setLoading(false);
       }
     };
@@ -486,17 +506,17 @@ const Galeria = () => {
           <div style={styles.heroPattern}></div>
           <Container>
             <h1 className="display-3 fw-bold mb-4" style={{ fontFamily: stylesPublic.typography.fontFamily.heading }}>
-              Galería Artesanal
+              Contenido Destacado
             </h1>
             <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px", fontFamily: stylesPublic.typography.fontFamily.heading }}>
-              Descubre la belleza y tradición de nuestras creaciones huastecas
+              Descubre lo mejor de nuestras creaciones artesanales huastecas
             </p>
           </Container>
         </div>
 
-        {/* Sección de Eventos */}
+        {/* Sección de Eventos Destacados */}
         <section style={{ marginBottom: stylesPublic.spacing['3xl'] }}>
-          <h2 style={styles.sectionTitle}>Próximos Eventos</h2>
+          <h2 style={styles.sectionTitle}>Eventos Destacados</h2>
           <div style={styles.titleUnderline}></div>
           
           <div style={styles.eventsSection}>
@@ -531,7 +551,7 @@ const Galeria = () => {
           </div>
         </section>
 
-        {/* Pestañas de Galería y Reels */}
+        {/* Pestañas de Contenido Destacado */}
         <section style={{ marginBottom: stylesPublic.spacing['3xl'] }}>
           <div style={styles.tabButtons}>
             <button 
@@ -544,7 +564,7 @@ const Galeria = () => {
               }}
               onClick={() => setActiveTab('fotos')}
             >
-              Galería
+              Fotos Destacadas
             </button>
             <button 
               style={{ 
@@ -556,13 +576,29 @@ const Galeria = () => {
               }}
               onClick={() => setActiveTab('videos')}
             >
-              Reels
+              Videos Destacados
             </button>
           </div>
 
           {activeTab === 'fotos' ? (
             <>
-              <h2 style={styles.sectionTitle}>Nuestros Productos</h2>
+              <div style={styles.sectionHeader}>
+                <h2 style={styles.sectionTitle}>Creaciones Destacadas</h2>
+                <Link 
+                  to="/catalogofotos" 
+                  style={styles.viewAllLink}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main;
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main;
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Ver galería completa
+                </Link>
+              </div>
               <div style={styles.titleUnderline}></div>
               <p className="text-center" style={{ 
                 fontSize: stylesPublic.typography.fontSize.lg, 
@@ -572,17 +608,18 @@ const Galeria = () => {
                 margin: `0 auto ${stylesPublic.spacing.xl}`, 
                 letterSpacing: stylesPublic.typography.letterSpacing.wide 
               }}>
-                Cada pieza cuenta una historia de tradición y artesanía
-              </p>                <div style={styles.galleryGrid}>
+                Nuestras piezas más especiales seleccionadas especialmente para ti
+              </p>
+              <div style={styles.galleryGrid}>
                 {loading ? (
                   <div className="text-center w-100">
                     <div className="spinner-border text-primary" role="status">
                       <span className="visually-hidden">Cargando...</span>
                     </div>
-                    <p className="mt-2">Cargando imágenes...</p>
+                    <p className="mt-2">Cargando contenido destacado...</p>
                   </div>
                 ) : images.length > 0 ? (
-                  images.map((image, index) => (
+                  images.slice(0, 3).map((image, index) => (
                   <div
                     key={image.id}
                     style={{
@@ -615,14 +652,14 @@ const Galeria = () => {
                   </div>
                 ))) : (
                   <div className="text-center w-100">
-                    <p>No hay imágenes disponibles.</p>
+                    <p>No hay contenido destacado disponible.</p>
                   </div>
                 )}
               </div>
             </>
           ) : (
             <>
-              <h2 style={styles.sectionTitle}>Reels Artesanales</h2>
+              <h2 style={styles.sectionTitle}>Videos Destacados</h2>
               <div style={styles.titleUnderline}></div>
               <p className="text-center" style={{ 
                 fontSize: stylesPublic.typography.fontSize.lg, 
@@ -632,13 +669,14 @@ const Galeria = () => {
                 margin: `0 auto ${stylesPublic.spacing.xl}`, 
                 letterSpacing: stylesPublic.typography.letterSpacing.wide 
               }}>
-                Descubre el proceso detrás de cada creación
+                Los momentos más especiales de nuestro trabajo artesanal
               </p>
               
               <div style={styles.reelsCarousel}>
                 <Slider {...sliderSettings}>
                   {reels.map((reel, index) => (
-                    <div key={reel.id}>                      <Card
+                    <div key={reel.id}>
+                      <Card
                         style={{
                           ...styles.reelItem,
                           opacity: animate ? 1 : 0,
@@ -792,4 +830,4 @@ const Galeria = () => {
   );
 };
 
-export default Galeria;
+export default Destacados;
