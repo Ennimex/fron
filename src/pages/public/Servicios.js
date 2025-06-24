@@ -70,12 +70,17 @@ const Servicios = () => {
       ...stylesPublic.utils.overlay.standard,
       background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-    },
-    section: {
+    },    section: {
       padding: stylesPublic.spacing.section.large,
       maxWidth: stylesPublic.utils.container.maxWidth,
       margin: stylesPublic.spacing.margin.auto,
       position: "relative",
+      '@media (max-width: 768px)': {
+        padding: stylesPublic.spacing.section.medium,
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.section.small,
+      },
     },
     serviciosSection: {
       background: stylesPublic.colors.background.gradient.secondary,
@@ -98,10 +103,15 @@ const Servicios = () => {
     },
     titleUnderline: stylesPublic.elements.decorative.underline,
     pinkButton: stylesPublic.elements.buttons.primary,
-    serviceCard: stylesPublic.elements.cards.default,
-    benefitIcon: {
+    serviceCard: stylesPublic.elements.cards.default,    benefitIcon: {
       ...stylesPublic.elements.decorative.circle,
       fontSize: "1.8rem",
+      '@media (max-width: 768px)': {
+        fontSize: "1.5rem",
+      },
+      '@media (max-width: 480px)': {
+        fontSize: "1.2rem",
+      },
     },
   };
   // Beneficios de la boutique

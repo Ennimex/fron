@@ -71,12 +71,17 @@ const Nosotros = () => {
       ...stylesPublic.utils.overlay.standard,
       background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
-    },
-    section: {
+    },    section: {
       padding: stylesPublic.spacing.section.large,
       maxWidth: stylesPublic.utils.container.maxWidth,
       margin: stylesPublic.spacing.margin.auto,
       position: "relative",
+      '@media (max-width: 768px)': {
+        padding: stylesPublic.spacing.section.medium,
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.section.small,
+      },
     },
     historiaSection: {
       background: stylesPublic.colors.background.gradient.secondary,
@@ -113,24 +118,38 @@ const Nosotros = () => {
       background: `#ffffff`,
       boxShadow: stylesPublic.shadows.sm,
     },
-    pinkButton: stylesPublic.elements.buttons.primary,    card: stylesPublic.elements.cards.default,
-    teamImage: {
+    pinkButton: stylesPublic.elements.buttons.primary,    card: stylesPublic.elements.cards.default,    teamImage: {
       width: "150px",
       height: "150px",
       borderRadius: "50%",
       objectFit: "cover",
       border: `3px solid ${stylesPublic.colors.primary.main}`,
       margin: `0 auto ${stylesPublic.spacing.lg}`,
+      '@media (max-width: 768px)': {
+        width: "120px",
+        height: "120px",
+      },
+      '@media (max-width: 480px)': {
+        width: "100px",
+        height: "100px",
+      },
     },
     valueIcon: {
       ...stylesPublic.elements.decorative.circle,
       fontSize: "1.8rem",
-    },
-    timelineItem: {
+    },    timelineItem: {
       position: "relative",
       paddingLeft: stylesPublic.spacing.xl,
       marginBottom: stylesPublic.spacing.xl,
       borderLeft: `${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.main}`,
+      '@media (max-width: 768px)': {
+        paddingLeft: stylesPublic.spacing.lg,
+        marginBottom: stylesPublic.spacing.lg,
+      },
+      '@media (max-width: 480px)': {
+        paddingLeft: stylesPublic.spacing.md,
+        marginBottom: stylesPublic.spacing.md,
+      },
     },
   };
 

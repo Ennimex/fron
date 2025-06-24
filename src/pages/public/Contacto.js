@@ -84,8 +84,7 @@ const Contacto = () => {
       handle: "+52 771 123 4567",
       url: "https://wa.me/527711234567"
     }
-  ];
-  const animationStyles = `
+  ];  const animationStyles = `
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -188,6 +187,110 @@ const Contacto = () => {
     @keyframes float {
       0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
       50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .container-fluid {
+        padding: 0 10px;
+      }
+      .hero-section h1 {
+        font-size: 2rem !important;
+      }
+      .hero-section p {
+        font-size: 1rem !important;
+      }
+      .contact-info-card {
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 60px 0 40px !important;
+      }
+      .hero-section h1 {
+        font-size: 1.75rem !important;
+      }
+      .contact-info-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+      }
+      .contact-form-section {
+        padding: 40px 0 !important;
+      }
+      .form-input input,
+      .form-input textarea {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+      .submit-button {
+        padding: 12px 24px;
+        font-size: 14px;
+      }
+      .social-networks-section {
+        padding: 40px 0 !important;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero-section {
+        padding: 40px 0 30px !important;
+      }
+      .hero-section h1 {
+        font-size: 1.5rem !important;
+      }
+      .hero-section p {
+        font-size: 0.9rem !important;
+      }
+      .contact-info-card {
+        padding: 20px 15px !important;
+      }
+      .contact-info-card h5 {
+        font-size: 1rem !important;
+      }
+      .contact-info-card p {
+        font-size: 0.85rem !important;
+      }
+      .form-input {
+        margin-bottom: 20px;
+      }
+      .form-input input,
+      .form-input textarea {
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+      .submit-button {
+        padding: 10px 20px;
+        font-size: 13px;
+        width: 100%;
+      }
+      .social-card {
+        padding: 15px !important;
+      }
+      .social-card h6 {
+        font-size: 0.9rem !important;
+      }
+      .social-card p {
+        font-size: 0.8rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container-fluid {
+        padding: 0 5px;
+      }
+      .hero-section h1 {
+        font-size: 1.3rem !important;
+      }
+      .contact-info-card {
+        padding: 15px 10px !important;
+      }
+      .form-input input,
+      .form-input textarea {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
     }
   `;
   const customStyles = {

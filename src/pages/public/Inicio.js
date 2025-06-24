@@ -183,8 +183,7 @@ const Inicio = () => {
     { icon: "🎨", title: "Arte Textil Coleccionable", description: "Obras maestras de terciopelada destinadas a coleccionistas que aprecian la excelencia artesanal." },
     { icon: "👶", title: "Herencia Infantil", description: "Piezas delicadas para las nuevas generaciones, sembrando el amor por la tradición." },
     { icon: "🌟", title: "Fusión Moderna", description: "Reinterpretación contemporánea de técnicas milenarias para el guardarropa urbano." },
-  ];
-  const animationStyles = `
+  ];  const animationStyles = `
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -230,6 +229,45 @@ const Inicio = () => {
     .floating-element:nth-child(1) { top: 20%; left: 10%; background: ${stylesPublic.colors.primary.main}; }
     .floating-element:nth-child(2) { top: 60%; right: 15%; background: ${stylesPublic.colors.secondary.main}; animation-delay: 2s; }
     .floating-element:nth-child(3) { bottom: 30%; left: 20%; background: ${stylesPublic.colors.primary.dark}; animation-delay: 4s; }
+    
+    /* Media queries para responsividad */
+    @media (max-width: 768px) {
+      .reason-card, .region-card, .clothing-card, .collection-card {
+        margin-bottom: 1rem;
+      }
+      .clothing-image {
+        max-width: 150px !important;
+        height: 120px !important;
+      }
+      .floating-element {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .reason-card, .region-card, .clothing-card, .collection-card {
+        padding: 1.5rem 1rem !important;
+        margin-bottom: 0.75rem;
+      }
+      .clothing-image {
+        max-width: 120px !important;
+        height: 100px !important;
+      }
+      .collection-card {
+        padding: 2rem 1.5rem !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .reason-card, .region-card, .clothing-card, .collection-card {
+        padding: 1rem !important;
+        text-align: center;
+      }
+      .clothing-image {
+        max-width: 100px !important;
+        height: 80px !important;
+      }
+    }
   `;
   // Aplicamos los estilos centralizados del stylesPublic, añadiendo estados de visibilidad
   const styles = {

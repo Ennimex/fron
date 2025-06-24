@@ -66,15 +66,21 @@ const Destacados = () => {
       parliamentary: `radial-gradient(${stylesPublic.colors.background.alt} 1px, transparent 1px)`,
       backgroundSize: '20px 20px',
       opacity: 0.1,
-    },
-    sectionTitle: {
+    },    sectionTitle: {
       fontFamily: stylesPublic.typography.fontFamily.heading,
       fontSize: stylesPublic.typography.fontSize.h2,
       fontWeight: stylesPublic.typography.fontWeight.semiBold,
       color: stylesPublic.colors.text.primary,
       marginBottom: stylesPublic.spacing.md,
       position: "relative",
-      textAlign: "center"
+      textAlign: "center",
+      '@media (max-width: 768px)': {
+        fontSize: stylesPublic.typography.fontSize.xl,
+      },
+      '@media (max-width: 480px)': {
+        fontSize: stylesPublic.typography.fontSize.lg,
+        marginBottom: stylesPublic.spacing.sm,
+      },
     },
     titleUnderline: {
       ...stylesPublic.elements.decorative.underline,
@@ -99,37 +105,61 @@ const Destacados = () => {
       color: stylesPublic.colors.primary.main,
       textAlign: 'center',
       marginBottom: stylesPublic.spacing.md,
-    },
-    eventsTable: {
+    },    eventsTable: {
       backgroundColor: stylesPublic.colors.background.main,
       borderRadius: stylesPublic.borders.radius.md,
       boxShadow: stylesPublic.shadows.md,
       border: `1px solid ${stylesPublic.colors.secondary.main}`,
       overflow: 'hidden',
       fontSize: stylesPublic.typography.fontSize.sm,
+      '@media (max-width: 768px)': {
+        fontSize: stylesPublic.typography.fontSize.xs,
+      },
     },
     tableHeader: {
       background: stylesPublic.colors.background.gradient.accent,
       color: stylesPublic.colors.background.alt,
       fontWeight: stylesPublic.typography.fontWeight.semiBold,
       padding: stylesPublic.spacing.md,
-    },
-    tableCell: {
+    },    tableCell: {
       padding: stylesPublic.spacing.md,
       borderBottom: `1px solid ${stylesPublic.colors.background.alt}`,
       verticalAlign: 'middle',
-    },    galleryGrid: {
+      '@media (max-width: 768px)': {
+        padding: stylesPublic.spacing.sm,
+        fontSize: stylesPublic.typography.fontSize.xs,
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.xs,
+        fontSize: '11px',
+      },
+    },galleryGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
       gap: stylesPublic.spacing.lg,
       marginTop: stylesPublic.spacing.xl,
-      padding: `0 ${stylesPublic.spacing.md}`
-    },reelsCarousel: {
+      padding: `0 ${stylesPublic.spacing.md}`,
+      '@media (max-width: 768px)': {
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: stylesPublic.spacing.md,
+        padding: `0 ${stylesPublic.spacing.sm}`,
+      },
+      '@media (max-width: 480px)': {
+        gridTemplateColumns: '1fr',
+        gap: stylesPublic.spacing.sm,
+        padding: `0 ${stylesPublic.spacing.xs}`,
+      },
+    },    reelsCarousel: {
       marginTop: stylesPublic.spacing.xl,
       padding: `0 ${stylesPublic.spacing.lg}`,
       position: 'relative',
-    },
-    galleryItem: {
+      '@media (max-width: 768px)': {
+        padding: `0 ${stylesPublic.spacing.md}`,
+      },
+      '@media (max-width: 480px)': {
+        padding: `0 ${stylesPublic.spacing.sm}`,
+      },
+    },    galleryItem: {
       position: 'relative',
       overflow: 'hidden',
       borderRadius: stylesPublic.borders.radius.card,
@@ -137,6 +167,12 @@ const Destacados = () => {
       cursor: 'pointer',
       height: '350px',
       transition: stylesPublic.transitions.preset.bounce,
+      '@media (max-width: 768px)': {
+        height: '300px',
+      },
+      '@media (max-width: 480px)': {
+        height: '250px',
+      },
     },    reelItem: {
       position: 'relative',
       overflow: 'hidden',
@@ -148,6 +184,14 @@ const Destacados = () => {
       margin: `0 ${stylesPublic.spacing.md}`,
       transition: stylesPublic.transitions.preset.bounce,
       background: stylesPublic.colors.background.main,
+      '@media (max-width: 768px)': {
+        height: '350px',
+        margin: `0 ${stylesPublic.spacing.sm}`,
+      },
+      '@media (max-width: 480px)': {
+        height: '300px',
+        margin: `0 ${stylesPublic.spacing.xs}`,
+      },
     },
     galleryImage: {
       width: '100%',
@@ -278,14 +322,17 @@ const Destacados = () => {
       cursor: 'pointer',
       transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
       zIndex: stylesPublic.utils.zIndex.popover,
-    },
-    tabButtons: {
+    },    tabButtons: {
       display: 'flex',
       justifyContent: 'center',
       marginBottom: stylesPublic.spacing.xl,
-      gap: stylesPublic.spacing.md
-    },
-    tabButton: {
+      gap: stylesPublic.spacing.md,
+      '@media (max-width: 480px)': {
+        gap: stylesPublic.spacing.sm,
+        flexDirection: 'column',
+        alignItems: 'center',
+      },
+    },    tabButton: {
       padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.lg}`,
       borderRadius: stylesPublic.borders.radius.button,
       border: 'none',
@@ -294,6 +341,11 @@ const Destacados = () => {
       fontWeight: stylesPublic.typography.fontWeight.semiBold,
       cursor: 'pointer',
       transition: stylesPublic.transitions.preset.buttonHover,
+      '@media (max-width: 480px)': {
+        padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
+        fontSize: stylesPublic.typography.fontSize.sm,
+        width: '120px',
+      },
     },
     carouselArrow: {
       backgroundColor: stylesPublic.colors.primary.main,

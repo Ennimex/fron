@@ -28,26 +28,42 @@ const GaleriaCompleta = () => {
       opacity: 0.8,
       zIndex: 1,
       pointerEvents: 'none',
-    },
-    sectionTitle: {
+    },    sectionTitle: {
       fontFamily: stylesPublic.typography.fontFamily.heading,
       fontSize: stylesPublic.typography.fontSize.h2,
       fontWeight: stylesPublic.typography.fontWeight.semiBold,
       color: stylesPublic.colors.text.primary,
       marginBottom: stylesPublic.spacing.md,
       position: "relative",
-      textAlign: "center"
+      textAlign: "center",
+      '@media (max-width: 768px)': {
+        fontSize: stylesPublic.typography.fontSize.xl,
+      },
+      '@media (max-width: 480px)': {
+        fontSize: stylesPublic.typography.fontSize.lg,
+        marginBottom: stylesPublic.spacing.sm,
+      },
     },
     titleUnderline: {
       ...stylesPublic.elements.decorative.underline,
-    },
-    galleryGrid: {
+    },    galleryGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
       gap: stylesPublic.spacing.md,
-      marginTop: stylesPublic.spacing.xl
-    },
-    galleryItem: {
+      marginTop: stylesPublic.spacing.xl,
+      '@media (max-width: 768px)': {
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: stylesPublic.spacing.sm,
+      },
+      '@media (max-width: 576px)': {
+        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+        gap: stylesPublic.spacing.sm,
+      },
+      '@media (max-width: 480px)': {
+        gridTemplateColumns: '1fr',
+        gap: stylesPublic.spacing.xs,
+      },
+    },    galleryItem: {
       position: 'relative',
       overflow: 'hidden',
       borderRadius: stylesPublic.borders.radius.card,
@@ -55,6 +71,12 @@ const GaleriaCompleta = () => {
       cursor: 'pointer',
       height: '350px',
       transition: stylesPublic.transitions.preset.bounce,
+      '@media (max-width: 768px)': {
+        height: '300px',
+      },
+      '@media (max-width: 480px)': {
+        height: '250px',
+      },
     },
     galleryImage: {
       width: '100%',
@@ -83,14 +105,17 @@ const GaleriaCompleta = () => {
       alignItems: 'center',
       zIndex: stylesPublic.utils.zIndex.modal,
       padding: stylesPublic.spacing.md,
-    },
-    lightboxImageWrapper: {
+    },    lightboxImageWrapper: {
       position: 'relative',
       maxWidth: '80%',
       maxHeight: '80%',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      '@media (max-width: 768px)': {
+        maxWidth: '95%',
+        maxHeight: '85%',
+      },
     },
     lightboxImage: {
       maxWidth: '100%',
@@ -98,8 +123,7 @@ const GaleriaCompleta = () => {
       objectFit: 'contain',
       borderRadius: stylesPublic.borders.radius.md,
       boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
-    },
-    lightboxCaption: {
+    },    lightboxCaption: {
       position: 'absolute',
       bottom: '30px',
       color: stylesPublic.colors.background.alt,
@@ -110,7 +134,18 @@ const GaleriaCompleta = () => {
       borderRadius: stylesPublic.borders.radius.md,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: '80%'
+      width: '80%',
+      '@media (max-width: 768px)': {
+        fontSize: stylesPublic.typography.fontSize.md,
+        width: '90%',
+        bottom: '20px',
+        padding: `${stylesPublic.spacing.xs} ${stylesPublic.spacing.sm}`,
+      },
+      '@media (max-width: 480px)': {
+        fontSize: stylesPublic.typography.fontSize.sm,
+        width: '95%',
+        bottom: '10px',
+      },
     },
     closeButton: {
       position: 'absolute',

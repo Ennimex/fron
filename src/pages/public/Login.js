@@ -257,6 +257,7 @@ const Login = () => {
       position: relative;
       min-height: min-content;
       margin: auto;
+      box-sizing: border-box;
     }
 
     .login-left-panel {
@@ -272,56 +273,13 @@ const Login = () => {
       }
     }
 
-    .login-left-content {
-      max-width: 450px;
-      margin-left: auto;
-      margin-right: 20px;
-    }    .login-welcome-title {
-      font-size: ${stylesPublic.typography.fontSize.h1};
-      font-weight: ${stylesPublic.typography.fontWeight.bold};
-      margin-bottom: ${stylesPublic.spacing.md};
-      line-height: ${stylesPublic.typography.lineHeight.tight};
-      font-family: ${stylesPublic.typography.fontFamily.heading};
-      color: var(--huasteca-beige);
-    }
-
-    .login-welcome-text {
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-      color: rgba(245, 232, 199, 0.8);
-    }
-
-    .login-brand-feature {
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-    }
-
-    .login-feature-icon {
-      font-size: 1.2rem;
-      margin-right: 0.8rem;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(255, 0, 112, 0.3);
-      color: var(--huasteca-beige);
-    }
-
-    .login-feature-text {
-      font-size: 0.9rem;
-      color: rgba(245, 232, 199, 0.8);
-    }
-
     .login-right-panel {
       flex: 1 1 55%;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 15px;
+      min-width: 0;
     }    .login-form-wrapper {
       position: relative;
       width: 100%;
@@ -660,61 +618,76 @@ const Login = () => {
 
     @media (max-width: 992px) {
       .login-container {
-        padding: 20px;
-        min-height: calc(100vh - 40px);
-        background: linear-gradient(rgba(35, 16, 45, 0.9), rgba(35, 16, 45, 0.9)),
-                    url(${backgroundImages[currentImageIndex]});
+        padding: 10px;
+        min-height: 100vh;
+        align-items: flex-start;
       }
-      
+      .login-inner-container {
+        flex-direction: column;
+        max-width: 100vw;
+        min-height: unset;
+        margin: 0;
+      }
+      .login-left-panel {
+        display: none !important;
+        padding: 0;
+      }
+      .login-right-panel {
+        flex: 1 1 100%;
+        padding: 0;
+        min-width: 0;
+        width: 100vw;
+        justify-content: center;
+        align-items: flex-start;
+      }
       .login-form-wrapper {
-        max-width: 500px;
+        max-width: 100vw;
         margin: 0 auto;
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100vh;
+        padding: 0;
       }
-
       .login-form-panel {
-        padding: 25px 20px;
+        padding: 20px 10px;
+        min-height: 100vh;
+        max-height: none;
       }
     }
 
     @media (max-width: 576px) {
       .login-container {
-        padding: 10px;
-        min-height: calc(100vh - 20px);
+        padding: 0;
+        min-height: 100vh;
       }
-
       .login-form-wrapper {
-        margin: 10px auto;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100vh;
+        padding: 0;
       }
-
       .login-form-panel {
-        padding: 15px;
-        max-height: calc(100vh - 30px);
+        padding: 12px 5px;
+        min-height: 100vh;
+        max-height: none;
       }
-
-      .login-input-row {
-        flex-direction: column;
-        gap: 0;
+      .login-title {
+        font-size: 1.1rem;
       }
-
-      .login-input-box {
-        margin-bottom: 12px;
+      .login-input {
+        font-size: 0.95rem;
+        padding: 10px 35px 10px 10px;
       }
-
-      .login-checkbox-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
+      .login-button {
+        font-size: 1rem;
+        padding: 12px;
       }
-    }
-
-    @media (max-height: 600px) {
-      .login-container {
-        align-items: flex-start;
-        padding: 10px 5px;
+      .login-checkbox-label {
+        font-size: 11px;
       }
-
-      .login-form-wrapper {
-        margin: 5px auto;
+      .login-terms-text {
+        font-size: 9px;
       }
     }
 

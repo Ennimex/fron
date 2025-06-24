@@ -56,16 +56,24 @@ const ProductoDetalle = () => {
       background: stylesPublic.elements.backgroundPatterns.floral,
       opacity: 0.8,
       zIndex: stylesPublic.utils.zIndex.background,
-    },
-    productContainer: {
+    },    productContainer: {
       maxWidth: stylesPublic.utils.container.maxWidth,
       margin: stylesPublic.spacing.margin.auto,
       padding: stylesPublic.spacing.section.small,
       backgroundColor: stylesPublic.colors.background.main,
       borderRadius: stylesPublic.borders.radius.xl,
-      boxShadow: stylesPublic.shadows.card,      opacity: isVisible.details ? 1 : 0,
+      boxShadow: stylesPublic.shadows.card,
+      opacity: isVisible.details ? 1 : 0,
       transform: isVisible.details ? "translateY(0)" : "translateY(20px)",
       transition: stylesPublic.transitions.preset.pageIn,
+      '@media (max-width: 768px)': {
+        padding: stylesPublic.spacing.section.xsmall,
+        borderRadius: stylesPublic.borders.radius.lg,
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.md,
+        borderRadius: stylesPublic.borders.radius.md,
+      },
     },
     imageContainer: {
       position: "relative",
@@ -73,19 +81,30 @@ const ProductoDetalle = () => {
       borderRadius: stylesPublic.borders.radius.lg,
       boxShadow: stylesPublic.shadows.lg,
       transition: stylesPublic.transitions.preset.default,
-    },
-    image: {
+    },    image: {
       width: "100%",
       height: "500px",
       objectFit: "cover",
       transition: "transform 0.5s ease",
-    },
-    title: {
+      '@media (max-width: 768px)': {
+        height: "400px",
+      },
+      '@media (max-width: 480px)': {
+        height: "300px",
+      },
+    },    title: {
       fontFamily: stylesPublic.typography.fontFamily.heading,
       fontSize: stylesPublic.typography.fontSize.h2,
       fontWeight: stylesPublic.typography.fontWeight.semiBold,
       color: stylesPublic.colors.text.primary,
       marginBottom: stylesPublic.spacing.md,
+      '@media (max-width: 768px)': {
+        fontSize: stylesPublic.typography.fontSize.xl,
+      },
+      '@media (max-width: 480px)': {
+        fontSize: stylesPublic.typography.fontSize.lg,
+        marginBottom: stylesPublic.spacing.sm,
+      },
     },
     description: {
       fontFamily: stylesPublic.typography.fontFamily.body,
@@ -93,8 +112,7 @@ const ProductoDetalle = () => {
       color: stylesPublic.colors.text.secondary,
       lineHeight: stylesPublic.typography.lineHeight.paragraph,
       marginBottom: stylesPublic.spacing.lg,
-    },
-    infoGrid: {
+    },    infoGrid: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
       gap: stylesPublic.spacing.gap.lg,
@@ -102,6 +120,14 @@ const ProductoDetalle = () => {
       opacity: isVisible.info ? 1 : 0,
       transform: isVisible.info ? "translateY(0)" : "translateY(20px)",
       transition: stylesPublic.transitions.preset.pageIn,
+      '@media (max-width: 768px)': {
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: stylesPublic.spacing.gap.md,
+      },
+      '@media (max-width: 480px)': {
+        gridTemplateColumns: "1fr",
+        gap: stylesPublic.spacing.gap.sm,
+      },
     },    infoItem: {
       backgroundColor: stylesPublic.colors.background.alt,
       padding: stylesPublic.spacing.md,
@@ -109,6 +135,10 @@ const ProductoDetalle = () => {
       boxShadow: stylesPublic.shadows.md,
       transition: stylesPublic.transitions.preset.default,
       borderLeft: `${stylesPublic.borders.width.thick} solid ${stylesPublic.colors.primary.light}`,
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.sm,
+        borderRadius: stylesPublic.borders.radius.md,
+      },
     },
     infoLabel: {
       fontFamily: stylesPublic.typography.fontFamily.body,
