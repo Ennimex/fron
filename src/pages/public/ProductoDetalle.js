@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Image } from 'react-bootstrap';
-import productos from "../../services/base";
 import "bootstrap-icons/font/bootstrap-icons.min.css";
 import stylesPublic from "../../styles/stylesPublic"; // Importamos el sistema centralizado de estilos
 
@@ -17,17 +16,19 @@ const ProductoDetalle = () => {
   });
 
   useEffect(() => {
-    const productoEncontrado = productos.find(p => p._id === id);
-    if (productoEncontrado) {
-      setProducto(productoEncontrado);
-      // Animaciones escalonadas como en Inicio.js
-      setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
-      setTimeout(() => setIsVisible(prev => ({ ...prev, details: true })), 300);
-      setTimeout(() => setIsVisible(prev => ({ ...prev, info: true })), 600);
-      setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 900);
-    } else {
-      navigate('/productos');
-    }
+    // Obtener producto desde la API
+    fetch(`http://localhost:5000/api/public/productos/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setProducto(data);
+        setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
+        setTimeout(() => setIsVisible(prev => ({ ...prev, details: true })), 300);
+        setTimeout(() => setIsVisible(prev => ({ ...prev, info: true })), 600);
+        setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 900);
+      })
+      .catch(() => {
+        navigate('/productos');
+      });
   }, [id, navigate]);
   if (!producto) {
     return <div style={{ 
@@ -167,8 +168,8 @@ const ProductoDetalle = () => {
                 className="animate-in"
               >
                 <Image
-                  src={producto.image}
-                  alt={producto.title}
+                  src={producto.imagenURL}
+                  alt={producto.nombre}
                   fluid
                   style={customStyles.image}
                 />
@@ -176,25 +177,29 @@ const ProductoDetalle = () => {
             </Col>
 
             <Col lg={6}>
-              <h1 style={customStyles.title}>{producto.title}</h1>
-              <p style={customStyles.description}>{producto.description}</p>
+              <h1 style={customStyles.title}>{producto.nombre}</h1>
+              <p style={customStyles.description}>{producto.descripcion}</p>
 
               <div style={customStyles.infoGrid}>
                 <div style={customStyles.infoItem}>
-                  <div style={customStyles.infoLabel}>Categoría</div>
-                  <div style={customStyles.infoValue}>{producto.category}</div>
+                  <div style={customStyles.infoLabel}>Localidad</div>
+                  <div style={customStyles.infoValue}>{producto.localidadId?.nombre}</div>
                 </div>
                 <div style={customStyles.infoItem}>
-                  <div style={customStyles.infoLabel}>Material</div>
-                  <div style={customStyles.infoValue}>{producto.material}</div>
-                </div>
-                <div style={customStyles.infoItem}>
-                  <div style={customStyles.infoLabel}>Color</div>
-                  <div style={customStyles.infoValue}>{producto.color}</div>
+                  <div style={customStyles.infoLabel}>Tela</div>
+                  <div style={customStyles.infoValue}>{producto.tipoTela}</div>
                 </div>
                 <div style={customStyles.infoItem}>
                   <div style={customStyles.infoLabel}>Tallas</div>
-                  <div style={customStyles.infoValue}>{producto.talla.join(", ")}</div>
+                  <div style={customStyles.infoValue}>
+                    {producto.tallasDisponibles?.map(td => td.talla).join(", ")}
+                  </div>
+                </div>
+                <div style={customStyles.infoItem}>
+                  <div style={customStyles.infoLabel}>Categorías</div>
+                  <div style={customStyles.infoValue}>
+                    {producto.tallasDisponibles?.map(td => td.categoriaId?.nombre).filter(Boolean).join(", ")}
+                  </div>
                 </div>
               </div>              <Button 
                 variant="primary" 

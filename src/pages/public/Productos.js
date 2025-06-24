@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import productos from "../../services/base"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
 import { useAuth } from '../../context/AuthContext'
@@ -19,15 +18,15 @@ const ProductoCard = React.memo(({ producto, vistaGrilla, handleProductClick, an
       <div className={`productos-product-content ${vistaGrilla ? "grid-view" : "list-view"}`}>
         <div className={`productos-product-image-container ${vistaGrilla ? "grid-view" : "list-view"}`}>
           <img
-            src={producto.image || "/placeholder.svg"}
-            alt={producto.title}
+            src={producto.imagenURL || "/placeholder.svg"}
+            alt={producto.nombre}
             className="productos-product-image"
             loading="lazy"
           />
         </div>
         <div className={`productos-product-details ${vistaGrilla ? "grid-view" : "list-view"}`}>
-          <h3 className={`productos-product-title ${vistaGrilla ? "" : "list-view"}`}>{producto.title}</h3>
-          <p className="productos-product-description">{producto.description}</p>
+          <h3 className={`productos-product-title ${vistaGrilla ? "" : "list-view"}`}>{producto.nombre}</h3>
+          <p className="productos-product-description">{producto.descripcion}</p>
           <button className="productos-view-more-button" onClick={(e) => handleProductClick(producto._id, e)}>
             Ver más
           </button>
@@ -60,16 +59,22 @@ const Productos = () => {
   const [vistaGrilla, setVistaGrilla] = useState(true)
   const [isVisible, setIsVisible] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  // Estado para productos desde la API
+  const [productosApi, setProductosApi] = useState([]);
 
   useEffect(() => {
-    // Precarga las imágenes
-    productos.forEach((producto) => {
-      const img = new Image()
-      img.src = producto.image
-    })
-
-    setProductosFiltrados(productos)
-    setTimeout(() => setIsVisible(true), 100)
+    // Obtener productos desde la API
+    fetch("http://localhost:5000/api/productos")
+      .then(res => res.json())
+      .then(data => {
+        setProductosApi(data);
+        setProductosFiltrados(data);
+        setTimeout(() => setIsVisible(true), 100);
+      })
+      .catch(() => {
+        setProductosApi([]);
+        setProductosFiltrados([]);
+      });
   }, [])
 
   const handleChange = (e) => {
@@ -77,7 +82,7 @@ const Productos = () => {
     setFiltros(newFiltros)
 
     // Filtra los productos inmediatamente
-    const { resultado, contadorFiltros } = filtrarProductos(productos, newFiltros)
+    const { resultado, contadorFiltros } = filtrarProductos(productosApi, newFiltros)
     setProductosFiltrados(resultado)
     setFiltrosActivos(contadorFiltros)
   }
@@ -98,7 +103,7 @@ const Productos = () => {
     const searchInput = document.querySelector("input[name='busqueda']")
     if (searchInput) searchInput.value = ""
 
-    const { resultado, contadorFiltros } = filtrarProductos(productos, resetFiltros)
+    const { resultado, contadorFiltros } = filtrarProductos(productosApi, resetFiltros)
     setProductosFiltrados(resultado)
     setFiltrosActivos(contadorFiltros)
   }
@@ -133,63 +138,47 @@ const Productos = () => {
       const searchTerm = filtros.busqueda.toLowerCase()
       resultado = resultado.filter(
         (producto) =>
-          producto.title.toLowerCase().includes(searchTerm) ||
-          producto.description.toLowerCase().includes(searchTerm) ||
-          producto.category.toLowerCase().includes(searchTerm),
+          producto.nombre?.toLowerCase().includes(searchTerm) ||
+          producto.descripcion?.toLowerCase().includes(searchTerm) ||
+          producto.tipoTela?.toLowerCase().includes(searchTerm)
       )
       contadorFiltros++
     }
 
     if (filtros.categoria) {
-      resultado = resultado.filter((producto) => producto.category.toLowerCase() === filtros.categoria.toLowerCase())
+      resultado = resultado.filter((producto) =>
+        producto.tallasDisponibles?.some(td =>
+          td.categoriaId?.nombre?.toLowerCase() === filtros.categoria.toLowerCase()
+        )
+      )
       contadorFiltros++
     }
 
     if (filtros.color) {
-      resultado = resultado.filter((producto) => producto.color.toLowerCase() === filtros.color.toLowerCase())
+      resultado = resultado.filter((producto) =>
+        producto.color?.toLowerCase() === filtros.color.toLowerCase()
+      )
       contadorFiltros++
     }
 
     if (filtros.material) {
       resultado = resultado.filter((producto) =>
-        producto.material.toLowerCase().includes(filtros.material.toLowerCase()),
+        producto.tipoTela?.toLowerCase().includes(filtros.material.toLowerCase())
       )
       contadorFiltros++
     }
 
     if (filtros.talla) {
-      resultado = resultado.filter((producto) => producto.talla.includes(filtros.talla))
+      resultado = resultado.filter((producto) =>
+        producto.tallasDisponibles?.some(td => td.talla === filtros.talla)
+      )
       contadorFiltros++
     }
 
-    if (filtros.precio) {
-      switch (filtros.precio) {
-        case "low":
-          resultado = resultado.filter((producto) => producto.price < 50)
-          break
-        case "medium":
-          resultado = resultado.filter((producto) => producto.price >= 50 && producto.price <= 100)
-          break
-        case "high":
-          resultado = resultado.filter((producto) => producto.price > 100)
-          break
-        default:
-          break
-      }
-      contadorFiltros++
-    }
+    // No hay campo precio en la API, puedes agregar lógica si lo agregas después
 
     if (filtros.ordenar) {
-      if (filtros.ordenar === "asc") {
-        resultado.sort((a, b) => a.price - b.price)
-      } else if (filtros.ordenar === "desc") {
-        resultado.sort((a, b) => b.price - a.price)
-      } else if (filtros.ordenar === "rating") {
-        resultado.sort((a, b) => b.rating - a.rating)
-      } else if (filtros.ordenar === "newest") {
-        resultado.sort((a, b) => b._id.localeCompare(a._id))
-      }
-      contadorFiltros++
+      // No hay campo price ni rating, puedes implementar lógica si agregas esos campos
     }
 
     return { resultado, contadorFiltros }
@@ -208,10 +197,10 @@ const Productos = () => {
       busqueda: "",
     }
     setFiltros(initialFiltros)
-    const { resultado, contadorFiltros } = filtrarProductos(productos, initialFiltros)
+    const { resultado, contadorFiltros } = filtrarProductos(productosApi, initialFiltros)
     setProductosFiltrados(resultado)
     setFiltrosActivos(contadorFiltros)
-  }, [location.search, filtrarProductos])
+  }, [location.search, filtrarProductos, productosApi])
   const customStyles = {
     section: {
       padding: stylesPublic.spacing.section.large,

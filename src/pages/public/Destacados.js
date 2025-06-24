@@ -521,23 +521,11 @@ const Destacados = () => {
     slidesToShow: 4,
     slidesToScroll: 1,
     swipeToSlide: true,
-    arrows: true,
+    arrows: false, // Sin flechas
+    autoplay: true, // Avance automático
+    autoplaySpeed: 3500, // Tiempo en ms entre slides (3.5 segundos)
     centerMode: false,
     variableWidth: false,
-    nextArrow: (
-      <div>
-        <div style={styles.carouselArrow}>
-          <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
-        </div>
-      </div>
-    ),
-    prevArrow: (
-      <div>
-        <div style={styles.carouselArrow}>
-          <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
-        </div>
-      </div>
-    ),
     responsive: [
       {
         breakpoint: 1200,

@@ -35,6 +35,7 @@ import GestionCategorias from "./pages/Admin/GestionCategorias";
 import GestorLocalidades from "./pages/Admin/GestorLocalidades";
 import GestionFotos from "./pages/Admin/GestionFotos";
 import GestionVideos from "./pages/Admin/GestionVideos";
+import GestionEventos from "./pages/Admin/GestionEventos";
 
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
@@ -76,6 +77,7 @@ function App() {
               <Route path="/admin/localidades" element={<PrivateRoute allowedRoles={["admin"]}><GestorLocalidades /></PrivateRoute>} />
               <Route path="/admin/galeria/fotos" element={<PrivateRoute allowedRoles={["admin"]}><GestionFotos /></PrivateRoute>} />
               <Route path="/admin/galeria/videos" element={<PrivateRoute allowedRoles={["admin"]}><GestionVideos /></PrivateRoute>} />
+              <Route path="/admin/eventos" element={<PrivateRoute allowedRoles={["admin"]}><GestionEventos /></PrivateRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

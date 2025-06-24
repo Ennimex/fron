@@ -19,6 +19,7 @@ import {
   FaImages,
   FaImage,
   FaVideo,
+  FaCalendarAlt,
 } from "react-icons/fa"
 import { colors, typography } from "../../styles/styles"
 
@@ -609,6 +610,20 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                   </MenuLink>
                 </div>
               </div>
+            </li>
+
+            {/* Nuevo menú de Eventos */}
+            <li style={styles.menuItem}>
+              <MenuLink
+                to="/admin/eventos"
+                style={styles.menuLink}
+                activeStyle={styles.menuLinkActive}
+              >
+                <span style={styles.menuIcon}>
+                  <FaCalendarAlt size={20} />
+                </span>
+                <span style={styles.menuText}>Eventos</span>
+              </MenuLink>
             </li>
           </>
         )}
