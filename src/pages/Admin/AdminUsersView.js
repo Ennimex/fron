@@ -63,8 +63,7 @@ const enhancedStyles = {
     top: "50%",
     transform: "translateY(-50%)",
     color: "#9ca3af",
-  },
-  searchInput: {
+  },  searchInput: {
     width: "100%",
     padding: "0.75rem 1rem 0.75rem 2.5rem",
     borderRadius: "8px",
@@ -74,10 +73,6 @@ const enhancedStyles = {
     transition: "border-color 0.2s ease, box-shadow 0.2s ease",
     outline: "none",
     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-    "&:focus": {
-      borderColor: "#60a5fa",
-      boxShadow: "0 0 0 3px rgba(96, 165, 250, 0.2)",
-    },
   },
   buttonGroup: {
     display: "flex",
@@ -96,30 +91,13 @@ const enhancedStyles = {
     cursor: "pointer",
     transition: "all 0.2s ease",
     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-  },
-  primaryButton: {
+  },  primaryButton: {
     backgroundColor: "#3b82f6",
     color: "white",
-    "&:hover": {
-      backgroundColor: "#2563eb",
-    },
-    "&:disabled": {
-      backgroundColor: "#93c5fd",
-      cursor: "not-allowed",
-    },
-  },
-  secondaryButton: {
+  },  secondaryButton: {
     backgroundColor: "white",
     color: "#4b5563",
     border: "1px solid #e5e7eb",
-    "&:hover": {
-      backgroundColor: "#f9fafb",
-      borderColor: "#d1d5db",
-    },
-    "&:disabled": {
-      opacity: 0.6,
-      cursor: "not-allowed",
-    },
   },
   filterButton: {
     backgroundColor: "white",
@@ -150,8 +128,7 @@ const enhancedStyles = {
     fontSize: "0.875rem",
     color: "#4b5563",
     fontWeight: "500",
-  },
-  select: {
+  },  select: {
     padding: "0.65rem 1rem",
     borderRadius: "8px",
     border: "1px solid #e5e7eb",
@@ -160,10 +137,6 @@ const enhancedStyles = {
     outline: "none",
     transition: "border-color 0.2s ease, box-shadow 0.2s ease",
     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-    "&:focus": {
-      borderColor: "#60a5fa",
-      boxShadow: "0 0 0 3px rgba(96, 165, 250, 0.2)",
-    },
   },
   tableContainer: {
     backgroundColor: "white",
@@ -188,8 +161,7 @@ const enhancedStyles = {
   bulkActionsButtons: {
     display: "flex",
     gap: "0.5rem",
-  },
-  bulkActionButton: {
+  },  bulkActionButton: {
     display: "flex",
     alignItems: "center",
     gap: "0.25rem",
@@ -201,14 +173,6 @@ const enhancedStyles = {
     color: "#4b5563",
     cursor: "pointer",
     transition: "all 0.2s ease",
-    "&:hover": {
-      backgroundColor: "#f9fafb",
-      borderColor: "#d1d5db",
-    },
-    "&:disabled": {
-      opacity: 0.6,
-      cursor: "not-allowed",
-    },
   },
   table: {
     width: "100%",
@@ -217,8 +181,7 @@ const enhancedStyles = {
   tableHeader: {
     backgroundColor: "#f9fafb",
     borderBottom: "1px solid #e5e7eb",
-  },
-  tableHeaderCell: {
+  },  tableHeaderCell: {
     padding: "1rem",
     textAlign: "left",
     color: "#4b5563",
@@ -226,19 +189,12 @@ const enhancedStyles = {
     fontSize: "0.875rem",
     cursor: "pointer",
     transition: "background-color 0.2s ease",
-    "&:hover": {
-      backgroundColor: "#f3f4f6",
-    },
-  },
-  tableRow: {
+  },tableRow: {
     borderBottom: "1px solid #e5e7eb",
     transition: "background-color 0.2s ease",
-    "&:hover": {
-      backgroundColor: "#f9fafb",
-    },
-    "&:last-child": {
-      borderBottom: "none",
-    },
+  },
+  tableRowHover: {
+    backgroundColor: "#f9fafb",
   },
   tableCell: {
     padding: "1rem",
@@ -294,8 +250,7 @@ const enhancedStyles = {
   roleUser: {
     backgroundColor: "#e0f2fe",
     color: "#0369a1",
-  },
-  actionButton: {
+  },  actionButton: {
     width: "32px",
     height: "32px",
     borderRadius: "6px",
@@ -305,23 +260,12 @@ const enhancedStyles = {
     justifyContent: "center",
     cursor: "pointer",
     transition: "background-color 0.2s ease, transform 0.1s ease",
-    "&:hover": {
-      transform: "translateY(-2px)",
-    },
-  },
-  editButton: {
+  },  editButton: {
     backgroundColor: "#dbeafe",
     color: "#2563eb",
-    "&:hover": {
-      backgroundColor: "#bfdbfe",
-    },
-  },
-  deleteButton: {
+  },  deleteButton: {
     backgroundColor: "#fee2e2",
     color: "#dc2626",
-    "&:hover": {
-      backgroundColor: "#fecaca",
-    },
   },
   pagination: {
     display: "flex",
@@ -339,8 +283,7 @@ const enhancedStyles = {
   paginationButtons: {
     display: "flex",
     gap: "0.25rem",
-  },
-  paginationButton: {
+  },  paginationButton: {
     width: "32px",
     height: "32px",
     display: "flex",
@@ -353,18 +296,10 @@ const enhancedStyles = {
     fontSize: "0.875rem",
     cursor: "pointer",
     transition: "all 0.2s ease",
-    "&:hover:not(:disabled)": {
-      backgroundColor: "#f3f4f6",
-      borderColor: "#d1d5db",
-    },
-  },
-  paginationButtonActive: {
+  },  paginationButtonActive: {
     backgroundColor: "#3b82f6",
     borderColor: "#3b82f6",
     color: "white",
-    "&:hover": {
-      backgroundColor: "#2563eb",
-    },
   },
   loadingContainer: {
     display: "flex",
@@ -405,14 +340,14 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const [sortField, setSortField] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(10);
-  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [usersPerPage] = useState(10);  const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUserForm, setShowUserForm] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [hoveredRow, setHoveredRow] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -881,8 +816,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             <div style={enhancedStyles.emptyState}>
               <FaUsers size={40} style={{ opacity: 0.3, marginBottom: "1rem" }} />
               <h3>No se encontraron usuarios</h3>
-              <p>Intenta ajustar los filtros de búsqueda o añade nuevos usuarios.</p>
-            </div>
+              <p>Intenta ajustar los filtros de búsqueda o añade nuevos usuarios.</p>            </div>
           ) : (
             <table style={enhancedStyles.table}>
               <thead style={enhancedStyles.tableHeader}>
@@ -923,14 +857,22 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       Fecha de Registro
                       {renderSortIcon("createdAt")}
-                    </div>
-                  </th>
+                    </div>                  </th>
                   <th style={{ ...enhancedStyles.tableHeaderCell, width: "10%" }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedUsers.map((user) => (
-                  <tr key={user._id} style={enhancedStyles.tableRow}>
+                {paginatedUsers.map((user, index) => (
+                  <tr 
+                    key={user._id} 
+                    style={{
+                      ...enhancedStyles.tableRow,
+                      ...(hoveredRow === index ? enhancedStyles.tableRowHover : {}),
+                      ...(index === paginatedUsers.length - 1 ? { borderBottom: 'none' } : {})
+                    }}
+                    onMouseEnter={() => setHoveredRow(index)}
+                    onMouseLeave={() => setHoveredRow(null)}
+                  >
                     <td style={{ ...enhancedStyles.tableCell, padding: "0.75rem" }}>
                       <input
                         type="checkbox"
@@ -953,7 +895,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     <td style={enhancedStyles.tableCell}>{user.email}</td>
                     <td style={enhancedStyles.tableCell}>{user.phone || "-"}</td>
                     <td style={enhancedStyles.tableCell}>{renderRoleBadge(user.role)}</td>
-                    <td style={enhancedStyles.tableCell}>{formatDate(user.createdAt)}</td>                    <td style={{...enhancedStyles.tableCell, padding: "0.5rem 1rem"}}>
+                    <td style={enhancedStyles.tableCell}>{formatDate(user.createdAt)}</td>
+                    <td style={{...enhancedStyles.tableCell, padding: "0.5rem 1rem"}}>
                       <div style={{ display: "flex", gap: "8px" }}>
                         <button
                           style={{ ...enhancedStyles.actionButton, ...enhancedStyles.editButton }}
@@ -969,8 +912,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                         >
                           <FaTrash size={14} />
                         </button>
-                      </div>
-                    </td>
+                      </div>                    </td>
                   </tr>
                 ))}
               </tbody>

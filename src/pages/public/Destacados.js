@@ -14,9 +14,9 @@ const Destacados = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [animate, setAnimate] = useState(false);
   const [activeTab, setActiveTab] = useState('fotos');
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const videoRefs = useRef([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);  const videoRefs = useRef([]);
   const [fotos, setFotos] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Hook para detectar cambios en el tamaño de pantalla
@@ -334,37 +334,14 @@ const Destacados = () => {
     alt: foto.titulo,
     caption: foto.descripcion
   }));
-
-  const reels = [
-    {
-      id: 1,
-      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-artisan-weaving-a-fabric-on-a-traditional-loom-51794-large.mp4',
-      title: 'Proceso de bordado tradicional',
-      description: 'Conoce cómo nuestras artesanas crean cada pieza'
-    },
-    {
-      id: 2,
-      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-a-photoshoot-51798-large.mp4',
-      title: 'Desfile de moda huasteca',
-      description: 'Nuestra colección featured en eventos especiales'
-    },
-    {
-      id: 3,
-      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-woman-weaving-on-a-loom-51795-large.mp4',
-      title: 'Entrevista con artesanas destacadas',
-      description: 'Historias detrás de nuestras piezas más especiales'
-    },
-    {
-      id: 4,
-      src: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      previewSrc: 'https://assets.mixkit.co/videos/preview/mixkit-model-in-traditional-clothing-posing-51799-large.mp4',
-      title: 'Colección Premium',
-      description: 'Nuestras creaciones más exclusivas'
-    }
-  ];
+  // Transformar los datos de videos de la API para usarlos en el carousel
+  const reels = videos.map(video => ({
+    id: video._id,
+    src: video.url,
+    previewSrc: video.miniatura || video.url, // Usar miniatura si está disponible
+    title: video.titulo || 'Video sin título',
+    description: video.descripcion || 'Sin descripción'
+  }));
 
   // Datos de eventos destacados
   const events = [
@@ -396,8 +373,7 @@ const Destacados = () => {
       location: 'Palacio de Bellas Artes, CDMX',
       description: 'Evento de gala con nuestras creaciones destacadas'
     }
-  ];
-  // Efecto para cargar las fotos destacadas desde la API
+  ];  // Efecto para cargar las fotos destacadas desde la API
   useEffect(() => {
     const fetchFotos = async () => {
       try {
@@ -412,6 +388,20 @@ const Destacados = () => {
     };
 
     fetchFotos();
+  }, []);
+
+  // Efecto para cargar los videos desde la API
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const data = await api.get('/videos');
+        setVideos(data);
+      } catch (error) {
+        console.error('Error al cargar los videos:', error);
+      }
+    };
+
+    fetchVideos();
   }, []);
 
   useEffect(() => {
@@ -463,8 +453,7 @@ const Destacados = () => {
     setSelectedVideo(video);
     setSelectedImage(null);
     document.body.style.overflow = 'hidden';
-  };
-  const closeLightbox = () => {
+  };  const closeLightbox = () => {
     setSelectedImage(null);
     setSelectedVideo(null);
     document.body.style.overflow = 'auto';
@@ -480,6 +469,12 @@ const Destacados = () => {
         }
       }
     });
+
+    // También pausar el video del lightbox si existe
+    const lightboxVideo = document.querySelector('video[controls]');
+    if (lightboxVideo) {
+      lightboxVideo.pause();
+    }
   };
 
   const navigateMedia = (direction) => {
@@ -737,8 +732,9 @@ const Destacados = () => {
                 marginTop: stylesPublic.spacing['2xl'],
                 marginBottom: stylesPublic.spacing['2xl']
               }}>
-                <Slider {...sliderSettings}>
-                  {reels.map((reel, index) => (
+                {reels.length > 0 ? (
+                  <Slider {...sliderSettings}>
+                    {reels.map((reel, index) => (
                     <div key={reel.id} style={{ padding: `0 ${stylesPublic.spacing.sm}` }}>
                       <Card
                         style={{
@@ -763,14 +759,13 @@ const Destacados = () => {
                         onMouseEnter={() => handleVideoHover(index, true)}
                         onMouseLeave={() => handleVideoHover(index, false)}
                       >
-                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                          <video
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>                          <video
                             ref={(el) => (videoRefs.current[index] = el)}
-                            src={reel.previewSrc}
+                            src={reel.previewSrc || reel.src}
                             muted
                             loop
                             style={styles.reelVideo}
-                            poster={`https://img.youtube.com/vi/${reel.src.split('/').pop()}/maxresdefault.jpg`}
+                            poster={reel.previewSrc}
                           />
                           <div style={styles.playIcon}>
                             <IonIcon icon={playCircleOutline} style={{ fontSize: '50px' }} />
@@ -801,10 +796,22 @@ const Destacados = () => {
                             }}>{reel.description}</Card.Text>
                           </Card.Body>
                         </div>
-                      </Card>
-                    </div>
+                      </Card>                    </div>
                   ))}
                 </Slider>
+                ) : (
+                  <div className="text-center w-100" style={{ 
+                    padding: stylesPublic.spacing.xl,
+                    backgroundColor: stylesPublic.colors.background.main,
+                    borderRadius: stylesPublic.borders.radius.lg,
+                    margin: `0 ${stylesPublic.spacing.md}`
+                  }}>
+                    <p style={{ 
+                      fontSize: stylesPublic.typography.fontSize.lg,
+                      color: stylesPublic.colors.text.secondary
+                    }}>No hay videos disponibles en este momento.</p>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -870,21 +877,18 @@ const Destacados = () => {
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
             >
               <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
-            </button>
-              <iframe
-              width="100%"
-              height="100%"
+            </button>            <video
+              controls
+              autoPlay
               src={selectedVideo.src}
-              title={selectedVideo.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
               style={{
                 ...styles.lightboxVideo,
                 maxWidth: isMobile ? '90vw' : '800px',
                 height: isMobile ? '250px' : '450px'
               }}
-            ></iframe>
+            >
+              Tu navegador no soporta la reproducción de video.
+            </video>
             
             <div style={{
               position: 'relative',

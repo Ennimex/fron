@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import stylesPublic from '../../styles/stylesPublic';
+import api from '../../services/api';
 
 const Servicios = () => {
   const navigate = useNavigate();
@@ -12,13 +13,31 @@ const Servicios = () => {
     cta: false,
   });
   const [hoveredService, setHoveredService] = useState(null);
-
+  const [servicios, setServicios] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     // Animaciones escalonadas como en Inicio.js
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, servicios: true })), 300);
     setTimeout(() => setIsVisible(prev => ({ ...prev, beneficios: true })), 600);
     setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 900);
+  }, []);
+
+  // Cargar servicios desde la API
+  useEffect(() => {
+    const fetchServicios = async () => {
+      try {
+        setLoading(true);
+        const data = await api.get('/public/servicios');
+        setServicios(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error al cargar los servicios:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchServicios();
   }, []);
 
   // Iconos para los servicios de la boutique
@@ -85,35 +104,6 @@ const Servicios = () => {
       fontSize: "1.8rem",
     },
   };
-
-  // Datos de servicios para la boutique
-  const serviciosData = useMemo(() => [
-    {
-      id: 'diseno',
-      titulo: "Diseño Personalizado",
-      descripcion: "Creación de piezas únicas según tus preferencias y medidas, fusionando tradición huasteca con diseño contemporáneo.",
-      imagen: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2940",
-    },
-    {
-      id: 'confeccion',
-      titulo: "Confección Artesanal",
-      descripcion: "Elaboración de prendas con técnicas tradicionales huastecas, garantizando calidad y autenticidad en cada puntada.",
-      imagen: "https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2940",
-    },
-    {
-      id: 'bordado',
-      titulo: "Bordado a Mano",
-      descripcion: "Bordados tradicionales huastecos realizados por nuestras maestras artesanas, con motivos ancestrales y colores vibrantes.",
-      imagen: "https://images.unsplash.com/photo-1612903351440-147fb1e94e48?q=80&w=2940",
-    },
-    {
-      id: 'asesoria',
-      titulo: "Asesoría de Estilo",
-      descripcion: "Guía experta para combinar prendas y accesorios huastecos con tu guardarropa, creando looks únicos.",
-      imagen: "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?q=80&w=2940",
-    },
-  ], []);
-
   // Beneficios de la boutique
   const beneficiosData = useMemo(() => [
     { 
@@ -140,16 +130,61 @@ const Servicios = () => {
       descripcion: "Piezas únicas y colecciones limitadas que no encontrarás en otro lugar.",
       color: "linear-gradient(135deg, #8840b8, #23102d)",
     },
-  ], []);
-  // Renderizado de cards de servicios
-  const renderServiceCards = useCallback(() => {
-    return serviciosData.map((servicio, idx) => (
-      <Col md={6} lg={3} key={idx} className="mb-4">
-        <Card 
+  ], []);  // Renderizado de cards de servicios
+  const renderServiceCards = useCallback(() => {    if (loading) {
+      return (
+        <Col xs={12} className="text-center">
+          <div style={{
+            padding: stylesPublic.spacing.xl,
+            backgroundColor: stylesPublic.colors.background.main,
+            borderRadius: stylesPublic.borders.radius.lg,
+            margin: `0 ${stylesPublic.spacing.md}`
+          }}>
+            <div style={{
+              fontSize: stylesPublic.typography.fontSize["2xl"],
+              marginBottom: stylesPublic.spacing.md
+            }}>⏳</div>
+            <p style={{ 
+              fontSize: stylesPublic.typography.fontSize.lg,
+              color: stylesPublic.colors.text.secondary,
+              margin: 0
+            }}>
+              Cargando servicios...
+            </p>
+          </div>
+        </Col>
+      );
+    }    if (servicios.length === 0) {
+      return (
+        <Col xs={12} className="text-center">
+          <div style={{
+            padding: stylesPublic.spacing.xl,
+            backgroundColor: stylesPublic.colors.background.main,
+            borderRadius: stylesPublic.borders.radius.lg,
+            margin: `0 ${stylesPublic.spacing.md}`
+          }}>
+            <div style={{
+              fontSize: stylesPublic.typography.fontSize["2xl"],
+              marginBottom: stylesPublic.spacing.md
+            }}>🔧</div>
+            <p style={{ 
+              fontSize: stylesPublic.typography.fontSize.lg,
+              color: stylesPublic.colors.text.secondary,
+              margin: 0
+            }}>
+              No hay servicios disponibles en este momento.
+            </p>
+          </div>
+        </Col>
+      );
+    }
+
+    return servicios.map((servicio, idx) => (
+      <Col md={6} lg={3} key={servicio._id} className="mb-4">        <Card 
           className="service-card h-100 shadow" 
           style={{ 
             ...customStyles.serviceCard,
-            transform: hoveredService === servicio.id ? stylesPublic.elements.cards.hover.transform : "translateY(0)",
+            transform: hoveredService === servicio._id ? stylesPublic.elements.cards.hover.transform : "translateY(0)",
             borderLeft: `${stylesPublic.borders.width.thick} solid ${
               idx === 0 ? stylesPublic.colors.primary.main : 
               idx === 1 ? stylesPublic.colors.secondary.main : 
@@ -157,49 +192,49 @@ const Servicios = () => {
               stylesPublic.colors.accent.purple
             }`,
           }}
-          onMouseEnter={() => setHoveredService(servicio.id)}
+          onMouseEnter={() => setHoveredService(servicio._id)}
           onMouseLeave={() => setHoveredService(null)}
         >
+          {/* Mostrar imagen si está disponible */}
+          {servicio.imagen && (
+            <Card.Img 
+              variant="top" 
+              src={servicio.imagen} 
+              alt={servicio.titulo || servicio.nombre}
+              style={{
+                height: '200px',
+                objectFit: 'cover'
+              }}
+            />
+          )}
           <div style={{ 
             fontSize: stylesPublic.typography.fontSize["2xl"], 
-            marginBottom: stylesPublic.spacing.md 
+            marginBottom: stylesPublic.spacing.md,
+            padding: stylesPublic.spacing.md,
+            textAlign: 'center'
           }}>
-            {ServiceIcons[servicio.id]}
+            {/* Usar el icono del servicio si está disponible, o un icono por defecto */}
+            {servicio.icono || ServiceIcons[Object.keys(ServiceIcons)[idx % Object.keys(ServiceIcons).length]]}
           </div>
-          <Card.Body>
-            <h3 style={{ 
+          <Card.Body>            <h3 style={{ 
               fontFamily: stylesPublic.typography.fontFamily.heading, 
               fontSize: stylesPublic.typography.fontSize.xl, 
               fontWeight: stylesPublic.typography.fontWeight.semiBold, 
               color: stylesPublic.colors.text.primary, 
               marginBottom: stylesPublic.spacing.md 
             }}>
-              {servicio.titulo}
-            </h3>
-            <p style={{ 
+              {servicio.titulo || servicio.nombre}
+            </h3>            <p style={{ 
               fontSize: stylesPublic.typography.fontSize.sm, 
               color: stylesPublic.colors.text.secondary, 
               lineHeight: stylesPublic.typography.lineHeight.paragraph 
             }}>
               {servicio.descripcion}
             </p>
-            <Button 
-              variant="outline-primary" 
-              style={{ 
-                borderColor: stylesPublic.colors.primary.main, 
-                color: stylesPublic.colors.primary.main,
-                borderRadius: stylesPublic.borders.radius.button,
-                marginTop: stylesPublic.spacing.md,
-              }}
-              onClick={() => navigate(`/servicios/${servicio.id}`)}
-            >
-              Conocer más
-            </Button>
           </Card.Body>
         </Card>
-      </Col>
-    ));
-  }, [serviciosData, hoveredService, navigate, ServiceIcons, customStyles.serviceCard]);
+      </Col>    ));
+  }, [servicios, loading, hoveredService, ServiceIcons, customStyles.serviceCard]);
   // Renderizado de beneficios
   const renderBenefitCards = useCallback(() => {
     return beneficiosData.map((beneficio, idx) => (

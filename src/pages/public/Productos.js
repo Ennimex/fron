@@ -48,9 +48,9 @@ const Productos = () => {
     ordenar: "",
     talla: "",
     categoria: "",
-    color: "",
-    material: "",
-    precio: "",
+    localidad: "",
+    tipoTela: "",
+    genero: "",
     busqueda: "",
   })
   const [filtrosExpandidos, setFiltrosExpandidos] = useState(false)
@@ -61,20 +61,46 @@ const Productos = () => {
   const [isTransitioning, setIsTransitioning] = useState(false)
   // Estado para productos desde la API
   const [productosApi, setProductosApi] = useState([]);
-
+  // Estados para opciones de filtros desde la API
+  const [categorias, setCategorias] = useState([]);
+  const [localidades, setLocalidades] = useState([]);
+  const [tallasUnicas, setTallasUnicas] = useState([]);
   useEffect(() => {
-    // Obtener productos desde la API
-    fetch("http://localhost:5000/api/productos")
-      .then(res => res.json())
-      .then(data => {
-        setProductosApi(data);
-        setProductosFiltrados(data);
+    // Cargar productos y opciones de filtros desde la API
+    const cargarDatos = async () => {
+      try {
+        // Cargar productos
+        const productosRes = await fetch("http://localhost:5000/api/public/productos");
+        const productosData = await productosRes.json();
+        setProductosApi(productosData);
+        setProductosFiltrados(productosData);
+
+        // Cargar categorías
+        const categoriasRes = await fetch("http://localhost:5000/api/public/categorias");
+        const categoriasData = await categoriasRes.json();
+        setCategorias(categoriasData);
+
+        // Cargar localidades
+        const localidadesRes = await fetch("http://localhost:5000/api/public/localidades");
+        const localidadesData = await localidadesRes.json();
+        setLocalidades(localidadesData);
+
+        // Cargar tallas
+        const tallasRes = await fetch("http://localhost:5000/api/public/tallas");
+        const tallasData = await tallasRes.json();
+        // Extraer tallas únicas
+        const tallasUnicasData = [...new Set(tallasData.map(t => t.talla))].sort();
+        setTallasUnicas(tallasUnicasData);
+
         setTimeout(() => setIsVisible(true), 100);
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
         setProductosApi([]);
         setProductosFiltrados([]);
-      });
+      }
+    };
+
+    cargarDatos();
   }, [])
 
   const handleChange = (e) => {
@@ -86,15 +112,14 @@ const Productos = () => {
     setProductosFiltrados(resultado)
     setFiltrosActivos(contadorFiltros)
   }
-
   const limpiarFiltros = () => {
     const resetFiltros = {
       ordenar: "",
       talla: "",
       categoria: "",
-      color: "",
-      material: "",
-      precio: "",
+      localidad: "",
+      tipoTela: "",
+      genero: "",
       busqueda: "",
     }
 
@@ -129,22 +154,24 @@ const Productos = () => {
     }
     navigate(`/producto/${productoId}`)
   }
-
   const filtrarProductos = useCallback((productos, filtros) => {
     let resultado = [...productos]
     let contadorFiltros = 0
 
+    // Filtro de búsqueda por texto
     if (filtros.busqueda) {
       const searchTerm = filtros.busqueda.toLowerCase()
       resultado = resultado.filter(
         (producto) =>
           producto.nombre?.toLowerCase().includes(searchTerm) ||
           producto.descripcion?.toLowerCase().includes(searchTerm) ||
-          producto.tipoTela?.toLowerCase().includes(searchTerm)
+          producto.tipoTela?.toLowerCase().includes(searchTerm) ||
+          producto.localidadId?.nombre?.toLowerCase().includes(searchTerm)
       )
       contadorFiltros++
     }
 
+    // Filtro por categoría
     if (filtros.categoria) {
       resultado = resultado.filter((producto) =>
         producto.tallasDisponibles?.some(td =>
@@ -154,20 +181,23 @@ const Productos = () => {
       contadorFiltros++
     }
 
-    if (filtros.color) {
+    // Filtro por localidad
+    if (filtros.localidad) {
       resultado = resultado.filter((producto) =>
-        producto.color?.toLowerCase() === filtros.color.toLowerCase()
+        producto.localidadId?.nombre?.toLowerCase() === filtros.localidad.toLowerCase()
       )
       contadorFiltros++
     }
 
-    if (filtros.material) {
+    // Filtro por tipo de tela
+    if (filtros.tipoTela) {
       resultado = resultado.filter((producto) =>
-        producto.tipoTela?.toLowerCase().includes(filtros.material.toLowerCase())
+        producto.tipoTela?.toLowerCase().includes(filtros.tipoTela.toLowerCase())
       )
       contadorFiltros++
     }
 
+    // Filtro por talla
     if (filtros.talla) {
       resultado = resultado.filter((producto) =>
         producto.tallasDisponibles?.some(td => td.talla === filtros.talla)
@@ -175,25 +205,47 @@ const Productos = () => {
       contadorFiltros++
     }
 
-    // No hay campo precio en la API, puedes agregar lógica si lo agregas después
+    // Filtro por género
+    if (filtros.genero) {
+      resultado = resultado.filter((producto) =>
+        producto.tallasDisponibles?.some(td => 
+          td.genero?.toLowerCase() === filtros.genero.toLowerCase()
+        )
+      )
+      contadorFiltros++
+    }
 
+    // Ordenamiento
     if (filtros.ordenar) {
-      // No hay campo price ni rating, puedes implementar lógica si agregas esos campos
+      switch (filtros.ordenar) {
+        case 'nombre-asc':
+          resultado.sort((a, b) => a.nombre.localeCompare(b.nombre))
+          break
+        case 'nombre-desc':
+          resultado.sort((a, b) => b.nombre.localeCompare(a.nombre))
+          break
+        case 'newest':
+          // Ordenar por ID (más recientes primero, asumiendo que ObjectId es cronológico)
+          resultado.sort((a, b) => b._id.localeCompare(a._id))
+          break
+        default:
+          break
+      }
     }
 
     return { resultado, contadorFiltros }
   }, [])
-
   useEffect(() => {
     const query = new URLSearchParams(location.search)
     const categoria = query.get("categoria")
+    const localidad = query.get("localidad")
     const initialFiltros = {
       ordenar: "",
       talla: "",
       categoria: categoria || "",
-      color: "",
-      material: "",
-      precio: "",
+      localidad: localidad || "",
+      tipoTela: "",
+      genero: "",
       busqueda: "",
     }
     setFiltros(initialFiltros)
@@ -829,9 +881,7 @@ const Productos = () => {
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className={`productos-filter-panel ${filtrosExpandidos ? "expanded" : ""}`}>
+          </div>          <div className={`productos-filter-panel ${filtrosExpandidos ? "expanded" : ""}`}>
             <div className="productos-filter-grid">
               <div className="productos-filter-group">
                 <label className="productos-filter-label">Ordenar por</label>
@@ -842,9 +892,8 @@ const Productos = () => {
                   value={filtros.ordenar}
                 >
                   <option value="">Relevancia</option>
-                  <option value="asc">Precio: Menor a Mayor</option>
-                  <option value="desc">Precio: Mayor a Menor</option>
-                  <option value="rating">Mejor valorados</option>
+                  <option value="nombre-asc">Nombre: A - Z</option>
+                  <option value="nombre-desc">Nombre: Z - A</option>
                   <option value="newest">Más recientes</option>
                 </select>
               </div>
@@ -858,11 +907,9 @@ const Productos = () => {
                   value={filtros.talla}
                 >
                   <option value="">Todas las tallas</option>
-                  <option value="XS">XS</option>
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="Única">Única</option>
+                  {tallasUnicas.map(talla => (
+                    <option key={talla} value={talla}>{talla}</option>
+                  ))}
                 </select>
               </div>
 
@@ -875,54 +922,58 @@ const Productos = () => {
                   value={filtros.categoria}
                 >
                   <option value="">Todas las categorías</option>
-                  <option value="Huasteca">Huasteca</option>
-                  <option value="Accesorios">Accesorios</option>
+                  {categorias.map(categoria => (
+                    <option key={categoria._id} value={categoria.nombre}>{categoria.nombre}</option>
+                  ))}
                 </select>
               </div>
 
               <div className="productos-filter-group">
-                <label className="productos-filter-label">Color</label>
+                <label className="productos-filter-label">Localidad</label>
                 <select
-                  name="color"
+                  name="localidad"
                   className="form-select productos-filter-select"
                   onChange={handleChange}
-                  value={filtros.color}
+                  value={filtros.localidad}
                 >
-                  <option value="">Todos los colores</option>
-                  <option value="Rojo">Rojo</option>
-                  <option value="Verde">Verde</option>
-                  <option value="Blanco">Blanco</option>
-                  <option value="Negro">Negro</option>
+                  <option value="">Todas las localidades</option>
+                  {localidades.map(localidad => (
+                    <option key={localidad._id} value={localidad.nombre}>{localidad.nombre}</option>
+                  ))}
                 </select>
               </div>
 
               <div className="productos-filter-group">
-                <label className="productos-filter-label">Material</label>
+                <label className="productos-filter-label">Tipo de Tela</label>
                 <select
-                  name="material"
+                  name="tipoTela"
                   className="form-select productos-filter-select"
                   onChange={handleChange}
-                  value={filtros.material}
+                  value={filtros.tipoTela}
                 >
-                  <option value="">Todos los materiales</option>
+                  <option value="">Todos los tipos</option>
                   <option value="Algodón">Algodón</option>
                   <option value="Seda">Seda</option>
                   <option value="Lino">Lino</option>
+                  <option value="Manta">Manta</option>
+                  <option value="Satín">Satín</option>
                 </select>
               </div>
 
               <div className="productos-filter-group">
-                <label className="productos-filter-label">Precio</label>
+                <label className="productos-filter-label">Género</label>
                 <select
-                  name="precio"
+                  name="genero"
                   className="form-select productos-filter-select"
                   onChange={handleChange}
-                  value={filtros.precio}
+                  value={filtros.genero}
                 >
-                  <option value="">Cualquier precio</option>
-                  <option value="low">Menos de $50</option>
-                  <option value="medium">$50 - $100</option>
-                  <option value="high">Más de $100</option>
+                  <option value="">Todos los géneros</option>
+                  <option value="Mujer">Mujer</option>
+                  <option value="Hombre">Hombre</option>
+                  <option value="Niña">Niña</option>
+                  <option value="Niño">Niño</option>
+                  <option value="Unisex">Unisex</option>
                 </select>
               </div>
             </div>

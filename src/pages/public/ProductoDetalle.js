@@ -7,12 +7,10 @@ import stylesPublic from "../../styles/stylesPublic"; // Importamos el sistema c
 const ProductoDetalle = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [producto, setProducto] = useState(null);
-  const [isVisible, setIsVisible] = useState({
+  const [producto, setProducto] = useState(null);  const [isVisible, setIsVisible] = useState({
     hero: false,
     details: false,
     info: false,
-    cta: false,
   });
 
   useEffect(() => {
@@ -20,11 +18,9 @@ const ProductoDetalle = () => {
     fetch(`http://localhost:5000/api/public/productos/${id}`)
       .then(res => res.json())
       .then(data => {
-        setProducto(data);
-        setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
+        setProducto(data);        setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
         setTimeout(() => setIsVisible(prev => ({ ...prev, details: true })), 300);
         setTimeout(() => setIsVisible(prev => ({ ...prev, info: true })), 600);
-        setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 900);
       })
       .catch(() => {
         navigate('/productos');
@@ -121,32 +117,10 @@ const ProductoDetalle = () => {
       color: stylesPublic.colors.secondary.main,
       marginBottom: stylesPublic.spacing.xs,
       textTransform: "uppercase",
-    },
-    infoValue: {
+    },    infoValue: {
       fontFamily: stylesPublic.typography.fontFamily.body,
       fontSize: stylesPublic.typography.fontSize.md,
       color: stylesPublic.colors.text.secondary,
-    },
-    ctaSection: {
-      background: stylesPublic.colors.background.gradient.accent,
-      padding: stylesPublic.spacing.section.small,
-      borderRadius: stylesPublic.borders.radius.xl,
-      marginTop: stylesPublic.spacing.xl,
-      textAlign: "center",
-      opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.pageIn,
-      position: "relative",
-      overflow: "hidden",
-    },
-    ctaOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: stylesPublic.utils.overlay.radial.background,
-      zIndex: stylesPublic.utils.zIndex.background,
     },
   };
   return (
@@ -156,10 +130,8 @@ const ProductoDetalle = () => {
         <div style={customStyles.heroOverlay}></div>
         <Container>
         </Container>
-      </section>
-
-      {/* Product Details */}
-      <Container style={{ position: "relative", zIndex: 2 }}>
+      </section>      {/* Product Details */}
+      <Container style={{ position: "relative", zIndex: 2, marginBottom: "80px" }}>
         <div style={customStyles.productContainer}>
           <Row className="align-items-center">
             <Col lg={6} className="mb-5 mb-lg-0">
@@ -217,46 +189,8 @@ const ProductoDetalle = () => {
               >
                 <i className="bi bi-arrow-left me-2"></i>
                 Volver a Productos
-              </Button>
-            </Col>
+              </Button>            </Col>
           </Row>
-        </div>
-
-        {/* CTA Section */}
-        <div style={customStyles.ctaSection}>
-          <div style={customStyles.ctaOverlay}></div>          <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised }}>
-            <h2 style={{ 
-              fontFamily: stylesPublic.typography.fontFamily.heading, 
-              fontSize: stylesPublic.typography.fontSize.h3, 
-              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-              color: "#ffffff",
-              marginBottom: "1rem" 
-            }}>
-              ¿Te encanta este diseño?
-            </h2>
-            <p style={{ 
-              fontSize: "1.1rem", 
-              color: "#ffffff", 
-              maxWidth: "700px", 
-              margin: "0 auto 2rem",
-              opacity: 0.9
-            }}>
-              También podemos crearlo a tu medida con los colores y detalles que prefieras.
-            </p>
-            <Button 
-              variant="outline-light" 
-              size="lg"
-              style={{ 
-                borderRadius: "30px",
-                padding: "12px 30px",
-                fontWeight: "500",
-                fontSize: "1.1rem",
-              }}
-            >
-              <i className="bi bi-chat-square-text me-2"></i>
-              Solicitar personalización
-            </Button>
-          </Container>
         </div>
       </Container>
     </div>
