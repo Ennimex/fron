@@ -10,7 +10,6 @@ import {
   FaBars,
   FaSignOutAlt,
   FaTshirt,
-  FaBoxes,
   FaChevronDown,
   FaPlus,
   FaTags,
@@ -20,6 +19,8 @@ import {
   FaImage,
   FaVideo,
   FaCalendarAlt,
+  FaInfoCircle,
+  FaConciergeBell,
 } from "react-icons/fa"
 import { colors, typography } from "../../styles/styles"
 
@@ -492,17 +493,6 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
               >
                 <div style={styles.submenuItem}>
                   <MenuLink
-                    to="/admin/productos"
-                    style={styles.submenuLink}
-                    activeStyle={styles.submenuLinkActive}
-                    exact
-                  >
-                    <FaBoxes size={14} />
-                    <span style={styles.submenuText}>Todos los Productos</span>
-                  </MenuLink>
-                </div>
-                <div style={styles.submenuItem}>
-                  <MenuLink
                     to="/admin/productos/nuevo"
                     style={styles.submenuLink}
                     activeStyle={styles.submenuLinkActive}
@@ -624,6 +614,71 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
                 </span>
                 <span style={styles.menuText}>Eventos</span>
               </MenuLink>
+            </li>
+
+            {/* Nuevo menú de Información */}
+            <li style={styles.menuItem}>
+              <div
+                style={{
+                  ...styles.menuLink,
+                  ...(isActive("/admin/informacion") ? styles.menuLinkActive : {})
+                }}
+                onClick={() => toggleSubmenu("informacion")}
+                role="button"
+                aria-expanded={expandedMenus.informacion}
+                tabIndex={0}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && toggleSubmenu("informacion")
+                }
+              >
+                <span style={styles.menuIcon}>
+                  <FaInfoCircle size={20} />
+                </span>
+                <span style={styles.menuText}>Información</span>
+                {!isCollapsed && (
+                  <span style={styles.menuToggle}>
+                    <FaChevronDown
+                      size={12}
+                      style={{
+                        ...styles.submenuIcon,
+                        transform: expandedMenus.informacion
+                          ? "rotate(0deg)"
+                          : "rotate(-90deg)"
+                      }}
+                    />
+                  </span>
+                )}
+              </div>
+
+              <div
+                style={{
+                  ...styles.submenuContainer,
+                  maxHeight:
+                    expandedMenus.informacion && !isCollapsed ? "1000px" : "0",
+                  opacity: expandedMenus.informacion && !isCollapsed ? 1 : 0
+                }}
+              >
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/informacion/mision"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaInfoCircle size={14} />
+                    <span style={styles.submenuText}>Misión y Visión</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/informacion/servicios"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaConciergeBell size={14} />
+                    <span style={styles.submenuText}>Servicios</span>
+                  </MenuLink>
+                </div>
+              </div>
             </li>
           </>
         )}

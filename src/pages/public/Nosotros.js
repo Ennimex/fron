@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Image, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Image } from 'react-bootstrap';
 import stylesPublic from '../../styles/stylesPublic';
 import api from '../../services/api';
 
 const Nosotros = () => {
-  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState({
     hero: false,
     historia: false,
@@ -16,7 +14,12 @@ const Nosotros = () => {
   });
   
   const [colaboradores, setColaboradores] = useState([]);
+  const [nosotrosData, setNosotrosData] = useState({
+    mision: '',
+    vision: ''
+  });
   const [loading, setLoading] = useState(true);
+  const [loadingNosotros, setLoadingNosotros] = useState(true);
 
   useEffect(() => {
     // Animaciones escalonadas como en Inicio.js
@@ -26,6 +29,27 @@ const Nosotros = () => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, colaboradores: true })), 900);
     setTimeout(() => setIsVisible(prev => ({ ...prev, valores: true })), 1200);
     setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 1500);
+    
+    // Obtener información de nosotros (misión y visión)
+    const fetchNosotrosData = async () => {
+      try {
+        setLoadingNosotros(true);
+        const response = await fetch('http://localhost:5000/api/nosotros');
+        if (response.ok) {
+          const data = await response.json();
+          setNosotrosData({
+            mision: data.mision || '',
+            vision: data.vision || ''
+          });
+        } else {
+          console.error('Error al cargar información de nosotros');
+        }
+      } catch (error) {
+        console.error('Error al cargar información de nosotros:', error);
+      } finally {
+        setLoadingNosotros(false);
+      }
+    };
     
     // Obtener colaboradores de la API
     const fetchColaboradores = async () => {
@@ -39,6 +63,7 @@ const Nosotros = () => {
       }
     };
     
+    fetchNosotrosData();
     fetchColaboradores();
   }, []);
 
@@ -48,12 +73,7 @@ const Nosotros = () => {
     { icon: "🎨", titulo: "Autenticidad", descripcion: "Cada pieza conserva las técnicas tradicionales de la cultura huasteca." },
   ];
 
-  const historia = [
-    { año: "1995", evento: "Nace el taller familiar en Xilitla, San Luis Potosí" },
-    { año: "2008", evento: "Primera exposición internacional en París" },
-    { año: "2015", evento: "Reconocimiento por la UNESCO como patrimonio cultural" },
-    { año: "2020", evento: "Lanzamiento de la plataforma digital" },
-  ];
+  const historiaTexto = "La Aterciopelada nació como un sueño de preservar y celebrar las tradiciones artesanales de la región Huasteca. A lo largo de los años, hemos crecido desde nuestras humildes raíces hasta convertirnos en un referente de la moda artesanal mexicana, siempre manteniendo nuestro compromiso con la calidad, la autenticidad y el respeto hacia nuestras artesanas. Cada pieza que creamos es testimonio de una rica herencia cultural que se entrelaza con diseños contemporáneos, creando prendas únicas que cuentan historias milenarias mientras abrazan la modernidad.";
   const customStyles = {
     heroSection: {
       background: stylesPublic.colors.background.gradient.primary,
@@ -214,25 +234,15 @@ const Nosotros = () => {
               </h2>
               
               <div style={{ marginTop: "2rem" }}>
-                {historia.map((item, idx) => (                <div key={idx} style={customStyles.timelineItem}>
-                    <h3 style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.heading, 
-                      fontSize: stylesPublic.typography.fontSize.xl, 
-                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-                      color: stylesPublic.colors.text.primary, 
-                      marginBottom: stylesPublic.spacing.xs 
-                    }}>
-                      {item.año}
-                    </h3>
-                    <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph 
-                    }}>
-                      {item.evento}
-                    </p>
-                  </div>
-                ))}
+                <p style={{ 
+                  fontFamily: stylesPublic.typography.fontFamily.body, 
+                  fontSize: stylesPublic.typography.fontSize.lg,
+                  color: stylesPublic.colors.text.secondary, 
+                  lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                  textAlign: "justify"
+                }}>
+                  {historiaTexto}
+                </p>
               </div>
             </Col>
           </Row>
@@ -253,8 +263,8 @@ const Nosotros = () => {
             <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
           </h2>
           
-          <Row className="g-4">
-            <Col md={4}>
+          <Row className="g-4 justify-content-center">
+            <Col md={6}>
               <Card className="h-100" style={customStyles.card}>
                 <Card.Body>                  <h3 style={{ 
                     fontFamily: stylesPublic.typography.fontFamily.heading, 
@@ -265,17 +275,29 @@ const Nosotros = () => {
                   }}>
                     Misión
                   </h3>
-                  <p style={{ 
-                    fontFamily: stylesPublic.typography.fontFamily.body, 
-                    color: stylesPublic.colors.text.secondary, 
-                    lineHeight: stylesPublic.typography.lineHeight.paragraph 
-                  }}>
-                    Preservar y modernizar las técnicas artesanales huastecas, creando piezas únicas que celebren nuestra herencia cultural mientras apoyamos a las comunidades artesanas.
-                  </p>
+                  {loadingNosotros ? (
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                      fontStyle: 'italic'
+                    }}>
+                      Cargando misión...
+                    </p>
+                  ) : (
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {nosotrosData.mision || 'Preservar y modernizar las técnicas artesanales huastecas, creando piezas únicas que celebren nuestra herencia cultural mientras apoyamos a las comunidades artesanas.'}
+                    </p>
+                  )}
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4}>
+            <Col md={6}>
               <Card className="h-100" style={customStyles.card}>
                 <Card.Body>                  <h3 style={{ 
                     fontFamily: stylesPublic.typography.fontFamily.heading, 
@@ -286,34 +308,25 @@ const Nosotros = () => {
                   }}>
                     Visión
                   </h3>
-                  <p style={{ 
-                    fontFamily: stylesPublic.typography.fontFamily.body, 
-                    color: stylesPublic.colors.text.secondary, 
-                    lineHeight: stylesPublic.typography.lineHeight.paragraph 
-                  }}>
-                    Ser reconocidos como el referente en moda artesanal huasteca, combinando tradición y diseño contemporáneo para llevar nuestra cultura al mundo.
-                  </p>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={4}>
-              <Card className="h-100" style={customStyles.card}>
-                <Card.Body>                  <h3 style={{ 
-                    fontFamily: stylesPublic.typography.fontFamily.heading, 
-                    fontSize: stylesPublic.typography.fontSize.xl, 
-                    fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-                    color: stylesPublic.colors.text.primary, 
-                    marginBottom: stylesPublic.spacing.md 
-                  }}>
-                    Filosofía
-                  </h3>
-                  <p style={{ 
-                    fontFamily: stylesPublic.typography.fontFamily.body, 
-                    color: stylesPublic.colors.text.secondary, 
-                    lineHeight: stylesPublic.typography.lineHeight.paragraph 
-                  }}>
-                    Cada puntada cuenta una historia, cada diseño honra una tradición. Creemos en la moda con propósito y el comercio justo como pilares fundamentales.
-                  </p>
+                  {loadingNosotros ? (
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                      fontStyle: 'italic'
+                    }}>
+                      Cargando visión...
+                    </p>
+                  ) : (
+                    <p style={{ 
+                      fontFamily: stylesPublic.typography.fontFamily.body, 
+                      color: stylesPublic.colors.text.secondary, 
+                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {nosotrosData.vision || 'Ser reconocidos como el referente en moda artesanal huasteca, combinando tradición y diseño contemporáneo para llevar nuestra cultura al mundo.'}
+                    </p>
+                  )}
                 </Card.Body>
               </Card>
             </Col>
@@ -456,12 +469,6 @@ const Nosotros = () => {
           }}>
             Descubre la belleza de la artesanía huasteca y forma parte de esta tradición
           </p>
-          <Button className="animate-in" style={{ 
-            ...customStyles.pinkButton, 
-            animationDelay: "0.7s" 
-          }} onClick={() => navigate("/contacto")}>
-            Contáctanos
-          </Button>
         </Container>
       </section>
     </>

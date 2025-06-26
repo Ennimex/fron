@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert } from 'react-bootstrap';
 import { IonIcon } from '@ionic/react';
-import { mailOutline, callOutline, locationOutline, timeOutline, logoFacebook, logoWhatsapp } from 'ionicons/icons';
+import { mailOutline, callOutline, timeOutline, logoFacebook, logoWhatsapp } from 'ionicons/icons';
 import stylesPublic from '../../styles/stylesPublic';
 
 const Contacto = () => {
@@ -52,11 +52,6 @@ const Contacto = () => {
     }
   };  const contactInfo = [
     {
-      icon: <IonIcon icon={locationOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
-      title: "Dirección",
-      content: "Calle Artesanal #123, Centro, Huejutla de Reyes, Hidalgo"
-    },
-    {
       icon: <IonIcon icon={callOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
       title: "Teléfono",
       content: "+52 771 123 4567 (Ventas)\n+52 771 987 6543 (Consultas)"
@@ -75,8 +70,8 @@ const Contacto = () => {
     {
       icon: <IonIcon icon={logoFacebook} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
       name: "Facebook",
-      handle: "@LaAterciopeladaOficial",
-      url: "https://facebook.com/laaterciopelada"
+      handle: "@LaAterciopelada",
+      url: "https://web.facebook.com/people/La-Aterciopelada/61567232369483/?sk=photos"
     },
     {
       icon: <IonIcon icon={logoWhatsapp} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
@@ -392,9 +387,9 @@ const Contacto = () => {
             Estamos aquí para responder tus preguntas y ayudarte con tus pedidos especiales
           </p>
           
-          <Row className="g-4">
+          <Row className="g-4 justify-content-center">
             {contactInfo.map((info, index) => (
-              <Col md={6} lg={3} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
+              <Col md={6} lg={4} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
                 <Card className="hover-card h-100" style={customStyles.contactCard}>
                   <Card.Body className="text-center d-flex flex-column">                    <div className="mb-3">
                       {info.icon}

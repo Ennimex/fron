@@ -2,14 +2,204 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock } from 'react-icons/fa';
 import axios from 'axios';
+import adminStyles from '../../styles/stylesAdmin';
 
 const GestionVideos = () => {
   const { user } = useAuth();
+
+  // Mapeo de estilos globales
+  const styles = {
+    pageContainer: adminStyles.containers.page,
+    mainContainer: adminStyles.containers.main,
+    header: adminStyles.headerStyles.headerSimple,
+    title: adminStyles.headerStyles.titleDark,
+    subtitle: adminStyles.headerStyles.subtitleDark,
+    addButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.primary,
+    },
+    content: adminStyles.containers.content,
+    error: adminStyles.messageStyles.error,
+    emptyState: adminStyles.containers.emptyState,
+    emptyStateText: adminStyles.containers.emptyStateText,
+    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
+    
+    // Estilos de cards
+    cardBase: adminStyles.cards.base,
+    cardImageContainer: adminStyles.cards.imageContainer,
+    cardImage: adminStyles.cards.image,
+    cardPlayButton: adminStyles.cards.playButton,    cardPlaceholder: adminStyles.cards.placeholder,
+    cardContent: adminStyles.cards.content,
+    cardTitle: adminStyles.cards.title,
+    cardDescription: adminStyles.cards.description,
+      // Estilos de modal
+    modalOverlay: adminStyles.modalStyles.overlay,
+    modalContent: {
+      ...adminStyles.modalStyles.content,
+      maxWidth: '600px',
+      maxHeight: '90vh',
+      overflow: 'auto',
+    },
+    modalCloseButton: adminStyles.modalStyles.closeButton,
+    modalTitle: {
+      ...adminStyles.modalStyles.title,
+      marginBottom: adminStyles.spacing.xl,
+    },
+    modalActions: {
+      ...adminStyles.modalStyles.actions,
+      marginTop: adminStyles.spacing.xl,
+      paddingTop: adminStyles.spacing.lg,
+      borderTop: `1px solid ${adminStyles.colors.border}`,
+    },
+    modalBody: {
+      padding: adminStyles.spacing.xl,
+    },
+    
+    // Estilos de formulario mejorados
+    formContainer: {
+      padding: adminStyles.spacing.xl,
+    },
+    formGroup: {
+      marginBottom: adminStyles.spacing.xl,
+    },
+    label: {
+      ...adminStyles.forms.label,
+      display: 'block',
+      marginBottom: adminStyles.spacing.md,
+      fontWeight: adminStyles.typography.weightMedium,
+      color: adminStyles.colors.textPrimary,
+    },
+    requiredField: {
+      ...adminStyles.forms.requiredField,
+      marginLeft: adminStyles.spacing.xs,
+    },
+    input: {
+      ...adminStyles.forms.input,
+      width: '100%',
+      padding: adminStyles.spacing.md,
+      border: `1px solid ${adminStyles.colors.border}`,
+      borderRadius: adminStyles.borders.radius,
+      fontSize: adminStyles.typography.textBase,
+      marginBottom: 0,
+      boxSizing: 'border-box',
+      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+    },
+    inputFocus: {
+      borderColor: adminStyles.colors.primary,
+      boxShadow: `0 0 0 3px rgba(13, 27, 42, 0.1)`,
+      outline: 'none',
+    },
+    textarea: {
+      ...adminStyles.forms.textarea,
+      width: '100%',
+      padding: adminStyles.spacing.md,
+      border: `1px solid ${adminStyles.colors.border}`,
+      borderRadius: adminStyles.borders.radius,
+      fontSize: adminStyles.typography.textBase,
+      marginBottom: 0,
+      boxSizing: 'border-box',
+      minHeight: '100px',
+      resize: 'vertical',
+      fontFamily: 'inherit',
+      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+    },
+    fileInputContainer: {
+      position: 'relative',
+    },
+    fileInput: {
+      ...adminStyles.forms.fileInput,
+      width: '100%',
+      padding: adminStyles.spacing.md,
+      border: `1px solid ${adminStyles.colors.border}`,
+      borderRadius: adminStyles.borders.radius,
+      fontSize: adminStyles.typography.textBase,
+      marginBottom: 0,
+      boxSizing: 'border-box',
+      cursor: 'pointer',
+    },
+    helpText: {
+      ...adminStyles.forms.helpText,
+      display: 'block',
+      marginTop: adminStyles.spacing.sm,
+      marginBottom: adminStyles.spacing.md,
+      fontSize: adminStyles.typography.textSm,
+      color: adminStyles.colors.textMuted,
+      lineHeight: '1.4',
+    },
+    previewContainer: {
+      marginTop: adminStyles.spacing.lg,
+      padding: adminStyles.spacing.md,
+      backgroundColor: adminStyles.colors.backgroundGray,
+      borderRadius: adminStyles.borders.radius,
+      border: `1px solid ${adminStyles.colors.border}`,
+    },
+    previewLabel: {
+      display: 'block',
+      marginBottom: adminStyles.spacing.md,
+      fontSize: adminStyles.typography.textSm,
+      fontWeight: adminStyles.typography.weightMedium,
+      color: adminStyles.colors.textSecondary,
+    },
+    previewMedia: {
+      ...adminStyles.forms.previewMedia,
+      maxWidth: '100%',
+      height: 'auto',
+      borderRadius: adminStyles.borders.radius,
+      border: `1px solid ${adminStyles.colors.border}`,
+    },
+      // Estilos de botones
+    actionButton: {
+      ...adminStyles.buttons.actionButton,
+      padding: `${adminStyles.spacing.sm} ${adminStyles.spacing.lg}`,
+      minWidth: '90px',
+      fontSize: adminStyles.typography.textSm,
+      fontWeight: adminStyles.typography.weightMedium,
+    },
+    editAction: {
+      ...adminStyles.buttons.editAction,
+      marginRight: adminStyles.spacing.md,
+    },
+    deleteAction: adminStyles.buttons.deleteAction,
+    cardActions: {
+      ...adminStyles.cards.actions,
+      gap: adminStyles.spacing.md,
+      paddingTop: adminStyles.spacing.sm,
+    },    outlineButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.outline,
+      marginRight: adminStyles.spacing.lg,
+    },
+    primaryButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.primary,
+    },
+    disabledButton: adminStyles.buttons.disabled,
+    
+    // Estilos de loading
+    loadingContainer: {
+      ...adminStyles.containers.page,
+      ...adminStyles.loadingStyles.container,
+    },
+    loadingOverlay: adminStyles.loadingStyles.overlay,
+    loadingSpinner: adminStyles.loadingStyles.spinner,
+    loadingText: adminStyles.loadingStyles.text,
+    loadingSubtext: adminStyles.loadingStyles.subtext,
+    
+    // Utilidades
+    textCenter: adminStyles.utilities.textCenter,
+  };
+
+  // Estados para datos
   const [videos, setVideos] = useState([]);
+
+  // Estados para UI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  // Estado para el formulario
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -18,8 +208,7 @@ const GestionVideos = () => {
     imagenPreview: null,
     videoPreview: null
   });
-  const [uploading, setUploading] = useState(false);
-
+  // Configuración de API
   const api = axios.create({
     baseURL: 'http://localhost:5000/api',
     headers: {
@@ -27,11 +216,13 @@ const GestionVideos = () => {
     }
   });
 
+  // Cargar videos al montar el componente
   useEffect(() => {
     fetchVideos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Función para cargar videos
   const fetchVideos = async () => {
     try {
       setLoading(true);
@@ -45,6 +236,7 @@ const GestionVideos = () => {
     }
   };
 
+  // Manejadores de eventos para formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -79,6 +271,7 @@ const GestionVideos = () => {
     }
   };
 
+  // Manejadores de modal
   const handleOpenCreateModal = () => {
     setCurrentVideo(null);
     setFormData({
@@ -99,7 +292,8 @@ const GestionVideos = () => {
       descripcion: video.descripcion || '',
       video: null,
       imagen: null,
-      imagenPreview: video.miniatura || null
+      imagenPreview: video.miniatura || null,
+      videoPreview: null
     });
     setModalOpen(true);
   };
@@ -113,7 +307,7 @@ const GestionVideos = () => {
       handleCloseModal();
     }
   };
-
+  // Función para enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -155,6 +349,7 @@ const GestionVideos = () => {
     }
   };
 
+  // Función para eliminar video
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar este video?')) {
       return;
@@ -174,438 +369,300 @@ const GestionVideos = () => {
     }
   };
 
+  // Función para reproducir video
   const handlePlayVideo = (url) => {
     if (url) {
       window.open(url, '_blank');
     }
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-    },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '2rem',
-    },
-    title: {
-      fontSize: '1.8rem',
-      margin: 0,
-    },
-    addButton: {
-      backgroundColor: '#3498db',
-      color: 'white',
-      border: 'none',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      cursor: 'pointer',
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-      gap: '1.5rem',
-    },
-    card: {
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      overflow: 'hidden',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    },
-    imageContainer: {
-      height: '180px',
-      overflow: 'hidden',
-      position: 'relative',
-      cursor: 'pointer',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-    },
-    playButton: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: 'rgba(0,0,0,0.6)',
-      color: 'white',
-      borderRadius: '50%',
-      width: '50px',
-      height: '50px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    cardContent: {
-      padding: '1rem',
-    },
-    cardTitle: {
-      margin: '0 0 0.5rem 0',
-      fontSize: '1.1rem',
-    },
-    cardDescription: {
-      margin: '0 0 1rem 0',
-      fontSize: '0.9rem',
-      color: '#666',
-      maxHeight: '60px',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      display: '-webkit-box',
-      WebkitLineClamp: 3,
-      WebkitBoxOrient: 'vertical',
-    },
-    cardActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '0.5rem',
-    },
-    actionButton: {
-      border: 'none',
-      borderRadius: '4px',
-      padding: '0.4rem 0.6rem',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.3rem',
-    },
-    editButton: {
-      backgroundColor: '#f39c12',
-      color: 'white',
-    },
-    deleteButton: {
-      backgroundColor: '#e74c3c',
-      color: 'white',
-    },
-    modal: {
-      display: modalOpen ? 'flex' : 'none',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      zIndex: 1000,
-      justifyContent: 'center',
-      alignItems: 'flex-start',
-      overflow: 'auto',
-      padding: '20px 0',
-      animation: modalOpen ? 'fadeIn 0.3s' : '',
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: '2rem',
-      borderRadius: '8px',
-      width: '90%',
-      maxWidth: '600px',
-      position: 'relative',
-      maxHeight: '90vh',
-      overflow: 'auto',
-      animation: modalOpen ? 'slideDown 0.3s' : '',
-      margin: '40px 0',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-    },
-    closeButton: {
-      position: 'absolute',
-      top: '1rem',
-      right: '1rem',
-      background: 'none',
-      border: 'none',
-      fontSize: '1.5rem',
-      cursor: 'pointer',
-      color: '#666',
-      zIndex: 1,
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-    },
-    formGroup: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.9rem',
-      fontWeight: 'bold',
-    },
-    input: {
-      padding: '0.7rem',
-      borderRadius: '4px',
-      border: '1px solid #ddd',
-    },
-    textarea: {
-      padding: '0.7rem',
-      borderRadius: '4px',
-      border: '1px solid #ddd',
-      minHeight: '100px',
-      resize: 'vertical',
-    },
-    imagePreview: {
-      width: '100%',
-      maxHeight: '200px',
-      objectFit: 'contain',
-      marginTop: '1rem',
-      borderRadius: '4px',
-    },
-    submitButton: {
-      backgroundColor: '#2ecc71',
-      color: 'white',
-      border: 'none',
-      padding: '0.8rem',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      marginTop: '1rem',
-    },
-    placeholder: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f8f9fa',
-      height: '180px',
-      color: '#6c757d',
-    },
-    noData: {
-      textAlign: 'center',
-      margin: '3rem 0',
-      color: '#6c757d',
-    },
-    youtubeHelp: {
-      fontSize: '0.8rem',
-      color: '#666',
-      marginTop: '0.3rem',
-    },
-    fileInput: {
-      display: 'block',
-      width: '100%',
-      padding: '0.5rem 0',
-      marginBottom: '0.5rem',
-    },
-    fileLabel: {
-      display: 'inline-block',
-      backgroundColor: '#f0f0f0',
-      color: '#444',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      marginBottom: '0.5rem',
-      border: '1px solid #ddd',
-    },
-    uploadingOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      zIndex: 2000,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'white',
-    },
-    clockIcon: {
-      fontSize: '3rem',
-      marginBottom: '1rem',
-      animation: 'spin 2s linear infinite',
-    },
-    uploadingText: {
-      fontSize: '1.5rem',
-      marginBottom: '0.5rem',
-    },
-    dynamicStyles: `
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      
-      @keyframes slideDown {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `
-  };
-
+  // Renderizado condicional para loading
   if (loading) {
-    return <div style={styles.container}>Cargando...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <div style={styles.textCenter}>
+          <h3>Cargando videos...</h3>
+        </div>
+      </div>
+    );
   }
-
   return (
-    <div style={styles.container}>
-      <style>{styles.dynamicStyles}</style>
-      
-      <div style={styles.header}>
-        <h1 style={styles.title}>Gestión de Videos</h1>
-        <button style={styles.addButton} onClick={handleOpenCreateModal}>
-          <FaPlus /> Agregar Video
-        </button>
-      </div>
-
-      {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-
-      {videos.length === 0 ? (
-        <div style={styles.noData}>
-          <FaVideo size={40} />
-          <p>No hay videos disponibles. ¡Agrega uno nuevo!</p>
+    <div style={styles.pageContainer}>
+      <div style={styles.mainContainer}>
+        {/* Header */}
+        <div style={styles.header}>
+          <div>
+            <h1 style={styles.title}>
+              <FaVideo style={{ marginRight: adminStyles.spacing.md }} />
+              Gestión de Videos
+            </h1>
+            <p style={styles.subtitle}>
+              Administra y supervisa todos los videos del sistema
+            </p>
+          </div>
+          <button
+            style={styles.addButton}
+            onClick={handleOpenCreateModal}
+            aria-label="Agregar nuevo video"
+          >
+            <FaPlus size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+            Agregar Video
+          </button>
         </div>
-      ) : (
-        <div style={styles.grid}>
-          {videos.map((video) => (
-            <div key={video._id} style={styles.card}>
-              <div 
-                style={styles.imageContainer}
-                onClick={() => handlePlayVideo(video.url)}
-              >
-                {video.miniatura ? (
-                  <>
-                    <img src={video.miniatura} alt={video.titulo} style={styles.image} />
-                    <div style={styles.playButton}>
-                      <FaPlay size={20} />
+
+        {/* Mensaje de error */}
+        {error && (
+          <div style={styles.error}>
+            {error}
+          </div>
+        )}
+
+        {/* Contenido principal */}
+        {videos.length === 0 ? (
+          <div style={styles.emptyState}>
+            <FaVideo size={40} style={{ opacity: 0.3, marginBottom: adminStyles.spacing.lg }} />
+            <h3 style={styles.emptyStateText}>No hay videos disponibles</h3>
+            <p style={styles.emptyStateSubtext}>
+              ¡Agrega un nuevo video para comenzar!
+            </p>
+          </div>
+        ) : (
+          <div style={adminStyles.combineStyles(
+            styles.content,
+            {
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: adminStyles.spacing.lg
+            }
+          )}>
+            {videos.map((video) => (
+              <div key={video._id} style={styles.cardBase}>
+                <div 
+                  style={adminStyles.combineStyles(
+                    styles.cardImageContainer,
+                    { cursor: 'pointer' }
+                  )}
+                  onClick={() => handlePlayVideo(video.url)}
+                >
+                  {video.miniatura ? (
+                    <>
+                      <img 
+                        src={video.miniatura} 
+                        alt={video.titulo} 
+                        style={styles.cardImage} 
+                      />
+                      <div style={styles.cardPlayButton}>
+                        <FaPlay size={20} />
+                      </div>
+                    </>
+                  ) : (
+                    <div style={styles.cardPlaceholder}>
+                      <FaVideo size={40} />
+                      <p>Sin miniatura</p>
                     </div>
-                  </>
-                ) : (
-                  <div style={styles.placeholder}>
-                    <FaVideo size={40} />
-                    <p>Sin miniatura</p>
+                  )}
+                </div>
+                <div style={styles.cardContent}>
+                  <h3 style={styles.cardTitle}>
+                    {video.titulo || 'Sin título'}
+                  </h3>
+                  <p style={styles.cardDescription}>
+                    {video.descripcion || 'Sin descripción'}
+                  </p>                  <div style={styles.cardActions}>
+                    <button
+                      style={adminStyles.combineStyles(
+                        styles.actionButton,
+                        styles.editAction
+                      )}
+                      onClick={() => handleOpenEditModal(video)}
+                      title="Editar video"
+                      aria-label={`Editar video ${video.titulo || 'Sin título'}`}
+                    >
+                      <FaEdit size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+                      Editar
+                    </button>
+                    <button
+                      style={adminStyles.combineStyles(
+                        styles.actionButton,
+                        styles.deleteAction
+                      )}
+                      onClick={() => handleDelete(video._id)}
+                      title="Eliminar video"
+                      aria-label={`Eliminar video ${video.titulo || 'Sin título'}`}
+                    >
+                      <FaTrash size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+                      Eliminar
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
-              <div style={styles.cardContent}>
-                <h3 style={styles.cardTitle}>{video.titulo || 'Sin título'}</h3>
-                <p style={styles.cardDescription}>{video.descripcion || 'Sin descripción'}</p>
-                <div style={styles.cardActions}>
-                  <button 
-                    style={{...styles.actionButton, ...styles.editButton}} 
-                    onClick={() => handleOpenEditModal(video)}
-                  >
-                    <FaEdit /> Editar
-                  </button>
-                  <button 
-                    style={{...styles.actionButton, ...styles.deleteButton}} 
-                    onClick={() => handleDelete(video._id)}
-                  >
-                    <FaTrash /> Eliminar
-                  </button>
+            ))}
+          </div>
+        )}        {/* Modal para crear/editar video */}
+        {modalOpen && (
+          <div 
+            style={styles.modalOverlay}
+            className="modal-overlay"
+            onClick={handleOutsideClick}
+          >
+            <div style={styles.modalContent}>
+              <div style={styles.modalBody}>
+                <button
+                  style={styles.modalCloseButton}
+                  onClick={handleCloseModal}
+                  aria-label="Cerrar modal"
+                >
+                  ✕
+                </button>
+                <h2 style={styles.modalTitle}>
+                  {currentVideo ? 'Editar Video' : 'Agregar Nuevo Video'}
+                </h2>
+                
+                <div style={styles.formContainer}>
+                  <form onSubmit={handleSubmit}>
+                    {/* Campo título */}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label} htmlFor="titulo">
+                        Título
+                        <span style={styles.requiredField}>*</span>
+                      </label>
+                      <input
+                        style={styles.input}
+                        type="text"
+                        id="titulo"
+                        name="titulo"
+                        value={formData.titulo}
+                        onChange={handleChange}
+                        placeholder="Ingresa el título del video"
+                        required
+                      />
+                    </div>
+                    
+                    {/* Campo descripción */}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label} htmlFor="descripcion">
+                        Descripción
+                      </label>
+                      <textarea
+                        style={styles.textarea}
+                        id="descripcion"
+                        name="descripcion"
+                        value={formData.descripcion}
+                        onChange={handleChange}
+                        placeholder="Describe el contenido del video (opcional)"
+                        rows={4}
+                      />
+                    </div>
+                    
+                    {/* Campo archivo de video */}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label} htmlFor="video">
+                        Archivo de Video
+                        <span style={styles.requiredField}>*</span>
+                      </label>
+                      <div style={styles.fileInputContainer}>
+                        <input
+                          style={styles.fileInput}
+                          type="file"
+                          id="video"
+                          name="video"
+                          accept="video/*"
+                          onChange={handleVideoChange}
+                          {...(currentVideo ? {} : { required: true })}
+                        />
+                        <small style={styles.helpText}>
+                          Formatos recomendados: MP4, WebM, AVI (Máximo 100MB)
+                        </small>
+                      </div>
+                      
+                      {formData.videoPreview && (
+                        <div style={styles.previewContainer}>
+                          <span style={styles.previewLabel}>Vista previa del video:</span>
+                          <video 
+                            controls 
+                            src={formData.videoPreview} 
+                            style={styles.previewMedia}
+                            preload="metadata"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Campo miniatura personalizada */}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label} htmlFor="imagen">
+                        Miniatura personalizada (opcional)
+                      </label>
+                      <div style={styles.fileInputContainer}>
+                        <input
+                          style={styles.fileInput}
+                          type="file"
+                          id="imagen"
+                          name="imagen"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                        <small style={styles.helpText}>
+                          Formatos recomendados: JPG, PNG, GIF (Máximo 5MB)
+                        </small>
+                        <small style={styles.helpText}>
+                          Si no seleccionas una miniatura, el sistema generará una automáticamente desde el video.
+                        </small>
+                      </div>
+                      
+                      {formData.imagenPreview && (
+                        <div style={styles.previewContainer}>
+                          <span style={styles.previewLabel}>Vista previa de la miniatura:</span>
+                          <img 
+                            src={formData.imagenPreview} 
+                            alt="Vista previa de miniatura" 
+                            style={styles.previewMedia} 
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Acciones del modal */}
+                    <div style={styles.modalActions}>
+                      <button
+                        type="button"
+                        onClick={handleCloseModal}
+                        style={styles.outlineButton}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={uploading}
+                        style={adminStyles.combineStyles(
+                          styles.primaryButton,
+                          uploading ? styles.disabledButton : {}
+                        )}
+                      >
+                        {uploading 
+                          ? 'Procesando...' 
+                          : currentVideo 
+                            ? 'Actualizar Video' 
+                            : 'Crear Video'
+                        }
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
 
-      <div 
-        style={styles.modal} 
-        className="modal-overlay"
-        onClick={handleOutsideClick}
-      >
-        <div style={styles.modalContent}>
-          <button style={styles.closeButton} onClick={handleCloseModal}>&times;</button>
-          <h2>{currentVideo ? 'Editar Video' : 'Agregar Nuevo Video'}</h2>
-          
-          <form style={styles.form} onSubmit={handleSubmit}>
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="titulo">Título</label>
-              <input
-                style={styles.input}
-                type="text"
-                id="titulo"
-                name="titulo"
-                value={formData.titulo}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="descripcion">Descripción</label>
-              <textarea
-                style={styles.textarea}
-                id="descripcion"
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="video">Archivo de Video</label>
-              <div>
-                <input
-                  style={styles.fileInput}
-                  type="file"
-                  id="video"
-                  name="video"
-                  accept="video/*"
-                  onChange={handleVideoChange}
-                  {...(currentVideo ? {} : { required: true })}
-                />
-                <small style={{ color: '#666' }}>
-                  Formatos recomendados: MP4, WebM (Max. 100MB)
-                </small>
-              </div>
-              
-              {formData.videoPreview && (
-                <div style={{ marginTop: '1rem' }}>
-                  <p>Vista previa del video:</p>
-                  <video 
-                    controls 
-                    src={formData.videoPreview} 
-                    style={{ width: '100%', maxHeight: '200px', borderRadius: '4px' }} 
-                  />
-                </div>
-              )}
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label style={styles.label} htmlFor="imagen">Miniatura personalizada (opcional)</label>
-              <div>
-                <input
-                  style={styles.fileInput}
-                  type="file"
-                  id="imagen"
-                  name="imagen"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                <small style={{ color: '#666' }}>
-                  Formatos recomendados: JPG, PNG (Max. 5MB)
-                </small>
-              </div>
-              <p style={styles.youtubeHelp}>
-                El sistema generará automáticamente una miniatura a partir del video si no subes una imagen personalizada.
-              </p>
-              
-              {formData.imagenPreview && (
-                <img src={formData.imagenPreview} alt="Vista previa" style={styles.imagePreview} />
-              )}
-            </div>
-            
-            <button type="submit" style={styles.submitButton} disabled={uploading}>
-              {currentVideo ? 'Actualizar Video' : 'Crear Video'}
-            </button>
-          </form>
-        </div>
+        {/* Overlay de carga durante subida */}
+        {uploading && (
+          <div style={styles.loadingOverlay}>
+            <FaClock style={styles.loadingSpinner} />
+            <div style={styles.loadingText}>Espera...</div>
+            <p style={styles.loadingSubtext}>Estamos procesando tu video</p>
+          </div>
+        )}
       </div>
-
-      {uploading && (
-        <div style={styles.uploadingOverlay}>
-          <FaClock style={styles.clockIcon} />
-          <div style={styles.uploadingText}>Espera...</div>
-          <p>Estamos procesando tu video</p>
-        </div>
-      )}
     </div>
   );
 };

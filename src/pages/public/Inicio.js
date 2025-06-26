@@ -179,10 +179,6 @@ const Inicio = () => {
   const collections = [
     { icon: "👗", title: "Alta Costura Tradicional", description: "Piezas únicas de vestimenta ceremonial y cotidiana, donde cada bordado narra historias ancestrales." },
     { icon: "✨", title: "Accesorios de Autor", description: "Complementos exclusivos que elevan cualquier atuendo, desde rebozos hasta joyería textil." },
-    { icon: "🏡", title: "Decoración Artesanal", description: "Textiles para el hogar que transforman espacios en refugios de calidez cultural." },
-    { icon: "🎨", title: "Arte Textil Coleccionable", description: "Obras maestras de terciopelada destinadas a coleccionistas que aprecian la excelencia artesanal." },
-    { icon: "👶", title: "Herencia Infantil", description: "Piezas delicadas para las nuevas generaciones, sembrando el amor por la tradición." },
-    { icon: "🌟", title: "Fusión Moderna", description: "Reinterpretación contemporánea de técnicas milenarias para el guardarropa urbano." },
   ];  const animationStyles = `
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }

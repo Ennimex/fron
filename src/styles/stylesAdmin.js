@@ -689,14 +689,12 @@ const forms = {
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: spacing.lg,
   },
-  
-  formGrid3: {
+    formGrid3: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
     gap: spacing.lg,
   },
   
-  // Checkbox personalizado
   checkbox: {
     width: '16px',
     height: '16px',
@@ -704,11 +702,19 @@ const forms = {
     accentColor: colors.primary,
   },
   
-  // Texto de ayuda
   helpText: {
     fontSize: typography.textSm,
     color: colors.textMuted,
     marginTop: spacing.xs,
+  },
+  
+  previewMedia: {
+    maxWidth: '200px',
+    maxHeight: '150px',
+    borderRadius: borders.radius,
+    objectFit: 'cover',
+    border: `1px solid ${colors.border}`,
+    marginTop: spacing.md,
   },
 };
 
@@ -1303,14 +1309,26 @@ const loadingStyles = {
     marginBottom: spacing.lg,
     animation: 'spin 2s linear infinite',
   },
-  
-  overlayText: {
+    overlayText: {
     fontSize: typography.text3xl,
     marginBottom: spacing.sm,
   },
   
   overlaySubtext: {
     fontSize: typography.textBase,
+    opacity: 0.8,
+  },
+  
+  text: {
+    fontSize: typography.textLg,
+    fontWeight: typography.weightMedium,
+    color: colors.white,
+    marginBottom: spacing.sm,
+  },
+  
+  subtext: {
+    fontSize: typography.textBase,
+    color: colors.white,
     opacity: 0.8,
   },
 };
@@ -1668,6 +1686,133 @@ const bulkActionStyles = {
 };
 
 // =============================================
+// ESTILOS DE CARDS
+// =============================================
+const cards = {
+  base: {
+    backgroundColor: colors.white,
+    borderRadius: borders.radiusLg,
+    boxShadow: shadows.base,
+    overflow: 'hidden',
+    transition: 'all 0.2s ease-in-out',
+    border: `1px solid ${colors.border}`,
+    cursor: 'pointer',
+  },
+  
+  baseHover: {
+    transform: 'translateY(-2px)',
+    boxShadow: shadows.lg,
+  },
+  
+  imageContainer: {
+    position: 'relative',
+    height: '200px',
+    overflow: 'hidden',
+    backgroundColor: colors.grayLight,
+  },
+  
+  image: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    transition: 'transform 0.2s ease',
+  },
+  
+  imageHover: {
+    transform: 'scale(1.05)',
+  },
+  
+  playButton: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    color: colors.white,
+    borderRadius: borders.radiusFull,
+    width: '50px',
+    height: '50px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    paddingLeft: '3px', // Para centrar visualmente el icono de play
+  },
+  
+  playButtonHover: {
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    transform: 'translate(-50%, -50%) scale(1.1)',
+  },
+  
+  placeholder: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    backgroundColor: colors.grayLight,
+    color: colors.textMuted,
+    fontSize: typography.textBase,
+  },
+  
+  content: {
+    padding: spacing.xl,
+  },
+  
+  title: {
+    fontSize: typography.textLg,
+    fontWeight: typography.weightSemibold,
+    color: colors.textPrimary,
+    margin: `0 0 ${spacing.sm} 0`,
+    lineHeight: typography.lineHeightTight,
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  },
+  
+  description: {
+    fontSize: typography.textBase,
+    color: colors.textSecondary,
+    margin: `0 0 ${spacing.lg} 0`,
+    lineHeight: typography.lineHeight,
+    display: '-webkit-box',
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  },
+  
+  actions: {
+    display: 'flex',
+    gap: spacing.sm,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  
+  badge: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    padding: `${spacing.xs} ${spacing.sm}`,
+    backgroundColor: colors.primary,
+    color: colors.white,
+    borderRadius: borders.radius,
+    fontSize: typography.textXs,
+    fontWeight: typography.weightMedium,
+  },
+  
+  footer: {
+    padding: `${spacing.md} ${spacing.xl}`,
+    backgroundColor: colors.backgroundGray,
+    borderTop: `1px solid ${colors.border}`,
+    fontSize: typography.textSm,
+    color: colors.textLight,
+  },
+};
+
+// =============================================
 // ESTILOS ESPECÍFICOS DE COMPONENTES COMPLEJOS
 // =============================================
 const componentStyles = {
@@ -1998,6 +2143,7 @@ const adminStyles = {
   buttons,
   forms,
   tables,
+  cards,
   modalStyles,
   searchStyles,
   badgeStyles,

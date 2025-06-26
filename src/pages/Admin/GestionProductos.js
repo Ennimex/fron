@@ -2,13 +2,91 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
-import { styles } from "../../styles/gestionProductosStyles";
+import adminStyles from "../../styles/stylesAdmin";
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 
 const GestionProductos = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+
+  // Mapeo de estilos globales
+  const styles = {
+    pageContainer: adminStyles.containers.page,
+    container: adminStyles.containers.content,
+    header: adminStyles.headerStyles.headerSimple,
+    headerContent: adminStyles.headerStyles.headerContent,
+    title: adminStyles.headerStyles.titleDark,
+    subtitle: adminStyles.headerStyles.subtitleDark,
+    addButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.primary,
+    },
+    content: { padding: adminStyles.spacing.xl },
+    error: adminStyles.messageStyles.error,
+    controlsContainer: adminStyles.searchStyles.container,
+    searchContainer: adminStyles.searchStyles.searchContainer,
+    searchInput: adminStyles.searchStyles.searchInput,
+    filterSelect: adminStyles.searchStyles.filterSelect,
+    tableContainer: adminStyles.tables.container,
+    table: adminStyles.tables.table,
+    tableHeader: adminStyles.tables.header,
+    tableHeaderCell: adminStyles.tables.headerCell,
+    tableRow: adminStyles.tables.row,
+    tableCell: adminStyles.tables.cell,
+    actionsContainer: adminStyles.tables.actionsContainer,
+    emptyState: adminStyles.containers.emptyState,
+    emptyStateText: adminStyles.containers.emptyStateText,
+    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
+    modalOverlay: adminStyles.modalStyles.overlay,
+    modalContent: adminStyles.modalStyles.content,
+    modalHeader: adminStyles.modalStyles.header,
+    modalTitle: adminStyles.modalStyles.title,
+    modalCloseButton: adminStyles.modalStyles.closeButton,
+    modalBody: adminStyles.modalStyles.body,
+    formGrid: adminStyles.forms.formGrid2,
+    formGroup: adminStyles.forms.formGroup,
+    label: adminStyles.forms.label,
+    requiredField: adminStyles.forms.requiredField,
+    input: adminStyles.forms.input,
+    select: adminStyles.forms.select,
+    textarea: adminStyles.forms.textarea,
+    imageUploadArea: adminStyles.forms.uploadArea,
+    uploadText: adminStyles.forms.uploadText,
+    uploadSubtext: adminStyles.forms.uploadSubtext,
+    fileInput: adminStyles.forms.fileInput,
+    previewContainer: { marginTop: adminStyles.spacing.md },
+    previewImage: adminStyles.forms.imagePreview,
+    tallasSection: adminStyles.componentStyles.tallasSection,
+    tallasContainer: adminStyles.componentStyles.tallasContainer,
+    genderGroup: adminStyles.componentStyles.genderGroup,
+    genderTitle: adminStyles.componentStyles.genderTitle,
+    sizesGrid: adminStyles.componentStyles.sizesGrid,
+    tallaCheckbox: adminStyles.componentStyles.tallaCheckbox,
+    tallaCheckboxSelected: {
+      ...adminStyles.componentStyles.tallaCheckbox,
+      ...adminStyles.componentStyles.tallaCheckboxSelected,
+    },
+    helpText: adminStyles.forms.helpText,
+    progressContainer: adminStyles.progressStyles.container,
+    progressBar: adminStyles.progressStyles.bar,
+    progressBarFill: adminStyles.progressStyles.fill,
+    progressText: adminStyles.progressStyles.text,
+    submitButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.primary,
+      width: '100%',
+      justifyContent: 'center',
+      marginTop: adminStyles.spacing.lg,
+    },
+    submitButtonDisabled: adminStyles.buttons.disabled,
+    badge: adminStyles.badgeStyles.base,
+    productImage: adminStyles.tables.productImage,
+    actionButton: adminStyles.buttons.actionButton,
+    editAction: adminStyles.buttons.editAction,
+    deleteAction: adminStyles.buttons.deleteAction,
+    viewAction: adminStyles.buttons.viewAction,
+  };
 
   // Estados para datos
   const [localidades, setLocalidades] = useState([]);
@@ -463,29 +541,37 @@ const GestionProductos = () => {
     );
   }
 
-  return (
-    <div style={styles.pageContainer}>
+  return (    <div style={styles.pageContainer}>
       <style>
+        {adminStyles.animations}
         {`
           .form-input:focus {
             outline: none !important;
-            border-color: #0D1B2A !important;
+            border-color: ${adminStyles.colors.primary} !important;
             box-shadow: 0 0 0 2px rgba(13, 27, 42, 0.1) !important;
           }
           .submit-button:hover:not(:disabled) {
-            background-color: #1a2a44;
+            background-color: ${adminStyles.colors.primaryLight};
           }
           .table-row:hover {
-            background-color: #f8fafc;
+            background-color: ${adminStyles.colors.tableHover};
           }
           .action-button:hover {
             opacity: 0.9;
+            transform: scale(1.05);
           }
           .add-button:hover {
-            background-color: #1a2a44;
+            background-color: ${adminStyles.colors.primaryLight};
           }
           .modal-close:hover {
-            background-color: rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.1);
+          }
+          .size-checkbox {
+            transition: all 0.2s ease;
+          }
+          .size-checkbox:hover {
+            transform: translateY(-1px);
+            box-shadow: ${adminStyles.shadows.sm};
           }
         `}
       </style>
@@ -497,10 +583,13 @@ const GestionProductos = () => {
             <div>
               <h1 style={styles.title}>Gestión de Productos</h1>
               <p style={styles.subtitle}>Administra tu catálogo de productos</p>
-            </div>
-            <button
+            </div>            <button
               className="add-button"
-              style={{ ...styles.addButton, backgroundColor: "#0D1B2A", color: "#fff" }}
+              style={{ 
+                ...styles.addButton, 
+                backgroundColor: adminStyles.colors.primary, 
+                color: adminStyles.colors.white 
+              }}
               onClick={() => {
                 setIsEditMode(false);
                 setProducto({
@@ -520,10 +609,15 @@ const GestionProductos = () => {
           </div>
         </div>
 
-        {/* Content */}
-        <div style={styles.content}>
+        {/* Content */}        <div style={styles.content}>
           {error && (
-            <div style={{ ...styles.error, backgroundColor: "#fee2e2", color: "#991b1b", padding: "1rem", borderRadius: "8px" }}>
+            <div style={{ 
+              ...styles.error, 
+              backgroundColor: adminStyles.colors.errorBg, 
+              color: adminStyles.colors.errorText, 
+              padding: adminStyles.spacing.lg, 
+              borderRadius: adminStyles.borders.radius 
+            }}>
               {error}
             </div>
           )}
@@ -609,10 +703,12 @@ const GestionProductos = () => {
                           </div>
                         </td>
                         <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer}>
-                            <button
+                          <div style={styles.actionsContainer}>                            <button
                               className="action-button"
-                              style={{ ...styles.actionButton, backgroundColor: "#e0f2fe", color: "#0369a1" }}
+                              style={{ 
+                                ...styles.actionButton, 
+                                ...styles.viewAction 
+                              }}
                               onClick={() => setSelectedProduct(producto)}
                               title="Ver detalles"
                             >
@@ -620,7 +716,10 @@ const GestionProductos = () => {
                             </button>
                             <button
                               className="action-button"
-                              style={{ ...styles.actionButton, backgroundColor: "#fef3c7", color: "#92400e" }}
+                              style={{ 
+                                ...styles.actionButton, 
+                                ...styles.editAction 
+                              }}
                               onClick={() => handleEditProduct(producto)}
                               title="Editar producto"
                             >
@@ -628,7 +727,10 @@ const GestionProductos = () => {
                             </button>
                             <button
                               className="action-button"
-                              style={{ ...styles.actionButton, backgroundColor: "#fee2e2", color: "#991b1b" }}
+                              style={{ 
+                                ...styles.actionButton, 
+                                ...styles.deleteAction 
+                              }}
                               onClick={() => handleDeleteProduct(producto._id)}
                               title="Eliminar producto"
                             >
@@ -666,11 +768,15 @@ const GestionProductos = () => {
               <button className="modal-close" onClick={() => setShowModal(false)} style={styles.modalCloseButton}>
                 ×
               </button>
-            </div>
-
-            <div style={styles.modalBody}>
+            </div>            <div style={styles.modalBody}>
               {error && (
-                <div style={{ ...styles.error, backgroundColor: "#fee2e2", color: "#991b1b", padding: "1rem", borderRadius: "8px" }}>
+                <div style={{ 
+                  ...styles.error, 
+                  backgroundColor: adminStyles.colors.errorBg, 
+                  color: adminStyles.colors.errorText, 
+                  padding: adminStyles.spacing.lg, 
+                  borderRadius: adminStyles.borders.radius 
+                }}>
                   {error}
                 </div>
               )}
@@ -812,9 +918,9 @@ const GestionProductos = () => {
                         <div style={styles.sizesGrid}>
                           {sizes.map((talla) => {
                             const isSelected = producto.tallasDisponibles.some((t) => t._id === talla._id);
-                            return (
-                              <label
+                            return (                              <label
                                 key={talla._id}
+                                className="size-checkbox"
                                 style={{
                                   ...styles.tallaCheckbox,
                                   ...(isSelected ? styles.tallaCheckboxSelected : {}),
@@ -843,7 +949,11 @@ const GestionProductos = () => {
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div style={styles.progressContainer}>
                     <div style={styles.progressBar}>
-                      <div style={{ ...styles.progressBarFill, width: `${uploadProgress}%`, backgroundColor: "#0D1B2A" }}></div>
+                      <div style={{ 
+                        ...styles.progressBarFill, 
+                        width: `${uploadProgress}%`, 
+                        backgroundColor: adminStyles.colors.primary 
+                      }}></div>
                     </div>
                     <div style={styles.progressText}>Subiendo... {uploadProgress}%</div>
                   </div>
@@ -870,10 +980,9 @@ const GestionProductos = () => {
                   </button>
                   <button
                     type="submit"
-                    className="submit-button"
-                    style={{
+                    className="submit-button"                    style={{
                       ...styles.submitButton,
-                      backgroundColor: "#0D1B2A",
+                      backgroundColor: adminStyles.colors.primary,
                       ...(loading ? styles.submitButtonDisabled : {}),
                       flex: "2",
                       marginTop: 0,
@@ -952,12 +1061,11 @@ const GestionProductos = () => {
                       marginBottom: "1rem",
                       flexWrap: "wrap",
                     }}
-                  >
-                    <span
+                  >                    <span
                       style={{
                         ...styles.badge,
-                        backgroundColor: "#e3f2fd",
-                        color: "#0D1B2A",
+                        backgroundColor: adminStyles.colors.secondary + '20',
+                        color: adminStyles.colors.primary,
                         fontWeight: "600",
                       }}
                     >
@@ -966,8 +1074,8 @@ const GestionProductos = () => {
                     <span
                       style={{
                         ...styles.badge,
-                        backgroundColor: "#f3e5f5",
-                        color: "#0D1B2A",
+                        backgroundColor: adminStyles.colors.chartPurple + '20',
+                        color: adminStyles.colors.primary,
                         fontWeight: "600",
                       }}
                     >

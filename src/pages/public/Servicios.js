@@ -6,9 +6,37 @@ import api from '../../services/api';
 
 const Servicios = () => {
   const navigate = useNavigate();
+  
+  // Estilos CSS para animaciones
+  const animationStyles = `
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-in {
+      animation: fadeInUp 0.8s forwards;
+    }
+    
+    .service-card {
+      transition: all 0.3s ease;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+  `;
+
   const [isVisible, setIsVisible] = useState({
     hero: false,
     servicios: false,
+    tecnicas: false,
     beneficios: false,
     cta: false,
   });
@@ -19,7 +47,8 @@ const Servicios = () => {
     // Animaciones escalonadas como en Inicio.js
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, servicios: true })), 300);
-    setTimeout(() => setIsVisible(prev => ({ ...prev, beneficios: true })), 600);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, tecnicas: true })), 500);
+    setTimeout(() => setIsVisible(prev => ({ ...prev, beneficios: true })), 700);
     setTimeout(() => setIsVisible(prev => ({ ...prev, cta: true })), 900);
   }, []);
 
@@ -28,7 +57,7 @@ const Servicios = () => {
     const fetchServicios = async () => {
       try {
         setLoading(true);
-        const data = await api.get('/public/servicios');
+        const data = await api.get('/servicios');
         setServicios(data);
         setLoading(false);
       } catch (error) {
@@ -114,6 +143,38 @@ const Servicios = () => {
       },
     },
   };
+  // Datos de técnicas artesanales para la nueva sección
+  /* const tecnicasArtesanales = useMemo(() => [
+    {
+      id: 'bordado',
+      titulo: 'Bordado Tradicional',
+      descripcion: 'Técnica ancestral de bordado a mano con motivos florales y geométricos característicos de la región Huasteca.',
+      icono: '🧵',
+      color: stylesPublic.colors.primary.main
+    },
+    {
+      id: 'telar',
+      titulo: 'Telar de Cintura',
+      descripcion: 'Método tradicional de tejido utilizado por las artesanas para crear textiles con patrones únicos y significativos.',
+      icono: '🧶',
+      color: stylesPublic.colors.secondary.main
+    },
+    {
+      id: 'tenido',
+      titulo: 'Teñido Natural',
+      descripcion: 'Uso de tintes naturales extraídos de plantas locales para lograr colores vibrantes y duraderos.',
+      icono: '🌿',
+      color: stylesPublic.colors.accent.orange
+    },
+    {
+      id: 'acabados',
+      titulo: 'Acabados Artesanales',
+      descripcion: 'Detalles finales que dan el toque distintivo a cada pieza, desde flecos hasta aplicaciones decorativas.',
+      icono: '✨',
+      color: stylesPublic.colors.accent.purple
+    }
+  ], []); */
+
   // Beneficios de la boutique
   const beneficiosData = useMemo(() => [
     { 
@@ -143,50 +204,99 @@ const Servicios = () => {
   ], []);  // Renderizado de cards de servicios
   const renderServiceCards = useCallback(() => {    if (loading) {
       return (
-        <Col xs={12} className="text-center">
-          <div style={{
-            padding: stylesPublic.spacing.xl,
-            backgroundColor: stylesPublic.colors.background.main,
-            borderRadius: stylesPublic.borders.radius.lg,
-            margin: `0 ${stylesPublic.spacing.md}`
-          }}>
-            <div style={{
-              fontSize: stylesPublic.typography.fontSize["2xl"],
-              marginBottom: stylesPublic.spacing.md
-            }}>⏳</div>
-            <p style={{ 
-              fontSize: stylesPublic.typography.fontSize.lg,
-              color: stylesPublic.colors.text.secondary,
-              margin: 0
-            }}>
-              Cargando servicios...
-            </p>
-          </div>
-        </Col>
+        <Row className="g-4 justify-content-center">
+          {[1, 2, 3, 4].map((item) => (
+            <Col md={6} lg={3} key={item}>
+              <div style={{
+                padding: stylesPublic.spacing.xl,
+                backgroundColor: stylesPublic.colors.background.main,
+                borderRadius: stylesPublic.borders.radius.lg,
+                textAlign: 'center',
+                minHeight: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                boxShadow: stylesPublic.shadows.sm
+              }}>
+                <div style={{
+                  fontSize: stylesPublic.typography.fontSize["2xl"],
+                  marginBottom: stylesPublic.spacing.md,
+                  animation: 'pulse 1.5s infinite'
+                }}>⏳</div>
+                <p style={{ 
+                  fontSize: stylesPublic.typography.fontSize.md,
+                  color: stylesPublic.colors.text.secondary,
+                  margin: 0
+                }}>
+                  Cargando...
+                </p>
+              </div>
+            </Col>
+          ))}
+        </Row>
       );
     }    if (servicios.length === 0) {
-      return (
-        <Col xs={12} className="text-center">
-          <div style={{
-            padding: stylesPublic.spacing.xl,
-            backgroundColor: stylesPublic.colors.background.main,
-            borderRadius: stylesPublic.borders.radius.lg,
-            margin: `0 ${stylesPublic.spacing.md}`
-          }}>
-            <div style={{
-              fontSize: stylesPublic.typography.fontSize["2xl"],
-              marginBottom: stylesPublic.spacing.md
-            }}>🔧</div>
-            <p style={{ 
-              fontSize: stylesPublic.typography.fontSize.lg,
-              color: stylesPublic.colors.text.secondary,
-              margin: 0
+      // Servicios principales que manejamos
+      const serviciosPredeterminados = [
+        {
+          _id: 'confeccion',
+          titulo: 'Confección y Costura',
+          descripcion: 'Elaboración de prendas con técnicas tradicionales transmitidas por generaciones de artesanos huastecos. Desde vestidos ceremoniales hasta ropa contemporánea.',
+          icono: '✂️'
+        },
+        {
+          _id: 'accesorios',
+          titulo: 'Accesorios Artesanales',
+          descripcion: 'Creación de complementos únicos como rebozos, bolsos, joyería textil y elementos decorativos que realzan tu estilo personal.',
+          icono: '�'
+        }
+      ];
+
+      return serviciosPredeterminados.map((servicio, idx) => (
+        <Col md={6} key={servicio._id} className="mb-4">
+          <Card 
+            className="service-card h-100 shadow" 
+            style={{ 
+              ...customStyles.serviceCard,
+              transform: hoveredService === servicio._id ? stylesPublic.elements.cards.hover.transform : "translateY(0)",
+              borderLeft: `${stylesPublic.borders.width.thick} solid ${
+                idx === 0 ? stylesPublic.colors.primary.main : stylesPublic.colors.secondary.main
+              }`,
+              minHeight: '350px'
+            }}
+            onMouseEnter={() => setHoveredService(servicio._id)}
+            onMouseLeave={() => setHoveredService(null)}
+          >
+            <div style={{ 
+              fontSize: stylesPublic.typography.fontSize["3xl"], 
+              marginBottom: stylesPublic.spacing.md,
+              padding: `${stylesPublic.spacing.lg} ${stylesPublic.spacing.md} 0`,
+              textAlign: 'center'
             }}>
-              No hay servicios disponibles en este momento.
-            </p>
-          </div>
+              {servicio.icono}
+            </div>
+            <Card.Body style={{ display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ 
+                fontFamily: stylesPublic.typography.fontFamily.heading, 
+                fontSize: stylesPublic.typography.fontSize.xl, 
+                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                color: stylesPublic.colors.text.primary, 
+                marginBottom: stylesPublic.spacing.md 
+              }}>
+                {servicio.titulo}
+              </h3>
+              <p style={{ 
+                fontSize: stylesPublic.typography.fontSize.sm, 
+                color: stylesPublic.colors.text.secondary, 
+                lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                flexGrow: 1
+              }}>
+                {servicio.descripcion}
+              </p>
+            </Card.Body>
+          </Card>
         </Col>
-      );
+      ));
     }
 
     return servicios.map((servicio, idx) => (
@@ -286,7 +396,9 @@ const Servicios = () => {
   }, [beneficiosData, ServiceIcons, customStyles.benefitIcon]);
 
   return (
-    <>      {/* Hero Section */}
+    <>
+      <style>{animationStyles}</style>
+      {/* Hero Section */}
       <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
         <Container style={{ 
@@ -353,8 +465,47 @@ const Servicios = () => {
           }}>
             Ofrecemos una experiencia única en diseño y confección de moda huasteca
           </p>
-          <Row className="g-4">
+          <Row className="g-4 justify-content-center">
             {renderServiceCards()}
+          </Row>
+          
+          {/* Información adicional */}
+          <Row className="mt-5">
+            <Col xs={12} className="text-center">
+              <div style={{
+                background: stylesPublic.colors.background.main,
+                padding: stylesPublic.spacing.xl,
+                borderRadius: stylesPublic.borders.radius.lg,
+                boxShadow: stylesPublic.shadows.sm,
+                maxWidth: '800px',
+                margin: '0 auto'
+              }}>
+                <h3 style={{
+                  fontFamily: stylesPublic.typography.fontFamily.heading,
+                  fontSize: stylesPublic.typography.fontSize.xl,
+                  fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                  color: stylesPublic.colors.text.primary,
+                  marginBottom: stylesPublic.spacing.md
+                }}>
+                  ¿Necesitas algo personalizado?
+                </h3>
+                <p style={{
+                  fontSize: stylesPublic.typography.fontSize.md,
+                  color: stylesPublic.colors.text.secondary,
+                  lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                  marginBottom: stylesPublic.spacing.lg
+                }}>
+                  Trabajamos contigo para crear servicios personalizados que se adapten a tus necesidades específicas. 
+                  Desde eventos especiales hasta colecciones exclusivas.
+                </p>
+                <Button 
+                  style={customStyles.pinkButton}
+                  onClick={() => navigate("/contacto")}
+                >
+                  Solicitar Información
+                </Button>
+              </div>
+            </Col>
           </Row>
         </Container>
       </section>      {/* Beneficios Section */}
@@ -404,25 +555,20 @@ const Servicios = () => {
             marginBottom: stylesPublic.spacing.md, 
             animationDelay: "0.3s" 
           }}>
-            ¿Listo para vivir la experiencia Aterciopelada?
+            Descubre la Experiencia Aterciopelada
           </h2>
           <p className="animate-in" style={{ 
             fontSize: stylesPublic.typography.fontSize.lg, 
             fontWeight: stylesPublic.typography.fontWeight.light, 
             color: "#ffffff", 
-            opacity: 0.75, 
+            opacity: 0.9, 
             maxWidth: "700px", 
             margin: `0 auto ${stylesPublic.spacing.xl}`, 
             animationDelay: "0.5s" 
           }}>
-            Agenda una cita con nuestros diseñadores y descubre cómo podemos crear piezas únicas para ti
+            Cada servicio que ofrecemos está diseñado para celebrar la rica tradición textil de la Huasteca, 
+            combinando técnicas ancestrales con diseños contemporáneos para crear piezas verdaderamente únicas.
           </p>
-          <Button className="animate-in" style={{ 
-            ...customStyles.pinkButton, 
-            animationDelay: "0.7s" 
-          }} onClick={() => navigate("/contacto")}>
-            Agendar cita
-          </Button>
         </Container>
       </section>
     </>

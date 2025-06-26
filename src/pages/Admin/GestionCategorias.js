@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import {
@@ -7,15 +7,260 @@ import {
   FaTrash,
   FaSave,
   FaPlus,
-  FaTimes,
   FaSpinner,
   FaSearch,
   FaImage,
+  FaLock,
 } from "react-icons/fa";
+import adminStyles from "../../styles/stylesAdmin";
 
 const GestionCategorias = () => {
   const navigate = useNavigate();
-  const { checkTokenExpiration } = useAuth();
+  const { user, isAuthenticated, checkTokenExpiration } = useAuth();
+
+  // Mapeo de estilos globales
+  const styles = {
+    pageContainer: adminStyles.containers.page,
+    mainContainer: adminStyles.containers.main,
+    header: adminStyles.headerStyles.headerSimple,
+    title: adminStyles.headerStyles.titleDark,
+    subtitle: adminStyles.headerStyles.subtitleDark,
+    addButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.primary,
+    },
+    content: adminStyles.containers.content,
+    error: adminStyles.messageStyles.error,
+    success: adminStyles.messageStyles.success,
+    
+    // Estilos de tabla mejorados
+    tableContainer: {
+      ...adminStyles.containers.content,
+      overflowX: 'auto',
+    },
+    table: {
+      ...adminStyles.tables.table,
+      borderSpacing: '0 8px', // Espaciado vertical entre filas
+      borderCollapse: 'separate', // Necesario para que funcione borderSpacing
+    },
+    tableHeader: adminStyles.tables.th,
+    tableCell: {
+      ...adminStyles.tables.td,
+      borderTop: `1px solid ${adminStyles.colors.border}`,
+      borderBottom: `1px solid ${adminStyles.colors.border}`,
+    },
+    tableCellFirst: {
+      ...adminStyles.tables.td,
+      borderTop: `1px solid ${adminStyles.colors.border}`,
+      borderBottom: `1px solid ${adminStyles.colors.border}`,
+      borderLeft: `1px solid ${adminStyles.colors.border}`,
+      borderTopLeftRadius: adminStyles.borders.radius,
+      borderBottomLeftRadius: adminStyles.borders.radius,
+    },
+    tableCellBold: {
+      ...adminStyles.tables.td,
+      fontWeight: '500',
+      borderTop: `1px solid ${adminStyles.colors.border}`,
+      borderBottom: `1px solid ${adminStyles.colors.border}`,
+    },
+    tableCellLast: {
+      ...adminStyles.tables.td,
+      borderTop: `1px solid ${adminStyles.colors.border}`,
+      borderBottom: `1px solid ${adminStyles.colors.border}`,
+      borderRight: `1px solid ${adminStyles.colors.border}`,
+      borderTopRightRadius: adminStyles.borders.radius,
+      borderBottomRightRadius: adminStyles.borders.radius,
+    },
+    
+    // Estilos de botones de acción
+    actionButton: {
+      ...adminStyles.buttons.actionButton,
+      padding: `${adminStyles.spacing.sm} ${adminStyles.spacing.md}`,
+      minWidth: '80px',
+      fontSize: adminStyles.typography.textSm,
+      fontWeight: adminStyles.typography.weightMedium,
+      marginRight: adminStyles.spacing.sm,
+    },
+    editAction: adminStyles.buttons.editAction,
+    deleteAction: adminStyles.buttons.deleteAction,
+    actionsContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: adminStyles.spacing.sm,
+      justifyContent: 'flex-end',
+    },
+    
+    // Estilos de modal
+    modalOverlay: adminStyles.modalStyles.overlay,
+    modalContent: {
+      ...adminStyles.modalStyles.content,
+      maxWidth: '600px',
+      maxHeight: '90vh',
+      overflow: 'auto',
+    },
+    modalCloseButton: adminStyles.modalStyles.closeButton,
+    modalTitle: {
+      ...adminStyles.modalStyles.title,
+      marginBottom: adminStyles.spacing.xl,
+    },
+    modalActions: {
+      ...adminStyles.modalStyles.actions,
+      marginTop: adminStyles.spacing.xl,
+      paddingTop: adminStyles.spacing.lg,
+      borderTop: `1px solid ${adminStyles.colors.border}`,
+    },
+    modalBody: {
+      padding: adminStyles.spacing.xl,
+    },
+    
+    // Estilos de formulario mejorados
+    formContainer: {
+      width: '100%',
+    },
+    formGroup: {
+      marginBottom: adminStyles.spacing.xl,
+      width: '100%',
+    },
+    label: {
+      ...adminStyles.forms.label,
+      display: 'block',
+      marginBottom: adminStyles.spacing.md,
+      fontWeight: adminStyles.typography.weightMedium,
+      color: adminStyles.colors.textPrimary,
+      fontSize: adminStyles.typography.textSm,
+      lineHeight: '1.5',
+    },
+    requiredField: {
+      ...adminStyles.forms.requiredField,
+      marginLeft: adminStyles.spacing.xs,
+      color: adminStyles.colors.danger,
+    },
+    charCount: {
+      ...adminStyles.forms.charCount,
+      marginLeft: adminStyles.spacing.sm,
+      color: adminStyles.colors.textMuted,
+      fontSize: adminStyles.typography.textXs,
+      fontWeight: 'normal',
+    },
+    input: {
+      ...adminStyles.forms.input,
+      width: '100%',
+      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
+      border: `1px solid ${adminStyles.colors.border}`,
+      borderRadius: adminStyles.borders.radius,
+      fontSize: adminStyles.typography.textBase,
+      marginBottom: 0,
+      boxSizing: 'border-box',
+      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      '&:focus': {
+        borderColor: adminStyles.colors.primary,
+        boxShadow: `0 0 0 3px ${adminStyles.colors.primary}20`,
+        outline: 'none',
+      },
+    },
+    textarea: {
+      ...adminStyles.forms.textarea,
+      width: '100%',
+      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
+      border: `1px solid ${adminStyles.colors.border}`,
+      borderRadius: adminStyles.borders.radius,
+      fontSize: adminStyles.typography.textBase,
+      marginBottom: 0,
+      boxSizing: 'border-box',
+      minHeight: '120px',
+      resize: 'vertical',
+      fontFamily: 'inherit',
+      lineHeight: '1.5',
+      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      '&:focus': {
+        borderColor: adminStyles.colors.primary,
+        boxShadow: `0 0 0 3px ${adminStyles.colors.primary}20`,
+        outline: 'none',
+      },
+    },
+    helpText: {
+      ...adminStyles.forms.helpText,
+      display: 'block',
+      marginTop: adminStyles.spacing.md,
+      marginBottom: 0,
+      fontSize: adminStyles.typography.textSm,
+      color: adminStyles.colors.textMuted,
+      lineHeight: '1.4',
+      fontStyle: 'italic',
+    },
+    
+    // Estilos específicos de imagen
+    imagePreview: {
+      height: '40px',
+      width: '40px',
+      borderRadius: '50%',
+      objectFit: 'cover',
+      border: `1px solid ${adminStyles.colors.border}`,
+    },
+    imagePlaceholder: {
+      height: '40px',
+      width: '40px',
+      backgroundColor: adminStyles.colors.grayLight,
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: adminStyles.colors.white,
+      border: `1px solid ${adminStyles.colors.border}`,
+    },
+    modalImagePreview: {
+      maxWidth: '100%',
+      maxHeight: '150px',
+      marginTop: adminStyles.spacing.md,
+      borderRadius: adminStyles.borders.radius,
+      border: `1px solid ${adminStyles.colors.border}`,
+    },
+    
+    // Estilos de búsqueda
+    searchContainer: {
+      position: 'relative',
+      marginBottom: adminStyles.spacing.xl,
+    },
+    searchIcon: {
+      position: 'absolute',
+      left: adminStyles.spacing.lg,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      color: adminStyles.colors.textMuted,
+      zIndex: 1,
+    },
+    searchInput: {
+      ...adminStyles.forms.input,
+      paddingLeft: '2.5rem',
+      width: '100%',
+      boxSizing: 'border-box',
+    },
+    
+    // Estilos de botones
+    outlineButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.outline,
+      marginRight: adminStyles.spacing.lg,
+    },
+    primaryButton: {
+      ...adminStyles.buttons.base,
+      ...adminStyles.buttons.primary,
+    },
+    disabledButton: adminStyles.buttons.disabled,
+    
+    // Estilos de estados
+    emptyState: adminStyles.containers.emptyState,
+    emptyStateText: adminStyles.containers.emptyStateText,
+    loadingContainer: adminStyles.loadingStyles.container,
+    spinner: adminStyles.loadingStyles.spinner,
+    
+    // Utilidades
+    textCenter: adminStyles.utilities.textCenter,
+    flexCenter: adminStyles.utilities.flexCenter,
+    flexBetween: adminStyles.utilities.flexBetween,
+  };
+
+  // Estados del componente
   const [categorias, setCategorias] = useState([]);
   const [categoriaActual, setCategoriaActual] = useState({
     _id: "",
@@ -30,7 +275,7 @@ const GestionCategorias = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // Configuración de Axios
+  // Axios configuration
   const api = useMemo(() => {
     return axios.create({
       baseURL: "http://localhost:5000/api",
@@ -41,7 +286,7 @@ const GestionCategorias = () => {
     });
   }, []);
 
-  // Función para verificar token antes de cada operación
+  // Verify token before operations
   const verifyTokenAndProceed = useCallback(async () => {
     if (!checkTokenExpiration()) {
       navigate('/login');
@@ -50,7 +295,7 @@ const GestionCategorias = () => {
     return true;
   }, [checkTokenExpiration, navigate]);
 
-  // Cargar categorías
+  // Fetch categories
   const fetchCategorias = useCallback(async () => {
     if (!await verifyTokenAndProceed()) return;
     
@@ -73,7 +318,7 @@ const GestionCategorias = () => {
     fetchCategorias();
   }, [fetchCategorias]);
 
-  // Manejar cambios en el formulario
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCategoriaActual((prev) => ({
@@ -82,14 +327,13 @@ const GestionCategorias = () => {
     }));
   };
 
-  // Manejar cambio de archivo
+  // Handle file change
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  // Validar formulario
+  // Validate form
   const validateForm = () => {
-    // Validar nombre
     if (!categoriaActual.nombre.trim()) {
       setError("El nombre de la categoría es obligatorio");
       return false;
@@ -105,30 +349,25 @@ const GestionCategorias = () => {
       return false;
     }
     
-    // Validación de caracteres especiales en el nombre
     const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s-]+$/;
     if (!nombreRegex.test(categoriaActual.nombre.trim())) {
       setError("El nombre solo debe contener letras, números, espacios y guiones");
       return false;
     }
     
-    // Validar descripción
     if (categoriaActual.descripcion && categoriaActual.descripcion.length > 200) {
       setError("La descripción no puede exceder los 200 caracteres");
       return false;
     }
     
-    // Validar imagen
     if (selectedFile) {
-      // Verificar tipo de archivo
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(selectedFile.type)) {
         setError("El archivo debe ser una imagen (JPEG, PNG, GIF o WEBP)");
         return false;
       }
       
-      // Verificar tamaño (máximo 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+      const maxSize = 5 * 1024 * 1024; // 5MB
       if (selectedFile.size > maxSize) {
         setError("La imagen no puede superar los 5MB");
         return false;
@@ -139,7 +378,7 @@ const GestionCategorias = () => {
     return true;
   };
 
-  // Guardar o actualizar categoría
+  // Save or update category
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!await verifyTokenAndProceed()) return;
@@ -196,7 +435,7 @@ const GestionCategorias = () => {
     resetForm();
   };
 
-  // Eliminar categoría
+  // Delete category
   const handleDelete = async (id) => {
     if (!await verifyTokenAndProceed()) return;
     if (!window.confirm("¿Está seguro de eliminar esta categoría?")) return;
@@ -216,7 +455,7 @@ const GestionCategorias = () => {
     }
   };
 
-  // Resetear formulario
+  // Reset form
   const resetForm = () => {
     setCategoriaActual({
       _id: "",
@@ -229,464 +468,285 @@ const GestionCategorias = () => {
     setError(null);
   };
 
-  // Filtrar categorías
+  // Filter categories
   const filteredCategorias = categorias.filter((categoria) =>
     categoria.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     categoria.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Estilos mejorados
-  const styles = {
-    dashboardContainer: {
-      backgroundColor: "#f0f4f8",
-      minHeight: "100vh",
-      padding: "1.5rem",
-      fontFamily: "'Inter', sans-serif",
-      fontSize: "0.9rem",
-    },
-    headerSection: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "1.2rem",
-      backgroundColor: "white",
-      padding: "1rem 1.5rem",
-      borderRadius: "10px",
-      boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-    },
-    headerTitle: {
-      fontSize: "1.4rem",
-      fontWeight: "600",
-      color: "#1a202c",
-      margin: 0,
-    },
-    tableContainer: {
-      backgroundColor: "white",
-      borderRadius: "10px",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-      overflow: "hidden",
-      transition: "box-shadow 0.3s ease",
-    },
-    table: {
-      width: "100%",
-      borderCollapse: "collapse",
-      fontSize: "0.85rem",
-    },
-    th: {
-      padding: "0.8rem 1.2rem",
-      textAlign: "left",
-      fontSize: "0.7rem",
-      fontWeight: "600",
-      color: "#4a5568",
-      textTransform: "uppercase",
-      letterSpacing: "0.05em",
-      backgroundColor: "#f9fafb",
-      borderBottom: "2px solid #e2e8f0",
-    },
-    td: {
-      padding: "0.8rem 1.2rem",
-      fontSize: "0.85rem",
-      color: "#2d3748",
-      borderTop: "1px solid #edf2f7",
-      verticalAlign: "middle",
-    },
-    button: {
-      padding: "0.6rem 1.2rem",
-      borderRadius: "6px",
-      border: "none",
-      fontWeight: "500",
-      fontSize: "0.85rem",
-      cursor: "pointer",
-      transition: "all 0.2s ease-in-out",
-      display: "flex",
-      alignItems: "center",
-      gap: "0.4rem",
-    },
-    primaryButton: {
-      backgroundColor: "#3182ce",
-      color: "white",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-      ":hover": {
-        backgroundColor: "#2c5282",
-        transform: "translateY(-1px)",
-      },
-    },
-    secondaryButton: {
-      backgroundColor: "#e2e8f0",
-      color: "#4a5568",
-      ":hover": {
-        backgroundColor: "#cbd5e0",
-      },
-    },
-    actionButton: {
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      fontSize: "1rem",
-      padding: "0.3rem",
-      borderRadius: "4px",
-      transition: "all 0.2s ease-in-out",
-    },
-    editButton: {
-      color: "#3182ce",
-      marginRight: "0.5rem",
-    },
-    deleteButton: {
-      color: "#e53e3e",
-    },
-    modalOverlay: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-      backdropFilter: "blur(3px)",
-      animation: "fadeIn 0.2s ease-in-out",
-    },
-    modalContent: {
-      backgroundColor: "white",
-      padding: "1.5rem",
-      borderRadius: "10px",
-      width: "90%",
-      maxWidth: "500px",
-      maxHeight: "85vh",
-      overflow: "auto",
-      boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
-      animation: "slideIn 0.3s ease-in-out",
-    },
-    modalHeader: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "1.2rem",
-      paddingBottom: "0.8rem",
-      borderBottom: "1px solid #e2e8f0",
-    },
-    modalTitle: {
-      margin: 0,
-      fontSize: "1.2rem",
-      fontWeight: "600",
-      color: "#1a202c",
-    },
-    closeButton: {
-      background: "none",
-      border: "none",
-      color: "#718096",
-      fontSize: "1.2rem",
-      cursor: "pointer",
-      transition: "color 0.2s ease",
-      ":hover": {
-        color: "#2d3748",
-      },
-    },
-    input: {
-      width: "100%",
-      padding: "0.6rem 0.8rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "6px",
-      fontSize: "0.85rem",
-      transition: "all 0.2s ease-in-out",
-      backgroundColor: "#f8fafc",
-      ":focus": {
-        outline: "none",
-        borderColor: "#3182ce",
-        boxShadow: "0 0 0 3px rgba(49,130,206,0.1)",
-        backgroundColor: "white",
-      },
-    },
-    label: {
-      display: "block",
-      fontSize: "0.8rem",
-      color: "#4a5568",
-      marginBottom: "0.4rem",
-      fontWeight: "500",
-    },
-    error: {
-      backgroundColor: "#FEF2F2",
-      borderLeft: "4px solid #DC2626",
-      color: "#991B1B",
-      padding: "0.8rem 1rem",
-      borderRadius: "6px",
-      marginBottom: "1rem",
-      fontSize: "0.85rem",
-    },
-    searchContainer: {
-      marginBottom: "1.2rem",
-    },
-    searchWrapper: {
-      position: "relative",
-      backgroundColor: "white",
-      borderRadius: "8px",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    },
-    searchIcon: {
-      position: "absolute",
-      left: "0.75rem",
-      top: "50%",
-      transform: "translateY(-50%)",
-      color: "#9ca3af",
-    },
-    searchInput: {
-      width: "100%",
-      padding: "0.6rem 1rem 0.6rem 2.5rem",
-      border: "1px solid #e2e8f0",
-      borderRadius: "8px",
-      fontSize: "0.85rem",
-      transition: "all 0.2s ease-in-out",
-      ":focus": {
-        outline: "none",
-        borderColor: "#3182ce",
-        boxShadow: "0 0 0 3px rgba(49,130,206,0.1)",
-      },
-    },
-    loading: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: "2rem",
-    },
-    thumbnail: {
-      width: "45px",
-      height: "45px",
-      borderRadius: "6px",
-      objectFit: "cover",
-      border: "1px solid #e2e8f0",
-    },
-    placeholderImage: {
-      width: "45px",
-      height: "45px",
-      color: "#9ca3af",
-      padding: "0.5rem",
-      backgroundColor: "#f3f4f6",
-      borderRadius: "6px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    formGroup: {
-      marginBottom: "1.2rem",
-    },
-    imagePreview: {
-      marginTop: "0.5rem",
-      maxWidth: "100%",
-      maxHeight: "150px",
-      borderRadius: "6px",
-      objectFit: "contain",
-      border: "1px solid #e2e8f0",
-    },
-    modalActions: {
-      display: "flex",
-      justifyContent: "flex-end",
-      gap: "0.8rem",
-      marginTop: "1.5rem",
-      paddingTop: "1rem",
-      borderTop: "1px solid #e2e8f0",
-    },
-    fileInput: {
-      fontSize: "0.8rem",
-    },
-    tableRow: {
-      transition: "background-color 0.2s",
-      ":hover": {
-        backgroundColor: "#f9fafb",
-      },
-    },
-    spinAnimation: {
-      animation: "spin 1s linear infinite",
-      fontSize: "1.2rem",
-    },
-    // Clases adicionales para mejorar la interactividad
-    hoverTransition: {
-      transition: "transform 0.2s, box-shadow 0.2s",
-      ":hover": {
-        transform: "translateY(-2px)",
-        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)",
-      },
-    },
-  };
-
+  // Check authentication and admin role
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  if (user?.role !== 'admin') {
+    return (
+      <div style={adminStyles.combineStyles(
+        styles.pageContainer,
+        styles.flexCenter,
+        { height: '80vh', textAlign: 'center' }
+      )}>
+        <FaLock size={50} style={adminStyles.icons.error} />
+        <h2 style={styles.title}>Acceso Denegado</h2>
+        <p style={styles.subtitle}>
+          No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
+        </p>
+      </div>
+    );
+  }
   return (
-    <div style={styles.dashboardContainer}>
-      <div style={styles.headerSection}>
-        <h2 style={styles.headerTitle}>Gestión de Categorías</h2>
-        <button
-          onClick={() => openModal()}
-          style={{ ...styles.button, ...styles.primaryButton }}
-        >
-          <FaPlus /> Nueva Categoría
-        </button>
-      </div>
-
-      {/* Buscador */}
-      <div style={styles.searchContainer}>
-        <div style={styles.searchWrapper}>
-          <FaSearch style={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Buscar categorías..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={styles.searchInput}
-          />
+    <div style={styles.pageContainer}>
+      <div style={styles.mainContainer}>
+        {/* Header */}
+        <div style={styles.header}>
+          <div>
+            <h1 style={styles.title}>Gestión de Categorías</h1>
+            <p style={styles.subtitle}>
+              Administra y supervisa todas las categorías del sistema
+            </p>
+          </div>
+          <button
+            style={styles.addButton}
+            onClick={() => openModal()}
+            aria-label="Nueva categoría"
+          >
+            <FaPlus size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+            Nueva Categoría
+          </button>
         </div>
-      </div>
 
-      {/* Tabla de categorías */}
-      <div style={styles.tableContainer}>
+        {/* Error message */}
+        {error && (
+          <div style={styles.error}>
+            {error}
+          </div>
+        )}
+
+        {/* Search */}
+        <div style={styles.searchContainer}>
+          <label style={styles.label}>Buscar categorías</label>
+          <div style={{ position: 'relative' }}>
+            <FaSearch style={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Buscar por nombre o descripción..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={styles.searchInput}
+            />
+          </div>
+        </div>        {/* Table */}
         {loading ? (
-          <div style={styles.loading}>
-            <FaSpinner style={styles.spinAnimation} />
+          <div style={styles.loadingContainer}>
+            <div style={styles.textCenter}>
+              <FaSpinner style={styles.spinner} />
+              <h3>Cargando categorías...</h3>
+            </div>
+          </div>
+        ) : filteredCategorias.length === 0 ? (
+          <div style={styles.emptyState}>
+            <h3 style={styles.emptyStateText}>
+              {searchTerm ? "No se encontraron categorías" : "No hay categorías registradas"}
+            </h3>
+            <p style={adminStyles.containers.emptyStateSubtext}>
+              {searchTerm ? "Intenta con otros términos de búsqueda" : "¡Agrega una nueva categoría para comenzar!"}
+            </p>
           </div>
         ) : (
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Imagen</th>
-                <th style={styles.th}>Nombre</th>
-                <th style={styles.th}>Descripción</th>
-                <th style={styles.th}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCategorias.map((categoria) => (
-                <tr key={categoria._id} style={styles.tableRow}>
-                  <td style={styles.td}>
-                    {categoria.imagenURL ? (
-                      <img
-                        src={categoria.imagenURL}
-                        alt={categoria.nombre}
-                        style={styles.thumbnail}
-                      />
-                    ) : (
-                      <div style={styles.placeholderImage}>
-                        <FaImage />
-                      </div>
-                    )}
-                  </td>
-                  <td style={styles.td}>{categoria.nombre}</td>
-                  <td style={styles.td}>{categoria.descripcion}</td>
-                  <td style={styles.td}>
-                    <button
-                      onClick={() => openModal(categoria)}
-                      style={{
-                        ...styles.actionButton,
-                        ...styles.editButton,
-                      }}
-                      title="Editar"
-                      disabled={loading}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(categoria._id)}
-                      style={{
-                        ...styles.actionButton,
-                        ...styles.deleteButton,
-                      }}
-                      title="Eliminar"
-                      disabled={loading}
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
+          <div style={styles.tableContainer}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>Imagen</th>
+                  <th style={styles.tableHeader}>Nombre</th>
+                  <th style={styles.tableHeader}>Descripción</th>
+                  <th style={styles.tableHeader}>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredCategorias.map((categoria) => (
+                  <tr key={categoria._id}>
+                    <td style={styles.tableCellFirst}>
+                      {categoria.imagenURL ? (
+                        <img
+                          src={categoria.imagenURL}
+                          alt={categoria.nombre}
+                          style={styles.imagePreview}
+                        />
+                      ) : (
+                        <div style={styles.imagePlaceholder}>
+                          <FaImage size={18} />
+                        </div>
+                      )}
+                    </td>
+                    <td style={styles.tableCellBold}>
+                      <strong>{categoria.nombre}</strong>
+                    </td>
+                    <td style={styles.tableCell}>
+                      {categoria.descripcion || '—'}
+                    </td>
+                    <td style={styles.tableCellLast}>
+                      <div style={styles.actionsContainer}>
+                        <button
+                          style={adminStyles.combineStyles(
+                            styles.actionButton,
+                            styles.editAction
+                          )}
+                          onClick={() => openModal(categoria)}
+                          title="Editar categoría"
+                          disabled={loading}
+                          aria-label={`Editar categoría ${categoria.nombre}`}
+                        >
+                          <FaEdit size={12} />
+                          Editar
+                        </button>
+                        <button
+                          style={adminStyles.combineStyles(
+                            styles.actionButton,
+                            styles.deleteAction,
+                            { marginRight: 0 } // Eliminar margen del último botón
+                          )}
+                          onClick={() => handleDelete(categoria._id)}
+                          title="Eliminar categoría"
+                          disabled={loading}
+                          aria-label={`Eliminar categoría ${categoria.nombre}`}
+                        >
+                          <FaTrash size={12} />
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}        {/* Modal */}
+        {modalVisible && (
+          <div 
+            style={styles.modalOverlay}
+            className="modal"
+            onClick={(e) => e.target.classList.contains('modal') && closeModal()}
+          >
+            <div style={styles.modalContent}>
+              <div style={styles.modalBody}>
+                <button
+                  style={styles.modalCloseButton}
+                  onClick={closeModal}
+                  aria-label="Cerrar modal"
+                >
+                  ✗
+                </button>
+                <h2 style={styles.modalTitle}>
+                  {modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
+                </h2>
+
+                {error && (
+                  <div style={styles.error}>
+                    {error}
+                  </div>
+                )}
+
+                <form style={styles.formContainer} onSubmit={handleSubmit}>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label} htmlFor="nombre">
+                      Nombre de la Categoría
+                      <span style={styles.requiredField}>*</span>
+                      <span style={styles.charCount}>
+                        ({categoriaActual.nombre.length}/50)
+                      </span>
+                    </label>
+                    <input
+                      id="nombre"
+                      type="text"
+                      name="nombre"
+                      value={categoriaActual.nombre}
+                      onChange={handleChange}
+                      required
+                      style={styles.input}
+                      placeholder="Ej: Ropa de Hombre"
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label} htmlFor="descripcion">
+                      Descripción
+                      <span style={styles.charCount}>
+                        ({categoriaActual.descripcion?.length || 0}/200)
+                      </span>
+                    </label>
+                    <textarea
+                      id="descripcion"
+                      name="descripcion"
+                      value={categoriaActual.descripcion}
+                      onChange={handleChange}
+                      style={styles.textarea}
+                      rows="3"
+                      placeholder="Descripción breve de la categoría (opcional)"
+                    />
+                    <small style={styles.helpText}>
+                      Proporciona una descripción que ayude a identificar esta categoría.
+                    </small>
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label} htmlFor="imagen">
+                      Imagen de la Categoría
+                    </label>
+                    <input
+                      id="imagen"
+                      type="file"
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      style={styles.input}
+                    />
+                    <small style={styles.helpText}>
+                      Formatos admitidos: JPEG, PNG, GIF, WEBP. Tamaño máximo: 5MB.
+                    </small>
+                    {categoriaActual.imagenURL && (
+                      <img
+                        src={categoriaActual.imagenURL}
+                        alt="Vista previa"
+                        style={styles.modalImagePreview}
+                      />
+                    )}
+                  </div>
+
+                  <div style={styles.modalActions}>
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      style={styles.outlineButton}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      style={adminStyles.combineStyles(
+                        styles.primaryButton,
+                        loading ? styles.disabledButton : {}
+                      )}
+                      disabled={loading}
+                      aria-label={modoEdicion ? "Actualizar categoría" : "Crear categoría"}
+                    >
+                      {loading ? (
+                        <>
+                          <FaSpinner style={styles.spinner} />
+                          {modoEdicion ? "Actualizando..." : "Guardando..."}
+                        </>
+                      ) : (
+                        <>
+                          <FaSave style={{ marginRight: adminStyles.spacing.xs }} />
+                          {modoEdicion ? "Actualizar Categoría" : "Guardar Categoría"}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Modal */}
-      {modalVisible && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <div style={styles.modalHeader}>
-              <h3 style={styles.modalTitle}>
-                {modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
-              </h3>
-              <button
-                onClick={closeModal}
-                style={styles.closeButton}
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              {error && <div style={styles.error}>{error}</div>}
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Nombre *</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={categoriaActual.nombre}
-                  onChange={handleChange}
-                  required
-                  style={styles.input}
-                  placeholder="Ingrese el nombre de la categoría"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Descripción</label>
-                <textarea
-                  name="descripcion"
-                  value={categoriaActual.descripcion}
-                  onChange={handleChange}
-                  style={styles.input}
-                  rows="3"
-                  placeholder="Descripción breve de la categoría"
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Imagen</label>
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  style={{...styles.input, ...styles.fileInput}}
-                />
-                {categoriaActual.imagenURL && (
-                  <img
-                    src={categoriaActual.imagenURL}
-                    alt="Preview"
-                    style={styles.imagePreview}
-                  />
-                )}
-              </div>
-
-              <div style={styles.modalActions}>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  style={{ ...styles.button, ...styles.secondaryButton }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  style={{ ...styles.button, ...styles.primaryButton }}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <FaSpinner style={styles.spinAnimation} />
-                  ) : (
-                    <FaSave />
-                  )}
-                  {modoEdicion ? "Actualizar" : "Guardar"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

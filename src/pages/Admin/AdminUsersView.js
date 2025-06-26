@@ -14,325 +14,38 @@ import {
   FaSort,
   FaUserShield,
   FaUser,
-  FaUsers, // Añadimos el import de FaUsers
+  FaUsers,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
-
-// Estilos mejorados para el componente
-const enhancedStyles = {
-  container: {
-    backgroundColor: "#f9fafb",
-    padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    maxWidth: "1500px",
-    margin: "0 auto",
-    fontFamily: "'Inter', sans-serif",
-  },
-  header: {
-    marginBottom: "2rem",
-  },
-  title: {
-    fontSize: "1.8rem",
-    fontWeight: "700",
-    color: "#111827",
-    margin: "0 0 0.5rem 0",
-  },
-  subtitle: {
-    fontSize: "1rem",
-    color: "#4b5563",
-    margin: "0 0 1.5rem 0",
-  },
-  toolbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: "1rem",
-    marginBottom: "1.5rem",
-  },
-  searchContainer: {
-    position: "relative",
-    flex: "1",
-    minWidth: "280px",
-    maxWidth: "500px",
-  },
-  searchIcon: {
-    position: "absolute",
-    left: "12px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    color: "#9ca3af",
-  },  searchInput: {
-    width: "100%",
-    padding: "0.75rem 1rem 0.75rem 2.5rem",
-    borderRadius: "8px",
-    border: "1px solid #e5e7eb",
-    fontSize: "0.95rem",
-    backgroundColor: "white",
-    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-    outline: "none",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-  },
-  buttonGroup: {
-    display: "flex",
-    gap: "0.75rem",
-    flexWrap: "wrap",
-  },
-  button: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    padding: "0.65rem 1rem",
-    borderRadius: "8px",
-    border: "none",
-    fontSize: "0.9rem",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-  },  primaryButton: {
-    backgroundColor: "#3b82f6",
-    color: "white",
-  },  secondaryButton: {
-    backgroundColor: "white",
-    color: "#4b5563",
-    border: "1px solid #e5e7eb",
-  },
-  filterButton: {
-    backgroundColor: "white",
-    color: "#4b5563",
-    border: "1px solid #e5e7eb",
-  },
-  filtersContainer: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "1.25rem",
-    marginBottom: "1.5rem",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    border: "1px solid #e5e7eb",
-    animation: "fadeIn 0.3s ease",
-  },
-  filtersGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-    gap: "1.25rem",
-    alignItems: "end",
-  },
-  filterGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  },
-  label: {
-    fontSize: "0.875rem",
-    color: "#4b5563",
-    fontWeight: "500",
-  },  select: {
-    padding: "0.65rem 1rem",
-    borderRadius: "8px",
-    border: "1px solid #e5e7eb",
-    fontSize: "0.95rem",
-    backgroundColor: "white",
-    outline: "none",
-    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-  },
-  tableContainer: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    border: "1px solid #e5e7eb",
-    overflow: "hidden",
-  },
-  bulkActions: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "0.75rem 1rem",
-    backgroundColor: "#f3f4f6",
-    borderBottom: "1px solid #e5e7eb",
-  },
-  bulkActionsText: {
-    fontSize: "0.9rem",
-    color: "#4b5563",
-    fontWeight: "500",
-  },
-  bulkActionsButtons: {
-    display: "flex",
-    gap: "0.5rem",
-  },  bulkActionButton: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "0.4rem 0.75rem",
-    borderRadius: "6px",
-    border: "1px solid #e5e7eb",
-    backgroundColor: "white",
-    fontSize: "0.8rem",
-    color: "#4b5563",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  tableHeader: {
-    backgroundColor: "#f9fafb",
-    borderBottom: "1px solid #e5e7eb",
-  },  tableHeaderCell: {
-    padding: "1rem",
-    textAlign: "left",
-    color: "#4b5563",
-    fontWeight: "600",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-    transition: "background-color 0.2s ease",
-  },tableRow: {
-    borderBottom: "1px solid #e5e7eb",
-    transition: "background-color 0.2s ease",
-  },
-  tableRowHover: {
-    backgroundColor: "#f9fafb",
-  },
-  tableCell: {
-    padding: "1rem",
-    fontSize: "0.9rem",
-    color: "#111827",
-    verticalAlign: "middle",
-  },
-  checkbox: {
-    width: "16px",
-    height: "16px",
-    cursor: "pointer",
-    accentColor: "#3b82f6",
-  },
-  userInfo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-  },
-  avatar: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    backgroundColor: "#3b82f6",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "1rem",
-    fontWeight: "600",
-  },
-  userName: {
-    fontWeight: "500",
-    color: "#111827",
-    marginBottom: "0.25rem",
-  },
-  userEmail: {
-    fontSize: "0.8rem",
-    color: "#6b7280",
-  },
-  badge: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "0.3rem 0.6rem",
-    borderRadius: "20px",
-    fontSize: "0.75rem",
-    fontWeight: "500",
-  },
-  roleAdmin: {
-    backgroundColor: "#dbeafe",
-    color: "#1e40af",
-  },
-  roleUser: {
-    backgroundColor: "#e0f2fe",
-    color: "#0369a1",
-  },  actionButton: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "6px",
-    border: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    transition: "background-color 0.2s ease, transform 0.1s ease",
-  },  editButton: {
-    backgroundColor: "#dbeafe",
-    color: "#2563eb",
-  },  deleteButton: {
-    backgroundColor: "#fee2e2",
-    color: "#dc2626",
-  },
-  pagination: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "1rem",
-    borderTop: "1px solid #e5e7eb",
-    flexWrap: "wrap",
-    gap: "1rem",
-  },
-  paginationInfo: {
-    fontSize: "0.875rem",
-    color: "#6b7280",
-  },
-  paginationButtons: {
-    display: "flex",
-    gap: "0.25rem",
-  },  paginationButton: {
-    width: "32px",
-    height: "32px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "1px solid #e5e7eb",
-    borderRadius: "6px",
-    backgroundColor: "white",
-    color: "#4b5563",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  },  paginationButtonActive: {
-    backgroundColor: "#3b82f6",
-    borderColor: "#3b82f6",
-    color: "white",
-  },
-  loadingContainer: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "400px",
-  },
-  errorContainer: {
-    maxWidth: "500px",
-    margin: "2rem auto",
-    padding: "2rem",
-    textAlign: "center",
-    backgroundColor: "#fee2e2",
-    borderRadius: "8px",
-    border: "1px solid #fecaca",
-    color: "#b91c1c",
-  },
-  emptyState: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "3rem 1rem",
-    textAlign: "center",
-    color: "#6b7280",
-  },
-  responsiveTableContainer: {
-    overflowX: "auto",
-  },
-};
+import adminStyles from "../../styles/stylesAdmin";
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const { user } = useAuth();
+
+  // Mapeo de estilos globales (similar a GestionProductos)
+  const styles = {
+    pageContainer: adminStyles.containers.page,
+    mainContainer: adminStyles.containers.main,
+    header: adminStyles.headerStyles.headerSimple,
+    title: adminStyles.headerStyles.titleDark,
+    subtitle: adminStyles.headerStyles.subtitleDark,
+    content: adminStyles.containers.content,
+    tableContainer: adminStyles.tables.container,
+    table: adminStyles.tables.table,
+    tableHeader: adminStyles.tables.header,
+    tableHeaderCell: adminStyles.tables.headerCell,
+    tableRow: adminStyles.tables.row,
+    tableCell: adminStyles.tables.cell,
+    actionsContainer: adminStyles.tables.actionsContainer,
+    actionButton: adminStyles.buttons.actionButton,
+    editAction: adminStyles.buttons.editAction,
+    deleteAction: adminStyles.buttons.deleteAction,
+    badge: adminStyles.badgeStyles.base,
+    emptyState: adminStyles.containers.emptyState,
+    emptyStateText: adminStyles.containers.emptyStateText,
+    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
+  };
+
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -340,7 +53,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const [sortField, setSortField] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(10);  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [usersPerPage] = useState(10);
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -349,17 +63,17 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    role: 'user'
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "user",
   });
-  const [formError, setFormError] = useState('');
-  const [formSuccess, setFormSuccess] = useState('');
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
   const [formLoading, setFormLoading] = useState(false);
 
-  // Obtener usuarios del backend
+  // Fetch users from backend
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -389,7 +103,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     }
   }, [user?.token]);
 
-  // Filtrar y ordenar usuarios
+  // Filter and sort users
   const processedUsers = useMemo(() => {
     const filtered = users.filter((user) => {
       const matchesSearch =
@@ -401,11 +115,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     });
 
     filtered.sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      if (aValue == null) aValue = "";
-      if (bValue == null) bValue = "";
+      let aValue = a[sortField] ?? "";
+      let bValue = b[sortField] ?? "";
 
       if (sortField === "createdAt") {
         aValue = aValue ? new Date(aValue) : new Date(0);
@@ -415,22 +126,28 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         bValue = bValue.toLowerCase();
       }
 
-      if (sortDirection === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
+      return sortDirection === "asc"
+        ? aValue < bValue
+          ? -1
+          : aValue > bValue
+          ? 1
+          : 0
+        : aValue > bValue
+        ? -1
+        : aValue < bValue
+        ? 1
+        : 0;
     });
 
     return filtered;
   }, [users, searchTerm, selectedRole, sortField, sortDirection]);
 
-  // Paginación
+  // Pagination
   const totalPages = Math.ceil(processedUsers.length / usersPerPage);
   const startIndex = (currentPage - 1) * usersPerPage;
   const paginatedUsers = processedUsers.slice(startIndex, startIndex + usersPerPage);
 
-  // Manejar ordenamiento
+  // Handle sorting
   const handleSort = useCallback(
     (field) => {
       if (sortField === field) {
@@ -443,7 +160,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     [sortField, sortDirection]
   );
 
-  // Manejar eliminación de usuario
+  // Handle user deletion
   const handleDeleteUser = async (userId) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
       try {
@@ -467,58 +184,30 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     }
   };
 
-  // Manejar actualización de rol
-  // eslint-disable-next-line no-unused-vars
-  const handleUpdateUserRole = async (userId, newRole) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role: newRole }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al actualizar el rol del usuario");
-      }
-
-      const updatedUser = await response.json();
-      const updatedUsers = users.map((user) =>
-        user._id === userId ? { ...user, role: updatedUser.role } : user
-      );
-      setUsers(updatedUsers);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  // Manejar la edición de usuario
+  // Handle user edit
   const handleEditUser = (userId) => {
-    const userToEdit = users.find(u => u._id === userId);
+    const userToEdit = users.find((u) => u._id === userId);
     if (!userToEdit) return;
-    
+
     setEditingUserId(userId);
     setFormData({
-      name: userToEdit.name || '',
-      email: userToEdit.email || '',
-      phone: userToEdit.phone || '',
-      password: '', // No incluimos la contraseña por seguridad
-      role: userToEdit.role || 'user'
+      name: userToEdit.name || "",
+      email: userToEdit.email || "",
+      phone: userToEdit.phone || "",
+      password: "",
+      role: userToEdit.role || "user",
     });
     setShowEditForm(true);
   };
 
-  // Manejar el envío del formulario de edición
+  // Handle edit form submission
   const handleEditFormSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
-    setFormSuccess('');
+    setFormError("");
+    setFormSuccess("");
     setFormLoading(true);
 
-    // Preparar datos para actualizar (excluir la contraseña si está vacía)
-    const updateData = {...formData};
+    const updateData = { ...formData };
     if (!updateData.password) delete updateData.password;
 
     try {
@@ -534,20 +223,19 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al actualizar el usuario');
+        throw new Error(data.error || "Error al actualizar el usuario");
       }
 
-      // Actualizar el usuario en la lista
-      const updatedUsers = users.map(user => 
+      const updatedUsers = users.map((user) =>
         user._id === editingUserId ? { ...user, ...data.data } : user
       );
       setUsers(updatedUsers);
-      
-      setFormSuccess('Usuario actualizado con éxito');
+
+      setFormSuccess("Usuario actualizado con éxito");
       setTimeout(() => {
         setShowEditForm(false);
         setEditingUserId(null);
-        setFormSuccess('');
+        setFormSuccess("");
       }, 2000);
     } catch (error) {
       setFormError(error.message);
@@ -556,11 +244,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     }
   };
 
-  // Manejar el envío del formulario de nuevo usuario
+  // Handle new user form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
-    setFormSuccess('');
+    setFormError("");
+    setFormSuccess("");
     setFormLoading(true);
 
     try {
@@ -576,25 +264,22 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear el usuario');
+        throw new Error(data.error || "Error al crear el usuario");
       }
 
-      // Agregar el nuevo usuario a la lista
       setUsers([...users, data.data]);
-      
-      // Resetear el formulario
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        password: '',
-        role: 'user'
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        role: "user",
       });
-      
-      setFormSuccess('Usuario creado con éxito');
+
+      setFormSuccess("Usuario creado con éxito");
       setTimeout(() => {
         setShowUserForm(false);
-        setFormSuccess('');
+        setFormSuccess("");
       }, 2000);
     } catch (error) {
       setFormError(error.message);
@@ -603,16 +288,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     }
   };
 
-  // Manejar cambios en los campos del formulario
-  const handleFormChange = (e) => {
+  // Handle form input changes
+  const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-  // Manejar selección de usuarios
+  // Handle user selection
   const handleSelectUser = useCallback(
     (userId) => {
       const newSelected = new Set(selectedUsers);
@@ -634,13 +316,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     }
   }, [selectedUsers.size, paginatedUsers]);
 
-  // Renderizar icono de ordenamiento
+  // Render sort icon
   const renderSortIcon = (field) => {
     if (sortField !== field) return <FaSort size={12} style={{ opacity: 0.5 }} />;
     return sortDirection === "asc" ? <FaSortUp size={12} /> : <FaSortDown size={12} />;
   };
 
-  // Renderizar badge de rol
+  // Render role badge
   const renderRoleBadge = (role) => {
     const roleLabels = {
       admin: "Administrador",
@@ -654,10 +336,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
     return (
       <span
-        style={{
-          ...enhancedStyles.badge,
-          ...(role === "admin" ? enhancedStyles.roleAdmin : enhancedStyles.roleUser),
-        }}
+        style={adminStyles.combineStyles(
+          styles.badge,
+          role === "admin" ? adminStyles.badgeStyles.roleAdmin : adminStyles.badgeStyles.roleUser
+        )}
       >
         {roleIcons[role]}
         {roleLabels[role]}
@@ -665,7 +347,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     );
   };
 
-  // Formatear fecha
+  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("es-MX", {
@@ -675,36 +357,27 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     });
   };
 
-  // Manejar loading y error
+  // Handle loading state
   if (loading) {
     return (
-      <div style={{ ...enhancedStyles.container, ...enhancedStyles.loadingContainer }}>
-        <div style={{ textAlign: "center" }}>
+      <div style={adminStyles.combineStyles(styles.pageContainer, adminStyles.loadingStyles.container)}>
+        <div style={adminStyles.utilities.textCenter}>
           <h3>Cargando usuarios...</h3>
         </div>
       </div>
     );
   }
 
+  // Handle error state
   if (error) {
     return (
-      <div style={{ ...enhancedStyles.container }}>
-        <div style={enhancedStyles.errorContainer}>
+      <div style={styles.pageContainer}>
+        <div style={adminStyles.containers.errorContainer}>
           <h3>Error</h3>
           <p>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#991b1b",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              marginTop: "1rem",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-              transition: "all 0.2s ease",
-            }}
+            style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.danger)}
           >
             Reintentar
           </button>
@@ -713,756 +386,480 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     );
   }
 
-  // Comprobar si no hay usuarios
   const noUsers = processedUsers.length === 0;
 
   return (
-    <div style={enhancedStyles.container}>
-      <div style={enhancedStyles.header}>
-        <h1 style={enhancedStyles.title}>Gestión de Usuarios</h1>
-        <p style={enhancedStyles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
-
-        <div style={enhancedStyles.toolbar}>
-          <div style={enhancedStyles.searchContainer}>
-            <FaSearch style={enhancedStyles.searchIcon} size={16} />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, email o teléfono..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={enhancedStyles.searchInput}
-            />
-          </div>          <div style={enhancedStyles.buttonGroup}>
-            <button
-              style={{
-                ...enhancedStyles.button,
-                ...enhancedStyles.filterButton,
-                ...(showFilters ? { backgroundColor: "#dbeafe", color: "#2563eb", borderColor: "#bfdbfe" } : {}),
-              }}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <FaFilter size={14} />
-              Filtros
-            </button>
-
-            <button
-              style={{ ...enhancedStyles.button, ...enhancedStyles.primaryButton }}
-              onClick={() => setShowUserForm(true)}
-            >
-              <FaPlus size={14} />
-              Nuevo Usuario
-            </button>
+    <div style={styles.pageContainer}>
+      <div style={styles.mainContainer}>
+        <div style={styles.header}>
+          <div>
+            <h1 style={styles.title}>
+              <FaUsers style={{ marginRight: adminStyles.spacing.md }} />
+              Gestión de Usuarios
+            </h1>
+            <p style={styles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
           </div>
         </div>
-      </div>
 
-      {showFilters && (
-        <div style={enhancedStyles.filtersContainer}>
-          <div style={enhancedStyles.filtersGrid}>
-            <div style={enhancedStyles.filterGroup}>
-              <label style={enhancedStyles.label}>Rol</label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                style={enhancedStyles.select}
-              >
-                <option value="all">Todos los roles</option>
-                <option value="admin">Administrador</option>
-                <option value="user">Usuario</option>
-              </select>
+        <div style={styles.content}>
+          <div style={adminStyles.searchStyles.toolbar}>
+            <div style={adminStyles.searchStyles.searchWrapper}>
+              <FaSearch style={adminStyles.searchStyles.searchIcon} size={16} />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, email o teléfono..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={adminStyles.searchStyles.searchInput}
+              />
             </div>
-
-            <div style={{...enhancedStyles.filterGroup, justifyContent: "flex-end"}}>
+            <div style={adminStyles.searchStyles.buttonGroup}>
               <button
-                style={{ ...enhancedStyles.button, ...enhancedStyles.secondaryButton }}
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedRole("all");
-                  setCurrentPage(1);
-                }}
+                style={adminStyles.combineStyles(
+                  adminStyles.buttons.base,
+                  adminStyles.buttons.ghost,
+                  showFilters ? adminStyles.buttons.outline : {}
+                )}
+                onClick={() => setShowFilters(!showFilters)}
               >
-                Limpiar Filtros
+                <FaFilter size={14} />
+                Filtros
+              </button>
+              <button
+                style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.primary)}
+                onClick={() => setShowUserForm(true)}
+              >
+                <FaPlus size={14} />
+                Nuevo Usuario
               </button>
             </div>
           </div>
-        </div>
-      )}
 
-      <div style={enhancedStyles.tableContainer}>
-        {selectedUsers.size > 0 && (
-          <div style={enhancedStyles.bulkActions}>
-            <span style={enhancedStyles.bulkActionsText}>
-              {selectedUsers.size} usuario(s) seleccionado(s)
-            </span>
-            <div style={enhancedStyles.bulkActionsButtons}>
-              <button style={enhancedStyles.bulkActionButton} disabled={true}>
-                <FaUserCheck size={12} style={{ marginRight: "4px" }} />
-                Activar
-              </button>
-              <button style={enhancedStyles.bulkActionButton} disabled={true}>
-                <FaUserTimes size={12} style={{ marginRight: "4px" }} />
-                Suspender
-              </button>
-              <button style={enhancedStyles.bulkActionButton} disabled={true}>
-                <FaTrash size={12} style={{ marginRight: "4px" }} />
-                Eliminar
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div style={enhancedStyles.responsiveTableContainer}>
-          {noUsers ? (
-            <div style={enhancedStyles.emptyState}>
-              <FaUsers size={40} style={{ opacity: 0.3, marginBottom: "1rem" }} />
-              <h3>No se encontraron usuarios</h3>
-              <p>Intenta ajustar los filtros de búsqueda o añade nuevos usuarios.</p>            </div>
-          ) : (
-            <table style={enhancedStyles.table}>
-              <thead style={enhancedStyles.tableHeader}>
-                <tr>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "40px", padding: "0.75rem" }}>
-                    <input
-                      type="checkbox"
-                      style={enhancedStyles.checkbox}
-                      checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
-                      onChange={handleSelectAll}
-                    />
-                  </th>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("name")}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      Nombre
-                      {renderSortIcon("name")}
-                    </div>
-                  </th>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "25%" }} onClick={() => handleSort("email")}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      Email
-                      {renderSortIcon("email")}
-                    </div>
-                  </th>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("phone")}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      Teléfono
-                      {renderSortIcon("phone")}
-                    </div>
-                  </th>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("role")}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      Rol
-                      {renderSortIcon("role")}
-                    </div>
-                  </th>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "15%" }} onClick={() => handleSort("createdAt")}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      Fecha de Registro
-                      {renderSortIcon("createdAt")}
-                    </div>                  </th>
-                  <th style={{ ...enhancedStyles.tableHeaderCell, width: "10%" }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedUsers.map((user, index) => (
-                  <tr 
-                    key={user._id} 
-                    style={{
-                      ...enhancedStyles.tableRow,
-                      ...(hoveredRow === index ? enhancedStyles.tableRowHover : {}),
-                      ...(index === paginatedUsers.length - 1 ? { borderBottom: 'none' } : {})
-                    }}
-                    onMouseEnter={() => setHoveredRow(index)}
-                    onMouseLeave={() => setHoveredRow(null)}
+          {showFilters && (
+            <div style={adminStyles.searchStyles.filtersContainer}>
+              <div style={adminStyles.searchStyles.filtersGrid}>
+                <div style={adminStyles.searchStyles.filterGroup}>
+                  <label style={adminStyles.forms.label}>Rol</label>
+                  <select
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    style={adminStyles.forms.select}
                   >
-                    <td style={{ ...enhancedStyles.tableCell, padding: "0.75rem" }}>
-                      <input
-                        type="checkbox"
-                        style={enhancedStyles.checkbox}
-                        checked={selectedUsers.has(user._id)}
-                        onChange={() => handleSelectUser(user._id)}
-                      />
-                    </td>
-                    <td style={enhancedStyles.tableCell}>
-                      <div style={enhancedStyles.userInfo}>
-                        <div style={enhancedStyles.avatar}>
-                          {user.name ? user.name[0].toUpperCase() : "-"}
-                        </div>
-                        <div>
-                          <div style={enhancedStyles.userName}>{user.name || "Sin nombre"}</div>
-                          <div style={enhancedStyles.userEmail}>{user.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={enhancedStyles.tableCell}>{user.email}</td>
-                    <td style={enhancedStyles.tableCell}>{user.phone || "-"}</td>
-                    <td style={enhancedStyles.tableCell}>{renderRoleBadge(user.role)}</td>
-                    <td style={enhancedStyles.tableCell}>{formatDate(user.createdAt)}</td>
-                    <td style={{...enhancedStyles.tableCell, padding: "0.5rem 1rem"}}>
-                      <div style={{ display: "flex", gap: "8px" }}>
-                        <button
-                          style={{ ...enhancedStyles.actionButton, ...enhancedStyles.editButton }}
-                          onClick={() => handleEditUser(user._id)}
-                          title="Editar usuario"
-                        >
-                          <FaEdit size={14} />
-                        </button>
-                        <button
-                          style={{ ...enhancedStyles.actionButton, ...enhancedStyles.deleteButton }}
-                          onClick={() => handleDeleteUser(user._id)}
-                          title="Eliminar usuario"
-                        >
-                          <FaTrash size={14} />
-                        </button>
-                      </div>                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    <option value="all">Todos los roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                  </select>
+                </div>
+                <div style={adminStyles.combineStyles(adminStyles.searchStyles.filterGroup, adminStyles.utilities.flexEnd)}>
+                  <button
+                    style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.ghost)}
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSelectedRole("all");
+                      setCurrentPage(1);
+                    }}
+                  >
+                    Limpiar Filtros
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
-        </div>
 
-        {!noUsers && (
-          <div style={enhancedStyles.pagination}>
-            <div style={enhancedStyles.paginationInfo}>
-              Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
-              {processedUsers.length} usuarios
+          <div style={styles.tableContainer}>
+            {selectedUsers.size > 0 && (
+              <div style={adminStyles.bulkActionStyles.container}>
+                <span style={adminStyles.bulkActionStyles.text}>{selectedUsers.size} usuario(s) seleccionado(s)</span>
+                <div style={adminStyles.bulkActionStyles.buttons}>
+                  <button style={adminStyles.bulkActionStyles.button} disabled={true}>
+                    <FaUserCheck size={12} style={{ marginRight: adminStyles.spacing.xs }} />
+                    Activar
+                  </button>
+                  <button style={adminStyles.bulkActionStyles.button} disabled={true}>
+                    <FaUserTimes size={12} style={{ marginRight: adminStyles.spacing.xs }} />
+                    Suspender
+                  </button>
+                  <button style={adminStyles.bulkActionStyles.button} disabled={true}>
+                    <FaTrash size={12} style={{ marginRight: adminStyles.spacing.xs }} />
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div style={adminStyles.tables.responsiveContainer}>
+              {noUsers ? (
+                <div style={styles.emptyState}>
+                  <FaUsers size={40} style={{ opacity: 0.3, marginBottom: adminStyles.spacing.lg }} />
+                  <h3 style={styles.emptyStateText}>No se encontraron usuarios</h3>
+                  <p style={styles.emptyStateSubtext}>
+                    Intenta ajustar los filtros de búsqueda o añade nuevos usuarios.
+                  </p>
+                </div>
+              ) : (
+                <table style={styles.table}>
+                  <thead style={styles.tableHeader}>
+                    <tr>
+                      <th style={styles.tableHeaderCell}>
+                        <input
+                          type="checkbox"
+                          style={adminStyles.forms.checkbox}
+                          checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
+                          onChange={handleSelectAll}
+                          aria-label="Seleccionar todos los usuarios"
+                        />
+                      </th>
+                      <th style={styles.tableHeaderCell} onClick={() => handleSort("name")}>
+                        <div style={adminStyles.utilities.flexCenter}>
+                          Nombre
+                          {renderSortIcon("name")}
+                        </div>
+                      </th>
+                      <th style={styles.tableHeaderCell} onClick={() => handleSort("email")}>
+                        <div style={adminStyles.utilities.flexCenter}>Email</div>
+                      </th>
+                      <th style={styles.tableHeaderCell} onClick={() => handleSort("phone")}>
+                        <div style={adminStyles.utilities.flexCenter}>
+                          Teléfono
+                          {renderSortIcon("phone")}
+                        </div>
+                      </th>
+                      <th style={styles.tableHeaderCell} onClick={() => handleSort("role")}>
+                        <div style={adminStyles.utilities.flexCenter}>
+                          Rol
+                          {renderSortIcon("role")}
+                        </div>
+                      </th>
+                      <th style={styles.tableHeaderCell} onClick={() => handleSort("createdAt")}>
+                        <div style={adminStyles.utilities.flexCenter}>
+                          Fecha de Registro
+                          {renderSortIcon("createdAt")}
+                        </div>
+                      </th>
+                      <th style={styles.tableHeaderCell}>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedUsers.map((user, index) => (
+                      <tr
+                        key={user._id}
+                        style={adminStyles.combineStyles(
+                          styles.tableRow,
+                          hoveredRow === index ? adminStyles.tables.rowHover : {},
+                          index === paginatedUsers.length - 1 ? adminStyles.tables.rowNoBorder : {}
+                        )}
+                        onMouseEnter={() => setHoveredRow(index)}
+                        onMouseLeave={() => setHoveredRow(null)}
+                      >
+                        <td style={styles.tableCell}>
+                          <input
+                            type="checkbox"
+                            style={adminStyles.forms.checkbox}
+                            checked={selectedUsers.has(user._id)}
+                            onChange={() => handleSelectUser(user._id)}
+                            aria-label={`Seleccionar usuario ${user.name || "Sin nombre"}`}
+                          />
+                        </td>
+                        <td style={styles.tableCell}>
+                          <div style={adminStyles.tables.userInfo}>
+                            <div style={adminStyles.tables.avatar}>{user.name ? user.name[0].toUpperCase() : "-"}</div>
+                            <div>
+                              <div style={adminStyles.tables.userName}>{user.name || "Sin nombre"}</div>
+                              <div style={adminStyles.tables.userEmail}>{user.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={styles.tableCell}>{user.email}</td>
+                        <td style={styles.tableCell}>{user.phone || "-"}</td>
+                        <td style={styles.tableCell}>{renderRoleBadge(user.role)}</td>
+                        <td style={styles.tableCell}>{formatDate(user.createdAt)}</td>
+                        <td style={styles.tableCell}>
+                          <div style={styles.actionsContainer}>
+                            <button
+                              style={{
+                                ...styles.actionButton,
+                                ...styles.editAction,
+                              }}
+                              onClick={() => handleEditUser(user._id)}
+                              title="Editar usuario"
+                              aria-label={`Editar usuario ${user.name || "Sin nombre"}`}
+                            >
+                              <FaEdit size={14} />
+                            </button>
+                            <button
+                              style={{
+                                ...styles.actionButton,
+                                ...styles.deleteAction,
+                              }}
+                              onClick={() => handleDeleteUser(user._id)}
+                              title="Eliminar usuario"
+                              aria-label={`Eliminar usuario ${user.name || "Sin nombre"}`}
+                            >
+                              <FaTrash size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
-            <div style={enhancedStyles.paginationButtons}>
-              <button
-                style={{
-                  ...enhancedStyles.paginationButton,
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                }}
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-              >
-                <FaChevronLeft size={12} />
-              </button>
+            {!noUsers && (
+              <div style={adminStyles.paginationStyles.container}>
+                <div style={adminStyles.paginationStyles.info}>
+                  Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
+                  {processedUsers.length} usuarios
+                </div>
+                <div style={adminStyles.paginationStyles.buttons}>
+                  <button
+                    style={adminStyles.combineStyles(
+                      adminStyles.paginationStyles.button,
+                      currentPage === 1 ? adminStyles.paginationStyles.buttonDisabled : {}
+                    )}
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    aria-label="Página anterior"
+                  >
+                    <FaChevronLeft size={12} />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      style={adminStyles.combineStyles(
+                        adminStyles.paginationStyles.button,
+                        page === currentPage ? adminStyles.paginationStyles.buttonActive : {}
+                      )}
+                      onClick={() => setCurrentPage(page)}
+                      aria-label={`Página ${page}`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button
+                    style={adminStyles.combineStyles(
+                      adminStyles.paginationStyles.button,
+                      currentPage === totalPages ? adminStyles.paginationStyles.buttonDisabled : {}
+                    )}
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    aria-label="Página siguiente"
+                  >
+                    <FaChevronRight size={12} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  style={{
-                    ...enhancedStyles.paginationButton,
-                    ...(page === currentPage ? enhancedStyles.paginationButtonActive : {}),
-                  }}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              ))}
-
+        {/* New User Form Modal */}
+        {showUserForm && (
+          <div style={adminStyles.modalStyles.overlay}>
+            <div style={adminStyles.modalStyles.content}>
               <button
-                style={{
-                  ...enhancedStyles.paginationButton,
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                }}
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
+                onClick={() => setShowUserForm(false)}
+                style={adminStyles.modalStyles.closeButton}
+                aria-label="Cerrar modal"
               >
-                <FaChevronRight size={12} />
+                ✕
               </button>
+              <h2 style={adminStyles.modalStyles.title}>Agregar Nuevo Usuario</h2>
+              {formError && (
+                <div style={adminStyles.messageStyles.error}>{formError}</div>
+              )}
+              {formSuccess && (
+                <div style={adminStyles.messageStyles.success}>{formSuccess}</div>
+              )}
+              <form onSubmit={handleFormSubmit} style={adminStyles.forms.formGroup}>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="name">
+                    Nombre <span style={adminStyles.forms.requiredField}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    required
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="email">
+                    Correo Electrónico <span style={adminStyles.forms.requiredField}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                    required
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="phone">Teléfono</label>
+                  <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleFormChange}
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="password">
+                    Contraseña <span style={adminStyles.forms.requiredField}>*</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleFormChange}
+                    required
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="role">Rol</label>
+                  <select
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleFormChange}
+                    style={adminStyles.forms.select}
+                  >
+                    <option value="user">Usuario</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+                <div style={adminStyles.modalStyles.actions}>
+                  <button
+                    type="button"
+                    onClick={() => setShowUserForm(false)}
+                    style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.outline)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={formLoading}
+                    style={adminStyles.combineStyles(
+                      adminStyles.buttons.base,
+                      adminStyles.buttons.primary,
+                      formLoading ? adminStyles.buttons.disabled : {}
+                    )}
+                  >
+                    {formLoading ? "Guardando..." : "Guardar Usuario"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit User Form Modal */}
+        {showEditForm && (
+          <div style={adminStyles.modalStyles.overlay}>
+            <div style={adminStyles.modalStyles.content}>
+              <button
+                onClick={() => setShowEditForm(false)}
+                style={adminStyles.modalStyles.closeButton}
+                aria-label="Cerrar modal"
+              >
+                ✕
+              </button>
+              <h2 style={adminStyles.modalStyles.title}>Editar Usuario</h2>
+              {formError && (
+                <div style={adminStyles.messageStyles.error}>{formError}</div>
+              )}
+              {formSuccess && (
+                <div style={adminStyles.messageStyles.success}>{formSuccess}</div>
+              )}
+              <form onSubmit={handleEditFormSubmit} style={adminStyles.forms.formGroup}>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="name">
+                    Nombre <span style={adminStyles.forms.requiredField}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    required
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="email">
+                    Correo Electrónico <span style={adminStyles.forms.requiredField}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                    required
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="phone">Teléfono</label>
+                  <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleFormChange}
+                    style={adminStyles.forms.input}
+                  />
+                </div>
+                <div style={adminStyles.forms.formGroup}>
+                  <label style={adminStyles.forms.label} htmlFor="role">Rol</label>
+                  <select
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleFormChange}
+                    style={adminStyles.forms.select}
+                  >
+                    <option value="user">Usuario</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+                <div style={adminStyles.modalStyles.actions}>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditForm(false)}
+                    style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.outline)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={formLoading}
+                    style={adminStyles.combineStyles(
+                      adminStyles.buttons.base,
+                      adminStyles.buttons.primary,
+                      formLoading ? adminStyles.buttons.disabled : {}
+                    )}
+                  >
+                    {formLoading ? "Guardando..." : "Guardar Cambios"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
       </div>
-
-      {/* Formulario Modal para Nuevo Usuario */}
-      {showUserForm && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            padding: '2rem',
-            width: '90%',
-            maxWidth: '500px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            position: 'relative',
-          }}>
-            <button 
-              onClick={() => setShowUserForm(false)}
-              style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                background: 'none',
-                border: 'none',
-                fontSize: '1.2rem',
-                cursor: 'pointer',
-                color: '#4b5563',
-              }}
-            >
-              ✕
-            </button>
-            
-            <h2 style={{
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              marginBottom: '1.5rem',
-              color: '#111827',
-            }}>
-              Agregar Nuevo Usuario
-            </h2>
-            
-            {formError && (
-              <div style={{
-                backgroundColor: '#fee2e2',
-                color: '#b91c1c',
-                padding: '0.75rem',
-                borderRadius: '6px',
-                marginBottom: '1rem',
-                fontSize: '0.9rem',
-              }}>
-                {formError}
-              </div>
-            )}
-            
-            {formSuccess && (
-              <div style={{
-                backgroundColor: '#d1fae5',
-                color: '#065f46',
-                padding: '0.75rem',
-                borderRadius: '6px',
-                marginBottom: '1rem',
-                fontSize: '0.9rem',
-              }}>
-                {formSuccess}
-              </div>
-            )}
-            
-            <form onSubmit={handleFormSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="name"
-                >
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="email"
-                >
-                  Correo Electrónico
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleFormChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="phone"
-                >
-                  Teléfono
-                </label>
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleFormChange}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="password"
-                >
-                  Contraseña
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleFormChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="role"
-                >
-                  Rol
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleFormChange}
-                  style={enhancedStyles.select}
-                >
-                  <option value="user">Usuario</option>
-                  <option value="admin">Administrador</option>
-                </select>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowUserForm(false)}
-                  style={{
-                    padding: '0.65rem 1.25rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: 'white',
-                    color: '#4b5563',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  style={{
-                    padding: '0.65rem 1.25rem',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    cursor: formLoading ? 'not-allowed' : 'pointer',
-                    opacity: formLoading ? 0.7 : 1,
-                  }}
-                >
-                  {formLoading ? 'Guardando...' : 'Guardar Usuario'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Formulario Modal para Editar Usuario */}
-      {showEditForm && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            padding: '2rem',
-            width: '90%',
-            maxWidth: '500px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            position: 'relative',
-          }}>
-            <button 
-              onClick={() => setShowEditForm(false)}
-              style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                background: 'none',
-                border: 'none',
-                fontSize: '1.2rem',
-                cursor: 'pointer',
-                color: '#4b5563',
-              }}
-            >
-              ✕
-            </button>
-            
-            <h2 style={{
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              marginBottom: '1.5rem',
-              color: '#111827',
-            }}>
-              Editar Usuario
-            </h2>
-            
-            {formError && (
-              <div style={{
-                backgroundColor: '#fee2e2',
-                color: '#b91c1c',
-                padding: '0.75rem',
-                borderRadius: '6px',
-                marginBottom: '1rem',
-                fontSize: '0.9rem',
-              }}>
-                {formError}
-              </div>
-            )}
-            
-            {formSuccess && (
-              <div style={{
-                backgroundColor: '#d1fae5',
-                color: '#065f46',
-                padding: '0.75rem',
-                borderRadius: '6px',
-                marginBottom: '1rem',
-                fontSize: '0.9rem',
-              }}>
-                {formSuccess}
-              </div>
-            )}
-            
-            <form onSubmit={handleEditFormSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="name"
-                >
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="email"
-                >
-                  Correo Electrónico
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleFormChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="phone"
-                >
-                  Teléfono
-                </label>
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleFormChange}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label 
-                  style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#4b5563',
-                  }}
-                  htmlFor="role"
-                >
-                  Rol
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleFormChange}
-                  style={enhancedStyles.select}
-                >
-                  <option value="user">Usuario</option>
-                  <option value="admin">Administrador</option>
-                </select>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowEditForm(false)}
-                  style={{
-                    padding: '0.65rem 1.25rem',
-                    borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: 'white',
-                    color: '#4b5563',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  style={{
-                    padding: '0.65rem 1.25rem',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    cursor: formLoading ? 'not-allowed' : 'pointer',
-                    opacity: formLoading ? 0.7 : 1,
-                  }}
-                >
-                  {formLoading ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
