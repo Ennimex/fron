@@ -14,7 +14,9 @@ const Destacados = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [animate, setAnimate] = useState(false);
   const [activeTab, setActiveTab] = useState('fotos');
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);  const videoRefs = useRef([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= parseInt(stylesPublic.breakpoints.md));
+
+  const videoRefs = useRef([]);
   const [fotos, setFotos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,37 +24,111 @@ const Destacados = () => {
   // Hook para detectar cambios en el tamaño de pantalla
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth <= parseInt(stylesPublic.breakpoints.md));
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // CSS usando exclusivamente tokens del sistema refactorizado
+  const cssStyles = `
+    .slick-slide {
+      padding: 0 ${stylesPublic.spacing.scale[2]};
+    }
+    .slick-track {
+      display: flex;
+      align-items: center;
+    }
+    .slick-slide > div {
+      height: 100%;
+    }
+    .slick-dots {
+      bottom: -${stylesPublic.spacing.scale[12]};
+    }
+    .slick-dots li button:before {
+      color: ${stylesPublic.colors.primary[500]};
+      font-size: ${stylesPublic.typography.scale.xs};
+    }
+    .slick-dots li.slick-active button:before {
+      color: ${stylesPublic.colors.secondary[500]};
+    }
+
+    /* Responsive Design */
+    @media (max-width: ${stylesPublic.breakpoints.lg}) {
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale['2xl']} !important;
+      }
+      .hero-section p {
+        font-size: ${stylesPublic.typography.scale.base} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.md}) {
+      .hero-section {
+        padding: ${stylesPublic.spacing.scale[20]} 0 !important;
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.xl} !important;
+      }
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+        gap: ${stylesPublic.spacing.scale[4]} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
+      .hero-section {
+        padding: ${stylesPublic.spacing.scale[15]} 0 !important;
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.lg} !important;
+      }
+      .gallery-grid {
+        grid-template-columns: 1fr !important;
+        gap: ${stylesPublic.spacing.scale[2]} !important;
+      }
+      .table-cell {
+        padding: ${stylesPublic.spacing.scale[2]} !important;
+        font-size: ${stylesPublic.typography.scale.xs} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.xs}) {
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.base} !important;
+      }
+      .tab-button {
+        width: ${stylesPublic.spacing.scale[30]} !important;
+        font-size: ${stylesPublic.typography.scale.sm} !important;
+      }
+    }
+  `;
+
   const styles = {
     pageContainer: {
-      background: stylesPublic.colors.background.gradient.primary,
+      background: stylesPublic.colors.gradients.hero,
       minHeight: '100vh',
-      paddingTop: '30px',
-      paddingBottom: '60px',
+      paddingTop: stylesPublic.spacing.scale[8],
+      paddingBottom: stylesPublic.spacing.scale[15],
       position: 'relative',
     },
     pageOverlay: {
-      position: "absolute",
+      position: 'absolute',
       top: 0,
       left: 0,
-      right: 0,
-      bottom: 0,
-      background: stylesPublic.elements.backgroundPatterns.floral,
-      opacity: 0.8,
-      zIndex: 1,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
       pointerEvents: 'none',
+      zIndex: 1,
     },
     hero: {
-      backgroundImage: stylesPublic.colors.background.gradient.accent,
-      padding: '80px 0',
-      color: stylesPublic.colors.background.alt,
-      marginBottom: '50px',
+      background: stylesPublic.colors.gradients.accent,
+      padding: `${stylesPublic.spacing.scale[20]} 0`,
+      color: stylesPublic.colors.text.inverse,
+      marginBottom: stylesPublic.spacing.scale[12],
       position: 'relative',
       overflow: 'hidden',
       textAlign: 'center',
@@ -63,194 +139,135 @@ const Destacados = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      parliamentary: `radial-gradient(${stylesPublic.colors.background.alt} 1px, transparent 1px)`,
-      backgroundSize: '20px 20px',
+      background: `radial-gradient(${stylesPublic.colors.surface.primary} 1px, transparent 1px)`,
+      backgroundSize: `${stylesPublic.spacing.scale[5]} ${stylesPublic.spacing.scale[5]}`,
       opacity: 0.1,
-    },    sectionTitle: {
-      fontFamily: stylesPublic.typography.fontFamily.heading,
-      fontSize: stylesPublic.typography.fontSize.h2,
-      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      pointerEvents: 'none',
+      zIndex: 1,
+    },
+    sectionTitle: {
+      ...stylesPublic.typography.headings.h2,
       color: stylesPublic.colors.text.primary,
-      marginBottom: stylesPublic.spacing.md,
-      position: "relative",
+      marginBottom: stylesPublic.spacing.scale[6],
       textAlign: "center",
-      '@media (max-width: 768px)': {
-        fontSize: stylesPublic.typography.fontSize.xl,
-      },
-      '@media (max-width: 480px)': {
-        fontSize: stylesPublic.typography.fontSize.lg,
-        marginBottom: stylesPublic.spacing.sm,
-      },
     },
     titleUnderline: {
-      ...stylesPublic.elements.decorative.underline,
-    },
-    contentGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr',
-      gap: stylesPublic.spacing['2xl'],
-      padding: `0 ${stylesPublic.spacing.md}`,
+      display: 'block',
+      width: stylesPublic.spacing.scale[20],
+      height: stylesPublic.spacing.scale[1],
+      background: stylesPublic.colors.gradients.accent,
+      borderRadius: stylesPublic.borders.radius.sm,
+      margin: `${stylesPublic.spacing.scale[4]} auto`,
     },
     eventsSection: {
       width: '100%',
-      backgroundColor: stylesPublic.colors.background.main,
+      backgroundColor: stylesPublic.colors.surface.primary,
       borderRadius: stylesPublic.borders.radius.lg,
-      padding: stylesPublic.spacing.xl,
+      padding: stylesPublic.spacing.scale[12],
       boxShadow: stylesPublic.shadows.md,
-      border: `1px solid ${stylesPublic.colors.primary.light}`,
+      border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.primary[300]}`,
     },
-    eventsTitle: {
-      fontSize: stylesPublic.typography.fontSize['2xl'],
-      fontWeight: stylesPublic.typography.fontWeight.bold,
-      color: stylesPublic.colors.primary.main,
-      textAlign: 'center',
-      marginBottom: stylesPublic.spacing.md,
-    },    eventsTable: {
-      backgroundColor: stylesPublic.colors.background.main,
+    eventsTable: {
+      backgroundColor: stylesPublic.colors.surface.primary,
       borderRadius: stylesPublic.borders.radius.md,
       boxShadow: stylesPublic.shadows.md,
-      border: `1px solid ${stylesPublic.colors.secondary.main}`,
+      border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.secondary[500]}`,
       overflow: 'hidden',
-      fontSize: stylesPublic.typography.fontSize.sm,
-      '@media (max-width: 768px)': {
-        fontSize: stylesPublic.typography.fontSize.xs,
-      },
+      fontSize: stylesPublic.typography.scale.sm,
     },
-    tableHeader: {
-      background: stylesPublic.colors.background.gradient.accent,
-      color: stylesPublic.colors.background.alt,
-      fontWeight: stylesPublic.typography.fontWeight.semiBold,
-      padding: stylesPublic.spacing.md,
-    },    tableCell: {
-      padding: stylesPublic.spacing.md,
-      borderBottom: `1px solid ${stylesPublic.colors.background.alt}`,
+    tableCell: {
+      padding: stylesPublic.spacing.scale[4],
+      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
       verticalAlign: 'middle',
-      '@media (max-width: 768px)': {
-        padding: stylesPublic.spacing.sm,
-        fontSize: stylesPublic.typography.fontSize.xs,
-      },
-      '@media (max-width: 480px)': {
-        padding: stylesPublic.spacing.xs,
-        fontSize: '11px',
-      },
-    },galleryGrid: {
+    },
+    galleryGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: stylesPublic.spacing.lg,
-      marginTop: stylesPublic.spacing.xl,
-      padding: `0 ${stylesPublic.spacing.md}`,
-      '@media (max-width: 768px)': {
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: stylesPublic.spacing.md,
-        padding: `0 ${stylesPublic.spacing.sm}`,
-      },
-      '@media (max-width: 480px)': {
-        gridTemplateColumns: '1fr',
-        gap: stylesPublic.spacing.sm,
-        padding: `0 ${stylesPublic.spacing.xs}`,
-      },
-    },    reelsCarousel: {
-      marginTop: stylesPublic.spacing.xl,
-      padding: `0 ${stylesPublic.spacing.lg}`,
+      gap: stylesPublic.spacing.scale[6],
+      marginTop: stylesPublic.spacing.scale[12],
+      padding: `0 ${stylesPublic.spacing.scale[4]}`,
+    },
+    reelsCarousel: {
+      marginTop: stylesPublic.spacing.scale[12],
+      padding: `0 ${stylesPublic.spacing.scale[6]}`,
       position: 'relative',
-      '@media (max-width: 768px)': {
-        padding: `0 ${stylesPublic.spacing.md}`,
-      },
-      '@media (max-width: 480px)': {
-        padding: `0 ${stylesPublic.spacing.sm}`,
-      },
-    },    galleryItem: {
+    },
+    galleryItem: {
       position: 'relative',
       overflow: 'hidden',
-      borderRadius: stylesPublic.borders.radius.card,
-      boxShadow: stylesPublic.shadows.card,
+      borderRadius: stylesPublic.borders.radius.lg,
+      boxShadow: stylesPublic.shadows.lg,
       cursor: 'pointer',
-      height: '350px',
-      transition: stylesPublic.transitions.preset.bounce,
-      '@media (max-width: 768px)': {
-        height: '300px',
-      },
-      '@media (max-width: 480px)': {
-        height: '250px',
-      },
-    },    reelItem: {
+      height: stylesPublic.spacing.scale[88],
+      transition: stylesPublic.animations.transitions.base,
+    },
+    reelItem: {
       position: 'relative',
       overflow: 'hidden',
-      borderRadius: stylesPublic.borders.radius.card,
-      boxShadow: stylesPublic.shadows.card,
+      borderRadius: stylesPublic.borders.radius.lg,
+      boxShadow: stylesPublic.shadows.lg,
       cursor: 'pointer',
       aspectRatio: '9/16',
-      height: '400px',
-      margin: `0 ${stylesPublic.spacing.md}`,
-      transition: stylesPublic.transitions.preset.bounce,
-      background: stylesPublic.colors.background.main,
-      '@media (max-width: 768px)': {
-        height: '350px',
-        margin: `0 ${stylesPublic.spacing.sm}`,
-      },
-      '@media (max-width: 480px)': {
-        height: '300px',
-        margin: `0 ${stylesPublic.spacing.xs}`,
-      },
+      height: stylesPublic.spacing.scale[100],
+      margin: `0 ${stylesPublic.spacing.scale[4]}`,
+      transition: stylesPublic.animations.transitions.base,
+      background: stylesPublic.colors.surface.primary,
     },
     galleryImage: {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      transition: `transform ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut}`
+      transition: stylesPublic.animations.transitions.transform
     },
     reelVideo: {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      borderRadius: stylesPublic.borders.radius.card,
-    },
-    reelThumbnail: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      borderRadius: stylesPublic.borders.radius.card,
+      borderRadius: stylesPublic.borders.radius.lg,
     },
     playIcon: {
       position: 'absolute',
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      fontSize: '60px',
-      color: 'rgba(255, 255, 255, 0.9)',
-      zIndex: stylesPublic.utils.zIndex.raised,
-      transition: `opacity ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      fontSize: stylesPublic.typography.scale['4xl'],
+      color: stylesPublic.colors.text.inverse,
+      zIndex: stylesPublic.utils.zIndex.docked,
+      transition: stylesPublic.animations.transitions.opacity,
     },
     captionOverlay: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-      color: 'white',
-      padding: stylesPublic.spacing.md,
+      background: stylesPublic.colors.gradients.glass,
+      color: stylesPublic.colors.text.inverse,
+      padding: stylesPublic.spacing.scale[4],
       textAlign: 'center'
-    },    lightbox: {
+    },
+    lightbox: {
       position: 'fixed',
       top: 0,
       left: 0,
       width: '100%',
       height: '100%',
-      background: 'rgba(0, 0, 0, 0.9)',
+      background: stylesPublic.colors.surface.overlay,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: stylesPublic.utils.zIndex.modal,
-      padding: stylesPublic.spacing.md,
+      padding: stylesPublic.spacing.scale[4],
       overflow: 'auto'
-    },lightboxImageWrapper: {
+    },
+    lightboxImageWrapper: {
       position: 'relative',
       maxWidth: '80%',
       maxHeight: '80%',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center'
-    },    lightboxVideoWrapper: {
+    },
+    lightboxVideoWrapper: {
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
@@ -260,31 +277,28 @@ const Destacados = () => {
       maxHeight: '85vh',
       margin: '0 auto'
     },
-    lightboxContent: {
-      maxWidth: '90%',
-      maxHeight: '90%'
-    },
     lightboxImage: {
       maxWidth: '100%',
       maxHeight: '80vh',
       objectFit: 'contain',
       borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
-    },    lightboxVideo: {
+      boxShadow: stylesPublic.shadows.xl,
+    },
+    lightboxVideo: {
       width: '100%',
-      maxWidth: '800px',
-      height: '450px',
+      maxWidth: stylesPublic.spacing.scale[200],
+      height: stylesPublic.spacing.scale[113],
       borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`
+      boxShadow: stylesPublic.shadows.xl
     },
     lightboxCaption: {
       position: 'absolute',
-      bottom: '30px',
-      color: stylesPublic.colors.background.alt,
-      fontSize: stylesPublic.typography.fontSize.lg,
+      bottom: stylesPublic.spacing.scale[8],
+      color: stylesPublic.colors.text.inverse,
+      fontSize: stylesPublic.typography.scale.lg,
       textAlign: 'center',
-      background: 'rgba(0, 0, 0, 0.5)',
-      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
+      background: stylesPublic.colors.surface.overlay,
+      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
       borderRadius: stylesPublic.borders.radius.md,
       left: '50%',
       transform: 'translateX(-50%)',
@@ -292,90 +306,67 @@ const Destacados = () => {
     },
     closeButton: {
       position: 'absolute',
-      top: '20px',
-      right: '20px',
-      backgroundColor: stylesPublic.colors.primary.main,
-      color: stylesPublic.colors.background.alt,
+      top: stylesPublic.spacing.scale[5],
+      right: stylesPublic.spacing.scale[5],
+      backgroundColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.text.inverse,
       border: 'none',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
+      borderRadius: stylesPublic.borders.radius.full,
+      width: stylesPublic.spacing.scale[10],
+      height: stylesPublic.spacing.scale[10],
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       cursor: 'pointer',
-      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      transition: stylesPublic.animations.transitions.colors,
       zIndex: stylesPublic.utils.zIndex.popover,
-    },    navButton: {
+    },
+    navButton: {
       position: 'absolute',
       top: '50%',
       transform: 'translateY(-50%)',
-      backgroundColor: stylesPublic.colors.primary.main,
-      color: stylesPublic.colors.background.alt,
+      backgroundColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.text.inverse,
       border: 'none',
-      borderRadius: '50%',
-      width: '50px',
-      height: '50px',
+      borderRadius: stylesPublic.borders.radius.full,
+      width: stylesPublic.spacing.scale[12],
+      height: stylesPublic.spacing.scale[12],
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       cursor: 'pointer',
-      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      transition: stylesPublic.animations.transitions.colors,
       zIndex: stylesPublic.utils.zIndex.popover,
-    },    tabButtons: {
+    },
+    tabButtons: {
       display: 'flex',
       justifyContent: 'center',
-      marginBottom: stylesPublic.spacing.xl,
-      gap: stylesPublic.spacing.md,
-      '@media (max-width: 480px)': {
-        gap: stylesPublic.spacing.sm,
-        flexDirection: 'column',
-        alignItems: 'center',
-      },
-    },    tabButton: {
-      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.lg}`,
-      borderRadius: stylesPublic.borders.radius.button,
+      marginBottom: stylesPublic.spacing.scale[12],
+      gap: stylesPublic.spacing.scale[4],
+    },
+    tabButton: {
+      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[6]}`,
+      borderRadius: stylesPublic.borders.radius.full,
       border: 'none',
       background: 'transparent',
       color: stylesPublic.colors.text.primary,
-      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      fontWeight: stylesPublic.typography.weights.semibold,
       cursor: 'pointer',
-      transition: stylesPublic.transitions.preset.buttonHover,
-      '@media (max-width: 480px)': {
-        padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
-        fontSize: stylesPublic.typography.fontSize.sm,
-        width: '120px',
-      },
-    },
-    carouselArrow: {
-      backgroundColor: stylesPublic.colors.primary.main,
-      color: stylesPublic.colors.background.alt,
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: stylesPublic.utils.zIndex.dropdown,
-      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
-    },
-    sectionHeader: {
-      position: 'relative',
-      marginBottom: stylesPublic.spacing.lg,
+      transition: stylesPublic.animations.transitions.base,
     },
     viewAllLink: {
       position: 'absolute',
       top: 0,
       right: 0,
-      backgroundColor: stylesPublic.colors.primary.main,
-      color: stylesPublic.colors.background.alt,
-      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
-      borderRadius: stylesPublic.borders.radius.button,
+      backgroundColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.text.inverse,
+      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
+      borderRadius: stylesPublic.borders.radius.full,
       textDecoration: 'none',
-      fontSize: stylesPublic.typography.fontSize.sm,
-      fontWeight: stylesPublic.typography.fontWeight.semiBold,
-      transition: stylesPublic.transitions.preset.buttonHover,
-      zIndex: stylesPublic.utils.zIndex.raised,
+      fontSize: stylesPublic.typography.scale.sm,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      transition: stylesPublic.animations.transitions.base,
+      zIndex: stylesPublic.utils.zIndex.docked,
     }
   };
 
@@ -386,11 +377,12 @@ const Destacados = () => {
     alt: foto.titulo,
     caption: foto.descripcion
   }));
+
   // Transformar los datos de videos de la API para usarlos en el carousel
   const reels = videos.map(video => ({
     id: video._id,
     src: video.url,
-    previewSrc: video.miniatura || video.url, // Usar miniatura si está disponible
+    previewSrc: video.miniatura || video.url,
     title: video.titulo || 'Video sin título',
     description: video.descripcion || 'Sin descripción'
   }));
@@ -425,7 +417,9 @@ const Destacados = () => {
       location: 'Palacio de Bellas Artes, CDMX',
       description: 'Evento de gala con nuestras creaciones destacadas'
     }
-  ];  // Efecto para cargar las fotos destacadas desde la API
+  ];
+
+  // Efecto para cargar las fotos destacadas desde la API
   useEffect(() => {
     const fetchFotos = async () => {
       try {
@@ -463,38 +457,6 @@ const Destacados = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Agregar estilos CSS personalizados para el carousel
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .slick-slide {
-        padding: 0 8px;
-      }
-      .slick-track {
-        display: flex;
-        align-items: center;
-      }
-      .slick-slide > div {
-        height: 100%;
-      }
-      .slick-dots {
-        bottom: -50px;
-      }
-      .slick-dots li button:before {
-        color: ${stylesPublic.colors.primary.main};
-        font-size: 12px;
-      }
-      .slick-dots li.slick-active button:before {
-        color: ${stylesPublic.colors.secondary.main};
-      }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
   const openLightbox = (image) => {
     setSelectedImage(image);
     setSelectedVideo(null);
@@ -505,7 +467,9 @@ const Destacados = () => {
     setSelectedVideo(video);
     setSelectedImage(null);
     document.body.style.overflow = 'hidden';
-  };  const closeLightbox = () => {
+  };
+
+  const closeLightbox = () => {
     setSelectedImage(null);
     setSelectedVideo(null);
     document.body.style.overflow = 'auto';
@@ -544,6 +508,7 @@ const Destacados = () => {
       setSelectedVideo(reels[newIndex]);
     }
   };
+
   const handleVideoHover = (index, play) => {
     const video = videoRefs.current[index];
     if (video) {
@@ -561,6 +526,7 @@ const Destacados = () => {
       }
     }
   };
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -568,415 +534,453 @@ const Destacados = () => {
     slidesToShow: 4,
     slidesToScroll: 1,
     swipeToSlide: true,
-    arrows: false, // Sin flechas
-    autoplay: true, // Avance automático
-    autoplaySpeed: 3500, // Tiempo en ms entre slides (3.5 segundos)
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 3500,
     centerMode: false,
     variableWidth: false,
     responsive: [
       {
-        breakpoint: 1200,
+        breakpoint: parseInt(stylesPublic.breakpoints['2xl']),
         settings: {
           slidesToShow: 3,
           slidesToScroll: 1,
         }
       },
       {
-        breakpoint: 768,
+        breakpoint: parseInt(stylesPublic.breakpoints.md),
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
         }
       },
       {
-        breakpoint: 480,
+        breakpoint: parseInt(stylesPublic.breakpoints.sm),
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
           centerMode: true,
-          centerPadding: '40px'
+          centerPadding: stylesPublic.spacing.scale[10]
         }
       }
     ]
   };
 
   return (
-    <div style={styles.pageContainer}>
-      <div style={styles.pageOverlay}></div>
-      <Container>
-        {/* Hero Section */}
-        <div style={styles.hero}>
-          <div style={styles.heroPattern}></div>
-          <Container>
-            <h1 className="display-3 fw-bold mb-4" style={{ fontFamily: stylesPublic.typography.fontFamily.heading }}>
-              Contenido Destacado
-            </h1>
-            <p className="fs-4 fw-light mb-5 mx-auto" style={{ maxWidth: "700px", fontFamily: stylesPublic.typography.fontFamily.heading }}>
-              Descubre lo mejor de nuestras creaciones artesanales huastecas
-            </p>
-          </Container>
-        </div>        {/* Sección de Eventos Destacados */}
-        <section style={{ marginBottom: stylesPublic.spacing['4xl'] }}>
-          <h2 style={styles.sectionTitle}>Eventos Destacados</h2>
-          <div style={styles.titleUnderline}></div>
-          
-          <div style={styles.eventsSection}>
-            <Table responsive style={styles.eventsTable}>
-              <thead style={styles.tableHeader}>
-                <tr>
-                  <th style={styles.tableCell}>Fecha</th>
-                  <th style={styles.tableCell}>Evento</th>
-                  <th style={styles.tableCell}>Lugar</th>
-                  <th style={styles.tableCell}>Descripción</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((event, index) => (
-                  <tr
-                    key={event.id}
-                    style={{
-                      opacity: animate ? 1 : 0,
-                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `opacity ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${0.6 + index * 0.1}s, transform ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${0.6 + index * 0.1}s`,
-                      backgroundColor: index % 2 === 0 ? stylesPublic.colors.background.main : stylesPublic.colors.background.alt
-                    }}
-                  >
-                    <td style={styles.tableCell}>{event.date}</td>
-                    <td style={{ ...styles.tableCell, fontWeight: stylesPublic.typography.fontWeight.semiBold }}>{event.name}</td>
-                    <td style={styles.tableCell}>{event.location}</td>
-                    <td style={styles.tableCell}>{event.description}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </section>        {/* Pestañas de Contenido Destacado */}
-        <section style={{ marginBottom: stylesPublic.spacing['4xl'] }}>
-          <div style={styles.tabButtons}>
-            <button 
-              style={{ 
-                ...styles.tabButton, 
-                ...(activeTab === 'fotos' ? { 
-                  background: stylesPublic.colors.background.gradient.accent, 
-                  color: 'white' 
-                } : {}) 
-              }}
-              onClick={() => setActiveTab('fotos')}
-            >
-              Fotos Destacadas
-            </button>
-            <button 
-              style={{ 
-                ...styles.tabButton, 
-                ...(activeTab === 'videos' ? { 
-                  background: stylesPublic.colors.background.gradient.accent, 
-                  color: 'white' 
-                } : {}) 
-              }}
-              onClick={() => setActiveTab('videos')}
-            >
-              Videos Destacados
-            </button>
+    <>
+      <style>{cssStyles}</style>
+      
+      <div style={styles.pageContainer}>
+        <div style={styles.pageOverlay}></div>
+        <Container>
+          {/* Hero Section */}
+          <div style={styles.hero}>
+            <div style={styles.heroPattern}></div>
+            <Container>
+              <h1 style={{ 
+                ...stylesPublic.typography.headings.h1,
+                marginBottom: stylesPublic.spacing.scale[6]
+              }}>
+                Contenido Destacado
+              </h1>
+              <p style={{ 
+                ...stylesPublic.typography.body.large,
+                maxWidth: "700px", 
+                margin: "0 auto"
+              }}>
+                Descubre lo mejor de nuestras creaciones artesanales huastecas
+              </p>
+            </Container>
           </div>
 
-          {activeTab === 'fotos' ? (
-            <>
-              <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>Creaciones Destacadas</h2>
-                <Link 
-                  to="/catalogofotos" 
-                  style={styles.viewAllLink}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main;
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main;
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  Ver galería completa
-                </Link>
-              </div>
-              <div style={styles.titleUnderline}></div>
-              <p className="text-center" style={{ 
-                fontSize: stylesPublic.typography.fontSize.lg, 
-                fontWeight: stylesPublic.typography.fontWeight.light, 
-                color: stylesPublic.colors.text.secondary, 
-                maxWidth: "800px", 
-                margin: `0 auto ${stylesPublic.spacing.xl}`, 
-                letterSpacing: stylesPublic.typography.letterSpacing.wide 
-              }}>
-                Nuestras piezas más especiales seleccionadas especialmente para ti
-              </p>              <div style={{
-                ...styles.galleryGrid,
-                gap: stylesPublic.spacing.lg,
-                marginTop: stylesPublic.spacing['2xl']
-              }}>
-                {loading ? (
-                  <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Cargando...</span>
-                    </div>
-                    <p className="mt-2">Cargando contenido destacado...</p>
-                  </div>
-                ) : images.length > 0 ? (
-                  images.slice(0, 3).map((image, index) => (
-                  <div
-                    key={image.id}
-                    style={{
-                      ...styles.galleryItem,
-                      opacity: animate ? 1 : 0,
-                      transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                      transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.15}s`,
-                    }}
+          {/* Sección de Eventos Destacados */}
+          <section style={{ marginBottom: stylesPublic.spacing.scale[16] }}>
+            <h2 style={styles.sectionTitle}>Eventos Destacados</h2>
+            <div style={styles.titleUnderline}></div>
+            
+            <div style={styles.eventsSection}>
+              <Table responsive style={styles.eventsTable}>
+                <thead style={styles.tableHeader}>
+                  <tr>
+                    <th className="table-cell" style={styles.tableCell}>Fecha</th>
+                    <th className="table-cell" style={styles.tableCell}>Evento</th>
+                    <th className="table-cell" style={styles.tableCell}>Lugar</th>
+                    <th className="table-cell" style={styles.tableCell}>Descripción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((event, index) => (
+                    <tr
+                      key={event.id}
+                      style={{
+                        opacity: animate ? 1 : 0,
+                        transform: animate ? 'translateY(0)' : `translateY(${stylesPublic.spacing.scale[5]})`,
+                        transition: `opacity ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${0.6 + index * 0.1}s, transform ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${0.6 + index * 0.1}s`,
+                        backgroundColor: index % 2 === 0 ? stylesPublic.colors.surface.primary : stylesPublic.colors.surface.secondary
+                      }}
+                    >
+                      <td className="table-cell" style={styles.tableCell}>{event.date}</td>
+                      <td className="table-cell" style={{ ...styles.tableCell, fontWeight: stylesPublic.typography.weights.semibold }}>{event.name}</td>
+                      <td className="table-cell" style={styles.tableCell}>{event.location}</td>
+                      <td className="table-cell" style={styles.tableCell}>{event.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </section>
+
+          {/* Pestañas de Contenido Destacado */}
+          <section style={{ marginBottom: stylesPublic.spacing.scale[16] }}>
+            <div style={styles.tabButtons}>
+              <button 
+                className="tab-button"
+                style={{ 
+                  ...styles.tabButton, 
+                  ...(activeTab === 'fotos' ? { 
+                    background: stylesPublic.colors.gradients.accent, 
+                    color: stylesPublic.colors.text.inverse
+                  } : {}) 
+                }}
+                onClick={() => setActiveTab('fotos')}
+              >
+                Fotos Destacadas
+              </button>
+              <button 
+                className="tab-button"
+                style={{ 
+                  ...styles.tabButton, 
+                  ...(activeTab === 'videos' ? { 
+                    background: stylesPublic.colors.gradients.accent, 
+                    color: stylesPublic.colors.text.inverse
+                  } : {}) 
+                }}
+                onClick={() => setActiveTab('videos')}
+              >
+                Videos Destacados
+              </button>
+            </div>
+
+            {activeTab === 'fotos' ? (
+              <>
+                <div style={{ position: 'relative', marginBottom: stylesPublic.spacing.scale[6] }}>
+                  <h2 style={styles.sectionTitle}>Creaciones Destacadas</h2>
+                  <Link 
+                    to="/catalogofotos" 
+                    style={styles.viewAllLink}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-8px)';
-                      e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
+                      e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500];
+                      e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[1]})`;
                     }}
                     onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500];
                       e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
                     }}
-                    onClick={() => openLightbox(image)}
                   >
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      style={styles.galleryImage}
-                    />                    <div style={styles.captionOverlay}>
-                      <h5 style={{ 
-                        margin: 0,
-                        marginBottom: stylesPublic.spacing.xs,
-                        fontWeight: stylesPublic.typography.fontWeight.semiBold,
-                        fontSize: stylesPublic.typography.fontSize.lg
-                      }}>{image.alt}</h5>
-                      <p style={{ 
-                        margin: 0, 
-                        fontWeight: stylesPublic.typography.fontWeight.light,
-                        fontSize: stylesPublic.typography.fontSize.sm,
-                        opacity: 0.9
-                      }}>{image.caption}</p>
-                    </div>
-                  </div>
-                ))) : (
-                  <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
-                    <p>No hay contenido destacado disponible.</p>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <h2 style={styles.sectionTitle}>Videos Destacados</h2>
-              <div style={styles.titleUnderline}></div>
-              <p className="text-center" style={{ 
-                fontSize: stylesPublic.typography.fontSize.lg, 
-                fontWeight: stylesPublic.typography.fontWeight.light, 
-                color: stylesPublic.colors.text.secondary, 
-                maxWidth: "800px", 
-                margin: `0 auto ${stylesPublic.spacing.xl}`, 
-                letterSpacing: stylesPublic.typography.letterSpacing.wide 
-              }}>
-                Los momentos más especiales de nuestro trabajo artesanal
-              </p>              <div style={{
-                ...styles.reelsCarousel,
-                marginTop: stylesPublic.spacing['2xl'],
-                marginBottom: stylesPublic.spacing['2xl']
-              }}>
-                {reels.length > 0 ? (
-                  <Slider {...sliderSettings}>
-                    {reels.map((reel, index) => (
-                    <div key={reel.id} style={{ padding: `0 ${stylesPublic.spacing.sm}` }}>
-                      <Card
-                        style={{
-                          ...styles.reelItem,
-                          opacity: animate ? 1 : 0,
-                          transform: animate ? 'translateY(0)' : 'translateY(20px)',
-                          transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.1}s`,
-                          padding: 0,
-                          border: 'none',
-                          margin: 0,
-                          width: '100%'
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.03)';
-                          e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)';
-                          e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
-                        }}
-                        onClick={() => openVideo(reel)}
-                        onMouseEnter={() => handleVideoHover(index, true)}
-                        onMouseLeave={() => handleVideoHover(index, false)}
-                      >
-                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>                          <video
-                            ref={(el) => (videoRefs.current[index] = el)}
-                            src={reel.previewSrc || reel.src}
-                            muted
-                            loop
-                            style={styles.reelVideo}
-                            poster={reel.previewSrc}
-                          />
-                          <div style={styles.playIcon}>
-                            <IonIcon icon={playCircleOutline} style={{ fontSize: '50px' }} />
-                          </div>
-                          <Card.Body style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent)',
-                            padding: stylesPublic.spacing.md,
-                            color: 'white'
-                          }}>
-                            <Card.Title style={{ 
-                              fontSize: stylesPublic.typography.fontSize.md,
-                              fontWeight: stylesPublic.typography.fontWeight.semiBold,
-                              marginBottom: stylesPublic.spacing.xs,
-                              lineHeight: '1.2'
-                            }}>{reel.title}</Card.Title>
-                            <Card.Text style={{
-                              fontSize: stylesPublic.typography.fontSize.xs,
-                              opacity: '0.9',
-                              lineHeight: '1.3',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden'
-                            }}>{reel.description}</Card.Text>
-                          </Card.Body>
-                        </div>
-                      </Card>                    </div>
-                  ))}
-                </Slider>
-                ) : (
-                  <div className="text-center w-100" style={{ 
-                    padding: stylesPublic.spacing.xl,
-                    backgroundColor: stylesPublic.colors.background.main,
-                    borderRadius: stylesPublic.borders.radius.lg,
-                    margin: `0 ${stylesPublic.spacing.md}`
-                  }}>
-                    <p style={{ 
-                      fontSize: stylesPublic.typography.fontSize.lg,
-                      color: stylesPublic.colors.text.secondary
-                    }}>No hay videos disponibles en este momento.</p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </section>
-      </Container>
+                    Ver galería completa
+                  </Link>
+                </div>
+                <div style={styles.titleUnderline}></div>
+                <p style={{ 
+                  ...stylesPublic.typography.body.large,
+                  color: stylesPublic.colors.text.secondary, 
+                  maxWidth: "800px", 
+                  margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+                  textAlign: "center"
+                }}>
+                  Nuestras piezas más especiales seleccionadas especialmente para ti
+                </p>
 
-      {/* Lightbox para imágenes */}
-      {selectedImage && (
-        <div style={styles.lightbox}>
-          <button
-            style={{ ...styles.navButton, left: '20px' }}
-            onClick={() => navigateMedia('prev')}
-          >
-            <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
-          </button>
-          
-          <div style={styles.lightboxImageWrapper}>
-            <button 
-              style={styles.closeButton} 
-              onClick={closeLightbox}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
+                <div className="gallery-grid" style={styles.galleryGrid}>
+                  {loading ? (
+                    <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
+                      <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
+                        <span className="visually-hidden">Cargando...</span>
+                      </div>
+                      <p style={{ 
+                        ...stylesPublic.typography.body.base,
+                        marginTop: stylesPublic.spacing.scale[2]
+                      }}>
+                        Cargando contenido destacado...
+                      </p>
+                    </div>
+                  ) : images.length > 0 ? (
+                    images.slice(0, 3).map((image, index) => (
+                    <div
+                      key={image.id}
+                      style={{
+                        ...styles.galleryItem,
+                        opacity: animate ? 1 : 0,
+                        transform: animate ? 'translateY(0)' : `translateY(${stylesPublic.spacing.scale[5]})`,
+                        transition: `all ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${index * 0.15}s`,
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]})`;
+                        e.currentTarget.style.boxShadow = stylesPublic.shadows.xl;
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = stylesPublic.shadows.lg;
+                      }}
+                      onClick={() => openLightbox(image)}
+                    >
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        style={styles.galleryImage}
+                      />
+                      <div style={styles.captionOverlay}>
+                        <h5 style={{ 
+                          ...stylesPublic.typography.headings.h6,
+                          margin: 0,
+                          marginBottom: stylesPublic.spacing.scale[1],
+                        }}>
+                          {image.alt}
+                        </h5>
+                        <p style={{ 
+                          ...stylesPublic.typography.body.small,
+                          margin: 0, 
+                          opacity: 0.9
+                        }}>
+                          {image.caption}
+                        </p>
+                      </div>
+                    </div>
+                  ))) : (
+                    <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
+                      <p style={stylesPublic.typography.body.base}>No hay contenido destacado disponible.</p>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 style={styles.sectionTitle}>Videos Destacados</h2>
+                <div style={styles.titleUnderline}></div>
+                <p style={{ 
+                  ...stylesPublic.typography.body.large,
+                  color: stylesPublic.colors.text.secondary, 
+                  maxWidth: "800px", 
+                  margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+                  textAlign: "center"
+                }}>
+                  Los momentos más especiales de nuestro trabajo artesanal
+                </p>
+
+                <div style={styles.reelsCarousel}>
+                  {reels.length > 0 ? (
+                    <Slider {...sliderSettings}>
+                      {reels.map((reel, index) => (
+                      <div key={reel.id} style={{ padding: `0 ${stylesPublic.spacing.scale[2]}` }}>
+                        <Card
+                          style={{
+                            ...styles.reelItem,
+                            opacity: animate ? 1 : 0,
+                            transform: animate ? 'translateY(0)' : `translateY(${stylesPublic.spacing.scale[5]})`,
+                            transition: `all ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${index * 0.1}s`,
+                            padding: 0,
+                            border: 'none',
+                            margin: 0,
+                            width: '100%'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.03)';
+                            e.currentTarget.style.boxShadow = stylesPublic.shadows.xl;
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = stylesPublic.shadows.lg;
+                          }}
+                          onClick={() => openVideo(reel)}
+                          onMouseEnter={() => handleVideoHover(index, true)}
+                          onMouseLeave={() => handleVideoHover(index, false)}
+                        >
+                          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                            <video
+                              ref={(el) => (videoRefs.current[index] = el)}
+                              src={reel.previewSrc || reel.src}
+                              muted
+                              loop
+                              style={styles.reelVideo}
+                              poster={reel.previewSrc}
+                            />
+                            <div style={styles.playIcon}>
+                              <IonIcon icon={playCircleOutline} style={{ fontSize: stylesPublic.spacing.scale[12] }} />
+                            </div>
+                            <Card.Body style={{
+                              position: 'absolute',
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              background: stylesPublic.colors.gradients.glass,
+                              padding: stylesPublic.spacing.scale[4],
+                              color: stylesPublic.colors.text.inverse
+                            }}>
+                              <Card.Title style={{ 
+                                ...stylesPublic.typography.headings.h6,
+                                marginBottom: stylesPublic.spacing.scale[1],
+                                lineHeight: stylesPublic.typography.leading.tight
+                              }}>
+                                {reel.title}
+                              </Card.Title>
+                              <Card.Text style={{
+                                ...stylesPublic.typography.body.caption,
+                                opacity: '0.9',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                              }}>
+                                {reel.description}
+                              </Card.Text>
+                            </Card.Body>
+                          </div>
+                        </Card>
+                      </div>
+                    ))}
+                  </Slider>
+                  ) : (
+                    <div className="text-center w-100" style={{ 
+                      padding: stylesPublic.spacing.scale[12],
+                      backgroundColor: stylesPublic.colors.surface.primary,
+                      borderRadius: stylesPublic.borders.radius.lg,
+                      margin: `0 ${stylesPublic.spacing.scale[4]}`
+                    }}>
+                      <p style={stylesPublic.typography.body.large}>
+                        No hay videos disponibles en este momento.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </section>
+        </Container>
+
+        {/* Lightbox para imágenes */}
+        {selectedImage && (
+          <div style={styles.lightbox}>
+            <button
+              style={{ ...styles.navButton, left: stylesPublic.spacing.scale[5] }}
+              onClick={() => navigateMedia('prev')}
             >
-              <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
+              <IonIcon icon={chevronBackOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
             </button>
-            <img
-              src={selectedImage.src}
-              alt={selectedImage.alt}
-              style={styles.lightboxImage}
-            />
-            <div style={styles.lightboxCaption}>
-              <h4 style={{ marginBottom: stylesPublic.spacing.sm }}>{selectedImage.alt}</h4>
-              <p style={{ margin: 0 }}>{selectedImage.caption}</p>
-            </div>
-          </div>
-          
-          <button
-            style={{ ...styles.navButton, right: '20px' }}
-            onClick={() => navigateMedia('next')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
-          >
-            <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
-          </button>
-        </div>
-      )}      {/* Lightbox para videos */}
-      {selectedVideo && (
-        <div style={styles.lightbox}>
-          <button
-            style={{ ...styles.navButton, left: '20px' }}
-            onClick={() => navigateMedia('prev')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
-          >
-            <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
-          </button>
-          
-          <div style={styles.lightboxVideoWrapper}>
-            <button 
-              style={styles.closeButton} 
-              onClick={closeLightbox}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
-            >
-              <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
-            </button>            <video
-              controls
-              autoPlay
-              src={selectedVideo.src}
-              style={{
-                ...styles.lightboxVideo,
-                maxWidth: isMobile ? '90vw' : '800px',
-                height: isMobile ? '250px' : '450px'
-              }}
-            >
-              Tu navegador no soporta la reproducción de video.
-            </video>
             
-            <div style={{
-              position: 'relative',
-              marginTop: stylesPublic.spacing.md,
-              textAlign: 'center',
-              color: stylesPublic.colors.background.alt,
-              background: 'rgba(0, 0, 0, 0.7)',
-              padding: stylesPublic.spacing.md,
-              borderRadius: stylesPublic.borders.radius.md,
-              maxWidth: '800px',
-              width: '100%'
-            }}>
-              <h4 style={{ 
-                marginBottom: stylesPublic.spacing.sm, 
-                fontWeight: stylesPublic.typography.fontWeight.semiBold,
-                fontSize: stylesPublic.typography.fontSize.lg
-              }}>{selectedVideo.title}</h4>
-              <p style={{ 
-                margin: 0, 
-                fontSize: stylesPublic.typography.fontSize.sm,
-                opacity: 0.9
-              }}>{selectedVideo.description}</p>
+            <div style={styles.lightboxImageWrapper}>
+              <button 
+                style={styles.closeButton} 
+                onClick={closeLightbox}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+              >
+                <IonIcon icon={closeOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+              </button>
+              <img
+                src={selectedImage.src}
+                alt={selectedImage.alt}
+                style={styles.lightboxImage}
+              />
+              <div style={styles.lightboxCaption}>
+                <h4 style={{ 
+                  ...stylesPublic.typography.headings.h5,
+                  marginBottom: stylesPublic.spacing.scale[2] 
+                }}>
+                  {selectedImage.alt}
+                </h4>
+                <p style={{ 
+                  ...stylesPublic.typography.body.base,
+                  margin: 0 
+                }}>
+                  {selectedImage.caption}
+                </p>
+              </div>
             </div>
+            
+            <button
+              style={{ ...styles.navButton, right: stylesPublic.spacing.scale[5] }}
+              onClick={() => navigateMedia('next')}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+            >
+              <IonIcon icon={chevronForwardOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+            </button>
           </div>
-          
-          <button
-            style={{ ...styles.navButton, right: '20px' }}
-            onClick={() => navigateMedia('next')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
-          >
-            <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
-          </button>
-        </div>
-      )}
-    </div>
+        )}
+
+        {/* Lightbox para videos */}
+        {selectedVideo && (
+          <div style={styles.lightbox}>
+            <button
+              style={{ ...styles.navButton, left: stylesPublic.spacing.scale[5] }}
+              onClick={() => navigateMedia('prev')}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+            >
+              <IonIcon icon={chevronBackOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+            </button>
+            
+            <div style={styles.lightboxVideoWrapper}>
+              <button 
+                style={styles.closeButton} 
+                onClick={closeLightbox}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+              >
+                <IonIcon icon={closeOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+              </button>
+              <video
+                controls
+                autoPlay
+                src={selectedVideo.src}
+                style={{
+                  ...styles.lightboxVideo,
+                  maxWidth: isMobile ? '90vw' : stylesPublic.spacing.scale[200],
+                  height: isMobile ? stylesPublic.spacing.scale[62] : stylesPublic.spacing.scale[113]
+                }}
+              >
+                Tu navegador no soporta la reproducción de video.
+              </video>
+              
+              <div style={{
+                position: 'relative',
+                marginTop: stylesPublic.spacing.scale[4],
+                textAlign: 'center',
+                color: stylesPublic.colors.text.inverse,
+                background: stylesPublic.colors.surface.overlay,
+                padding: stylesPublic.spacing.scale[4],
+                borderRadius: stylesPublic.borders.radius.md,
+                maxWidth: stylesPublic.spacing.scale[200],
+                width: '100%'
+              }}>
+                <h4 style={{ 
+                  ...stylesPublic.typography.headings.h5,
+                  marginBottom: stylesPublic.spacing.scale[2]
+                }}>
+                  {selectedVideo.title}
+                </h4>
+                <p style={{ 
+                  ...stylesPublic.typography.body.small,
+                  margin: 0, 
+                  opacity: 0.9
+                }}>
+                  {selectedVideo.description}
+                </p>
+              </div>
+            </div>
+            
+            <button
+              style={{ ...styles.navButton, right: stylesPublic.spacing.scale[5] }}
+              onClick={() => navigateMedia('next')}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+            >
+              <IonIcon icon={chevronForwardOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

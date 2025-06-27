@@ -22,7 +22,7 @@ const Nosotros = () => {
   const [loadingNosotros, setLoadingNosotros] = useState(true);
 
   useEffect(() => {
-    // Animaciones escalonadas como en Inicio.js
+    // Animaciones escalonadas progresivas
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, historia: true })), 300);
     setTimeout(() => setIsVisible(prev => ({ ...prev, mision: true })), 600);
@@ -68,15 +68,130 @@ const Nosotros = () => {
   }, []);
 
   const valores = [
-    { icon: "🤝", titulo: "Comercio Justo", descripcion: "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas." },
-    { icon: "🌱", titulo: "Sostenibilidad", descripcion: "Utilizamos materiales naturales y procesos eco-amigables en todas nuestras piezas." },
-    { icon: "🎨", titulo: "Autenticidad", descripcion: "Cada pieza conserva las técnicas tradicionales de la cultura huasteca." },
+    { 
+      icon: "🤝", 
+      titulo: "Comercio Justo", 
+      descripcion: "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas.",
+      color: stylesPublic.colors.gradients.primary
+    },
+    { 
+      icon: "🌱", 
+      titulo: "Sostenibilidad", 
+      descripcion: "Utilizamos materiales naturales y procesos eco-amigables en todas nuestras piezas.",
+      color: stylesPublic.colors.gradients.secondary
+    },
+    { 
+      icon: "🎨", 
+      titulo: "Autenticidad", 
+      descripcion: "Cada pieza conserva las técnicas tradicionales de la cultura huasteca.",
+      color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.success.main}, ${stylesPublic.colors.semantic.success.light})`
+    },
   ];
 
-  const historiaTexto = "La Aterciopelada nació como un sueño de preservar y celebrar las tradiciones artesanales de la región Huasteca. A lo largo de los años, hemos crecido desde nuestras humildes raíces hasta convertirnos en un referente de la moda artesanal mexicana, siempre manteniendo nuestro compromiso con la calidad, la autenticidad y el respeto hacia nuestras artesanas. Cada pieza que creamos es testimonio de una rica herencia cultural que se entrelaza con diseños contemporáneos, creando prendas únicas que cuentan historias milenarias mientras abrazan la modernidad.";
+  const historiaTexto = "La Aterciopelada nació como un sueño de preservar y celebrar las tradiciones artesanales de la región Huasteca. A lo largo de los años, hemos crecido desde nuestras humildes raíces hasta convertirnos en una boutique reconocida por la calidad excepcional de nuestras creaciones. Cada pieza cuenta una historia, cada bordado lleva consigo la sabiduría ancestral de nuestras maestras artesanas. Nuestro compromiso trasciende la simple comercialización: somos guardianes de una herencia cultural que se transmite de generación en generación, adaptándose a los tiempos modernos sin perder su esencia tradicional.";
+
+  // CSS usando exclusivamente tokens del sistema refactorizado
+  const animationStyles = `
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(${stylesPublic.spacing.scale[8]}); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-in {
+      animation: fadeInUp ${stylesPublic.animations.duration.slowest} forwards;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: ${stylesPublic.spacing.scale[12]};
+      margin-bottom: ${stylesPublic.spacing.scale[12]};
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[500]};
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -${stylesPublic.spacing.scale[2]};
+      top: 0;
+      width: ${stylesPublic.spacing.scale[4]};
+      height: ${stylesPublic.spacing.scale[4]};
+      border-radius: ${stylesPublic.borders.radius.full};
+      background: ${stylesPublic.colors.primary[500]};
+      box-shadow: ${stylesPublic.shadows.sm};
+    }
+
+    .value-card {
+      transition: ${stylesPublic.animations.transitions.base};
+    }
+
+    .value-card:hover {
+      transform: translateY(-${stylesPublic.spacing.scale[2]});
+      box-shadow: ${stylesPublic.shadows.lg};
+    }
+
+    .team-card {
+      transition: ${stylesPublic.animations.transitions.base};
+      border: ${stylesPublic.borders.width[1]}px solid ${stylesPublic.borders.colors.default};
+    }
+
+    .team-card:hover {
+      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      box-shadow: ${stylesPublic.shadows.brand.primary};
+      border-color: ${stylesPublic.colors.primary[500]};
+    }
+
+    /* Responsive Design */
+    @media (max-width: ${stylesPublic.breakpoints.md}) {
+      .timeline-item {
+        padding-left: ${stylesPublic.spacing.scale[8]};
+        margin-bottom: ${stylesPublic.spacing.scale[8]};
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale['2xl']} !important;
+      }
+      .hero-section p {
+        font-size: ${stylesPublic.typography.scale.base} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
+      .timeline-item {
+        padding-left: ${stylesPublic.spacing.scale[6]};
+        margin-bottom: ${stylesPublic.spacing.scale[6]};
+      }
+      .hero-section {
+        padding: ${stylesPublic.spacing.scale[15]} 0 !important;
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.xl} !important;
+      }
+      .hero-section p {
+        font-size: ${stylesPublic.typography.scale.sm} !important;
+      }
+      .team-image {
+        width: ${stylesPublic.spacing.scale[30]} !important;
+        height: ${stylesPublic.spacing.scale[30]} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.xs}) {
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.lg} !important;
+      }
+      .team-image {
+        width: ${stylesPublic.spacing.scale[25]} !important;
+        height: ${stylesPublic.spacing.scale[25]} !important;
+      }
+      .timeline-item {
+        padding-left: ${stylesPublic.spacing.scale[4]};
+        text-align: center;
+      }
+    }
+  `;
+
   const customStyles = {
     heroSection: {
-      background: stylesPublic.colors.background.gradient.primary,
+      background: stylesPublic.colors.gradients.hero,
       height: "60vh",
       display: "flex",
       alignItems: "center",
@@ -84,125 +199,124 @@ const Nosotros = () => {
       textAlign: "center",
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
-      transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: stylesPublic.transitions.preset.pageIn,
+      transform: isVisible.hero ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[8]})`,
+      transition: stylesPublic.animations.transitions.slow,
     },
     heroOverlay: {
-      ...stylesPublic.utils.overlay.standard,
-      background: stylesPublic.elements.backgroundPatterns.floral,
-      opacity: 0.8,
-    },    section: {
-      padding: stylesPublic.spacing.section.large,
-      maxWidth: stylesPublic.utils.container.maxWidth,
-      margin: stylesPublic.spacing.margin.auto,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
+      pointerEvents: 'none',
+      zIndex: 1,
+    },
+    section: {
+      padding: stylesPublic.spacing.sections.lg,
+      maxWidth: stylesPublic.utils.container.maxWidth['2xl'],
+      margin: stylesPublic.spacing.margins.auto,
       position: "relative",
-      '@media (max-width: 768px)': {
-        padding: stylesPublic.spacing.section.medium,
-      },
-      '@media (max-width: 480px)': {
-        padding: stylesPublic.spacing.section.small,
-      },
     },
     historiaSection: {
-      background: stylesPublic.colors.background.gradient.secondary,
+      background: stylesPublic.colors.gradients.warm,
       opacity: isVisible.historia ? 1 : 0,
-      transform: isVisible.historia ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-    },    misionSection: {
-      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      transform: isVisible.historia ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+    },
+    misionSection: {
+      background: stylesPublic.colors.gradients.secondary,
       opacity: isVisible.mision ? 1 : 0,
-      transform: isVisible.mision ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.mision ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
     },
     colaboradoresSection: {
-      background: stylesPublic.colors.background.gradient.secondary,
+      background: stylesPublic.colors.gradients.warm,
       opacity: isVisible.colaboradores ? 1 : 0,
-      transform: isVisible.colaboradores ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.colaboradores ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
     },
     valoresSection: {
-      background: `linear-gradient(135deg, #FFD1BA 0%, #F8B4C4 100%)`,
+      background: stylesPublic.colors.gradients.primary,
       opacity: isVisible.valores ? 1 : 0,
-      transform: isVisible.valores ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.valores ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
     },
     ctaSection: {
-      background: stylesPublic.colors.background.gradient.accent,
+      background: stylesPublic.colors.gradients.accent,
       opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.cta ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
       position: "relative",
     },
-    titleUnderline: stylesPublic.elements.decorative.underline,
+    titleUnderline: {
+      display: 'block',
+      width: stylesPublic.spacing.scale[20],
+      height: stylesPublic.spacing.scale[1],
+      background: stylesPublic.colors.gradients.accent,
+      borderRadius: stylesPublic.borders.radius.sm,
+      margin: `${stylesPublic.spacing.scale[4]} auto`,
+    },
     whiteUnderline: {
-      background: `#ffffff`,
+      background: stylesPublic.colors.surface.primary,
       boxShadow: stylesPublic.shadows.sm,
     },
-    pinkButton: stylesPublic.elements.buttons.primary,    card: stylesPublic.elements.cards.default,    teamImage: {
-      width: "150px",
-      height: "150px",
-      borderRadius: "50%",
+    card: {
+      ...stylesPublic.components.card.base,
+      padding: stylesPublic.spacing.scale[8]
+    },
+    teamImage: {
+      width: stylesPublic.spacing.scale[38],
+      height: stylesPublic.spacing.scale[38],
+      borderRadius: stylesPublic.borders.radius.full,
       objectFit: "cover",
-      border: `3px solid ${stylesPublic.colors.primary.main}`,
-      margin: `0 auto ${stylesPublic.spacing.lg}`,
-      '@media (max-width: 768px)': {
-        width: "120px",
-        height: "120px",
-      },
-      '@media (max-width: 480px)': {
-        width: "100px",
-        height: "100px",
-      },
+      border: `${stylesPublic.borders.width[2]}px solid ${stylesPublic.colors.primary[500]}`,
+      margin: `0 auto ${stylesPublic.spacing.scale[6]}`,
+      display: "block"
     },
     valueIcon: {
-      ...stylesPublic.elements.decorative.circle,
-      fontSize: "1.8rem",
-    },    timelineItem: {
-      position: "relative",
-      paddingLeft: stylesPublic.spacing.xl,
-      marginBottom: stylesPublic.spacing.xl,
-      borderLeft: `${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.main}`,
-      '@media (max-width: 768px)': {
-        paddingLeft: stylesPublic.spacing.lg,
-        marginBottom: stylesPublic.spacing.lg,
-      },
-      '@media (max-width: 480px)': {
-        paddingLeft: stylesPublic.spacing.md,
-        marginBottom: stylesPublic.spacing.md,
-      },
+      width: stylesPublic.spacing.scale[18],
+      height: stylesPublic.spacing.scale[18],
+      borderRadius: stylesPublic.borders.radius.full,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: stylesPublic.typography.scale['2xl'],
+      margin: `0 auto ${stylesPublic.spacing.scale[6]}`,
+      boxShadow: stylesPublic.shadows.brand.primary
     },
   };
 
   return (
     <>
+      <style>{animationStyles}</style>
+      
       {/* Hero Section */}
       <section style={customStyles.heroSection}>
-        <div style={customStyles.heroOverlay}></div>        <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, maxWidth: "900px", padding: stylesPublic.spacing.section.medium }}>
+        <div style={customStyles.heroOverlay}></div>
+        <Container style={{ 
+          position: "relative", 
+          zIndex: stylesPublic.utils.zIndex.docked, 
+          maxWidth: stylesPublic.utils.container.maxWidth.lg, 
+          padding: stylesPublic.spacing.scale[8]
+        }}>
           <h1 className="animate-in" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h1, 
-            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            ...stylesPublic.typography.headings.h1,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg, 
-            letterSpacing: stylesPublic.typography.letterSpacing.tight, 
-            lineHeight: stylesPublic.typography.lineHeight.tight, 
+            marginBottom: stylesPublic.spacing.scale[6], 
             animationDelay: "0.3s" 
           }}>
             Nosotros
           </h1>
           <div className="animate-in" style={{ 
-            width: "80px", 
-            height: "2px", 
-            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main}, transparent)`, 
-            margin: "0 auto 2rem", 
+            ...customStyles.titleUnderline,
             animationDelay: "0.9s" 
           }}></div>
           <p className="animate-in" style={{ 
-            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
-            marginBottom: stylesPublic.spacing["3xl"], 
-            letterSpacing: stylesPublic.typography.letterSpacing.wide, 
+            marginBottom: stylesPublic.spacing.scale[12], 
             animationDelay: "0.6s" 
           }}>
             Nuestra historia, valores y pasión por la artesanía huasteca
@@ -219,26 +333,27 @@ const Nosotros = () => {
                 src="https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=2940" 
                 alt="Historia de La Aterciopelada" 
                 fluid 
-                style={{ borderRadius: "12px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                style={{ 
+                  borderRadius: stylesPublic.borders.radius.lg, 
+                  boxShadow: stylesPublic.shadows.xl 
+                }}
               />
             </Col>
-            <Col md={6}>              <h2 className="text-center" style={{ 
-                fontFamily: stylesPublic.typography.fontFamily.heading, 
-                fontSize: stylesPublic.typography.fontSize.h2, 
-                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            <Col md={6}>
+              <h2 style={{ 
+                ...stylesPublic.typography.headings.h2,
                 color: stylesPublic.colors.text.primary, 
-                marginBottom: stylesPublic.spacing.lg 
+                marginBottom: stylesPublic.spacing.scale[6], 
+                textAlign: "center" 
               }}>
                 Nuestra Historia
                 <span style={customStyles.titleUnderline}></span>
               </h2>
               
-              <div style={{ marginTop: "2rem" }}>
+              <div style={{ marginTop: stylesPublic.spacing.scale[8] }}>
                 <p style={{ 
-                  fontFamily: stylesPublic.typography.fontFamily.body, 
-                  fontSize: stylesPublic.typography.fontSize.lg,
+                  ...stylesPublic.typography.body.large,
                   color: stylesPublic.colors.text.secondary, 
-                  lineHeight: stylesPublic.typography.lineHeight.paragraph,
                   textAlign: "justify"
                 }}>
                   {historiaTexto}
@@ -249,49 +364,49 @@ const Nosotros = () => {
         </Container>
       </section>
 
-      {/* Misión Section */}
+      {/* Misión y Visión Section */}
       <section style={customStyles.misionSection}>
-        <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-            color: "#ffffff", 
+        <Container style={customStyles.section}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.inverse, 
             textShadow: stylesPublic.shadows.sm, 
-            marginBottom: stylesPublic.spacing.lg 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
-            Nuestra Misión
+            Nuestra Misión y Visión
             <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
           </h2>
           
           <Row className="g-4 justify-content-center">
             <Col md={6}>
               <Card className="h-100" style={customStyles.card}>
-                <Card.Body>                  <h3 style={{ 
-                    fontFamily: stylesPublic.typography.fontFamily.heading, 
-                    fontSize: stylesPublic.typography.fontSize.xl, 
-                    fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                <Card.Body>
+                  <h3 style={{ 
+                    ...stylesPublic.typography.headings.h4,
                     color: stylesPublic.colors.text.primary, 
-                    marginBottom: stylesPublic.spacing.md 
+                    marginBottom: stylesPublic.spacing.scale[4] 
                   }}>
                     Misión
                   </h3>
                   {loadingNosotros ? (
-                    <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
-                      fontStyle: 'italic'
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minHeight: stylesPublic.spacing.scale[24]
                     }}>
-                      Cargando misión...
-                    </p>
+                      <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
+                        <span className="visually-hidden">Cargando...</span>
+                      </div>
+                    </div>
                   ) : (
                     <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                      ...stylesPublic.typography.body.base,
+                      color: stylesPublic.colors.text.secondary,
                       whiteSpace: 'pre-wrap'
                     }}>
-                      {nosotrosData.mision || 'Preservar y modernizar las técnicas artesanales huastecas, creando piezas únicas que celebren nuestra herencia cultural mientras apoyamos a las comunidades artesanas.'}
+                      {nosotrosData.mision || 'Preservar y modernizar las técnicas artesanales huastecas, creando piezas únicas que celebren nuestra herencia cultural mientras apoyamos a las comunidades locales con comercio justo y sostenible.'}
                     </p>
                   )}
                 </Card.Body>
@@ -299,29 +414,29 @@ const Nosotros = () => {
             </Col>
             <Col md={6}>
               <Card className="h-100" style={customStyles.card}>
-                <Card.Body>                  <h3 style={{ 
-                    fontFamily: stylesPublic.typography.fontFamily.heading, 
-                    fontSize: stylesPublic.typography.fontSize.xl, 
-                    fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                <Card.Body>
+                  <h3 style={{ 
+                    ...stylesPublic.typography.headings.h4,
                     color: stylesPublic.colors.text.primary, 
-                    marginBottom: stylesPublic.spacing.md 
+                    marginBottom: stylesPublic.spacing.scale[4] 
                   }}>
                     Visión
                   </h3>
                   {loadingNosotros ? (
-                    <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
-                      fontStyle: 'italic'
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minHeight: stylesPublic.spacing.scale[24]
                     }}>
-                      Cargando visión...
-                    </p>
+                      <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
+                        <span className="visually-hidden">Cargando...</span>
+                      </div>
+                    </div>
                   ) : (
                     <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                      ...stylesPublic.typography.body.base,
+                      color: stylesPublic.colors.text.secondary,
                       whiteSpace: 'pre-wrap'
                     }}>
                       {nosotrosData.vision || 'Ser reconocidos como el referente en moda artesanal huasteca, combinando tradición y diseño contemporáneo para llevar nuestra cultura al mundo.'}
@@ -336,75 +451,120 @@ const Nosotros = () => {
 
       {/* Colaboradores Section */}
       <section style={customStyles.colaboradoresSection}>
-        <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+        <Container style={customStyles.section}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             Nuestros Colaboradores
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.body, 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
             maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
           }}>
             Conoce a los colaboradores que hacen posible nuestra labor
           </p>
-            {loading ? (
-            <div className="text-center my-5">
-              <p>Cargando colaboradores...</p>
+          
+          {loading ? (
+            <div style={{ 
+              textAlign: "center", 
+              padding: stylesPublic.spacing.scale[12] 
+            }}>
+              <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+              <p style={{ 
+                ...stylesPublic.typography.body.base,
+                color: stylesPublic.colors.text.secondary,
+                marginTop: stylesPublic.spacing.scale[3]
+              }}>
+                Cargando colaboradores...
+              </p>
             </div>
-          ) : (
+          ) : colaboradores.length > 0 ? (
             <Row className="g-4">
               {colaboradores.map((colaborador, idx) => (
                 <Col md={4} key={idx}>
-                  <Card className="h-100" style={customStyles.card}>
-                    <Card.Body className="text-center">
+                  <Card className="team-card h-100" style={customStyles.card}>
+                    <Card.Body style={{ textAlign: "center" }}>
                       <Image 
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(colaborador.nombre)}&background=random&color=fff&size=150`}
+                        src={colaborador.imagen || `https://ui-avatars.com/api/?name=${encodeURIComponent(colaborador.nombre)}&background=random&color=fff&size=150`}
                         alt={colaborador.nombre} 
                         style={customStyles.teamImage}
-                      />                    <h3 style={{ 
-                        fontFamily: stylesPublic.typography.fontFamily.heading, 
-                        fontSize: stylesPublic.typography.fontSize.xl, 
-                        fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      />
+                      <h3 style={{ 
+                        ...stylesPublic.typography.headings.h5,
                         color: stylesPublic.colors.text.primary, 
-                        marginBottom: stylesPublic.spacing.xs 
+                        marginBottom: stylesPublic.spacing.scale[2] 
                       }}>
                         {colaborador.nombre}
                       </h3>
                       <p style={{ 
-                        fontFamily: stylesPublic.typography.fontFamily.body, 
-                        color: stylesPublic.colors.primary.main, 
-                        fontWeight: stylesPublic.typography.fontWeight.medium, 
-                        marginBottom: stylesPublic.spacing.md 
+                        ...stylesPublic.typography.body.base,
+                        color: stylesPublic.colors.primary[500], 
+                        fontWeight: stylesPublic.typography.weights.medium, 
+                        marginBottom: stylesPublic.spacing.scale[4] 
                       }}>
                         {colaborador.rol}
                       </p>
+                      {colaborador.descripcion && (
+                        <p style={{ 
+                          ...stylesPublic.typography.body.small,
+                          color: stylesPublic.colors.text.secondary
+                        }}>
+                          {colaborador.descripcion}
+                        </p>
+                      )}
                     </Card.Body>
                   </Card>
                 </Col>
               ))}
             </Row>
+          ) : (
+            <div style={{ 
+              textAlign: "center", 
+              padding: stylesPublic.spacing.scale[16] 
+            }}>
+              <div style={{ 
+                fontSize: stylesPublic.typography.scale["4xl"], 
+                color: stylesPublic.colors.text.tertiary, 
+                marginBottom: stylesPublic.spacing.scale[4] 
+              }}>
+                👥
+              </div>
+              <h3 style={{ 
+                ...stylesPublic.typography.headings.h4,
+                color: stylesPublic.colors.text.primary, 
+                marginBottom: stylesPublic.spacing.scale[4] 
+              }}>
+                Equipo en Construcción
+              </h3>
+              <p style={{ 
+                ...stylesPublic.typography.body.base,
+                color: stylesPublic.colors.text.secondary 
+              }}>
+                Estamos trabajando en presentar a nuestro increíble equipo de colaboradores.
+              </p>
+            </div>
           )}
         </Container>
       </section>
 
       {/* Valores Section */}
       <section style={customStyles.valoresSection}>
-        <Container style={customStyles.section}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-            color: "#ffffff", 
+        <Container style={customStyles.section}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.inverse, 
             textShadow: stylesPublic.shadows.sm, 
-            marginBottom: stylesPublic.spacing.lg 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             Nuestros Valores
             <span style={{ ...customStyles.titleUnderline, ...customStyles.whiteUnderline }}></span>
@@ -413,28 +573,24 @@ const Nosotros = () => {
           <Row className="g-4">
             {valores.map((valor, idx) => (
               <Col md={4} key={idx}>
-                <Card className="h-100" style={customStyles.card}>
-                  <Card.Body className="text-center">
+                <Card className="value-card h-100" style={customStyles.card}>
+                  <Card.Body style={{ textAlign: "center" }}>
                     <div style={{ 
                       ...customStyles.valueIcon, 
-                      background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : 
-                                  idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : 
-                                  "linear-gradient(135deg, #8840b8, #23102d)"
+                      background: valor.color
                     }}>
                       {valor.icon}
-                    </div>                    <h3 style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.heading, 
-                      fontSize: stylesPublic.typography.fontSize.xl, 
-                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                    </div>
+                    <h3 style={{ 
+                      ...stylesPublic.typography.headings.h5,
                       color: stylesPublic.colors.text.primary, 
-                      marginBottom: stylesPublic.spacing.md 
+                      marginBottom: stylesPublic.spacing.scale[4] 
                     }}>
                       {valor.titulo}
                     </h3>
                     <p style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.body, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph 
+                      ...stylesPublic.typography.body.base,
+                      color: stylesPublic.colors.text.secondary
                     }}>
                       {valor.descripcion}
                     </p>
@@ -448,27 +604,53 @@ const Nosotros = () => {
 
       {/* CTA Section */}
       <section style={customStyles.ctaSection}>
-        <Container style={{ ...customStyles.section, position: "relative", zIndex: 2, textAlign: "center" }}>          <h2 className="animate-in" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-            color: "#ffffff", 
-            marginBottom: stylesPublic.spacing.md, 
+        <Container style={{ 
+          ...customStyles.section, 
+          position: "relative", 
+          zIndex: stylesPublic.utils.zIndex.docked, 
+          textAlign: "center" 
+        }}>
+          <h2 className="animate-in" style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.inverse, 
+            marginBottom: stylesPublic.spacing.scale[4], 
             animationDelay: "0.3s" 
           }}>
             Únete a Nuestra Comunidad
           </h2>
           <p className="animate-in" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
-            color: "#ffffff", 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.inverse, 
             opacity: 0.75, 
             maxWidth: "700px", 
-            margin: `0 auto ${stylesPublic.spacing.xl}`, 
+            margin: `0 auto ${stylesPublic.spacing.scale[8]}`, 
             animationDelay: "0.5s" 
           }}>
             Descubre la belleza de la artesanía huasteca y forma parte de esta tradición
           </p>
+          <div className="animate-in" style={{ animationDelay: "0.7s" }}>
+            <button
+              style={{
+                ...stylesPublic.components.button.variants.primary,
+                ...stylesPublic.components.button.sizes.lg,
+                background: stylesPublic.colors.surface.primary,
+                color: stylesPublic.colors.primary[500],
+                border: `${stylesPublic.borders.width[2]}px solid ${stylesPublic.colors.surface.primary}`,
+                transition: stylesPublic.animations.transitions.base
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'transparent';
+                e.target.style.color = stylesPublic.colors.surface.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = stylesPublic.colors.surface.primary;
+                e.target.style.color = stylesPublic.colors.primary[500];
+              }}
+              onClick={() => window.location.href = '/contacto'}
+            >
+              Conoce Más Sobre Nosotros
+            </button>
+          </div>
         </Container>
       </section>
     </>

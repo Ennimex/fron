@@ -7,32 +7,6 @@ import api from '../../services/api';
 const Servicios = () => {
   const navigate = useNavigate();
   
-  // Estilos CSS para animaciones
-  const animationStyles = `
-    @keyframes pulse {
-      0%, 100% { opacity: 0.6; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.1); }
-    }
-    
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-in {
-      animation: fadeInUp 0.8s forwards;
-    }
-    
-    .service-card {
-      transition: all 0.3s ease;
-    }
-    
-    .service-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    }
-  `;
-
   const [isVisible, setIsVisible] = useState({
     hero: false,
     servicios: false,
@@ -43,8 +17,9 @@ const Servicios = () => {
   const [hoveredService, setHoveredService] = useState(null);
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    // Animaciones escalonadas como en Inicio.js
+    // Animaciones escalonadas progresivas
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, servicios: true })), 300);
     setTimeout(() => setIsVisible(prev => ({ ...prev, tecnicas: true })), 500);
@@ -81,99 +56,6 @@ const Servicios = () => {
     artesanos: "👐",
     exclusividad: "✨",
   }), []);
-  // Estilos consistentes con Inicio.js
-  const customStyles = {
-    heroSection: {
-      background: stylesPublic.colors.background.gradient.primary,
-      height: "60vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      textAlign: "center",
-      position: "relative",
-      opacity: isVisible.hero ? 1 : 0,
-      transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: stylesPublic.transitions.preset.pageIn,
-    },
-    heroOverlay: {
-      ...stylesPublic.utils.overlay.standard,
-      background: stylesPublic.elements.backgroundPatterns.floral,
-      opacity: 0.8,
-    },    section: {
-      padding: stylesPublic.spacing.section.large,
-      maxWidth: stylesPublic.utils.container.maxWidth,
-      margin: stylesPublic.spacing.margin.auto,
-      position: "relative",
-      '@media (max-width: 768px)': {
-        padding: stylesPublic.spacing.section.medium,
-      },
-      '@media (max-width: 480px)': {
-        padding: stylesPublic.spacing.section.small,
-      },
-    },
-    serviciosSection: {
-      background: stylesPublic.colors.background.gradient.secondary,
-      opacity: isVisible.servicios ? 1 : 0,
-      transform: isVisible.servicios ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-    },
-    beneficiosSection: {
-      background: `linear-gradient(135deg, #FFB199 0%, #F58DAD 100%)`,
-      opacity: isVisible.beneficios ? 1 : 0,
-      transform: isVisible.beneficios ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-    },
-    ctaSection: {
-      background: stylesPublic.colors.background.gradient.accent,
-      opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-      position: "relative",
-    },
-    titleUnderline: stylesPublic.elements.decorative.underline,
-    pinkButton: stylesPublic.elements.buttons.primary,
-    serviceCard: stylesPublic.elements.cards.default,    benefitIcon: {
-      ...stylesPublic.elements.decorative.circle,
-      fontSize: "1.8rem",
-      '@media (max-width: 768px)': {
-        fontSize: "1.5rem",
-      },
-      '@media (max-width: 480px)': {
-        fontSize: "1.2rem",
-      },
-    },
-  };
-  // Datos de técnicas artesanales para la nueva sección
-  /* const tecnicasArtesanales = useMemo(() => [
-    {
-      id: 'bordado',
-      titulo: 'Bordado Tradicional',
-      descripcion: 'Técnica ancestral de bordado a mano con motivos florales y geométricos característicos de la región Huasteca.',
-      icono: '🧵',
-      color: stylesPublic.colors.primary.main
-    },
-    {
-      id: 'telar',
-      titulo: 'Telar de Cintura',
-      descripcion: 'Método tradicional de tejido utilizado por las artesanas para crear textiles con patrones únicos y significativos.',
-      icono: '🧶',
-      color: stylesPublic.colors.secondary.main
-    },
-    {
-      id: 'tenido',
-      titulo: 'Teñido Natural',
-      descripcion: 'Uso de tintes naturales extraídos de plantas locales para lograr colores vibrantes y duraderos.',
-      icono: '🌿',
-      color: stylesPublic.colors.accent.orange
-    },
-    {
-      id: 'acabados',
-      titulo: 'Acabados Artesanales',
-      descripcion: 'Detalles finales que dan el toque distintivo a cada pieza, desde flecos hasta aplicaciones decorativas.',
-      icono: '✨',
-      color: stylesPublic.colors.accent.purple
-    }
-  ], []); */
 
   // Beneficios de la boutique
   const beneficiosData = useMemo(() => [
@@ -181,35 +63,182 @@ const Servicios = () => {
       id: 'calidad',
       titulo: "Calidad Superior", 
       descripcion: "Cada pieza es elaborada con los mejores materiales y técnicas artesanales.",
-      color: "linear-gradient(135deg, #ff0070, #ff1030)",
+      color: stylesPublic.colors.gradients.primary,
     },
     { 
       id: 'autenticidad',
       titulo: "Autenticidad", 
       descripcion: "Diseños que preservan la esencia cultural de la Huasteca.",
-      color: "linear-gradient(135deg, #1f8a80, #8840b8)",
+      color: stylesPublic.colors.gradients.secondary,
     },
     { 
       id: 'artesanos',
       titulo: "Artesanos Expertos", 
       descripcion: "Trabajamos directamente con maestros artesanos huastecos.",
-      color: "linear-gradient(135deg, #ff1030, #ff0070)",
+      color: `linear-gradient(135deg, ${stylesPublic.colors.primary[700]}, ${stylesPublic.colors.primary[500]})`,
     },
     { 
       id: 'exclusividad',
       titulo: "Exclusividad", 
       descripcion: "Piezas únicas y colecciones limitadas que no encontrarás en otro lugar.",
-      color: "linear-gradient(135deg, #8840b8, #23102d)",
+      color: `linear-gradient(135deg, ${stylesPublic.colors.secondary[700]}, ${stylesPublic.colors.neutral[800]})`,
     },
-  ], []);  // Renderizado de cards de servicios
-  const renderServiceCards = useCallback(() => {    if (loading) {
+  ], []);
+
+  // CSS usando exclusivamente tokens del sistema refactorizado
+  const animationStyles = `
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(${stylesPublic.spacing.scale[5]}); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-in {
+      animation: fadeInUp ${stylesPublic.animations.duration.slowest} forwards;
+    }
+    
+    .service-card {
+      transition: ${stylesPublic.animations.transitions.base};
+    }
+    
+    .service-card:hover {
+      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      box-shadow: ${stylesPublic.shadows.lg};
+    }
+
+    /* Responsive Design */
+    @media (max-width: ${stylesPublic.breakpoints.md}) {
+      .service-card {
+        margin-bottom: ${stylesPublic.spacing.scale[5]};
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale['2xl']} !important;
+      }
+      .hero-section p {
+        font-size: ${stylesPublic.typography.scale.base} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
+      .service-card {
+        padding: ${stylesPublic.spacing.scale[6]} !important;
+        margin-bottom: ${stylesPublic.spacing.scale[4]};
+      }
+      .hero-section {
+        padding: ${stylesPublic.spacing.scale[15]} 0 !important;
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.xl} !important;
+      }
+      .hero-section p {
+        font-size: ${stylesPublic.typography.scale.sm} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.xs}) {
+      .service-card {
+        padding: ${stylesPublic.spacing.scale[4]} !important;
+        text-align: center;
+      }
+      .hero-section h1 {
+        font-size: ${stylesPublic.typography.scale.lg} !important;
+      }
+    }
+  `;
+
+  // Estilos usando tokens del sistema refactorizado
+  const customStyles = {
+    heroSection: {
+      background: stylesPublic.colors.gradients.hero,
+      height: "60vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      position: "relative",
+      opacity: isVisible.hero ? 1 : 0,
+      transform: isVisible.hero ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[8]})`,
+      transition: stylesPublic.animations.transitions.slow,
+    },
+    heroOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
+      pointerEvents: 'none',
+      zIndex: 1,
+    },
+    section: {
+      padding: stylesPublic.spacing.sections.lg,
+      maxWidth: stylesPublic.utils.container.maxWidth['2xl'],
+      margin: stylesPublic.spacing.margins.auto,
+      position: "relative",
+    },
+    serviciosSection: {
+      background: stylesPublic.colors.gradients.warm,
+      opacity: isVisible.servicios ? 1 : 0,
+      transform: isVisible.servicios ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+    },
+    beneficiosSection: {
+      background: stylesPublic.colors.gradients.secondary,
+      opacity: isVisible.beneficios ? 1 : 0,
+      transform: isVisible.beneficios ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+    },
+    ctaSection: {
+      background: stylesPublic.colors.gradients.accent,
+      opacity: isVisible.cta ? 1 : 0,
+      transform: isVisible.cta ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+      position: "relative",
+    },
+    titleUnderline: {
+      display: 'block',
+      width: stylesPublic.spacing.scale[20],
+      height: stylesPublic.spacing.scale[1],
+      background: stylesPublic.colors.gradients.accent,
+      borderRadius: stylesPublic.borders.radius.sm,
+      margin: `${stylesPublic.spacing.scale[4]} auto`,
+    },
+    whiteUnderline: {
+      background: stylesPublic.colors.surface.primary,
+      boxShadow: stylesPublic.shadows.sm,
+    },
+    serviceCard: {
+      ...stylesPublic.components.card.base,
+      padding: stylesPublic.spacing.scale[8],
+    },
+    benefitIcon: {
+      width: stylesPublic.spacing.scale[18],
+      height: stylesPublic.spacing.scale[18],
+      borderRadius: stylesPublic.borders.radius.full,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: stylesPublic.typography.scale['2xl'],
+      margin: `0 auto ${stylesPublic.spacing.scale[6]}`,
+      boxShadow: stylesPublic.shadows.brand.primary
+    },
+  };
+
+  // Renderizado de cards de servicios
+  const renderServiceCards = useCallback(() => {
+    if (loading) {
       return (
         <Row className="g-4 justify-content-center">
           {[1, 2, 3, 4].map((item) => (
             <Col md={6} lg={3} key={item}>
               <div style={{
-                padding: stylesPublic.spacing.xl,
-                backgroundColor: stylesPublic.colors.background.main,
+                padding: stylesPublic.spacing.scale[8],
+                backgroundColor: stylesPublic.colors.surface.primary,
                 borderRadius: stylesPublic.borders.radius.lg,
                 textAlign: 'center',
                 minHeight: '300px',
@@ -219,12 +248,12 @@ const Servicios = () => {
                 boxShadow: stylesPublic.shadows.sm
               }}>
                 <div style={{
-                  fontSize: stylesPublic.typography.fontSize["2xl"],
-                  marginBottom: stylesPublic.spacing.md,
+                  fontSize: stylesPublic.typography.scale["2xl"],
+                  marginBottom: stylesPublic.spacing.scale[4],
                   animation: 'pulse 1.5s infinite'
                 }}>⏳</div>
                 <p style={{ 
-                  fontSize: stylesPublic.typography.fontSize.md,
+                  ...stylesPublic.typography.body.base,
                   color: stylesPublic.colors.text.secondary,
                   margin: 0
                 }}>
@@ -235,7 +264,9 @@ const Servicios = () => {
           ))}
         </Row>
       );
-    }    if (servicios.length === 0) {
+    }
+
+    if (servicios.length === 0) {
       // Servicios principales que manejamos
       const serviciosPredeterminados = [
         {
@@ -248,19 +279,19 @@ const Servicios = () => {
           _id: 'accesorios',
           titulo: 'Accesorios Artesanales',
           descripcion: 'Creación de complementos únicos como rebozos, bolsos, joyería textil y elementos decorativos que realzan tu estilo personal.',
-          icono: '�'
+          icono: '💍'
         }
       ];
 
       return serviciosPredeterminados.map((servicio, idx) => (
         <Col md={6} key={servicio._id} className="mb-4">
           <Card 
-            className="service-card h-100 shadow" 
+            className="service-card h-100" 
             style={{ 
               ...customStyles.serviceCard,
-              transform: hoveredService === servicio._id ? stylesPublic.elements.cards.hover.transform : "translateY(0)",
-              borderLeft: `${stylesPublic.borders.width.thick} solid ${
-                idx === 0 ? stylesPublic.colors.primary.main : stylesPublic.colors.secondary.main
+              transform: hoveredService === servicio._id ? `translateY(-${stylesPublic.spacing.scale[2]})` : "translateY(0)",
+              borderLeft: `${stylesPublic.borders.width[4]}px solid ${
+                idx === 0 ? stylesPublic.colors.primary[500] : stylesPublic.colors.secondary[500]
               }`,
               minHeight: '350px'
             }}
@@ -268,27 +299,24 @@ const Servicios = () => {
             onMouseLeave={() => setHoveredService(null)}
           >
             <div style={{ 
-              fontSize: stylesPublic.typography.fontSize["3xl"], 
-              marginBottom: stylesPublic.spacing.md,
-              padding: `${stylesPublic.spacing.lg} ${stylesPublic.spacing.md} 0`,
+              fontSize: stylesPublic.typography.scale["3xl"], 
+              marginBottom: stylesPublic.spacing.scale[4],
+              padding: `${stylesPublic.spacing.scale[6]} ${stylesPublic.spacing.scale[4]} 0`,
               textAlign: 'center'
             }}>
               {servicio.icono}
             </div>
             <Card.Body style={{ display: 'flex', flexDirection: 'column' }}>
               <h3 style={{ 
-                fontFamily: stylesPublic.typography.fontFamily.heading, 
-                fontSize: stylesPublic.typography.fontSize.xl, 
-                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                ...stylesPublic.typography.headings.h4,
                 color: stylesPublic.colors.text.primary, 
-                marginBottom: stylesPublic.spacing.md 
+                marginBottom: stylesPublic.spacing.scale[4] 
               }}>
                 {servicio.titulo}
               </h3>
               <p style={{ 
-                fontSize: stylesPublic.typography.fontSize.sm, 
-                color: stylesPublic.colors.text.secondary, 
-                lineHeight: stylesPublic.typography.lineHeight.paragraph,
+                ...stylesPublic.typography.body.small,
+                color: stylesPublic.colors.text.secondary,
                 flexGrow: 1
               }}>
                 {servicio.descripcion}
@@ -300,16 +328,17 @@ const Servicios = () => {
     }
 
     return servicios.map((servicio, idx) => (
-      <Col md={6} lg={3} key={servicio._id} className="mb-4">        <Card 
-          className="service-card h-100 shadow" 
+      <Col md={6} lg={3} key={servicio._id} className="mb-4">
+        <Card 
+          className="service-card h-100" 
           style={{ 
             ...customStyles.serviceCard,
-            transform: hoveredService === servicio._id ? stylesPublic.elements.cards.hover.transform : "translateY(0)",
-            borderLeft: `${stylesPublic.borders.width.thick} solid ${
-              idx === 0 ? stylesPublic.colors.primary.main : 
-              idx === 1 ? stylesPublic.colors.secondary.main : 
-              idx === 2 ? stylesPublic.colors.accent.orange : 
-              stylesPublic.colors.accent.purple
+            transform: hoveredService === servicio._id ? `translateY(-${stylesPublic.spacing.scale[2]})` : "translateY(0)",
+            borderLeft: `${stylesPublic.borders.width[4]}px solid ${
+              idx === 0 ? stylesPublic.colors.primary[500] : 
+              idx === 1 ? stylesPublic.colors.secondary[500] : 
+              idx === 2 ? stylesPublic.colors.semantic.warning.main : 
+              stylesPublic.colors.secondary[700]
             }`,
           }}
           onMouseEnter={() => setHoveredService(servicio._id)}
@@ -323,47 +352,50 @@ const Servicios = () => {
               alt={servicio.titulo || servicio.nombre}
               style={{
                 height: '200px',
-                objectFit: 'cover'
+                objectFit: 'cover',
+                borderRadius: `${stylesPublic.borders.radius.lg} ${stylesPublic.borders.radius.lg} 0 0`
               }}
             />
           )}
           <div style={{ 
-            fontSize: stylesPublic.typography.fontSize["2xl"], 
-            marginBottom: stylesPublic.spacing.md,
-            padding: stylesPublic.spacing.md,
+            fontSize: stylesPublic.typography.scale["2xl"], 
+            marginBottom: stylesPublic.spacing.scale[4],
+            padding: stylesPublic.spacing.scale[4],
             textAlign: 'center'
           }}>
             {/* Usar el icono del servicio si está disponible, o un icono por defecto */}
             {servicio.icono || ServiceIcons[Object.keys(ServiceIcons)[idx % Object.keys(ServiceIcons).length]]}
           </div>
-          <Card.Body>            <h3 style={{ 
-              fontFamily: stylesPublic.typography.fontFamily.heading, 
-              fontSize: stylesPublic.typography.fontSize.xl, 
-              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+          <Card.Body>
+            <h3 style={{ 
+              ...stylesPublic.typography.headings.h4,
               color: stylesPublic.colors.text.primary, 
-              marginBottom: stylesPublic.spacing.md 
+              marginBottom: stylesPublic.spacing.scale[4] 
             }}>
               {servicio.titulo || servicio.nombre}
-            </h3>            <p style={{ 
-              fontSize: stylesPublic.typography.fontSize.sm, 
-              color: stylesPublic.colors.text.secondary, 
-              lineHeight: stylesPublic.typography.lineHeight.paragraph 
+            </h3>
+            <p style={{ 
+              ...stylesPublic.typography.body.small,
+              color: stylesPublic.colors.text.secondary
             }}>
               {servicio.descripcion}
             </p>
           </Card.Body>
         </Card>
-      </Col>    ));
+      </Col>
+    ));
   }, [servicios, loading, hoveredService, ServiceIcons, customStyles.serviceCard]);
+
   // Renderizado de beneficios
   const renderBenefitCards = useCallback(() => {
     return beneficiosData.map((beneficio, idx) => (
       <Col md={6} lg={3} key={idx} className="mb-4">
         <Card 
-          className="h-100 shadow" 
+          className="h-100" 
           style={{ 
-            ...stylesPublic.elements.cards.default,
+            ...stylesPublic.components.card.base,
             textAlign: "center",
+            padding: stylesPublic.spacing.scale[8]
           }}
         >
           <div style={{ 
@@ -374,18 +406,15 @@ const Servicios = () => {
           </div>
           <Card.Body>
             <h3 style={{ 
-              fontFamily: stylesPublic.typography.fontFamily.heading, 
-              fontSize: stylesPublic.typography.fontSize.lg, 
-              fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+              ...stylesPublic.typography.headings.h5,
               color: stylesPublic.colors.text.primary, 
-              marginBottom: stylesPublic.spacing.md 
+              marginBottom: stylesPublic.spacing.scale[4] 
             }}>
               {beneficio.titulo}
             </h3>
             <p style={{ 
-              fontSize: stylesPublic.typography.fontSize.sm, 
-              color: stylesPublic.colors.text.secondary, 
-              lineHeight: stylesPublic.typography.lineHeight.paragraph 
+              ...stylesPublic.typography.body.small,
+              color: stylesPublic.colors.text.secondary
             }}>
               {beneficio.descripcion}
             </p>
@@ -398,70 +427,68 @@ const Servicios = () => {
   return (
     <>
       <style>{animationStyles}</style>
+      
       {/* Hero Section */}
       <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
         <Container style={{ 
           position: "relative", 
-          zIndex: stylesPublic.utils.zIndex.raised, 
-          maxWidth: "900px", 
-          padding: stylesPublic.spacing.section.medium 
+          zIndex: stylesPublic.utils.zIndex.docked, 
+          maxWidth: stylesPublic.utils.container.maxWidth.lg, 
+          padding: stylesPublic.spacing.scale[8]
         }}>
           <h1 className="animate-in" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: "clamp(3rem, 6vw, 5rem)", 
-            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            ...stylesPublic.typography.headings.h1,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg, 
-            letterSpacing: stylesPublic.typography.letterSpacing.tight, 
-            lineHeight: stylesPublic.typography.lineHeight.tight, 
+            marginBottom: stylesPublic.spacing.scale[6], 
             animationDelay: "0.3s" 
           }}>
             Servicios Exclusivos
           </h1>
           <div className="animate-in" style={{ 
-            width: "80px", 
-            height: "2px", 
-            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main}, transparent)`, 
-            margin: "0 auto 2rem", 
+            ...customStyles.titleUnderline,
             animationDelay: "0.9s" 
           }}></div>
           <p className="animate-in" style={{ 
-            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
-            marginBottom: stylesPublic.spacing["3xl"], 
-            letterSpacing: stylesPublic.typography.letterSpacing.wide, 
+            marginBottom: stylesPublic.spacing.scale[12], 
             animationDelay: "0.6s" 
           }}>
             Descubre nuestros servicios artesanales que celebran la tradición huasteca
           </p>
-          <Button className="animate-in" style={{ 
-            ...customStyles.pinkButton, 
-            animationDelay: "1.2s" 
-          }} onClick={() => navigate("/contacto")}>
+          <Button 
+            className="animate-in" 
+            style={{ 
+              ...stylesPublic.components.button.variants.primary,
+              ...stylesPublic.components.button.sizes.lg,
+              animationDelay: "1.2s" 
+            }} 
+            onClick={() => navigate("/contacto")}
+          >
             Contáctanos
           </Button>
         </Container>
-      </section>      {/* Servicios Section */}
+      </section>
+
+      {/* Servicios Section */}
       <section style={customStyles.serviciosSection}>
         <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             Nuestros Servicios
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
             maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
           }}>
             Ofrecemos una experiencia única en diseño y confección de moda huasteca
           </p>
@@ -473,33 +500,33 @@ const Servicios = () => {
           <Row className="mt-5">
             <Col xs={12} className="text-center">
               <div style={{
-                background: stylesPublic.colors.background.main,
-                padding: stylesPublic.spacing.xl,
+                background: stylesPublic.colors.surface.primary,
+                padding: stylesPublic.spacing.scale[12],
                 borderRadius: stylesPublic.borders.radius.lg,
                 boxShadow: stylesPublic.shadows.sm,
                 maxWidth: '800px',
                 margin: '0 auto'
               }}>
                 <h3 style={{
-                  fontFamily: stylesPublic.typography.fontFamily.heading,
-                  fontSize: stylesPublic.typography.fontSize.xl,
-                  fontWeight: stylesPublic.typography.fontWeight.semiBold,
+                  ...stylesPublic.typography.headings.h4,
                   color: stylesPublic.colors.text.primary,
-                  marginBottom: stylesPublic.spacing.md
+                  marginBottom: stylesPublic.spacing.scale[4]
                 }}>
                   ¿Necesitas algo personalizado?
                 </h3>
                 <p style={{
-                  fontSize: stylesPublic.typography.fontSize.md,
+                  ...stylesPublic.typography.body.base,
                   color: stylesPublic.colors.text.secondary,
-                  lineHeight: stylesPublic.typography.lineHeight.paragraph,
-                  marginBottom: stylesPublic.spacing.lg
+                  marginBottom: stylesPublic.spacing.scale[8]
                 }}>
                   Trabajamos contigo para crear servicios personalizados que se adapten a tus necesidades específicas. 
                   Desde eventos especiales hasta colecciones exclusivas.
                 </p>
                 <Button 
-                  style={customStyles.pinkButton}
+                  style={{
+                    ...stylesPublic.components.button.variants.primary,
+                    ...stylesPublic.components.button.sizes.base
+                  }}
                   onClick={() => navigate("/contacto")}
                 >
                   Solicitar Información
@@ -508,30 +535,31 @@ const Servicios = () => {
             </Col>
           </Row>
         </Container>
-      </section>      {/* Beneficios Section */}
+      </section>
+
+      {/* Beneficios Section */}
       <section style={customStyles.beneficiosSection}>
         <Container style={customStyles.section}>
-          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-            color: "#ffffff", 
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.inverse, 
             textShadow: stylesPublic.shadows.sm, 
-            marginBottom: stylesPublic.spacing.lg 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             Beneficios Exclusivos
             <span style={{ 
               ...customStyles.titleUnderline, 
-              background: "#ffffff" 
+              ...customStyles.whiteUnderline
             }}></span>
           </h2>
-          <p className="text-center" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
-            color: "#ffffff", 
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.inverse, 
             textShadow: stylesPublic.shadows.sm, 
             maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
           }}>
             Razones para elegir los servicios de La Aterciopelada
           </p>
@@ -539,36 +567,46 @@ const Servicios = () => {
             {renderBenefitCards()}
           </Row>
         </Container>
-      </section>      {/* CTA Section */}
+      </section>
+
+      {/* CTA Section */}
       <section style={customStyles.ctaSection}>
         <Container style={{ 
           ...customStyles.section, 
           position: "relative", 
-          zIndex: stylesPublic.utils.zIndex.raised, 
+          zIndex: stylesPublic.utils.zIndex.docked, 
           textAlign: "center" 
         }}>
           <h2 className="animate-in" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-            color: "#ffffff", 
-            marginBottom: stylesPublic.spacing.md, 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.inverse, 
+            marginBottom: stylesPublic.spacing.scale[4], 
             animationDelay: "0.3s" 
           }}>
             Descubre la Experiencia Aterciopelada
           </h2>
           <p className="animate-in" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
-            color: "#ffffff", 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.inverse, 
             opacity: 0.9, 
             maxWidth: "700px", 
-            margin: `0 auto ${stylesPublic.spacing.xl}`, 
+            margin: `0 auto ${stylesPublic.spacing.scale[8]}`, 
             animationDelay: "0.5s" 
           }}>
             Cada servicio que ofrecemos está diseñado para celebrar la rica tradición textil de la Huasteca, 
             combinando técnicas ancestrales con diseños contemporáneos para crear piezas verdaderamente únicas.
           </p>
+          <Button 
+            className="animate-in" 
+            style={{ 
+              ...stylesPublic.components.button.variants.primary,
+              ...stylesPublic.components.button.sizes.lg,
+              animationDelay: "0.7s" 
+            }} 
+            onClick={() => navigate("/contacto")}
+          >
+            Explorar Servicios
+          </Button>
         </Container>
       </section>
     </>

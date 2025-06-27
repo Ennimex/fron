@@ -29,29 +29,25 @@ const Inicio = () => {
 
   // Función para obtener un icono consistente basado en el nombre de la localidad
   const getLocalidadIcon = (nombre) => {
-    // Hashear el nombre para obtener un valor numérico consistente
     const hash = nombre.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     
-    // Lista de iconos disponibles con sus colores
     const iconos = [
-      { icon: <FaMountain size={32} />, color: "linear-gradient(135deg, #ff0070, #ff1030)" },
-      { icon: <FaWater size={32} />, color: "linear-gradient(135deg, #1f8a80, #8840b8)" },
-      { icon: <FaLeaf size={32} />, color: "linear-gradient(135deg, #4CAF50, #8BC34A)" },
-      { icon: <FaTree size={32} />, color: "linear-gradient(135deg, #3E2723, #795548)" },
-      { icon: <FaUmbrellaBeach size={32} />, color: "linear-gradient(135deg, #FF9800, #FFC107)" },
-      { icon: <FaCity size={32} />, color: "linear-gradient(135deg, #607D8B, #9E9E9E)" },
-      { icon: <FaMonument size={32} />, color: "linear-gradient(135deg, #795548, #5D4037)" },
-      { icon: <FaLandmark size={32} />, color: "linear-gradient(135deg, #9C27B0, #673AB7)" },
-      { icon: <FaSeedling size={32} />, color: "linear-gradient(135deg, #2E7D32, #4CAF50)" },
-      { icon: <FaMapMarkedAlt size={32} />, color: "linear-gradient(135deg, #2196F3, #03A9F4)" }
+      { icon: <FaMountain size={32} />, color: stylesPublic.colors.gradients.primary },
+      { icon: <FaWater size={32} />, color: stylesPublic.colors.gradients.secondary },
+      { icon: <FaLeaf size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.success.main}, ${stylesPublic.colors.semantic.success.light})` },
+      { icon: <FaTree size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.neutral[800]}, ${stylesPublic.colors.neutral[600]})` },
+      { icon: <FaUmbrellaBeach size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.warning.main}, ${stylesPublic.colors.semantic.warning.light})` },
+      { icon: <FaCity size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.neutral[600]}, ${stylesPublic.colors.neutral[400]})` },
+      { icon: <FaMonument size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.neutral[700]}, ${stylesPublic.colors.neutral[500]})` },
+      { icon: <FaLandmark size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.secondary[600]}, ${stylesPublic.colors.secondary[400]})` },
+      { icon: <FaSeedling size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.success.dark}, ${stylesPublic.colors.semantic.success.main})` },
+      { icon: <FaMapMarkedAlt size={32} />, color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.info.main}, ${stylesPublic.colors.semantic.info.light})` }
     ];
     
-    // Seleccionar un icono basado en el hash (siempre el mismo para la misma localidad)
     return iconos[hash % iconos.length];
   };
 
   useEffect(() => {
-    // Datos estáticos para fallback de localidades (declarados dentro del useEffect)
     const regions = [
       { nombre: "Huasteca Potosina", descripcion: "Cuna de técnicas ancestrales donde cada puntada cuenta la historia de generaciones de maestras artesanas." },
       { nombre: "Huasteca Veracruzana", descripcion: "Paleta cromática rica en matices naturales que captura la esencia tropical de la región." },
@@ -59,27 +55,20 @@ const Inicio = () => {
       { nombre: "Huasteca Tamaulipas", descripcion: "Convergencia de influencias que enriquecen nuestra identidad textil contemporánea." },
     ];
 
-    // Cargar categorías desde la API
     const cargarCategorias = async () => {
       try {
         setIsLoading(true);
         const response = await axios.get('http://localhost:5000/api/public/categorias');
         
         if (response.data && response.data.length > 0) {
-          // Mapear los datos de la API al formato requerido (adaptado para la estructura real)
-          const categoriasData = response.data.map(categoria => {
-            return {
-              nombre: categoria.nombre,
-              cantidad: categoria.productos?.length || 0,
-              imagen: categoria.imagenURL || '', // Usar imagenURL de Cloudinary
-              descripcion: categoria.descripcion || `Colección de ${categoria.nombre.toLowerCase()} con detalles artesanales únicos`,
-            };
-          });
-          console.log('Categorías cargadas:', categoriasData);
+          const categoriasData = response.data.map(categoria => ({
+            nombre: categoria.nombre,
+            cantidad: categoria.productos?.length || 0,
+            imagen: categoria.imagenURL || '',
+            descripcion: categoria.descripcion || `Colección de ${categoria.nombre.toLowerCase()} con detalles artesanales únicos`,
+          }));
           setCategorias(categoriasData);
         } else {
-          console.log('No se encontraron categorías en la API, usando datos locales');
-          // Fallback a las categorías basadas en productos locales si la API no devuelve datos
           const categoriasUnicas = [...new Set(productos.map(p => p.category))];
           const categoriasData = categoriasUnicas.map(categoria => {
             const productosCategoria = productos.filter(p => p.category === categoria);
@@ -94,7 +83,6 @@ const Inicio = () => {
         }
       } catch (error) {
         console.error("Error al cargar categorías:", error);
-        // Fallback a las categorías basadas en productos locales en caso de error
         const categoriasUnicas = [...new Set(productos.map(p => p.category))];
         const categoriasData = categoriasUnicas.map(categoria => {
           const productosCategoria = productos.filter(p => p.category === categoria);
@@ -111,23 +99,18 @@ const Inicio = () => {
       }
     };
 
-    // Cargar localidades desde la API
     const cargarLocalidades = async () => {
       try {
         setIsLoadingLocalidades(true);
         const response = await axios.get('http://localhost:5000/api/public/localidades');
         
         if (response.data && response.data.length > 0) {
-          console.log('Localidades cargadas:', response.data);
           setLocalidades(response.data);
         } else {
-          console.log('No se encontraron localidades en la API, usando datos estáticos');
-          // Fallback a datos estáticos si la API no devuelve datos
           setLocalidades(regions);
         }
       } catch (error) {
         console.error("Error al cargar localidades:", error);
-        // Fallback a datos estáticos en caso de error
         setLocalidades(regions);
       } finally {
         setIsLoadingLocalidades(false);
@@ -137,7 +120,7 @@ const Inicio = () => {
     cargarCategorias();
     cargarLocalidades();
     
-    // Animaciones
+    // Animaciones progresivas
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, reasons: true })), 500);
     setTimeout(() => setIsVisible(prev => ({ ...prev, regions: true })), 900);
@@ -160,7 +143,6 @@ const Inicio = () => {
     setComentarioTexto('');
   };
 
-  // Actualizar clothingItems con datos reales y agregar manejo de clicks
   const clothingItems = categorias.map(cat => ({
     image: cat.imagen,
     name: cat.nombre,
@@ -175,61 +157,104 @@ const Inicio = () => {
     { name: "Conexión Cultural", description: "Cada creación celebra la rica herencia huasteca, conectándote con siglos de historia y tradición." },
   ];
 
-  // Actualizar clothingItems con datos reales
   const collections = [
     { icon: "👗", title: "Alta Costura Tradicional", description: "Piezas únicas de vestimenta ceremonial y cotidiana, donde cada bordado narra historias ancestrales." },
     { icon: "✨", title: "Accesorios de Autor", description: "Complementos exclusivos que elevan cualquier atuendo, desde rebozos hasta joyería textil." },
-  ];  const animationStyles = `
+  ];
+
+  // CSS con tokens del sistema refactorizado
+  const animationStyles = `
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
+      from { opacity: 0; transform: translateY(${stylesPublic.spacing.scale[8]}); }
       to { opacity: 1; transform: translateY(0); }
     }
+    
     @keyframes float {
-      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
-      50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
+      0%, 100% { 
+        transform: translateY(0px) scale(1); 
+        opacity: 0.6; 
+      }
+      50% { 
+        transform: translateY(-${stylesPublic.spacing.scale[5]}) scale(1.2); 
+        opacity: 0.8; 
+      }
     }
-    .animate-in { animation: fadeInUp 0.8s forwards; }
+    
+    .animate-in { 
+      animation: fadeInUp ${stylesPublic.animations.duration.slowest} forwards; 
+    }
+    
     .reason-card, .region-card, .clothing-card, .collection-card {
-      transition: ${stylesPublic.transitions.preset.bounce};
-      border: ${stylesPublic.borders.style.accent};
+      transition: ${stylesPublic.animations.transitions.base};
+      border: ${stylesPublic.borders.width[1]}px solid ${stylesPublic.borders.colors.default};
+      border-radius: ${stylesPublic.borders.radius.lg};
     }
+    
     .reason-card:hover, .region-card:hover, .clothing-card:hover, .collection-card:hover {
-      transform: translateY(-10px);
-      box-shadow: ${stylesPublic.shadows.hover};
-      border-color: ${stylesPublic.colors.primary.main};
+      transform: translateY(-${stylesPublic.spacing.scale[3]});
+      box-shadow: ${stylesPublic.shadows.lg};
+      border-color: ${stylesPublic.colors.primary[500]};
     }
+    
     .reason-card:nth-child(1), .clothing-card:nth-child(1), .region-card:nth-child(1), .collection-card:nth-child(1) { 
-      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.main}; 
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[500]}; 
     }
     .reason-card:nth-child(2), .clothing-card:nth-child(2), .region-card:nth-child(2), .collection-card:nth-child(2) { 
-      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.secondary.main}; 
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.secondary[500]}; 
     }
     .reason-card:nth-child(3), .clothing-card:nth-child(3), .region-card:nth-child(3), .collection-card:nth-child(3) { 
-      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.primary.dark}; 
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[700]}; 
     }
     .reason-card:nth-child(4), .clothing-card:nth-child(4), .region-card:nth-child(4), .collection-card:nth-child(4) { 
-      border-left: ${stylesPublic.borders.width.thicker} solid ${stylesPublic.colors.accent.purple}; 
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.secondary[700]}; 
     }
-    .clothing-image { transition: ${stylesPublic.transitions.preset.default}; }
-    .clothing-card:hover .clothing-image { transform: scale(1.05); }
-    .collection-icon { transition: ${stylesPublic.transitions.preset.default}; }
-    .collection-card:hover .collection-icon { transform: scale(1.1); }
+    
+    .clothing-image { 
+      transition: ${stylesPublic.animations.transitions.transform}; 
+    }
+    .clothing-card:hover .clothing-image { 
+      transform: scale(1.05); 
+    }
+    
+    .collection-icon { 
+      transition: ${stylesPublic.animations.transitions.transform}; 
+    }
+    .collection-card:hover .collection-icon { 
+      transform: scale(1.1); 
+    }
+    
     .floating-element {
       position: fixed;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
+      width: ${stylesPublic.spacing.scale[1]};
+      height: ${stylesPublic.spacing.scale[1]};
+      border-radius: ${stylesPublic.borders.radius.full};
       opacity: 0.7;
       animation: float 8s ease-in-out infinite;
+      pointer-events: none;
     }
-    .floating-element:nth-child(1) { top: 20%; left: 10%; background: ${stylesPublic.colors.primary.main}; }
-    .floating-element:nth-child(2) { top: 60%; right: 15%; background: ${stylesPublic.colors.secondary.main}; animation-delay: 2s; }
-    .floating-element:nth-child(3) { bottom: 30%; left: 20%; background: ${stylesPublic.colors.primary.dark}; animation-delay: 4s; }
     
-    /* Media queries para responsividad */
-    @media (max-width: 768px) {
+    .floating-element:nth-child(1) { 
+      top: 20%; 
+      left: 10%; 
+      background: ${stylesPublic.colors.primary[500]}; 
+    }
+    .floating-element:nth-child(2) { 
+      top: 60%; 
+      right: 15%; 
+      background: ${stylesPublic.colors.secondary[500]}; 
+      animation-delay: 2s; 
+    }
+    .floating-element:nth-child(3) { 
+      bottom: 30%; 
+      left: 20%; 
+      background: ${stylesPublic.colors.primary[700]}; 
+      animation-delay: 4s; 
+    }
+    
+    /* Responsividad */
+    @media (max-width: ${stylesPublic.breakpoints.md}) {
       .reason-card, .region-card, .clothing-card, .collection-card {
-        margin-bottom: 1rem;
+        margin-bottom: ${stylesPublic.spacing.scale[4]};
       }
       .clothing-image {
         max-width: 150px !important;
@@ -240,23 +265,23 @@ const Inicio = () => {
       }
     }
     
-    @media (max-width: 576px) {
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
       .reason-card, .region-card, .clothing-card, .collection-card {
-        padding: 1.5rem 1rem !important;
-        margin-bottom: 0.75rem;
+        padding: ${stylesPublic.spacing.scale[6]} ${stylesPublic.spacing.scale[4]} !important;
+        margin-bottom: ${stylesPublic.spacing.scale[3]};
       }
       .clothing-image {
         max-width: 120px !important;
         height: 100px !important;
       }
       .collection-card {
-        padding: 2rem 1.5rem !important;
+        padding: ${stylesPublic.spacing.scale[8]} ${stylesPublic.spacing.scale[6]} !important;
       }
     }
     
-    @media (max-width: 480px) {
+    @media (max-width: ${stylesPublic.breakpoints.xs}) {
       .reason-card, .region-card, .clothing-card, .collection-card {
-        padding: 1rem !important;
+        padding: ${stylesPublic.spacing.scale[4]} !important;
         text-align: center;
       }
       .clothing-image {
@@ -265,13 +290,11 @@ const Inicio = () => {
       }
     }
   `;
-  // Aplicamos los estilos centralizados del stylesPublic, añadiendo estados de visibilidad
+
+  // Estilos usando tokens del sistema refactorizado
   const styles = {
-    pageContainer: {
-      background: stylesPublic.colors.background.gradient.primary,
-    },
     heroSection: {
-      background: stylesPublic.colors.background.gradient.primary,
+      background: stylesPublic.colors.gradients.hero,
       height: "85vh",
       display: "flex",
       alignItems: "center",
@@ -279,87 +302,114 @@ const Inicio = () => {
       textAlign: "center",
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
-      transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
-      transition: stylesPublic.transitions.preset.pageIn,
+      transform: isVisible.hero ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[8]})`,
+      transition: stylesPublic.animations.transitions.slow,
     },
     heroOverlay: {
-      ...stylesPublic.utils.overlay.standard,
-      background: stylesPublic.elements.backgroundPatterns.floral,
-      opacity: 0.8,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backdropFilter: "blur(2px)",
+      opacity: 0.3,
+      pointerEvents: 'none',
+      zIndex: 1,
     },
     section: {
-      padding: stylesPublic.spacing.section.large,
-      maxWidth: stylesPublic.utils.container.maxWidth,
-      margin: stylesPublic.spacing.margin.auto,
+      padding: stylesPublic.spacing.sections.lg,
+      maxWidth: stylesPublic.utils.container.maxWidth['2xl'],
+      margin: stylesPublic.spacing.margins.auto,
       position: "relative",
     },
     reasonsSection: {
-      background: `linear-gradient(to bottom, #FFE0B2, #FFD180)`,
+      background: stylesPublic.colors.gradients.warm,
       opacity: isVisible.reasons ? 1 : 0,
-      transform: isVisible.reasons ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.reasons ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
     },
     regionsSection: {
-      background: `linear-gradient(135deg, #FFB74D 0%, #FF8A65 100%)`,
+      background: stylesPublic.colors.gradients.secondary,
       opacity: isVisible.regions ? 1 : 0,
-      transform: isVisible.regions ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.regions ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
     },
     regionsOverlay: {
-      ...stylesPublic.utils.overlay.standard,
-      background: stylesPublic.elements.backgroundPatterns.geometric,
-      opacity: 0.8,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
+      pointerEvents: 'none',
+      zIndex: 1,
     },
     clothingSection: {
       opacity: isVisible.clothing ? 1 : 0,
-      transform: isVisible.clothing ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-      background: stylesPublic.colors.background.gradient.secondary,
+      transform: isVisible.clothing ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+      background: stylesPublic.colors.gradients.warm,
     },
     collectionsSection: {
-      background: `linear-gradient(135deg, #FF8A65 0%, #FF5252 100%)`,
+      background: stylesPublic.colors.gradients.primary,
       opacity: isVisible.collections ? 1 : 0,
-      transform: isVisible.collections ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.collections ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
     },
     collectionsOverlay: {
-      ...stylesPublic.utils.overlay.standard,
-      background: stylesPublic.elements.backgroundPatterns.geometric,
-      opacity: 0.8,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
+      pointerEvents: 'none',
+      zIndex: 1,
     },
     commentsSection: {
       opacity: isVisible.comments ? 1 : 0,
-      transform: isVisible.comments ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-      background: stylesPublic.colors.background.gradient.secondary,
+      transform: isVisible.comments ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+      background: stylesPublic.colors.gradients.warm,
     },
     ctaSection: {
-      background: stylesPublic.colors.background.gradient.accent,
+      background: stylesPublic.colors.gradients.accent,
       opacity: isVisible.cta ? 1 : 0,
-      transform: isVisible.cta ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
+      transform: isVisible.cta ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
       position: "relative",
     },
-    ctaOverlay: {
-      ...stylesPublic.utils.overlay.radial,
+    ctaOverlay: stylesPublic.utils.overlay.blur,
+    titleUnderline: {
+      display: 'block',
+      width: stylesPublic.spacing.scale[20],
+      height: stylesPublic.spacing.scale[1],
+      background: stylesPublic.colors.gradients.accent,
+      borderRadius: stylesPublic.borders.radius.sm,
+      margin: `${stylesPublic.spacing.scale[4]} auto`,
     },
-    titleUnderline: stylesPublic.elements.decorative.underline,
     whiteUnderline: {
-      background: `#ffffff`,
+      background: stylesPublic.colors.neutral[0],
       boxShadow: stylesPublic.shadows.sm,
     },
-    pinkButton: stylesPublic.elements.buttons.primary,
-    collectionIcon: stylesPublic.elements.decorative.circle,
-    card: {
-      ...stylesPublic.elements.cards.default,
-      borderLeft: stylesPublic.borders.style.active
-    }
   };
 
   return (
     <>
       <style>{animationStyles}</style>
-      <div className="floating-elements" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}>
+      
+      {/* Elementos flotantes decorativos */}
+      <div style={{ 
+        position: "fixed", 
+        top: 0, 
+        left: 0, 
+        width: "100%", 
+        height: "100%", 
+        pointerEvents: "none", 
+        zIndex: stylesPublic.utils.zIndex.hide 
+      }}>
         <div className="floating-element"></div>
         <div className="floating-element"></div>
         <div className="floating-element"></div>
@@ -367,37 +417,42 @@ const Inicio = () => {
 
       {/* Hero Section */}
       <section style={styles.heroSection}>
-        <div style={styles.heroOverlay}></div>        <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, maxWidth: "900px", padding: stylesPublic.spacing.section.medium }}>
+        <div style={styles.heroOverlay}></div>
+        <Container style={{ 
+          position: "relative", 
+          zIndex: stylesPublic.utils.zIndex.base, 
+          maxWidth: stylesPublic.utils.container.maxWidth.lg, 
+          padding: stylesPublic.spacing.scale[8]
+        }}>
           <h1 className="animate-in" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h1, 
-            fontWeight: stylesPublic.typography.fontWeight.bold, 
+            ...stylesPublic.typography.headings.h1,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg, 
-            letterSpacing: stylesPublic.typography.letterSpacing.tight, 
-            lineHeight: stylesPublic.typography.lineHeight.tight, 
+            marginBottom: stylesPublic.spacing.scale[6], 
             animationDelay: "0.3s" 
           }}>
             La Aterciopelada
           </h1>
           <div className="animate-in" style={{ 
-            width: "80px", 
-            height: "2px", 
-            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main}, transparent)`, 
-            margin: "0 auto 2rem", 
+            ...styles.titleUnderline,
             animationDelay: "0.9s" 
           }}></div>
           <p className="animate-in" style={{ 
-            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
-            marginBottom: stylesPublic.spacing["3xl"], 
-            letterSpacing: stylesPublic.typography.letterSpacing.wide, 
+            marginBottom: stylesPublic.spacing.scale[12], 
             animationDelay: "0.6s" 
           }}>
             Boutique Huasteca · Tradición Artesanal Refinada
           </p>
-          <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "1.2s" }} onClick={() => navigate("/productos")}>
+          <Button 
+            className="animate-in" 
+            style={{ 
+              ...stylesPublic.components.button.variants.primary,
+              ...stylesPublic.components.button.sizes.lg,
+              animationDelay: "1.2s" 
+            }} 
+            onClick={() => navigate("/productos")}
+          >
             Explorar Colección
           </Button>
         </Container>
@@ -405,46 +460,46 @@ const Inicio = () => {
 
       {/* Reasons Section */}
       <section style={styles.reasonsSection}>
-        <Container style={styles.section}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+        <Container style={styles.section}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg, 
-            position: "relative" 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             ¿Por qué elegir La Aterciopelada?
             <span style={styles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
             maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}`, 
-            letterSpacing: stylesPublic.typography.letterSpacing.wide 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
           }}>
             Sumérgete en la pasión y el arte de la artesanía huasteca
           </p>
           <Row className="g-4">
             {reasons.map((reason, idx) => (
               <Col md={6} lg={3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <Card className="reason-card h-100 shadow" style={stylesPublic.elements.cards.default}>
+                <Card className="reason-card h-100" style={{
+                  ...stylesPublic.components.card.base,
+                  padding: stylesPublic.spacing.scale[8]
+                }}>
                   <Card.Body>
                     <h3 style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.heading, 
-                      fontSize: stylesPublic.typography.fontSize.xl, 
-                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      ...stylesPublic.typography.headings.h4,
                       color: stylesPublic.colors.text.primary, 
-                      marginBottom: stylesPublic.spacing.md, 
-                      letterSpacing: stylesPublic.typography.letterSpacing.tight 
-                    }}>{reason.name}</h3>
+                      marginBottom: stylesPublic.spacing.scale[4]
+                    }}>
+                      {reason.name}
+                    </h3>
                     <p style={{ 
-                      fontSize: stylesPublic.typography.fontSize.sm, 
-                      color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph, 
-                      fontWeight: stylesPublic.typography.fontWeight.regular 
-                    }}>{reason.description}</p>
+                      ...stylesPublic.typography.body.small,
+                      color: stylesPublic.colors.text.secondary
+                    }}>
+                      {reason.description}
+                    </p>
                   </Card.Body>
                 </Card>
               </Col>
@@ -456,74 +511,86 @@ const Inicio = () => {
       {/* Regions/Localidades Section */}
       <section style={styles.regionsSection}>
         <div style={styles.regionsOverlay}></div>
-        <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+        <Container style={{ ...styles.section, position: "relative", zIndex: stylesPublic.utils.zIndex.docked }}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg, 
-            position: "relative" 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             Localidades de la Huasteca
             <span style={{ ...styles.titleUnderline, ...styles.whiteUnderline }}></span>
           </h2>
-          <p className="text-center" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
-            color: "#ffffff", 
-            textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", 
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.inverse, 
+            textShadow: stylesPublic.shadows.sm, 
             maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}`, 
-            letterSpacing: stylesPublic.typography.letterSpacing.wide 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
           }}>
             Descubre la riqueza cultural que inspira nuestras creaciones artesanales
           </p>
           
           {isLoadingLocalidades ? (
-            <div className="text-center py-5">
-              <div className="spinner-border" role="status" style={{ color: "#ffffff" }}>
+            <div style={{ textAlign: "center", padding: stylesPublic.spacing.scale[12] }}>
+              <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.text.inverse }}>
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="mt-3" style={{ color: "#ffffff" }}>Cargando localidades...</p>
+              <p style={{ 
+                ...stylesPublic.typography.body.base,
+                color: stylesPublic.colors.text.inverse,
+                marginTop: stylesPublic.spacing.scale[3]
+              }}>
+                Cargando localidades...
+              </p>
             </div>
           ) : localidades.length > 0 ? (
             <Row className="g-4">
               {localidades.map((localidad, idx) => {
                 const { icon, color } = getLocalidadIcon(localidad.nombre);
                 return (
-                  <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>                    <Card 
-                      className="region-card h-100 shadow" 
+                  <Col 
+                    md={6} 
+                    lg={localidades.length <= 3 ? 4 : 3} 
+                    key={localidad._id || idx} 
+                    className="animate-in" 
+                    style={{ animationDelay: `${0.2 * idx}s` }}
+                  >
+                    <Card 
+                      className="region-card h-100" 
                       style={{ 
-                        ...stylesPublic.elements.cards.default,
-                        cursor: "pointer"
+                        ...stylesPublic.components.card.base,
+                        ...stylesPublic.components.card.interactive,
+                        padding: stylesPublic.spacing.scale[8]
                       }}
                       onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
                     >
-                      <Card.Body>
-                        <div 
-                          style={{ 
-                            ...stylesPublic.elements.decorative.circle,
-                            background: color,
-                            color: "#ffffff",
-                          }}
-                        >
+                      <Card.Body style={{ textAlign: "center" }}>
+                        <div style={{ 
+                          width: stylesPublic.spacing.scale[16],
+                          height: stylesPublic.spacing.scale[16],
+                          borderRadius: stylesPublic.borders.radius.full,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: color,
+                          color: stylesPublic.colors.text.inverse,
+                          margin: `0 auto ${stylesPublic.spacing.scale[6]}`,
+                          boxShadow: stylesPublic.shadows.brand.primary
+                        }}>
                           {icon}
                         </div>
                         <h3 style={{ 
-                          fontFamily: stylesPublic.typography.fontFamily.heading, 
-                          fontSize: stylesPublic.typography.fontSize.xl, 
-                          fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                          ...stylesPublic.typography.headings.h4,
                           color: stylesPublic.colors.text.primary, 
-                          marginBottom: stylesPublic.spacing.md, 
-                          letterSpacing: stylesPublic.typography.letterSpacing.tight 
+                          marginBottom: stylesPublic.spacing.scale[4]
                         }}>
                           {localidad.nombre}
                         </h3>
                         <p style={{ 
-                          fontSize: stylesPublic.typography.fontSize.sm, 
-                          color: stylesPublic.colors.text.secondary, 
-                          lineHeight: stylesPublic.typography.lineHeight.paragraph, 
-                          fontWeight: stylesPublic.typography.fontWeight.regular 
+                          ...stylesPublic.typography.body.small,
+                          color: stylesPublic.colors.text.secondary
                         }}>
                           {localidad.descripcion}
                         </p>
@@ -534,14 +601,26 @@ const Inicio = () => {
               })}
             </Row>
           ) : (
-            <div className="text-center py-5">
-              <div style={{ fontSize: "4rem", color: "#ffffff", marginBottom: "1rem" }}>
+            <div style={{ textAlign: "center", padding: stylesPublic.spacing.scale[16] }}>
+              <div style={{ 
+                fontSize: stylesPublic.typography.scale["4xl"], 
+                color: stylesPublic.colors.text.inverse, 
+                marginBottom: stylesPublic.spacing.scale[4] 
+              }}>
                 <i className="bi bi-geo-alt"></i>
               </div>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: "#ffffff", marginBottom: "1rem" }}>
+              <h3 style={{ 
+                ...stylesPublic.typography.headings.h3,
+                color: stylesPublic.colors.text.inverse, 
+                marginBottom: stylesPublic.spacing.scale[4] 
+              }}>
                 No se encontraron localidades
               </h3>
-              <p style={{ fontSize: "1.1rem", color: "#ffffff", opacity: 0.8 }}>
+              <p style={{ 
+                ...stylesPublic.typography.body.base,
+                color: stylesPublic.colors.text.inverse, 
+                opacity: 0.8 
+              }}>
                 Estamos trabajando para agregar nuevas localidades pronto.
               </p>
             </div>
@@ -552,27 +631,55 @@ const Inicio = () => {
       {/* Clothing Categories Section */}
       <section style={styles.clothingSection}>
         <Container style={styles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
+          }}>
             Categorías de Ropa
             <span style={styles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
+          }}>
             Descubre piezas únicas tejidas con la esencia de la tradición huasteca
           </p>
+          
           {isLoading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border" role="status" style={{ color: "#ff4060" }}>
+            <div style={{ textAlign: "center", padding: stylesPublic.spacing.scale[12] }}>
+              <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="mt-3">Cargando categorías...</p>
+              <p style={{ 
+                ...stylesPublic.typography.body.base,
+                marginTop: stylesPublic.spacing.scale[3]
+              }}>
+                Cargando categorías...
+              </p>
             </div>
           ) : clothingItems.length > 0 ? (
             <Row className="g-4">
               {clothingItems.map((item, idx) => (
-                <Col md={6} lg={clothingItems.length <= 3 ? 4 : 3} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
+                <Col 
+                  md={6} 
+                  lg={clothingItems.length <= 3 ? 4 : 3} 
+                  key={idx} 
+                  className="animate-in" 
+                  style={{ animationDelay: `${0.2 * idx}s` }}
+                >
                   <Card 
-                    className="clothing-card h-100 shadow" 
-                    style={{ background: "#ffffff", borderRadius: "12px", padding: "2.5rem 2rem", textAlign: "center", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)", cursor: "pointer" }}
+                    className="clothing-card h-100" 
+                    style={{ 
+                      ...stylesPublic.components.card.base,
+                      ...stylesPublic.components.card.interactive,
+                      padding: stylesPublic.spacing.scale[10],
+                      textAlign: "center" 
+                    }}
                     onClick={item.onClick}
                   >
                     <Card.Img 
@@ -580,29 +687,57 @@ const Inicio = () => {
                       src={item.image || 'https://via.placeholder.com/200x150?text=Sin+Imagen'} 
                       alt={item.name} 
                       className="clothing-image" 
-                      style={{ maxWidth: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", margin: "0 auto 1.5rem" }} 
+                      style={{ 
+                        maxWidth: "200px", 
+                        height: "150px", 
+                        objectFit: "cover", 
+                        borderRadius: stylesPublic.borders.radius.md, 
+                        margin: `0 auto ${stylesPublic.spacing.scale[6]}` 
+                      }} 
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = 'https://via.placeholder.com/200x150?text=Imagen+No+Disponible';
                       }}
                     />
                     <Card.Body>
-                      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem", letterSpacing: "-0.01em" }}>{item.name}</h3>
-                      <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.6, fontWeight: 400 }}>{item.description}</p>
+                      <h3 style={{ 
+                        ...stylesPublic.typography.headings.h4,
+                        color: stylesPublic.colors.text.primary, 
+                        marginBottom: stylesPublic.spacing.scale[4]
+                      }}>
+                        {item.name}
+                      </h3>
+                      <p style={{ 
+                        ...stylesPublic.typography.body.small,
+                        color: stylesPublic.colors.text.secondary
+                      }}>
+                        {item.description}
+                      </p>
                     </Card.Body>
                   </Card>
                 </Col>
               ))}
             </Row>
           ) : (
-            <div className="text-center py-5">
-              <div style={{ fontSize: "4rem", color: "#ff4060", marginBottom: "1rem" }}>
+            <div style={{ textAlign: "center", padding: stylesPublic.spacing.scale[16] }}>
+              <div style={{ 
+                fontSize: stylesPublic.typography.scale["4xl"], 
+                color: stylesPublic.colors.primary[500], 
+                marginBottom: stylesPublic.spacing.scale[4] 
+              }}>
                 <i className="bi bi-emoji-frown"></i>
               </div>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: "#23102d", marginBottom: "1rem" }}>
+              <h3 style={{ 
+                ...stylesPublic.typography.headings.h3,
+                color: stylesPublic.colors.text.primary, 
+                marginBottom: stylesPublic.spacing.scale[4] 
+              }}>
                 No se encontraron categorías
               </h3>
-              <p style={{ fontSize: "1.1rem", color: "#403a3c" }}>
+              <p style={{ 
+                ...stylesPublic.typography.body.base,
+                color: stylesPublic.colors.text.secondary 
+              }}>
                 Estamos trabajando para agregar nuevas categorías pronto.
               </p>
             </div>
@@ -613,24 +748,62 @@ const Inicio = () => {
       {/* Collections Section */}
       <section style={styles.collectionsSection}>
         <div style={styles.collectionsOverlay}></div>
-        <Container style={{ ...styles.section, position: "relative", zIndex: 2 }}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+        <Container style={{ ...styles.section, position: "relative", zIndex: stylesPublic.utils.zIndex.docked }}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
+          }}>
             Colecciones Selectas
             <span style={{ ...styles.titleUnderline, ...styles.whiteUnderline }}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.inverse, 
+            textShadow: stylesPublic.shadows.sm, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
+          }}>
             Viste la historia, abraza la artesanía
           </p>
           <Row className="g-4">
             {collections.map((collection, idx) => (
               <Col md={6} lg={4} key={idx} className="animate-in" style={{ animationDelay: `${0.2 * idx}s` }}>
-                <Card className="collection-card h-100 shadow" style={{ background: "#ffffff", borderRadius: "16px", padding: "3rem 2.5rem", boxShadow: "0 8px 16px rgba(255, 0, 112, 0.2), 0 4px 8px rgba(31, 138, 128, 0.15), 0 2px 4px rgba(44, 35, 41, 0.12)" }}>
-                  <Card.Body className="text-center">
-                    <div className="collection-icon" style={{ ...styles.collectionIcon, background: idx === 0 ? "linear-gradient(135deg, #ff0070, #ff1030)" : idx === 1 ? "linear-gradient(135deg, #1f8a80, #8840b8)" : idx === 2 ? "linear-gradient(135deg, #ff1030, #ff0070)" : idx === 3 ? "linear-gradient(135deg, #8840b8, #23102d)" : idx === 4 ? "linear-gradient(135deg, #1f8a80, #ff1030)" : "linear-gradient(135deg, #ff0070, #1f8a80)" }}>
+                <Card className="collection-card h-100" style={{ 
+                  ...stylesPublic.components.card.base,
+                  padding: stylesPublic.spacing.scale[12],
+                  textAlign: "center" 
+                }}>
+                  <Card.Body>
+                    <div className="collection-icon" style={{ 
+                      width: stylesPublic.spacing.scale[16],
+                      height: stylesPublic.spacing.scale[16],
+                      borderRadius: stylesPublic.borders.radius.full,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: idx === 0 ? stylesPublic.colors.gradients.primary : stylesPublic.colors.gradients.secondary,
+                      boxShadow: stylesPublic.shadows.brand.primary,
+                      margin: `0 auto ${stylesPublic.spacing.scale[6]}`,
+                      fontSize: stylesPublic.typography.scale["2xl"]
+                    }}>
                       {collection.icon}
                     </div>
-                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", letterSpacing: "-0.01em" }}>{collection.title}</h3>
-                    <p style={{ fontSize: "0.95rem", color: "#403a3c", lineHeight: 1.7, fontWeight: 400 }}>{collection.description}</p>
+                    <h3 style={{ 
+                      ...stylesPublic.typography.headings.h4,
+                      color: stylesPublic.colors.text.primary, 
+                      marginBottom: stylesPublic.spacing.scale[6]
+                    }}>
+                      {collection.title}
+                    </h3>
+                    <p style={{ 
+                      ...stylesPublic.typography.body.small,
+                      color: stylesPublic.colors.text.secondary
+                    }}>
+                      {collection.description}
+                    </p>
                   </Card.Body>
                 </Card>
               </Col>
@@ -642,20 +815,45 @@ const Inicio = () => {
       {/* Comments Section */}
       <section style={styles.commentsSection}>
         <Container style={styles.section}>
-          <h2 className="text-center" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#23102d", marginBottom: "1.5rem", position: "relative" }}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
+            color: stylesPublic.colors.text.primary, 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
+          }}>
             Comentarios de la Comunidad
             <span style={styles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#403a3c", maxWidth: "800px", margin: "0 auto 3rem", letterSpacing: "0.5px" }}>
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.secondary, 
+            maxWidth: "800px", 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
+          }}>
             Comparte tu experiencia con nuestra comunidad artesanal
           </p>
-          {user && user.isAuthenticated ? (
-            <Card className="mb-5 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
-              <Card.Body className="p-4">
+          
+          {isAuthenticated ? (
+            <Card style={{ 
+              ...stylesPublic.components.card.base,
+              background: stylesPublic.colors.surface.glass,
+              marginBottom: stylesPublic.spacing.scale[12]
+            }}>
+              <Card.Body style={{ padding: stylesPublic.spacing.scale[6] }}>
                 <form onSubmit={handleSubmitComentario}>
-                  <div className="d-flex align-items-start mb-3">
-                    <div className="me-3">
-                      <div style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#ff4060", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", marginBottom: stylesPublic.spacing.scale[3] }}>
+                    <div style={{ marginRight: stylesPublic.spacing.scale[3] }}>
+                      <div style={{ 
+                        width: stylesPublic.spacing.scale[12], 
+                        height: stylesPublic.spacing.scale[12], 
+                        borderRadius: stylesPublic.borders.radius.full, 
+                        background: stylesPublic.colors.primary[500], 
+                        color: stylesPublic.colors.text.inverse, 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center" 
+                      }}>
                         <i className="bi bi-person-circle fs-4"></i>
                       </div>
                     </div>
@@ -665,15 +863,30 @@ const Inicio = () => {
                       placeholder="¿Qué te pareció tu experiencia con nosotros?"
                       value={comentarioTexto}
                       onChange={(e) => setComentarioTexto(e.target.value)}
-                      style={{ backgroundColor: "#f8f9fa", resize: "none", fontSize: "1.1rem" }}
-                    ></textarea>
+                      style={{ 
+                        ...stylesPublic.components.input.base,
+                        backgroundColor: stylesPublic.colors.surface.secondary, 
+                        resize: "none" 
+                      }}
+                    />
                   </div>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div style={{ fontSize: "0.9rem", color: "#403a3c" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ 
+                      ...stylesPublic.typography.body.caption,
+                      color: stylesPublic.colors.text.secondary 
+                    }}>
                       <i className="bi bi-info-circle me-1"></i>
                       Tu comentario será visible para toda la comunidad
                     </div>
-                    <Button type="submit" style={styles.pinkButton} className="rounded-pill px-4 py-2">
+                    <Button 
+                      type="submit" 
+                      style={{ 
+                        ...stylesPublic.components.button.variants.primary,
+                        ...stylesPublic.components.button.sizes.base,
+                        borderRadius: stylesPublic.borders.radius.full,
+                        padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[6]}`
+                      }}
+                    >
                       <i className="bi bi-send-fill me-2"></i>
                       Publicar comentario
                     </Button>
@@ -682,34 +895,80 @@ const Inicio = () => {
               </Card.Body>
             </Card>
           ) : (
-            <Card className="text-center mb-5 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
-              <Card.Body className="p-5">
-                <div className="mb-4">
-                  <i className="bi bi-chat-quote display-4" style={{ color: "#ff4060" }}></i>
+            <Card style={{ 
+              ...stylesPublic.components.card.base,
+              background: stylesPublic.colors.surface.glass,
+              textAlign: "center",
+              marginBottom: stylesPublic.spacing.scale[12]
+            }}>
+              <Card.Body style={{ padding: stylesPublic.spacing.scale[12] }}>
+                <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
+                  <i className="bi bi-chat-quote display-4" style={{ color: stylesPublic.colors.primary[500] }}></i>
                 </div>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 600, color: "#23102d", marginBottom: "1rem" }}>¡Únete a la conversación!</h3>
-                <p style={{ fontSize: "1.1rem", color: "#403a3c", marginBottom: "1.5rem" }}>
+                <h3 style={{ 
+                  ...stylesPublic.typography.headings.h4,
+                  color: stylesPublic.colors.text.primary, 
+                  marginBottom: stylesPublic.spacing.scale[4] 
+                }}>
+                  ¡Únete a la conversación!
+                </h3>
+                <p style={{ 
+                  ...stylesPublic.typography.body.base,
+                  color: stylesPublic.colors.text.secondary, 
+                  marginBottom: stylesPublic.spacing.scale[6] 
+                }}>
                   Inicia sesión para compartir tu experiencia con la comunidad artesanal
                 </p>
-                <Button style={styles.pinkButton} className="rounded-pill px-5 py-3" onClick={() => navigate("/login")}>
+                <Button 
+                  style={{ 
+                    ...stylesPublic.components.button.variants.primary,
+                    ...stylesPublic.components.button.sizes.lg,
+                    borderRadius: stylesPublic.borders.radius.full,
+                    padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[12]}`
+                  }} 
+                  onClick={() => navigate("/login")}
+                >
                   <i className="bi bi-box-arrow-in-right me-2"></i>
                   Iniciar Sesión
                 </Button>
               </Card.Body>
             </Card>
           )}
+          
           <Row className="g-4">
             {comentarios.map((comentario) => (
               <Col lg={4} md={6} key={comentario.id} className="animate-in" style={{ animationDelay: "0.2s" }}>
-                <Card className="h-100 shadow-sm" style={{ background: "rgba(255,255,255,0.9)", borderRadius: "12px", border: "none" }}>
-                  <Card.Body className="p-4">
-                    <div className="d-flex align-items-center mb-3">
-                      <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#ff4060", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", marginRight: "1rem" }}>
+                <Card className="h-100" style={{ 
+                  ...stylesPublic.components.card.base,
+                  background: stylesPublic.colors.surface.glass
+                }}>
+                  <Card.Body style={{ padding: stylesPublic.spacing.scale[6] }}>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: stylesPublic.spacing.scale[3] }}>
+                      <div style={{ 
+                        width: stylesPublic.spacing.scale[10], 
+                        height: stylesPublic.spacing.scale[10], 
+                        borderRadius: stylesPublic.borders.radius.full, 
+                        background: stylesPublic.colors.primary[500], 
+                        color: stylesPublic.colors.text.inverse, 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        marginRight: stylesPublic.spacing.scale[3] 
+                      }}>
                         <i className="bi bi-person"></i>
                       </div>
                       <div>
-                        <h6 style={{ fontFamily: "'Playfair Display', serif", marginBottom: 0, color: "#23102d" }}>{comentario.usuario}</h6>
-                        <small style={{ color: "#403a3c" }}>
+                        <h6 style={{ 
+                          ...stylesPublic.typography.headings.h6,
+                          color: stylesPublic.colors.text.primary,
+                          marginBottom: 0 
+                        }}>
+                          {comentario.usuario}
+                        </h6>
+                        <small style={{ 
+                          ...stylesPublic.typography.body.caption,
+                          color: stylesPublic.colors.text.secondary 
+                        }}>
                           {new Date(comentario.fecha).toLocaleDateString('es-MX', {
                             year: 'numeric',
                             month: 'long',
@@ -718,7 +977,13 @@ const Inicio = () => {
                         </small>
                       </div>
                     </div>
-                    <p style={{ color: "#403a3c", marginBottom: 0 }}>{comentario.texto}</p>
+                    <p style={{ 
+                      ...stylesPublic.typography.body.base,
+                      color: stylesPublic.colors.text.secondary, 
+                      marginBottom: 0 
+                    }}>
+                      {comentario.texto}
+                    </p>
                   </Card.Body>
                 </Card>
               </Col>
@@ -731,17 +996,48 @@ const Inicio = () => {
       {!isAuthenticated && (
         <section style={styles.ctaSection}>
           <div style={styles.ctaOverlay}></div>
-          <Container style={{ ...styles.section, position: "relative", zIndex: 2, textAlign: "center" }}>
-            <h2 className="animate-in" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 600, color: "#ffffff", marginBottom: "1rem", animationDelay: "0.3s" }}>
+          <Container style={{ 
+            ...styles.section, 
+            position: "relative", 
+            zIndex: stylesPublic.utils.zIndex.docked, 
+            textAlign: "center" 
+          }}>
+            <h2 className="animate-in" style={{ 
+              ...stylesPublic.typography.headings.h2,
+              color: stylesPublic.colors.text.inverse, 
+              marginBottom: stylesPublic.spacing.scale[4], 
+              animationDelay: "0.3s" 
+            }}>
               Celebra la Tradición Huasteca
             </h2>
-            <p className="animate-in" style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", fontWeight: 300, color: "#ffffff", opacity: 0.75, maxWidth: "700px", margin: "0 auto 2rem", animationDelay: "0.5s" }}>
+            <p className="animate-in" style={{ 
+              ...stylesPublic.typography.body.large,
+              color: stylesPublic.colors.text.inverse, 
+              opacity: 0.75, 
+              maxWidth: "700px", 
+              margin: `0 auto ${stylesPublic.spacing.scale[8]}`, 
+              animationDelay: "0.5s" 
+            }}>
               Únete a nuestra comunidad y descubre piezas artesanales únicas
             </p>
-            <Button className="animate-in" style={{ ...styles.pinkButton, animationDelay: "0.7s" }} onClick={() => navigate("/login?register=true")}>
+            <Button 
+              className="animate-in" 
+              style={{ 
+                ...stylesPublic.components.button.variants.primary,
+                ...stylesPublic.components.button.sizes.lg,
+                animationDelay: "0.7s" 
+              }} 
+              onClick={() => navigate("/login?register=true")}
+            >
               Regístrate
             </Button>
-            <p className="animate-in" style={{ fontSize: "0.9rem", color: "#ffffff", opacity: 0.75, marginTop: "1rem", animationDelay: "0.9s" }}>
+            <p className="animate-in" style={{ 
+              ...stylesPublic.typography.body.small,
+              color: stylesPublic.colors.text.inverse, 
+              opacity: 0.75, 
+              marginTop: stylesPublic.spacing.scale[4], 
+              animationDelay: "0.9s" 
+            }}>
               <i className="bi bi-shield-check me-2"></i>
               Tu información está segura con nosotros.
             </p>

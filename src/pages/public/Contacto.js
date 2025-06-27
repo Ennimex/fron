@@ -12,12 +12,15 @@ const Contacto = () => {
     mensaje: ''
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formError, setFormError] = useState(false);  const [isVisible, setIsVisible] = useState({
+  const [formError, setFormError] = useState(false);
+  const [isVisible, setIsVisible] = useState({
     hero: false,
     contactInfo: false,
     formSection: false,
     social: false
-  });  // Animation trigger on mount
+  });
+
+  // Animation trigger on mount
   useEffect(() => {
     setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100);
     setTimeout(() => setIsVisible(prev => ({ ...prev, contactInfo: true })), 300);
@@ -50,82 +53,93 @@ const Contacto = () => {
     } else {
       setFormError(true);
     }
-  };  const contactInfo = [
+  };
+
+  const contactInfo = [
     {
-      icon: <IonIcon icon={callOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
+      icon: <IonIcon icon={callOutline} style={{ fontSize: stylesPublic.typography.scale['2xl'], color: stylesPublic.colors.primary[500] }} />,
       title: "Teléfono",
       content: "+52 771 123 4567 (Ventas)\n+52 771 987 6543 (Consultas)"
     },
     {
-      icon: <IonIcon icon={mailOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
+      icon: <IonIcon icon={mailOutline} style={{ fontSize: stylesPublic.typography.scale['2xl'], color: stylesPublic.colors.primary[500] }} />,
       title: "Correo Electrónico",
       content: "ventas@laaterciopelada.com\nconsultas@laaterciopelada.com"
     },
     {
-      icon: <IonIcon icon={timeOutline} style={{ fontSize: '32px', color: stylesPublic.colors.primary.main }} />,
+      icon: <IonIcon icon={timeOutline} style={{ fontSize: stylesPublic.typography.scale['2xl'], color: stylesPublic.colors.primary[500] }} />,
       title: "Horario de Atención",
       content: "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM"
     }
-  ];  const socialNetworks = [
+  ];
+
+  const socialNetworks = [
     {
-      icon: <IonIcon icon={logoFacebook} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
+      icon: <IonIcon icon={logoFacebook} style={{ fontSize: stylesPublic.typography.scale.xl, color: stylesPublic.colors.primary[500] }} />,
       name: "Facebook",
       handle: "@LaAterciopelada",
       url: "https://web.facebook.com/people/La-Aterciopelada/61567232369483/?sk=photos"
     },
     {
-      icon: <IonIcon icon={logoWhatsapp} style={{ fontSize: '24px', color: stylesPublic.colors.primary.main }} />,
+      icon: <IonIcon icon={logoWhatsapp} style={{ fontSize: stylesPublic.typography.scale.xl, color: stylesPublic.colors.primary[500] }} />,
       name: "WhatsApp",
       handle: "+52 771 123 4567",
       url: "https://wa.me/527711234567"
     }
-  ];  const animationStyles = `
+  ];
+
+  // CSS usando exclusivamente tokens del sistema refactorizado
+  const animationStyles = `
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(${stylesPublic.spacing.scale[5]}); }
       to { opacity: 1; transform: translateY(0); }
     }
     
     .animate-in {
-      animation: fadeInUp 0.8s forwards;
+      animation: fadeInUp ${stylesPublic.animations.duration.slowest} forwards;
     }
     
     .form-input {
       position: relative;
-      margin-bottom: 25px;
+      margin-bottom: ${stylesPublic.spacing.scale[6]};
     }
 
     .form-input input,
     .form-input textarea {
       width: 100%;
-      padding: 16px 20px;
-      border: 2px solid #E0E0E0;
-      border-radius: 12px;
-      background: #FFFFFF;
-      font-size: 16px;
-      transition: all 0.3s ease;
+      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[5]};
+      border: ${stylesPublic.borders.width[2]}px solid ${stylesPublic.borders.colors.default};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      background: ${stylesPublic.colors.surface.primary};
+      font-size: ${stylesPublic.typography.scale.base};
+      font-family: ${stylesPublic.typography.families.body};
+      color: ${stylesPublic.colors.text.primary};
+      transition: ${stylesPublic.animations.transitions.base};
     }
 
     .form-input input:focus,
     .form-input textarea:focus {
-      border-color: ${stylesPublic.colors.secondary.main};
-      box-shadow: 0 4px 20px rgba(31, 138, 128, 0.15);
+      border-color: ${stylesPublic.colors.secondary[500]};
+      box-shadow: 0 ${stylesPublic.spacing.scale[1]} ${stylesPublic.spacing.scale[5]} ${stylesPublic.colors.secondary[500]}15;
       outline: none;
     }
 
     .form-input label {
       position: absolute;
-      left: 15px;
+      left: ${stylesPublic.spacing.scale[4]};
       top: 50%;
       transform: translateY(-50%);
-      background: #FFFFFF;
-      padding: 0 5px;
-      color: ${stylesPublic.colors.text.light};
-      transition: all 0.3s ease;
+      background: ${stylesPublic.colors.surface.primary};
+      padding: 0 ${stylesPublic.spacing.scale[1]};
+      color: ${stylesPublic.colors.text.tertiary};
+      font-size: ${stylesPublic.typography.scale.sm};
+      font-family: ${stylesPublic.typography.families.body};
+      transition: ${stylesPublic.animations.transitions.base};
       pointer-events: none;
     }
 
     .form-input textarea ~ label {
-      top: 20px;
+      top: ${stylesPublic.spacing.scale[5]};
       transform: translateY(0);
     }
 
@@ -135,199 +149,217 @@ const Contacto = () => {
     .form-input textarea:not(:placeholder-shown) ~ label {
       top: 0;
       transform: translateY(-50%) scale(0.85);
-      color: ${stylesPublic.colors.secondary.main};
+      color: ${stylesPublic.colors.secondary[500]};
     }
 
     .hover-card {
-      transition: ${stylesPublic.transitions.preset.bounce};
-      border: ${stylesPublic.borders.style.accent};
+      transition: ${stylesPublic.animations.transitions.base};
+      border: ${stylesPublic.borders.width[1]}px solid ${stylesPublic.borders.colors.default};
     }
     .hover-card:hover {
-      transform: ${stylesPublic.elements.cards.hover.transform};
-      box-shadow: ${stylesPublic.shadows.hover};
-      border-color: ${stylesPublic.colors.primary.main};
+      transform: translateY(-${stylesPublic.spacing.scale[2]});
+      box-shadow: ${stylesPublic.shadows.lg};
+      border-color: ${stylesPublic.colors.primary[500]};
     }
     
     .social-card {
-      transition: ${stylesPublic.transitions.preset.default};
-      border-left: ${stylesPublic.borders.width.thick} solid ${stylesPublic.colors.primary.main};
+      transition: ${stylesPublic.animations.transitions.base};
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[500]};
     }
     .social-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(255, 0, 112, 0.2);
+      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      box-shadow: ${stylesPublic.shadows.brand.primary};
     }
     
     .submit-button {
-      background: ${stylesPublic.colors.background.gradient.cta};
-      color: white;
+      background: ${stylesPublic.colors.gradients.accent};
+      color: ${stylesPublic.colors.text.inverse};
       border: none;
-      padding: 15px 30px;
-      border-radius: ${stylesPublic.borders.radius.button};
-      font-weight: ${stylesPublic.typography.fontWeight.semiBold};
-      transition: ${stylesPublic.transitions.preset.buttonHover};
+      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]};
+      border-radius: ${stylesPublic.borders.radius.full};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      font-family: ${stylesPublic.typography.families.body};
+      font-size: ${stylesPublic.typography.scale.base};
+      transition: ${stylesPublic.animations.transitions.base};
+      cursor: pointer;
     }
     .submit-button:hover {
-      transform: translateY(-2px);
-      box-shadow: ${stylesPublic.shadows.button};
+      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      box-shadow: ${stylesPublic.shadows.brand.primary};
     }
     
     .floating-element {
       position: fixed;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
+      width: ${stylesPublic.spacing.scale[1]};
+      height: ${stylesPublic.spacing.scale[1]};
+      border-radius: ${stylesPublic.borders.radius.full};
       opacity: 0.7;
       animation: float 8s ease-in-out infinite;
     }
     @keyframes float {
       0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
-      50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
+      50% { transform: translateY(-${stylesPublic.spacing.scale[5]}) scale(1.2); opacity: 0.8; }
     }
 
     /* Responsive Design */
-    @media (max-width: 992px) {
+    @media (max-width: ${stylesPublic.breakpoints.lg}) {
       .container-fluid {
-        padding: 0 10px;
+        padding: 0 ${stylesPublic.spacing.scale[3]};
       }
       .hero-section h1 {
-        font-size: 2rem !important;
+        font-size: ${stylesPublic.typography.scale['2xl']} !important;
       }
       .hero-section p {
-        font-size: 1rem !important;
+        font-size: ${stylesPublic.typography.scale.base} !important;
       }
       .contact-info-card {
-        margin-bottom: 20px;
+        margin-bottom: ${stylesPublic.spacing.scale[5]};
       }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: ${stylesPublic.breakpoints.md}) {
       .hero-section {
-        padding: 60px 0 40px !important;
+        padding: ${stylesPublic.spacing.scale[15]} 0 ${stylesPublic.spacing.scale[10]} !important;
       }
       .hero-section h1 {
-        font-size: 1.75rem !important;
+        font-size: ${stylesPublic.typography.scale.xl} !important;
       }
       .contact-info-grid {
         grid-template-columns: 1fr !important;
-        gap: 15px !important;
+        gap: ${stylesPublic.spacing.scale[4]} !important;
       }
       .contact-form-section {
-        padding: 40px 0 !important;
+        padding: ${stylesPublic.spacing.scale[10]} 0 !important;
       }
       .form-input input,
       .form-input textarea {
-        padding: 14px 16px;
-        font-size: 14px;
+        padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[4]};
+        font-size: ${stylesPublic.typography.scale.sm};
       }
       .submit-button {
-        padding: 12px 24px;
-        font-size: 14px;
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[6]};
+        font-size: ${stylesPublic.typography.scale.sm};
       }
       .social-networks-section {
-        padding: 40px 0 !important;
+        padding: ${stylesPublic.spacing.scale[10]} 0 !important;
       }
     }
 
-    @media (max-width: 576px) {
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
       .hero-section {
-        padding: 40px 0 30px !important;
+        padding: ${stylesPublic.spacing.scale[10]} 0 ${stylesPublic.spacing.scale[8]} !important;
       }
       .hero-section h1 {
-        font-size: 1.5rem !important;
+        font-size: ${stylesPublic.typography.scale.lg} !important;
       }
       .hero-section p {
-        font-size: 0.9rem !important;
+        font-size: ${stylesPublic.typography.scale.sm} !important;
       }
       .contact-info-card {
-        padding: 20px 15px !important;
+        padding: ${stylesPublic.spacing.scale[5]} ${stylesPublic.spacing.scale[4]} !important;
       }
       .contact-info-card h5 {
-        font-size: 1rem !important;
+        font-size: ${stylesPublic.typography.scale.base} !important;
       }
       .contact-info-card p {
-        font-size: 0.85rem !important;
+        font-size: ${stylesPublic.typography.scale.sm} !important;
       }
       .form-input {
-        margin-bottom: 20px;
+        margin-bottom: ${stylesPublic.spacing.scale[5]};
       }
       .form-input input,
       .form-input textarea {
-        padding: 12px 14px;
-        font-size: 13px;
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]};
+        font-size: ${stylesPublic.typography.scale.xs};
       }
       .submit-button {
-        padding: 10px 20px;
-        font-size: 13px;
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[5]};
+        font-size: ${stylesPublic.typography.scale.xs};
         width: 100%;
       }
       .social-card {
-        padding: 15px !important;
+        padding: ${stylesPublic.spacing.scale[4]} !important;
       }
       .social-card h6 {
-        font-size: 0.9rem !important;
+        font-size: ${stylesPublic.typography.scale.sm} !important;
       }
       .social-card p {
-        font-size: 0.8rem !important;
+        font-size: ${stylesPublic.typography.scale.xs} !important;
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: ${stylesPublic.breakpoints.xs}) {
       .container-fluid {
-        padding: 0 5px;
+        padding: 0 ${stylesPublic.spacing.scale[1]};
       }
       .hero-section h1 {
-        font-size: 1.3rem !important;
+        font-size: ${stylesPublic.typography.scale.base} !important;
       }
       .contact-info-card {
-        padding: 15px 10px !important;
+        padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[3]} !important;
       }
       .form-input input,
       .form-input textarea {
-        padding: 10px 12px;
-        font-size: 12px;
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]};
+        font-size: ${stylesPublic.typography.scale.xs};
       }
     }
   `;
+
   const customStyles = {
     heroSection: {
-      background: stylesPublic.colors.background.gradient.primary,
-      padding: "100px 0",
+      background: stylesPublic.colors.gradients.hero,
+      padding: `${stylesPublic.spacing.scale[25]} 0`,
       color: stylesPublic.colors.text.primary,
       position: "relative",
       opacity: isVisible.hero ? 1 : 0,
-      transform: isVisible.hero ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default
+      transform: isVisible.hero ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base
     },
     heroOverlay: {
-      ...stylesPublic.utils.overlay.standard,
-      background: stylesPublic.elements.backgroundPatterns.floral,
-      opacity: 0.8,
-      pointerEvents: 'none'
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
+      pointerEvents: 'none',
+      zIndex: 1,
     },
     section: {
-      marginBottom: stylesPublic.spacing["4xl"],
+      marginBottom: stylesPublic.spacing.scale[16],
       opacity: isVisible.contactInfo ? 1 : 0,
-      transform: isVisible.contactInfo ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default
-    },    formSection: {
-      opacity: isVisible.formSection ? 1 : 0,
-      transform: isVisible.formSection ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default,
-      marginBottom: "80px" // Añadiendo espacio en la parte inferior
-    },    socialSection: {
-      opacity: isVisible.social ? 1 : 0,
-      transform: isVisible.social ? "translateY(0)" : "translateY(20px)",
-      transition: stylesPublic.transitions.preset.default
+      transform: isVisible.contactInfo ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base
     },
-    titleUnderline: stylesPublic.elements.decorative.underline,
+    formSection: {
+      opacity: isVisible.formSection ? 1 : 0,
+      transform: isVisible.formSection ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base,
+      marginBottom: stylesPublic.spacing.scale[20]
+    },
+    socialSection: {
+      opacity: isVisible.social ? 1 : 0,
+      transform: isVisible.social ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[5]})`,
+      transition: stylesPublic.animations.transitions.base
+    },
+    titleUnderline: {
+      display: 'block',
+      width: stylesPublic.spacing.scale[20],
+      height: stylesPublic.spacing.scale[1],
+      background: stylesPublic.colors.gradients.accent,
+      borderRadius: stylesPublic.borders.radius.sm,
+      margin: `${stylesPublic.spacing.scale[4]} auto`,
+    },
     whiteUnderline: {
-      background: stylesPublic.colors.background.alt,
+      background: stylesPublic.colors.surface.primary,
       boxShadow: stylesPublic.shadows.sm,
     },
     contactCard: {
-      borderLeft: `${stylesPublic.borders.width.thick} solid ${stylesPublic.colors.primary.main}`,
-      borderRadius: stylesPublic.borders.radius.card,
-      transition: stylesPublic.transitions.preset.default,
+      borderLeft: `${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[500]}`,
+      borderRadius: stylesPublic.borders.radius.lg,
+      transition: stylesPublic.animations.transitions.base,
       height: "100%"
     }
   };
@@ -335,54 +367,54 @@ const Contacto = () => {
   return (
     <>
       <style>{animationStyles}</style>
-        {/* Hero Section */}
+      
+      {/* Hero Section */}
       <section style={customStyles.heroSection}>
         <div style={customStyles.heroOverlay}></div>
-        <Container style={{ position: "relative", zIndex: stylesPublic.utils.zIndex.raised, textAlign: "center" }}>
+        <Container style={{ 
+          position: "relative", 
+          zIndex: stylesPublic.utils.zIndex.docked, 
+          textAlign: "center" 
+        }}>
           <h1 className="animate-in" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h1, 
-            fontWeight: stylesPublic.typography.fontWeight.bold, 
-            marginBottom: stylesPublic.spacing.lg,
+            ...stylesPublic.typography.headings.h1,
+            marginBottom: stylesPublic.spacing.scale[6],
             color: stylesPublic.colors.text.primary
           }}>
             Contacto
           </h1>
           <div className="animate-in" style={{ 
-            width: "80px", 
-            height: "2px", 
-            background: `linear-gradient(90deg, ${stylesPublic.colors.primary.main}, ${stylesPublic.colors.secondary.main})`,
-            margin: "0 auto 2rem" 
+            ...customStyles.titleUnderline
           }}></div>
           <p className="animate-in" style={{ 
-            fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)", 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+            ...stylesPublic.typography.body.large,
             maxWidth: "700px", 
             margin: "0 auto", 
-            lineHeight: stylesPublic.typography.lineHeight.paragraph,
             color: stylesPublic.colors.text.secondary
           }}>
             Conéctate con nosotros y descubre el arte textil de la Huasteca
           </p>
         </Container>
-      </section>      <Container style={{ paddingBottom: "40px" }}>
+      </section>
+
+      <Container style={{ paddingBottom: stylesPublic.spacing.scale[10] }}>
         {/* Información de Contacto */}
-        <section style={customStyles.section}>          <h2 className="text-center" style={{ 
-            fontFamily: stylesPublic.typography.fontFamily.heading, 
-            fontSize: stylesPublic.typography.fontSize.h2, 
-            fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+        <section style={customStyles.section}>
+          <h2 style={{ 
+            ...stylesPublic.typography.headings.h2,
             color: stylesPublic.colors.text.primary, 
-            marginBottom: stylesPublic.spacing.lg 
+            marginBottom: stylesPublic.spacing.scale[6], 
+            textAlign: "center" 
           }}>
             Información de Contacto
             <span style={customStyles.titleUnderline}></span>
           </h2>
-          <p className="text-center" style={{ 
-            fontSize: stylesPublic.typography.fontSize.lg, 
-            fontWeight: stylesPublic.typography.fontWeight.light, 
+          <p style={{ 
+            ...stylesPublic.typography.body.large,
             color: stylesPublic.colors.text.secondary, 
             maxWidth: "800px", 
-            margin: `0 auto ${stylesPublic.spacing["3xl"]}` 
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
           }}>
             Estamos aquí para responder tus preguntas y ayudarte con tus pedidos especiales
           </p>
@@ -390,22 +422,29 @@ const Contacto = () => {
           <Row className="g-4 justify-content-center">
             {contactInfo.map((info, index) => (
               <Col md={6} lg={4} key={index} className="animate-in" style={{ animationDelay: `${0.2 * index}s` }}>
-                <Card className="hover-card h-100" style={customStyles.contactCard}>
-                  <Card.Body className="text-center d-flex flex-column">                    <div className="mb-3">
+                <Card className="hover-card h-100" style={{
+                  ...stylesPublic.components.card.base,
+                  ...customStyles.contactCard,
+                  padding: stylesPublic.spacing.scale[8]
+                }}>
+                  <Card.Body style={{ 
+                    textAlign: "center", 
+                    display: "flex", 
+                    flexDirection: "column" 
+                  }}>
+                    <div style={{ marginBottom: stylesPublic.spacing.scale[3] }}>
                       {info.icon}
                     </div>
                     <h3 style={{ 
-                      fontFamily: stylesPublic.typography.fontFamily.heading, 
-                      fontSize: stylesPublic.typography.fontSize.xl, 
-                      fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+                      ...stylesPublic.typography.headings.h4,
                       color: stylesPublic.colors.text.primary, 
-                      marginBottom: stylesPublic.spacing.md 
+                      marginBottom: stylesPublic.spacing.scale[4] 
                     }}>
                       {info.title}
                     </h3>
                     <p style={{ 
+                      ...stylesPublic.typography.body.base,
                       color: stylesPublic.colors.text.secondary, 
-                      lineHeight: stylesPublic.typography.lineHeight.paragraph, 
                       flexGrow: 1 
                     }}>
                       {info.content.split('\n').map((line, i) => (
@@ -421,9 +460,10 @@ const Contacto = () => {
                         target="_blank" 
                         rel="noopener noreferrer"
                         style={{ 
-                          color: stylesPublic.colors.secondary.main, 
-                          fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-                          marginTop: stylesPublic.spacing.lg 
+                          color: stylesPublic.colors.secondary[500], 
+                          fontWeight: stylesPublic.typography.weights.semibold, 
+                          marginTop: stylesPublic.spacing.scale[6],
+                          textDecoration: "none"
                         }}
                       >
                         {info.linkText} →
@@ -439,33 +479,62 @@ const Contacto = () => {
         {/* Formulario y Redes Sociales */}
         <section style={customStyles.formSection}>
           <Row>
-            <Col lg={7} className="mb-5 mb-lg-0">              <h2 className="text-center" style={{ 
-                fontFamily: stylesPublic.typography.fontFamily.heading, 
-                fontSize: stylesPublic.typography.fontSize.h2, 
-                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            <Col lg={7} className="mb-5 mb-lg-0">
+              <h2 style={{ 
+                ...stylesPublic.typography.headings.h2,
                 color: stylesPublic.colors.text.primary, 
-                marginBottom: stylesPublic.spacing.lg 
+                marginBottom: stylesPublic.spacing.scale[6], 
+                textAlign: "center" 
               }}>
                 Envíanos un Mensaje
                 <span style={customStyles.titleUnderline}></span>
               </h2>
-                {formSubmitted && (
+              
+              {formSubmitted && (
                 <Alert variant="success" className="mb-4" style={{ 
-                  background: `rgba(${parseInt(stylesPublic.colors.secondary.main.slice(1, 3), 16)}, ${parseInt(stylesPublic.colors.secondary.main.slice(3, 5), 16)}, ${parseInt(stylesPublic.colors.secondary.main.slice(5, 7), 16)}, 0.1)`, 
-                  borderColor: stylesPublic.colors.secondary.main 
+                  background: stylesPublic.colors.semantic.success.light,
+                  borderColor: stylesPublic.colors.semantic.success.main,
+                  color: stylesPublic.colors.semantic.success.main,
+                  borderRadius: stylesPublic.borders.radius.md,
+                  padding: stylesPublic.spacing.scale[4]
                 }}>
-                  <Alert.Heading style={{ color: stylesPublic.colors.secondary.main }}>¡Mensaje Enviado!</Alert.Heading>
-                  <p style={{ color: stylesPublic.colors.text.secondary }}>Gracias por contactarnos. Te responderemos en breve.</p>
+                  <Alert.Heading style={{ 
+                    ...stylesPublic.typography.headings.h5,
+                    color: stylesPublic.colors.semantic.success.main 
+                  }}>
+                    ¡Mensaje Enviado!
+                  </Alert.Heading>
+                  <p style={{ 
+                    ...stylesPublic.typography.body.base,
+                    color: stylesPublic.colors.text.secondary,
+                    marginBottom: 0
+                  }}>
+                    Gracias por contactarnos. Te responderemos en breve.
+                  </p>
                 </Alert>
               )}
               
               {formError && (
                 <Alert variant="danger" className="mb-4" style={{ 
-                  background: `rgba(${parseInt(stylesPublic.colors.primary.main.slice(1, 3), 16)}, ${parseInt(stylesPublic.colors.primary.main.slice(3, 5), 16)}, ${parseInt(stylesPublic.colors.primary.main.slice(5, 7), 16)}, 0.1)`, 
-                  borderColor: stylesPublic.colors.primary.main 
+                  background: stylesPublic.colors.semantic.error.light,
+                  borderColor: stylesPublic.colors.semantic.error.main,
+                  color: stylesPublic.colors.semantic.error.main,
+                  borderRadius: stylesPublic.borders.radius.md,
+                  padding: stylesPublic.spacing.scale[4]
                 }}>
-                  <Alert.Heading style={{ color: stylesPublic.colors.primary.main }}>Error en el formulario</Alert.Heading>
-                  <p style={{ color: stylesPublic.colors.text.secondary }}>Por favor completa los campos requeridos.</p>
+                  <Alert.Heading style={{ 
+                    ...stylesPublic.typography.headings.h5,
+                    color: stylesPublic.colors.semantic.error.main 
+                  }}>
+                    Error en el formulario
+                  </Alert.Heading>
+                  <p style={{ 
+                    ...stylesPublic.typography.body.base,
+                    color: stylesPublic.colors.text.secondary,
+                    marginBottom: 0
+                  }}>
+                    Por favor completa los campos requeridos.
+                  </p>
                 </Alert>
               )}
               
@@ -514,9 +583,15 @@ const Contacto = () => {
                   <label htmlFor="formMensaje">Mensaje *</label>
                 </div>
                 
-                <p className="text-muted mb-4">* Campos obligatorios</p>
+                <p style={{ 
+                  ...stylesPublic.typography.body.caption,
+                  color: stylesPublic.colors.text.tertiary,
+                  marginBottom: stylesPublic.spacing.scale[6]
+                }}>
+                  * Campos obligatorios
+                </p>
                 
-                <div className="text-center">
+                <div style={{ textAlign: "center" }}>
                   <button type="submit" className="submit-button">
                     Enviar Mensaje
                   </button>
@@ -524,45 +599,60 @@ const Contacto = () => {
               </form>
             </Col>
             
-            <Col lg={5}>              <h2 className="text-center" style={{ 
-                fontFamily: stylesPublic.typography.fontFamily.heading, 
-                fontSize: stylesPublic.typography.fontSize.h2, 
-                fontWeight: stylesPublic.typography.fontWeight.semiBold, 
+            <Col lg={5}>
+              <h2 style={{ 
+                ...stylesPublic.typography.headings.h2,
                 color: stylesPublic.colors.text.primary, 
-                marginBottom: stylesPublic.spacing.lg 
+                marginBottom: stylesPublic.spacing.scale[6], 
+                textAlign: "center" 
               }}>
                 Síguenos
                 <span style={customStyles.titleUnderline}></span>
               </h2>
               
-              <div className="mb-4">
+              <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
                 {socialNetworks.map((social, index) => (
                   <a
                     key={index}
                     href={social.url}
                     target="_blank"
-                    rel="noopener noreferrer"                    className="d-flex align-items-center mb-3 p-3 rounded social-card"
-                    style={{ background: stylesPublic.colors.background.alt, textDecoration: "none", color: stylesPublic.colors.text.primary }}
+                    rel="noopener noreferrer"
+                    className="d-flex align-items-center mb-3 p-3 rounded social-card"
+                    style={{ 
+                      background: stylesPublic.colors.surface.secondary, 
+                      textDecoration: "none", 
+                      color: stylesPublic.colors.text.primary,
+                      borderRadius: stylesPublic.borders.radius.md,
+                      padding: stylesPublic.spacing.scale[4],
+                      marginBottom: stylesPublic.spacing.scale[3],
+                      display: "flex",
+                      alignItems: "center"
+                    }}
                   >
-                    <div className="me-3">
+                    <div style={{ marginRight: stylesPublic.spacing.scale[3] }}>
                       {social.icon}
                     </div>
                     <div>
                       <h4 style={{ 
-                        fontSize: stylesPublic.typography.fontSize.lg, 
-                        fontWeight: stylesPublic.typography.fontWeight.semiBold, 
-                        marginBottom: "0.25rem" 
-                      }}>{social.name}</h4>
+                        ...stylesPublic.typography.headings.h6,
+                        marginBottom: stylesPublic.spacing.scale[1]
+                      }}>
+                        {social.name}
+                      </h4>
                       <p style={{ 
+                        ...stylesPublic.typography.body.small,
                         color: stylesPublic.colors.text.secondary, 
-                        marginBottom: "0" 
-                      }}>{social.handle}</p>
+                        marginBottom: 0 
+                      }}>
+                        {social.handle}
+                      </p>
                     </div>
                   </a>
                 ))}
               </div>
             </Col>
-          </Row>        </section>
+          </Row>
+        </section>
       </Container>
     </>
   );

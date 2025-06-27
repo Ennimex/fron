@@ -10,87 +10,111 @@ const GaleriaCompleta = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  // CSS usando exclusivamente tokens del sistema refactorizado
+  const cssStyles = `
+    /* Responsive Design */
+    @media (max-width: ${stylesPublic.breakpoints.lg}) {
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        gap: ${stylesPublic.spacing.scale[4]} !important;
+      }
+      .gallery-item {
+        height: ${stylesPublic.spacing.scale[75]} !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
+      .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: ${stylesPublic.spacing.scale[2]} !important;
+      }
+      .gallery-item {
+        height: ${stylesPublic.spacing.scale[62]} !important;
+      }
+      .lightbox-wrapper {
+        max-width: 95% !important;
+        max-height: 85% !important;
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.xs}) {
+      .gallery-grid {
+        grid-template-columns: 1fr !important;
+        gap: ${stylesPublic.spacing.scale[1]} !important;
+      }
+      .gallery-item {
+        height: ${stylesPublic.spacing.scale[62]} !important;
+      }
+      .lightbox-caption {
+        width: 95% !important;
+        bottom: ${stylesPublic.spacing.scale[3]} !important;
+        font-size: ${stylesPublic.typography.scale.sm} !important;
+      }
+    }
+  `;
+
   const styles = {
     pageContainer: {
-      background: stylesPublic.colors.background.gradient.primary,
+      background: stylesPublic.colors.gradients.hero,
       minHeight: '100vh',
-      paddingTop: '30px',
-      paddingBottom: '60px',
+      paddingTop: stylesPublic.spacing.scale[8],
+      paddingBottom: stylesPublic.spacing.scale[15],
       position: 'relative',
     },
     pageOverlay: {
-      position: "absolute",
+      position: 'absolute',
       top: 0,
       left: 0,
-      right: 0,
-      bottom: 0,
-      background: stylesPublic.elements.backgroundPatterns.floral,
-      opacity: 0.8,
-      zIndex: 1,
+      width: '100%',
+      height: '100%',
+      background: stylesPublic.colors.gradients.glass,
+      opacity: 0.1,
       pointerEvents: 'none',
-    },    sectionTitle: {
-      fontFamily: stylesPublic.typography.fontFamily.heading,
-      fontSize: stylesPublic.typography.fontSize.h2,
-      fontWeight: stylesPublic.typography.fontWeight.semiBold,
+      zIndex: 1,
+    },
+    sectionTitle: {
+      ...stylesPublic.typography.headings.h2,
       color: stylesPublic.colors.text.primary,
-      marginBottom: stylesPublic.spacing.md,
-      position: "relative",
+      marginBottom: stylesPublic.spacing.scale[6],
       textAlign: "center",
-      '@media (max-width: 768px)': {
-        fontSize: stylesPublic.typography.fontSize.xl,
-      },
-      '@media (max-width: 480px)': {
-        fontSize: stylesPublic.typography.fontSize.lg,
-        marginBottom: stylesPublic.spacing.sm,
-      },
     },
     titleUnderline: {
-      ...stylesPublic.elements.decorative.underline,
-    },    galleryGrid: {
+      display: 'block',
+      width: stylesPublic.spacing.scale[20],
+      height: stylesPublic.spacing.scale[1],
+      background: stylesPublic.colors.gradients.accent,
+      borderRadius: stylesPublic.borders.radius.sm,
+      margin: `${stylesPublic.spacing.scale[4]} auto`,
+    },
+    galleryGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-      gap: stylesPublic.spacing.md,
-      marginTop: stylesPublic.spacing.xl,
-      '@media (max-width: 768px)': {
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: stylesPublic.spacing.sm,
-      },
-      '@media (max-width: 576px)': {
-        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-        gap: stylesPublic.spacing.sm,
-      },
-      '@media (max-width: 480px)': {
-        gridTemplateColumns: '1fr',
-        gap: stylesPublic.spacing.xs,
-      },
-    },    galleryItem: {
+      gap: stylesPublic.spacing.scale[4],
+      marginTop: stylesPublic.spacing.scale[12],
+    },
+    galleryItem: {
       position: 'relative',
       overflow: 'hidden',
-      borderRadius: stylesPublic.borders.radius.card,
-      boxShadow: stylesPublic.shadows.card,
+      borderRadius: stylesPublic.borders.radius.lg,
+      boxShadow: stylesPublic.shadows.lg,
       cursor: 'pointer',
-      height: '350px',
-      transition: stylesPublic.transitions.preset.bounce,
-      '@media (max-width: 768px)': {
-        height: '300px',
-      },
-      '@media (max-width: 480px)': {
-        height: '250px',
-      },
+      height: stylesPublic.spacing.scale[88],
+      transition: stylesPublic.animations.transitions.base,
     },
     galleryImage: {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      transition: `transform ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut}`
-    },    captionOverlay: {
+      transition: stylesPublic.animations.transitions.transform
+    },
+    captionOverlay: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-      color: 'white',
-      padding: stylesPublic.spacing.md,
+      background: stylesPublic.colors.gradients.glass,
+      color: stylesPublic.colors.text.inverse,
+      padding: stylesPublic.spacing.scale[4],
       textAlign: 'center'
     },
     lightbox: {
@@ -99,86 +123,73 @@ const GaleriaCompleta = () => {
       left: 0,
       width: '100%',
       height: '100%',
-      background: 'rgba(0, 0, 0, 0.9)',
+      background: stylesPublic.colors.surface.overlay,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: stylesPublic.utils.zIndex.modal,
-      padding: stylesPublic.spacing.md,
-    },    lightboxImageWrapper: {
+      padding: stylesPublic.spacing.scale[4],
+    },
+    lightboxImageWrapper: {
       position: 'relative',
       maxWidth: '80%',
       maxHeight: '80%',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      '@media (max-width: 768px)': {
-        maxWidth: '95%',
-        maxHeight: '85%',
-      },
     },
     lightboxImage: {
       maxWidth: '100%',
       maxHeight: '80vh',
       objectFit: 'contain',
       borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: `0 4px 20px rgba(0, 0, 0, 0.3)`,
-    },    lightboxCaption: {
+      boxShadow: stylesPublic.shadows.xl,
+    },
+    lightboxCaption: {
       position: 'absolute',
-      bottom: '30px',
-      color: stylesPublic.colors.background.alt,
-      fontSize: stylesPublic.typography.fontSize.lg,
+      bottom: stylesPublic.spacing.scale[8],
+      color: stylesPublic.colors.text.inverse,
+      fontSize: stylesPublic.typography.scale.lg,
       textAlign: 'center',
-      background: 'rgba(0, 0, 0, 0.5)',
-      padding: `${stylesPublic.spacing.sm} ${stylesPublic.spacing.md}`,
+      background: stylesPublic.colors.surface.overlay,
+      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
       borderRadius: stylesPublic.borders.radius.md,
       left: '50%',
       transform: 'translateX(-50%)',
       width: '80%',
-      '@media (max-width: 768px)': {
-        fontSize: stylesPublic.typography.fontSize.md,
-        width: '90%',
-        bottom: '20px',
-        padding: `${stylesPublic.spacing.xs} ${stylesPublic.spacing.sm}`,
-      },
-      '@media (max-width: 480px)': {
-        fontSize: stylesPublic.typography.fontSize.sm,
-        width: '95%',
-        bottom: '10px',
-      },
     },
     closeButton: {
       position: 'absolute',
-      top: '20px',
-      right: '20px',
-      backgroundColor: stylesPublic.colors.primary.main,
-      color: stylesPublic.colors.background.alt,
+      top: stylesPublic.spacing.scale[5],
+      right: stylesPublic.spacing.scale[5],
+      backgroundColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.text.inverse,
       border: 'none',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
+      borderRadius: stylesPublic.borders.radius.full,
+      width: stylesPublic.spacing.scale[10],
+      height: stylesPublic.spacing.scale[10],
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       cursor: 'pointer',
-      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      transition: stylesPublic.animations.transitions.colors,
       zIndex: stylesPublic.utils.zIndex.popover,
     },
     navButton: {
       position: 'fixed',
       top: '50%',
       transform: 'translateY(-50%)',
-      backgroundColor: stylesPublic.colors.primary.main,
-      color: stylesPublic.colors.background.alt,
+      backgroundColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.text.inverse,
       border: 'none',
-      borderRadius: '50%',
-      width: '50px',
-      height: '50px',
+      borderRadius: stylesPublic.borders.radius.full,
+      width: stylesPublic.spacing.scale[12],
+      height: stylesPublic.spacing.scale[12],
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       cursor: 'pointer',
-      transition: `background ${stylesPublic.transitions.duration.normal} ${stylesPublic.transitions.easing.easeInOut}`,
+      transition: stylesPublic.animations.transitions.colors,
       zIndex: stylesPublic.utils.zIndex.popover,
     },
   };
@@ -198,6 +209,7 @@ const GaleriaCompleta = () => {
 
     fetchFotos();
   }, []);
+
   const images = fotos.map(foto => ({
     id: foto._id,
     src: foto.url,
@@ -226,117 +238,141 @@ const GaleriaCompleta = () => {
   };
 
   return (
-    <div style={styles.pageContainer}>
-      <div style={styles.pageOverlay}></div>
-      <Container>
-        <h1 style={styles.sectionTitle}>Galería Completa</h1>
-        <div style={styles.titleUnderline}></div>
-        <p className="text-center" style={{
-          fontSize: stylesPublic.typography.fontSize.lg,
-          fontWeight: stylesPublic.typography.fontWeight.light,
-          color: stylesPublic.colors.text.secondary,
-          maxWidth: "800px",
-          margin: `0 auto ${stylesPublic.spacing.xl}`,
-          letterSpacing: stylesPublic.typography.letterSpacing.wide
-        }}>
-          Aquí puedes explorar toda nuestra colección de fotos artesanales. ¡Disfruta la galería!
-        </p>
-        <div style={styles.galleryGrid}>
-          {loading ? (
-            <div className="text-center w-100">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Cargando...</span>
-              </div>
-              <p className="mt-2">Cargando imágenes...</p>
-            </div>
-          ) : images.length > 0 ? (            images.map((image, index) => (
-              <div
-                key={image.id}
-                style={{
-                  ...styles.galleryItem,
-                  opacity: 1,
-                  transform: 'translateY(0)',
-                  transition: `all ${stylesPublic.transitions.duration.slow} ${stylesPublic.transitions.easing.easeInOut} ${index * 0.05}s`,
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-10px)';
-                  e.currentTarget.style.boxShadow = stylesPublic.shadows.hover;
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = stylesPublic.shadows.card;
-                }}
-                onClick={() => openLightbox(image)}
-              >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  style={styles.galleryImage}
-                />
-                <div style={styles.captionOverlay}>
-                  <h5 style={{ 
-                    margin: 0,
-                    marginBottom: stylesPublic.spacing.xs,
-                    fontWeight: stylesPublic.typography.fontWeight.semiBold,
-                    fontSize: stylesPublic.typography.fontSize.lg
-                  }}>{image.alt}</h5>
-                  <p style={{
-                    margin: 0,
-                    fontWeight: stylesPublic.typography.fontWeight.light,
-                    fontSize: stylesPublic.typography.fontSize.sm,
-                    opacity: 0.9
-                  }}>{image.caption}</p>
+    <>
+      <style>{cssStyles}</style>
+      
+      <div style={styles.pageContainer}>
+        <div style={styles.pageOverlay}></div>
+        <Container>
+          <h1 style={styles.sectionTitle}>Galería Completa</h1>
+          <div style={styles.titleUnderline}></div>
+          <p style={{
+            ...stylesPublic.typography.body.large,
+            color: stylesPublic.colors.text.secondary,
+            maxWidth: "800px",
+            margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
+            textAlign: "center"
+          }}>
+            Aquí puedes explorar toda nuestra colección de fotos artesanales. ¡Disfruta la galería!
+          </p>
+          
+          <div className="gallery-grid" style={styles.galleryGrid}>
+            {loading ? (
+              <div className="text-center w-100">
+                <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
+                  <span className="visually-hidden">Cargando...</span>
                 </div>
+                <p style={{ 
+                  ...stylesPublic.typography.body.base,
+                  marginTop: stylesPublic.spacing.scale[2]
+                }}>
+                  Cargando imágenes...
+                </p>
               </div>
-            ))
-          ) : (
-            <div className="text-center w-100">
-              <p>No hay imágenes disponibles.</p>
-            </div>
-          )}        </div>
-      </Container>
-
-      {/* Lightbox para imágenes */}
-      {selectedImage && (
-        <div style={styles.lightbox}>
-          <button
-            style={{ ...styles.navButton, left: '20px' }}
-            onClick={() => navigateMedia('prev')}
-          >
-            <IonIcon icon={chevronBackOutline} style={{ fontSize: '24px' }} />
-          </button>
-          
-          <div style={styles.lightboxImageWrapper}>
-            <button 
-              style={styles.closeButton} 
-              onClick={closeLightbox}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
-            >
-              <IonIcon icon={closeOutline} style={{ fontSize: '24px' }} />
-            </button>
-            <img
-              src={selectedImage.src}
-              alt={selectedImage.alt}
-              style={styles.lightboxImage}
-            />
-            <div style={styles.lightboxCaption}>
-              <h4 style={{ marginBottom: stylesPublic.spacing.sm }}>{selectedImage.alt}</h4>
-              <p style={{ margin: 0 }}>{selectedImage.caption}</p>
-            </div>
+            ) : images.length > 0 ? (
+              images.map((image, index) => (
+                <div
+                  key={image.id}
+                  className="gallery-item"
+                  style={{
+                    ...styles.galleryItem,
+                    opacity: 1,
+                    transform: 'translateY(0)',
+                    transition: `all ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${index * 0.05}s`,
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[3]})`;
+                    e.currentTarget.style.boxShadow = stylesPublic.shadows.xl;
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = stylesPublic.shadows.lg;
+                  }}
+                  onClick={() => openLightbox(image)}
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    style={styles.galleryImage}
+                  />
+                  <div style={styles.captionOverlay}>
+                    <h5 style={{ 
+                      ...stylesPublic.typography.headings.h6,
+                      margin: 0,
+                      marginBottom: stylesPublic.spacing.scale[1],
+                    }}>
+                      {image.alt}
+                    </h5>
+                    <p style={{
+                      ...stylesPublic.typography.body.small,
+                      margin: 0,
+                      opacity: 0.9
+                    }}>
+                      {image.caption}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center w-100">
+                <p style={stylesPublic.typography.body.base}>No hay imágenes disponibles.</p>
+              </div>
+            )}
           </div>
-          
-          <button
-            style={{ ...styles.navButton, right: '20px' }}
-            onClick={() => navigateMedia('next')}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary.main}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary.main}
-          >
-            <IonIcon icon={chevronForwardOutline} style={{ fontSize: '24px' }} />
-          </button>
-        </div>
-      )}
-    </div>
+        </Container>
+
+        {/* Lightbox para imágenes */}
+        {selectedImage && (
+          <div style={styles.lightbox}>
+            <button
+              style={{ ...styles.navButton, left: stylesPublic.spacing.scale[5] }}
+              onClick={() => navigateMedia('prev')}
+            >
+              <IonIcon icon={chevronBackOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+            </button>
+            
+            <div className="lightbox-wrapper" style={styles.lightboxImageWrapper}>
+              <button 
+                style={styles.closeButton} 
+                onClick={closeLightbox}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+              >
+                <IonIcon icon={closeOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+              </button>
+              <img
+                src={selectedImage.src}
+                alt={selectedImage.alt}
+                style={styles.lightboxImage}
+              />
+              <div className="lightbox-caption" style={styles.lightboxCaption}>
+                <h4 style={{ 
+                  ...stylesPublic.typography.headings.h5,
+                  marginBottom: stylesPublic.spacing.scale[2] 
+                }}>
+                  {selectedImage.alt}
+                </h4>
+                <p style={{ 
+                  ...stylesPublic.typography.body.base,
+                  margin: 0 
+                }}>
+                  {selectedImage.caption}
+                </p>
+              </div>
+            </div>
+            
+            <button
+              style={{ ...styles.navButton, right: stylesPublic.spacing.scale[5] }}
+              onClick={() => navigateMedia('next')}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
+            >
+              <IonIcon icon={chevronForwardOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

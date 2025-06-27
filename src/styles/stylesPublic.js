@@ -1,410 +1,631 @@
 /**
- * Estilos centralizados para La Aterciopelada
- * Este archivo contiene todos los estilos comunes para mantener
- * consistencia visual a través de la aplicación.
+ * Sistema de Estilos Globales - La Aterciopelada
+ * Versión refactorizada con mejores prácticas y consistencia profesional
+ * Autor: Equipo de Desarrollo Frontend
+ * Fecha: 2025-06-27
  */
 
 const stylesPublic = {
   // ===============================
-  // PALETA DE COLORES
+  // TOKENS DE DISEÑO - COLORES
   // ===============================
-  colors: {    // Colores primarios
+  colors: {
+    // Paleta primaria - Rosa vibrante (color principal de la marca)
     primary: {
-      main: '#e00050',    // Rosa intenso ligeramente más oscuro
-      light: '#ff4c7a',   // Rosa suave ligeramente más oscuro
-      dark: '#b8003e',    // Rosa oscuro ligeramente más oscuro
+      50: '#fef7f7',
+      100: '#fdeaec', 
+      200: '#fbd5d9',
+      300: '#f7b3bb',
+      400: '#f18a98',
+      500: '#e00050',  // Color principal
+      600: '#d1004a',
+      700: '#b8003e',
+      800: '#9c0035',
+      900: '#4a001a',
+      contrast: '#ffffff'
     },
-    // Colores secundarios
+
+    // Paleta secundaria - Verde esmeralda (armonía complementaria)
     secondary: {
-      main: '#009885',    // Verde esmeralda ligeramente más oscuro
-      light: '#26bfae',   // Verde esmeralda claro ligeramente más oscuro
-      dark: '#005e54',    // Verde esmeralda oscuro ligeramente más oscuro
-    },    // Colores de fondo
-    background: {
-      main: '#f7f5f0',    // Blanco cálido ligeramente más oscuro
-      alt: '#ffe0a0',     // Beige cálido ligeramente más oscuro
-      gradient: {
-        primary: 'linear-gradient(135deg, #f7f5f0 0%, #ff4c7a 30%, rgba(0, 152, 133, 0.7) 60%, #f7f5f0 100%)',
-        secondary: 'linear-gradient(to bottom, #ffe0a0 0%, #ffe9c0 50%, #ffe0a0 100%)',
-        accent: 'linear-gradient(135deg, #ff4c7a 0%, #009885 50%, #ff4c7a 100%)',
-        cta: 'linear-gradient(135deg, #e00050 0%, #009885 50%, #e00050 100%)',
+      50: '#f0fdfc',
+      100: '#ccfbf1',
+      200: '#99f6e4',
+      300: '#5eead4',
+      400: '#2dd4bf',
+      500: '#009885',  // Color secundario principal
+      600: '#0d9488',
+      700: '#0f766e',
+      800: '#115e59',
+      900: '#134e4a',
+      contrast: '#ffffff'
+    },
+
+    // Paleta neutra - Tonos de grises y tierras
+    neutral: {
+      0: '#ffffff',
+      50: '#fafaf9',
+      100: '#f5f5f4',
+      200: '#e7e5e4',
+      300: '#d6d3d1',
+      400: '#a8a29e',
+      500: '#78716c',
+      600: '#57534e',
+      700: '#44403c',
+      800: '#292524',
+      900: '#1c1917',
+      950: '#0c0a09'
+    },
+
+    // Colores semánticos para estados
+    semantic: {
+      error: {
+        light: '#fef2f2',
+        main: '#dc2626',
+        dark: '#991b1b',
+        contrast: '#ffffff'
       },
+      warning: {
+        light: '#fffbeb',
+        main: '#f59e0b',
+        dark: '#d97706',
+        contrast: '#000000'
+      },
+      success: {
+        light: '#f0fdf4',
+        main: '#16a34a',
+        dark: '#166534',
+        contrast: '#ffffff'
+      },
+      info: {
+        light: '#eff6ff',
+        main: '#2563eb',
+        dark: '#1d4ed8',
+        contrast: '#ffffff'
+      }
     },
-    // Colores de texto
+
+    // Colores de fondo y superficies
+    surface: {
+      primary: '#ffffff',
+      secondary: '#fafaf9',
+      tertiary: '#f5f5f4',
+      elevated: '#ffffff',
+      overlay: 'rgba(28, 25, 23, 0.75)',
+      glass: 'rgba(255, 255, 255, 0.85)'
+    },
+
+    // Colores de texto con jerarquía clara
     text: {
-      primary: '#1a0023',   // Morado oscuro casi negro (sin cambios)
-      secondary: '#332a2d', // Gris oscuro (sin cambios)
-      light: '#4d4d4d',     // Gris medio ligeramente más oscuro
-      accent: '#e00050',    // Acento rosa ligeramente más oscuro
+      primary: '#1c1917',     // neutral-900 para máxima legibilidad
+      secondary: '#44403c',   // neutral-700 para texto secundario
+      tertiary: '#78716c',    // neutral-500 para texto auxiliar
+      inverse: '#ffffff',     // Texto sobre fondos oscuros
+      accent: '#e00050',      // Texto de acento
+      disabled: '#a8a29e'     // Texto deshabilitado
     },
-    // Estados y mensajes
-    state: {
-      error: '#e60000',     // Rojo error (más saturado)
-      success: '#00a12a',   // Verde éxito (más saturado)
-      warning: '#ff7800',   // Naranja advertencia (más saturado)
-      info: '#0077e6',      // Azul información (más saturado)
-      disabled: '#bdbdbd',  // Gris deshabilitado
-    },
-    // Colores complementarios
-    accent: {
-      yellow: '#e6ac00',    // Amarillo vibrante ligeramente más oscuro
-      purple: '#5a00cc',    // Púrpura ligeramente más oscuro
-      orange: '#e66a00',    // Naranja ligeramente más oscuro
-      teal: '#009885',      // Verde azulado ligeramente más oscuro
-    },
+
+    // Gradientes de marca optimizados
+    gradients: {
+      primary: 'linear-gradient(135deg, #e00050 0%, #f18a98 100%)',
+      secondary: 'linear-gradient(135deg, #009885 0%, #2dd4bf 100%)',
+      hero: 'linear-gradient(135deg, #fafaf9 0%, #e00050 30%, rgba(0, 152, 133, 0.7) 60%, #fafaf9 100%)',
+      warm: 'linear-gradient(to bottom, #fafaf9 0%, #f5f5f4 50%, #fafaf9 100%)',
+      accent: 'linear-gradient(135deg, #e00050 0%, #009885 50%, #e00050 100%)',
+      glass: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%)'
+    }
   },
 
   // ===============================
-  // TIPOGRAFÍA
+  // SISTEMA TIPOGRÁFICO MODERNO 2025
   // ===============================
   typography: {
-    // Familias tipográficas
-    fontFamily: {
-      heading: "'Playfair Display', serif",  // Títulos elegantes
-      body: "'Roboto', sans-serif",          // Texto general
-      accent: "'Dancing Script', cursive",   // Textos decorativos
+    // 🔥 Fuentes tipográficas ultra-modernas y actuales
+    families: {
+      // Para títulos - Fuente display moderna con personalidad
+      display: "'Manrope', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+      
+      // Para texto general - Fuente geométrica legible y contemporánea  
+      body: "'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
+      
+      // Para código - Fuente monospace con ligaduras modernas
+      mono: "'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace"
     },
-    // Tamaños de fuente
-    fontSize: {
-      xs: '0.75rem',     // 12px
-      sm: '0.875rem',    // 14px
-      md: '1rem',        // 16px (base)
-      lg: '1.125rem',    // 18px
-      xl: '1.25rem',     // 20px
-      '2xl': '1.5rem',   // 24px
-      '3xl': '1.875rem', // 30px
-      '4xl': '2.25rem',  // 36px
-      '5xl': '3rem',     // 48px
-      '6xl': '4rem',     // 64px
-      // Tamaños responsivos con clamp
-      h1: 'clamp(2.5rem, 5vw, 4rem)',      // 40px - 64px
-      h2: 'clamp(2rem, 4vw, 2.8rem)',      // 32px - 45px
-      h3: 'clamp(1.5rem, 3vw, 2rem)',      // 24px - 32px
-      h4: 'clamp(1.25rem, 2vw, 1.5rem)',   // 20px - 24px
-      h5: 'clamp(1.125rem, 1.5vw, 1.25rem)', // 18px - 20px
-      h6: 'clamp(1rem, 1vw, 1.125rem)',    // 16px - 18px
-      p: '1.1rem',                          // 17.6px
-      small: '0.875rem',                    // 14px
+
+    // Escala tipográfica modular basada en ratio 1.25 (cuarta mayor)
+    scale: {
+      xs: '0.75rem',      // 12px
+      sm: '0.875rem',     // 14px  
+      base: '1rem',       // 16px - Tamaño base
+      lg: '1.125rem',     // 18px
+      xl: '1.25rem',      // 20px
+      '2xl': '1.5rem',    // 24px
+      '3xl': '1.875rem',  // 30px
+      '4xl': '2.25rem',   // 36px
+      '5xl': '3rem',      // 48px
+      '6xl': '3.75rem',   // 60px
+      '7xl': '4.5rem',    // 72px
+      '8xl': '6rem',      // 96px
     },
-    // Pesos de fuente
-    fontWeight: {
-      thin: 100,
-      extraLight: 200,
+
+    // Jerarquía de encabezados responsivos con fuentes modernas
+    headings: {
+      h1: {
+        fontSize: 'clamp(2.25rem, 4vw + 1rem, 4.5rem)', // 36px - 72px
+        fontFamily: "'Manrope', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeight: 800,
+        lineHeight: 1.1,
+        letterSpacing: '-0.025em'
+      },
+      h2: {
+        fontSize: 'clamp(1.875rem, 3vw + 1rem, 3rem)', // 30px - 48px
+        fontFamily: "'Manrope', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeight: 700,
+        lineHeight: 1.2,
+        letterSpacing: '-0.02em'
+      },
+      h3: {
+        fontSize: 'clamp(1.5rem, 2.5vw + 0.5rem, 2.25rem)', // 24px - 36px
+        fontFamily: "'Inter', 'SF Pro Text', sans-serif",
+        fontWeight: 600,
+        lineHeight: 1.3,
+        letterSpacing: '-0.01em'
+      },
+      h4: {
+        fontSize: 'clamp(1.25rem, 2vw + 0.25rem, 1.875rem)', // 20px - 30px
+        fontFamily: "'Inter', 'SF Pro Text', sans-serif",
+        fontWeight: 600,
+        lineHeight: 1.4
+      },
+      h5: {
+        fontSize: 'clamp(1.125rem, 1.5vw + 0.25rem, 1.5rem)', // 18px - 24px
+        fontFamily: "'Inter', 'SF Pro Text', sans-serif",
+        fontWeight: 500,
+        lineHeight: 1.4
+      },
+      h6: {
+        fontSize: 'clamp(1rem, 1vw + 0.25rem, 1.25rem)', // 16px - 20px
+        fontFamily: "'Inter', 'SF Pro Text', sans-serif",
+        fontWeight: 500,
+        lineHeight: 1.5
+      }
+    },
+
+    // Variantes de texto para cuerpo con fuente moderna
+    body: {
+      large: {
+        fontSize: '1.125rem',
+        lineHeight: 1.7,
+        fontFamily: "'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif"
+      },
+      base: {
+        fontSize: '1rem',
+        lineHeight: 1.6,
+        fontFamily: "'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif"
+      },
+      small: {
+        fontSize: '0.875rem',
+        lineHeight: 1.5,
+        fontFamily: "'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif"
+      },
+      caption: {
+        fontSize: '0.75rem',
+        lineHeight: 1.4,
+        fontFamily: "'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontWeight: 500
+      }
+    },
+
+    // Pesos disponibles
+    weights: {
       light: 300,
       regular: 400,
       medium: 500,
-      semiBold: 600,
+      semibold: 600,
       bold: 700,
-      extraBold: 800,
-      black: 900,
+      extrabold: 800
     },
-    // Altura de línea
-    lineHeight: {
+
+    // Alturas de línea semánticas
+    leading: {
       none: 1,
       tight: 1.25,
       snug: 1.375,
       normal: 1.5,
       relaxed: 1.625,
-      loose: 2,
-      paragraph: 1.7,  // Específico para párrafos largos
+      loose: 2
     },
-    // Espaciado entre letras
-    letterSpacing: {
+
+    // Espaciado de letras
+    tracking: {
       tighter: '-0.05em',
       tight: '-0.025em',
-      normal: '0',
+      normal: '0em',
       wide: '0.025em',
       wider: '0.05em',
-      widest: '0.1em',
-    },
+      widest: '0.1em'
+    }
   },
 
   // ===============================
-  // ESPACIADOS
+  // SISTEMA DE ESPACIADO MODULAR
   // ===============================
   spacing: {
-    // Unidades base de espaciado
-    unit: '8px', // Unidad base de espaciado
-    // Espaciados predefinidos
-    xs: '4px',     // Extra pequeño
-    sm: '8px',     // Pequeño
-    md: '16px',    // Medio
-    lg: '24px',    // Grande
-    xl: '32px',    // Extra grande
-    '2xl': '48px', // 2x extra grande
-    '3xl': '64px', // 3x extra grande
-    '4xl': '80px', // 4x extra grande
-    '5xl': '96px', // 5x extra grande
-    // Padding estándar para secciones
-    section: {
-      xSmall: '2rem 1rem',
-      small: '3rem 1.5rem',
-      medium: '4rem 2rem',
-      large: '6rem 2rem',
-      xLarge: '8rem 2rem',
+    // Unidad base (8px) para consistencia
+    unit: 8,
+
+    // Escala de espaciado basada en múltiplos de 4px
+    scale: {
+      0: '0px',
+      1: '4px',      // 0.25rem
+      2: '8px',      // 0.5rem  - unidad base
+      3: '12px',     // 0.75rem
+      4: '16px',     // 1rem
+      5: '20px',     // 1.25rem
+      6: '24px',     // 1.5rem
+      7: '28px',     // 1.75rem
+      8: '32px',     // 2rem
+      9: '36px',     // 2.25rem
+      10: '40px',    // 2.5rem
+      11: '44px',    // 2.75rem
+      12: '48px',    // 3rem
+      14: '56px',    // 3.5rem
+      15: '60px',    // 3.75rem
+      16: '64px',    // 4rem
+      18: '72px',    // 4.5rem
+      19: '76px',    // 4.75rem
+      20: '80px',    // 5rem
+      24: '96px',    // 6rem
+      28: '112px',   // 7rem
+      30: '120px',   // 7.5rem
+      32: '128px',   // 8rem
+      36: '144px',   // 9rem
+      40: '160px',   // 10rem
+      42: '168px',   // 10.5rem
+      44: '176px',   // 11rem
+      45: '180px',   // 11.25rem
+      48: '192px',   // 12rem
+      50: '200px',   // 12.5rem
+      52: '208px',   // 13rem
+      55: '220px',   // 13.75rem
+      56: '224px',   // 14rem
+      60: '240px',   // 15rem
+      62: '248px',   // 15.5rem
+      64: '256px',   // 16rem
+      70: '280px',   // 17.5rem
+      72: '288px',   // 18rem
+      75: '300px',   // 18.75rem
+      80: '320px',   // 20rem
+      88: '352px',   // 22rem
+      96: '384px',   // 24rem
+      100: '400px',  // 25rem
+      113: '452px',  // 28.25rem
+      200: '800px',  // 50rem
     },
-    // Margins
-    margin: {
+
+    // Espaciado semántico para secciones
+    sections: {
+      xs: '2rem 1rem',
+      sm: '3rem 1.5rem', 
+      md: '4rem 2rem',
+      lg: '6rem 2rem',
+      xl: '8rem 2rem',
+      xxl: '12rem 2rem'
+    },
+
+    // Márgenes comunes
+    margins: {
       auto: '0 auto',
-      pageTop: '80px 0 0', // Margen superior para páginas (debajo del navbar)
+      section: '0 0 4rem 0',
+      element: '0 0 1.5rem 0'
     },
-    // Gaps para grids y flexbox
-    gap: {
-      xs: '4px',
-      sm: '8px',
-      md: '16px',
-      lg: '24px',
-      xl: '32px',
-      '2xl': '48px',
-    },
+
+    // Gaps para layouts
+    gaps: {
+      xs: '0.5rem',
+      sm: '1rem',
+      md: '1.5rem',
+      lg: '2rem',
+      xl: '3rem'
+    }
   },
 
   // ===============================
-  // BORDES Y SOMBRAS
+  // BORDES Y RADIOS OPTIMIZADOS
   // ===============================
   borders: {
-    // Radios de bordes
+    // Radios consistentes
     radius: {
-      none: '0',
+      none: '0px',
+      xs: '2px',
       sm: '4px',
+      base: '6px',
       md: '8px',
       lg: '12px',
       xl: '16px',
       '2xl': '24px',
       '3xl': '32px',
-      full: '9999px', // Para círculos perfectos
-      button: '30px', // Específico para botones
-      card: '12px',   // Específico para tarjetas
+      full: '9999px'
     },
-    // Anchos de borde
-    width: {
-      none: '0',
-      thin: '1px',
-      thick: '2px',
-      thicker: '3px',
-      thickest: '4px',
-    },
-    // Estilos de borde predefinidos
-    style: {
-      solid: 'solid',
-      dashed: 'dashed',
-      dotted: 'dotted',
-      accent: '1px solid rgba(255, 0, 90, 0.2)', // Borde estándar de tarjetas (actualizado)
-      active: `3px solid #ff005a`, // Borde para elementos activos (actualizado)
-    },
-  },
 
-  // Sombras
-  shadows: {
-    none: 'none',
-    sm: '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)',
-    md: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
-    lg: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
-    xl: '0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.1)',
-    // Sombras con colores de la marca
-    card: '0 8px 16px rgba(255, 0, 90, 0.25), 0 4px 8px rgba(0, 163, 150, 0.2), 0 2px 4px rgba(44, 35, 41, 0.12)',
-    button: '0 8px 24px rgba(255, 0, 90, 0.5)',
-    hover: '0 20px 40px rgba(255, 0, 90, 0.4), 0 10px 20px rgba(0, 163, 150, 0.3), 0 6px 12px rgba(44, 35, 41, 0.18)',
-    inset: 'inset 0 2px 4px rgba(0, 0, 0, 0.15)',
+    // Anchos estándar
+    width: {
+      0: '0px',
+      1: '1px',
+      2: '2px', 
+      4: '4px',
+      8: '8px'
+    },
+
+    // Colores de borde semánticos
+    colors: {
+      default: '#e7e5e4',      // neutral-200
+      muted: '#d6d3d1',        // neutral-300
+      strong: '#78716c',       // neutral-500
+      accent: '#e00050',       // primary-500
+      success: '#16a34a',      // success
+      error: '#dc2626',        // error
+      warning: '#f59e0b'       // warning
+    }
   },
 
   // ===============================
-  // DISEÑO RESPONSIVO
+  // SISTEMA DE SOMBRAS PROFESIONAL
+  // ===============================
+  shadows: {
+    // Sombras base
+    none: 'none',
+    xs: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    sm: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+    base: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+    md: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+    lg: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+    xl: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '2xl': '0 50px 100px -20px rgba(0, 0, 0, 0.25)',
+
+    // Sombras de marca con colores
+    brand: {
+      primary: '0 8px 32px -8px rgba(224, 0, 80, 0.3)',
+      secondary: '0 8px 32px -8px rgba(0, 152, 133, 0.3)',
+      glow: '0 0 32px rgba(224, 0, 80, 0.5)'
+    },
+
+    // Sombras internas
+    inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)'
+  },
+
+  // ===============================
+  // BREAKPOINTS RESPONSIVOS
   // ===============================
   breakpoints: {
-    xs: '320px',   // Extra pequeño (teléfonos pequeños)
-    sm: '576px',   // Pequeño (teléfonos)
-    md: '768px',   // Medio (tablets)
-    lg: '992px',   // Grande (desktop pequeño)
-    xl: '1200px',  // Extra grande (desktop)
-    '2xl': '1400px', // Doble extra grande (desktop wide)
+    xs: '320px',   // Móviles pequeños
+    sm: '640px',   // Móviles grandes  
+    md: '768px',   // Tablets
+    lg: '1024px',  // Laptops
+    xl: '1280px',  // Desktops
+    '2xl': '1536px' // Pantallas grandes
   },
 
   // ===============================
-  // TRANSICIONES Y ANIMACIONES
+  // SISTEMA DE ANIMACIONES
   // ===============================
-  transitions: {
-    // Duraciones
+  animations: {
+    // Duraciones estándar
     duration: {
-      fastest: '0.1s',
-      fast: '0.2s',
-      normal: '0.3s',
-      slow: '0.5s',
-      slowest: '0.8s',
-      pageTransition: '1.2s',
+      instant: '0ms',
+      fast: '150ms',
+      base: '200ms',
+      slow: '300ms',
+      slower: '500ms',
+      slowest: '1000ms'
     },
-    // Curvas de aceleración
+
+    // Curvas de animación
     easing: {
-      easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-      easeOut: 'cubic-bezier(0.0, 0, 0.2, 1)',
-      easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-      sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
-      bounce: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      linear: 'linear',
+      ease: 'ease',
+      'ease-in': 'cubic-bezier(0.4, 0, 1, 1)',
+      'ease-out': 'cubic-bezier(0, 0, 0.2, 1)',
+      'ease-in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
     },
+
     // Transiciones predefinidas
-    preset: {
-      default: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      slow: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-      fast: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      bounce: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      pageIn: 'all 1.2s ease-out',
-      buttonHover: 'all 0.3s ease',
-    },
+    transitions: {
+      base: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
+      fast: 'all 150ms cubic-bezier(0, 0, 0.2, 1)',
+      slow: 'all 300ms cubic-bezier(0, 0, 0.2, 1)',
+      colors: 'color 200ms cubic-bezier(0, 0, 0.2, 1), background-color 200ms cubic-bezier(0, 0, 0.2, 1)',
+      opacity: 'opacity 200ms cubic-bezier(0, 0, 0.2, 1)',
+      transform: 'transform 200ms cubic-bezier(0, 0, 0.2, 1)'
+    }
   },
 
   // ===============================
-  // ELEMENTOS DE DISEÑO COMUNES
+  // COMPONENTES BASE
   // ===============================
-  elements: {
-    // Estilos de botones
-    buttons: {      primary: {
-        backgroundColor: '#ff005a',
-        borderColor: '#ff005a',
-        color: '#ffffff',
-        borderRadius: '30px',
-        padding: '12px 30px',
-        fontWeight: 500,
-        fontSize: '1.1rem',
-        background: 'linear-gradient(135deg, #ff005a 0%, #ff4585 50%, #ff005a 100%)',
-        boxShadow: '0 8px 24px rgba(255, 0, 90, 0.5)',
-        transition: 'all 0.3s ease',
-      },      secondary: {
-        backgroundColor: 'transparent',
-        borderColor: '#00a396',
-        color: '#00a396',
-        borderRadius: '30px',
-        padding: '10px 25px',
-        fontWeight: 500,
-        fontSize: '1rem',
-        background: 'linear-gradient(135deg, rgba(0, 163, 150, 0.05) 0%, rgba(48, 217, 200, 0.1) 50%, rgba(0, 163, 150, 0.05) 100%)',
-        boxShadow: 'none',
-        transition: 'all 0.3s ease',
+  components: {
+    // Sistema de botones
+    button: {
+      // Tamaños
+      sizes: {
+        xs: {
+          padding: '6px 12px',
+          fontSize: '0.75rem',
+          borderRadius: '4px'
+        },
+        sm: {
+          padding: '8px 16px',
+          fontSize: '0.875rem',
+          borderRadius: '6px'
+        },
+        base: {
+          padding: '12px 24px',
+          fontSize: '1rem',
+          borderRadius: '8px'
+        },
+        lg: {
+          padding: '16px 32px',
+          fontSize: '1.125rem',
+          borderRadius: '12px'
+        },
+        xl: {
+          padding: '20px 40px',
+          fontSize: '1.25rem',
+          borderRadius: '16px'
+        }
       },
-      small: {
-        padding: '8px 20px',
-        fontSize: '0.9rem',
-      },
+
+      // Variantes
+      variants: {
+        primary: {
+          backgroundColor: '#e00050',
+          color: '#ffffff',
+          border: '1px solid #e00050',
+          boxShadow: '0 8px 32px -8px rgba(224, 0, 80, 0.3)',
+          transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
+          '&:hover': {
+            backgroundColor: '#d1004a',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 12px 40px -8px rgba(224, 0, 80, 0.4)'
+          }
+        },
+        secondary: {
+          backgroundColor: 'transparent',
+          color: '#009885',
+          border: '1px solid #009885',
+          transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
+          '&:hover': {
+            backgroundColor: '#009885',
+            color: '#ffffff'
+          }
+        },
+        ghost: {
+          backgroundColor: 'transparent',
+          color: '#44403c',
+          border: '1px solid transparent',
+          transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
+          '&:hover': {
+            backgroundColor: '#f5f5f4',
+            color: '#1c1917'
+          }
+        }
+      }
     },
-    // Estilos de tarjetas
-    cards: {
-      default: {
-        background: '#ffffff',
+
+    // Sistema de tarjetas
+    card: {
+      base: {
+        backgroundColor: '#ffffff',
         borderRadius: '12px',
-        padding: '2.5rem 2rem',        boxShadow: '0 8px 16px rgba(255, 0, 90, 0.25), 0 4px 8px rgba(0, 163, 150, 0.2), 0 2px 4px rgba(44, 35, 41, 0.12)',
-        transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        border: '1px solid rgba(255, 107, 132, 0.2)',
-      },      hover: {
-        transform: 'translateY(-10px)',
-        boxShadow: '0 20px 40px rgba(255, 0, 90, 0.45), 0 10px 20px rgba(0, 163, 150, 0.35), 0 6px 12px rgba(44, 35, 41, 0.2)',
-        background: 'linear-gradient(135deg, rgba(255, 255, 252, 1) 0%, rgba(255, 233, 192, 0.1) 100%)',
+        border: '1px solid #e7e5e4',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+        transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)'
       },
-      flat: {
-        boxShadow: 'none',
-        border: '1px solid rgba(255, 107, 132, 0.35)',
+      elevated: {
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)'
       },
+      interactive: {
+        cursor: 'pointer',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+        }
+      }
     },
-    // Estilos de inputs
-    inputs: {
-      default: {
+
+    // Sistema de inputs
+    input: {
+      base: {
         width: '100%',
-        padding: '16px 20px',
-        border: '2px solid #E0E0E0',
-        borderRadius: '12px',
-        backgroundColor: '#FFFFFF',
-        fontSize: '16px',
-        transition: 'all 0.3s ease',
-      },      focus: {
-        borderColor: '#00a396',
-        boxShadow: '0 4px 20px rgba(0, 163, 150, 0.2)',
-        outline: 'none',
+        padding: '12px 16px',
+        fontSize: '1rem',
+        lineHeight: '1.5',
+        color: '#1c1917',
+        backgroundColor: '#ffffff',
+        border: '1px solid #d6d3d1',
+        borderRadius: '8px',
+        transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
+        '&:focus': {
+          outline: 'none',
+          borderColor: '#009885',
+          boxShadow: '0 0 0 3px rgba(0, 152, 133, 0.1)'
+        }
       },
       error: {
-        borderColor: '#e60000',
-      },
-    },
-    // Separadores y decoraciones
-    decorative: {      underline: {        display: 'block',
-        width: '60px',
-        height: '3px',
-        background: 'linear-gradient(90deg, #e00050 0%, #009885 50%, #e00050 100%)',
-        borderRadius: '1px',
-        margin: '15px auto',
-      },      circle: {
-        width: '70px',
-        height: '70px',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #e00050 0%, #009885 50%, #e00050 100%)',
-        boxShadow: '0 8px 24px rgba(224, 0, 80, 0.5)',
-        margin: '0 auto 1.5rem',
-      },
-    },    // Fondos decorativos (patrones SVG)
-    backgroundPatterns: {
-      floral: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="floral-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="15" cy="15" r="2" fill="%23e00050" opacity="0.75"/><circle cx="35" cy="25" r="1.5" fill="%23009885" opacity="0.7"/><circle cx="25" cy="35" r="1.8" fill="%23e00050" opacity="0.72"/></pattern></defs><rect width="100" height="100" fill="url(%23floral-pattern)"/></svg>')`,
-      geometric: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="huasteca-pattern" patternUnits="userSpaceOnUse" width="50" height="50"><polygon points="15,15 20,25 10,25" fill="%23e00050" opacity="0.75"/><polygon points="35,25 40,35 30,35" fill="%23009885" opacity="0.7"/><rect x="25" y="10" width="10" height="10" transform="rotate(45 30 15)" fill="%23e00050" opacity="0.72"/></pattern></defs><rect width="100" height="100" fill="url(%23huasteca-pattern)"/></svg>')`,
-    },
+        borderColor: '#dc2626',
+        '&:focus': {
+          borderColor: '#dc2626',
+          boxShadow: '0 0 0 3px rgba(220, 38, 38, 0.1)'
+        }
+      }
+    }
   },
 
   // ===============================
-  // UTILIDADES
+  // UTILIDADES Y HELPERS
   // ===============================
   utils: {
     // Contenedores
     container: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      padding: '0 2rem',
-      sm: '540px',
-      md: '720px',
-      lg: '960px',
-      xl: '1140px',
-      xxl: '1320px',
+      center: 'true',
+      padding: '1rem',
+      maxWidth: {
+        sm: '640px',
+        md: '768px', 
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1400px'
+      }
     },
-    // Overlay de fondo
-    overlay: {
-      standard: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 1,
-      },      gradient: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'linear-gradient(135deg, rgba(255, 0, 90, 0.4) 0%, rgba(0, 163, 150, 0.4) 50%, rgba(255, 0, 90, 0.4) 100%)',
-        zIndex: 1,
-      },
-      radial: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'radial-gradient(circle at 30% 40%, #FFF4D6 0%, rgba(255,233,192,0.3) 40%, rgba(255,233,192,0) 70%)',
-        zIndex: 1,
-      },
-    },
-    // Z-index
+
+    // Z-index scale
     zIndex: {
-      background: -1,
+      hide: -1,
+      auto: 'auto',
       base: 0,
-      raised: 1,
+      docked: 10,
       dropdown: 1000,
       sticky: 1100,
-      fixed: 1200,
-      modal: 1300,
-      popover: 1400,
-      toast: 1500,
-      tooltip: 1600,
+      banner: 1200,
+      overlay: 1300,
+      modal: 1400,
+      popover: 1500,
+      skipLink: 1600,
+      toast: 1700,
+      tooltip: 1800
     },
-  },
+
+    // Overlay helpers
+    overlay: {
+      base: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(28, 25, 23, 0.75)',
+        zIndex: 1300
+      },
+      blur: {
+        backdropFilter: 'blur(8px)'
+      }
+    },
+
+    // Screen reader utilities
+    sr: {
+      only: {
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        padding: '0',
+        margin: '-1px',
+        overflow: 'hidden',
+        clip: 'rect(0, 0, 0, 0)',
+        whiteSpace: 'nowrap',
+        border: '0'
+      }
+    }
+  }
 };
 
 export default stylesPublic;

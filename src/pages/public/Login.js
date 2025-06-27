@@ -17,8 +17,8 @@ const Login = () => {
   const [animating, setAnimating] = useState(false)
 
   // Form states
-  const [name, setName] = useState("") // Changed from nombre and apellido to name
-  const [phone, setPhone] = useState("") // Changed from telefono to phone
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -29,8 +29,8 @@ const Login = () => {
 
   // Field errors
   const [fieldErrors, setFieldErrors] = useState({
-    name: false, // Changed from nombre and apellido
-    phone: false, // Changed from telefono
+    name: false,
+    phone: false,
     email: false,
     password: false,
     confirmPassword: false,
@@ -38,6 +38,7 @@ const Login = () => {
     loginPassword: false,
     acceptTerms: false,
   })
+
   // Contexto y navegación
   const { login, register } = useContext(AuthContext)
   const navigate = useNavigate()
@@ -96,7 +97,7 @@ const Login = () => {
   }
 
   const validatePhone = (phone) => {
-    return /^\+?\d{10,15}$/.test(phone.replace(/\s/g, "")) // Basic phone validation (10-15 digits, optional +)
+    return /^\+?\d{10,15}$/.test(phone.replace(/\s/g, ""))
   }
 
   const handleLoginSubmit = async (e) => {
@@ -150,7 +151,7 @@ const Login = () => {
       name: !name,
       phone: !phone || !validatePhone(phone),
       email: !email || !validateEmail(email),
-      password: !password || password.length < 8, // Enforce backend's minlength
+      password: !password || password.length < 8,
       confirmPassword: !confirmPassword || password !== confirmPassword,
       acceptTerms: !acceptTerms,
     }
@@ -208,13 +209,14 @@ const Login = () => {
     if (/[^A-Za-z0-9]/.test(pass)) strength += 1
     return strength
   }
+
   const getPasswordStrengthColor = () => {
     const strength = passwordStrength(password)
-    if (strength === 0) return stylesPublic.colors.state.error
-    if (strength === 1) return stylesPublic.colors.accent.orange
-    if (strength === 2) return stylesPublic.colors.accent.yellow
-    if (strength === 3) return stylesPublic.colors.secondary.main
-    if (strength === 4) return stylesPublic.colors.secondary.dark
+    if (strength === 0) return stylesPublic.colors.semantic.error.main
+    if (strength === 1) return stylesPublic.colors.semantic.warning.main
+    if (strength === 2) return stylesPublic.colors.semantic.warning.light
+    if (strength === 3) return stylesPublic.colors.secondary[500]
+    if (strength === 4) return stylesPublic.colors.secondary[700]
   }
 
   const getPasswordStrengthText = () => {
@@ -225,34 +227,28 @@ const Login = () => {
     if (strength === 3) return "Fuerte"
     if (strength === 4) return "Muy fuerte"
   }
-  const cssStyles = `
-    :root {
-      --huasteca-red: ${stylesPublic.colors.primary.main};
-      --huasteca-green: ${stylesPublic.colors.secondary.main};
-      --huasteca-beige: ${stylesPublic.colors.background.alt};
-      --huasteca-dark: ${stylesPublic.colors.text.primary};
-      --huasteca-pink: ${stylesPublic.colors.primary.light};
-    }
 
+  // CSS usando exclusivamente tokens del sistema refactorizado
+  const cssStyles = `
     .login-container {
       min-height: 100vh;
       width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(rgba(35, 16, 45, 0.85), rgba(35, 16, 45, 0.85)), 
+      background: linear-gradient(${stylesPublic.colors.surface.overlay}, ${stylesPublic.colors.surface.overlay}), 
                   url(${backgroundImages[currentImageIndex]});
       background-size: cover;
       background-position: center;
       background-blend-mode: overlay;
-      padding: 15px;
-      font-family: 'Roboto', sans-serif;
+      padding: ${stylesPublic.spacing.scale[4]};
+      font-family: ${stylesPublic.typography.families.body};
       overflow-x: hidden;
     }
 
     .login-inner-container {
       display: flex;
-      max-width: 1100px;
+      max-width: ${stylesPublic.utils.container.maxWidth.xl};
       width: 100%;
       position: relative;
       min-height: min-content;
@@ -262,12 +258,12 @@ const Login = () => {
 
     .login-left-panel {
       flex: 1 1 45%;
-      padding: 40px;
-      color: var(--huasteca-beige);
+      padding: ${stylesPublic.spacing.scale[10]};
+      color: ${stylesPublic.colors.surface.primary};
       display: none;
     }
 
-    @media (min-width: 992px) {
+    @media (min-width: ${stylesPublic.breakpoints.lg}) {
       .login-left-panel {
         display: block;
       }
@@ -278,46 +274,48 @@ const Login = () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 15px;
+      padding: ${stylesPublic.spacing.scale[4]};
       min-width: 0;
-    }    .login-form-wrapper {
+    }
+
+    .login-form-wrapper {
       position: relative;
       width: 100%;
       max-width: 450px;
-      background: rgba(255, 248, 225, 0.95);
-      backdrop-filter: blur(10px);
+      background: ${stylesPublic.colors.surface.glass};
+      backdrop-filter: blur(${stylesPublic.spacing.scale[3]});
       border-radius: ${stylesPublic.borders.radius.xl};
       box-shadow: ${stylesPublic.shadows.xl};
       overflow: hidden;
-      border: ${stylesPublic.borders.style.accent};
-      transition: ${stylesPublic.transitions.preset.default};
-      margin: ${stylesPublic.spacing.md} auto;
+      border: ${stylesPublic.borders.width[1]}px solid ${stylesPublic.borders.colors.default};
+      transition: ${stylesPublic.animations.transitions.base};
+      margin: ${stylesPublic.spacing.scale[4]} auto;
     }
 
     .login-form-slider {
       display: flex;
       width: 200%;
-      transition: transform 0.6s ease-in-out;
+      transition: transform ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']};
       transform: ${isLogin ? "translateX(0)" : "translateX(-50%)"};
     }
 
     .login-form-panel {
       width: 50%;
-      padding: ${isLogin ? "30px 25px" : "20px 20px"};
-      transition: all 0.3s ease;
+      padding: ${isLogin ? stylesPublic.spacing.scale[8] : stylesPublic.spacing.scale[6]};
+      transition: all ${stylesPublic.animations.duration.slow} ease;
       opacity: ${animating ? 0.7 : 1};
-      max-height: calc(100vh - 40px);
+      max-height: calc(100vh - ${stylesPublic.spacing.scale[10]});
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
 
     .login-form-panel::-webkit-scrollbar {
-      width: 6px;
+      width: ${stylesPublic.spacing.scale[2]};
     }
 
     .login-form-panel::-webkit-scrollbar-thumb {
-      background-color: var(--huasteca-red);
-      border-radius: 3px;
+      background-color: ${stylesPublic.colors.primary[500]};
+      border-radius: ${stylesPublic.borders.radius.sm};
     }
 
     .login-form-panel::-webkit-scrollbar-track {
@@ -326,202 +324,209 @@ const Login = () => {
 
     .login-logo {
       text-align: center;
-      margin-bottom: ${isLogin ? "25px" : "15px"};
-    }    .login-logo-text {
-      font-size: ${stylesPublic.typography.fontSize['3xl']};
-      font-weight: ${stylesPublic.typography.fontWeight.bold};
-      color: var(--huasteca-red);
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[4]};
+    }
+
+    .login-logo-text {
+      font-size: ${stylesPublic.typography.scale['3xl']};
+      font-weight: ${stylesPublic.typography.weights.bold};
+      color: ${stylesPublic.colors.primary[500]};
       margin: 0;
-      font-family: ${stylesPublic.typography.fontFamily.heading};
+      font-family: ${stylesPublic.typography.families.display};
     }
 
     .login-logo-subtext {
-      font-size: 0.8rem;
-      color: var(--huasteca-dark);
-      margin-top: 5px;
+      font-size: ${stylesPublic.typography.scale.sm};
+      color: ${stylesPublic.colors.text.secondary};
+      margin-top: ${stylesPublic.spacing.scale[1]};
       font-style: italic;
     }
 
     .login-title {
-      font-size: ${isLogin ? "1.6rem" : "1.4rem"};
-      margin-bottom: ${isLogin ? "8px" : "5px"};
+      font-size: ${isLogin ? stylesPublic.typography.scale['2xl'] : stylesPublic.typography.scale.xl};
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[1]};
       text-align: center;
-      color: var(--huasteca-red);
-      font-weight: 600;
-      font-family: 'Playfair Display', serif;
+      color: ${stylesPublic.colors.primary[500]};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      font-family: ${stylesPublic.typography.families.display};
     }
 
     .login-subtitle {
-      font-size: ${isLogin ? "0.9rem" : "0.8rem"};
+      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
       text-align: center;
-      color: var(--huasteca-dark);
-      margin-bottom: ${isLogin ? "25px" : "18px"};
-    }
-
-    .login-input-row {
-      display: flex;
-      gap: ${isLogin ? "15px" : "12px"};
-      margin-bottom: ${isLogin ? "8px" : "5px"};
+      color: ${stylesPublic.colors.text.secondary};
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[5]};
     }
 
     .login-input-box {
       position: relative;
       width: 100%;
-      margin-bottom: ${isLogin ? "18px" : "12px"};
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[5] : stylesPublic.spacing.scale[3]};
     }
 
     .login-label {
       display: block;
-      margin-bottom: ${isLogin ? "6px" : "4px"};
-      font-size: ${isLogin ? "0.9rem" : "0.8rem"};
-      font-weight: 600;
-      color: var(--huasteca-green);
-    }    .login-input {
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[1]};
+      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      color: ${stylesPublic.colors.secondary[500]};
+    }
+
+    .login-input {
       width: 100%;
-      background: rgba(255, 128, 144, 0.1);
-      border: ${stylesPublic.borders.width.thick} solid var(--huasteca-green);
+      background: ${stylesPublic.colors.surface.secondary};
+      border: ${stylesPublic.borders.width[2]}px solid ${stylesPublic.colors.secondary[500]};
       outline: none;
-      color: var(--huasteca-dark);
-      padding: ${isLogin ? "12px 45px 12px 15px" : "10px 40px 10px 12px"};
+      color: ${stylesPublic.colors.text.primary};
+      padding: ${isLogin ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[10]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]}`};
       border-radius: ${stylesPublic.borders.radius.md};
-      font-size: ${isLogin ? stylesPublic.typography.fontSize.md : stylesPublic.typography.fontSize.sm};
-      transition: ${stylesPublic.transitions.preset.default};
+      font-size: ${isLogin ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.sm};
+      transition: ${stylesPublic.animations.transitions.base};
+      font-family: ${stylesPublic.typography.families.body};
     }
 
     .login-input:focus {
-      background: rgba(255, 128, 144, 0.15);
-      border-color: var(--huasteca-red);
-      box-shadow: 0 0 0 2px rgba(255, 0, 112, 0.2);
+      background: ${stylesPublic.colors.surface.elevated};
+      border-color: ${stylesPublic.colors.primary[500]};
+      box-shadow: 0 0 0 ${stylesPublic.spacing.scale[1]} ${stylesPublic.colors.primary[500]}20;
     }
 
     .login-input::placeholder {
-      color: rgba(35, 16, 45, 0.5);
-      font-size: ${isLogin ? "0.9rem" : "0.8rem"};
+      color: ${stylesPublic.colors.text.disabled};
+      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
     }
 
     .login-input.input-error {
-      border-color: var(--huasteca-red);
-      animation: pulse 0.5s ease-in-out infinite alternate;
+      border-color: ${stylesPublic.colors.semantic.error.main};
+      animation: pulse ${stylesPublic.animations.duration.base} ease-in-out infinite alternate;
     }
 
     .login-error-text {
-      color: var(--huasteca-red);
-      font-size: ${isLogin ? "0.8rem" : "0.7rem"};
-      margin-top: ${isLogin ? "4px" : "3px"};
-      font-weight: 600;
+      color: ${stylesPublic.colors.semantic.error.main};
+      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      margin-top: ${isLogin ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[1]};
+      font-weight: ${stylesPublic.typography.weights.semibold};
     }
 
     .login-icon {
       position: absolute;
-      right: ${isLogin ? "15px" : "12px"};
+      right: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
       top: 50%;
       transform: translateY(-50%);
-      font-size: ${isLogin ? "18px" : "16px"};
-      color: var(--huasteca-red);
+      font-size: ${isLogin ? stylesPublic.typography.scale.lg : stylesPublic.typography.scale.base};
+      color: ${stylesPublic.colors.primary[500]};
       display: flex;
       align-items: center;
       justify-content: center;
-      width: ${isLogin ? "25px" : "22px"};
-      height: ${isLogin ? "25px" : "22px"};
+      width: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
+      height: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
       pointer-events: none;
     }
 
     .login-toggle-password {
       position: absolute;
-      right: ${isLogin ? "15px" : "12px"};
+      right: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
       top: 50%;
       transform: translateY(-50%);
-      font-size: ${isLogin ? "18px" : "16px"};
-      color: var(--huasteca-red);
+      font-size: ${isLogin ? stylesPublic.typography.scale.lg : stylesPublic.typography.scale.base};
+      color: ${stylesPublic.colors.primary[500]};
       display: flex;
       align-items: center;
       justify-content: center;
-      width: ${isLogin ? "25px" : "22px"};
-      height: ${isLogin ? "25px" : "22px"};
+      width: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
+      height: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
       cursor: pointer;
       pointer-events: auto;
+      transition: ${stylesPublic.animations.transitions.colors};
+    }
+
+    .login-toggle-password:hover {
+      color: ${stylesPublic.colors.primary[700]};
     }
 
     .login-password-strength {
       display: ${password ? "block" : "none"};
       width: 100%;
-      height: 3px;
-      background-color: rgba(255, 0, 112, 0.1);
-      margin-top: 6px;
-      border-radius: 2px;
+      height: ${stylesPublic.spacing.scale[1]};
+      background-color: ${stylesPublic.colors.neutral[200]};
+      margin-top: ${stylesPublic.spacing.scale[2]};
+      border-radius: ${stylesPublic.borders.radius.sm};
       overflow: hidden;
     }
 
     .login-password-strength-bar {
       height: 100%;
-      transition: width 0.3s ease, background-color 0.3s ease;
+      transition: width ${stylesPublic.animations.duration.slow} ease, background-color ${stylesPublic.animations.duration.slow} ease;
     }
 
     .login-password-strength-text {
-      font-size: ${isLogin ? "11px" : "10px"};
-      margin-top: 4px;
+      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      margin-top: ${stylesPublic.spacing.scale[1]};
       text-align: right;
-      transition: color 0.3s ease;
+      transition: color ${stylesPublic.animations.duration.slow} ease;
     }
 
     .login-checkbox-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: ${isLogin ? "20px" : "15px"};
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[5] : stylesPublic.spacing.scale[4]};
       flex-wrap: wrap;
-      gap: 10px;
+      gap: ${stylesPublic.spacing.scale[3]};
     }
 
     .login-checkbox-label {
       display: flex;
       align-items: center;
-      color: var(--huasteca-dark);
-      font-size: ${isLogin ? "13px" : "11px"};
+      color: ${stylesPublic.colors.text.primary};
+      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
       cursor: pointer;
     }
 
     .login-checkbox {
-      margin-right: 6px;
+      margin-right: ${stylesPublic.spacing.scale[2]};
       cursor: pointer;
-      accent-color: var(--huasteca-red);
+      accent-color: ${stylesPublic.colors.primary[500]};
     }
 
     .login-forgot-password {
-      color: var(--huasteca-red);
-      font-size: ${isLogin ? "13px" : "11px"};
+      color: ${stylesPublic.colors.primary[500]};
+      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
       text-decoration: none;
-      transition: color 0.3s ease;
+      transition: ${stylesPublic.animations.transitions.colors};
     }
 
     .login-forgot-password:hover {
-      color: var(--huasteca-dark);
+      color: ${stylesPublic.colors.text.primary};
       text-decoration: underline;
-    }    .login-button {
+    }
+
+    .login-button {
       width: 100%;
-      padding: ${isLogin ? "14px" : "12px"};
-      background: ${stylesPublic.colors.background.gradient.cta};
+      padding: ${isLogin ? `${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]}`};
+      background: ${stylesPublic.colors.gradients.accent};
       border: none;
       outline: none;
-      border-radius: ${stylesPublic.borders.radius.button};
+      border-radius: ${stylesPublic.borders.radius.full};
       cursor: pointer;
-      font-size: ${isLogin ? stylesPublic.typography.fontSize.lg : stylesPublic.typography.fontSize.md};
-      color: var(--huasteca-beige);
-      font-weight: ${stylesPublic.typography.fontWeight.semiBold};
-      transition: ${stylesPublic.transitions.preset.buttonHover};
-      margin-top: ${isLogin ? stylesPublic.spacing.sm : stylesPublic.spacing.xs};
-      box-shadow: ${stylesPublic.shadows.button};
+      font-size: ${isLogin ? stylesPublic.typography.scale.lg : stylesPublic.typography.scale.base};
+      color: ${stylesPublic.colors.text.inverse};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      transition: ${stylesPublic.animations.transitions.base};
+      margin-top: ${isLogin ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[1]};
+      box-shadow: ${stylesPublic.shadows.brand.primary};
       position: relative;
       overflow: hidden;
+      font-family: ${stylesPublic.typography.families.body};
     }
 
     .login-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255, 0, 112, 0.4);
+      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      box-shadow: ${stylesPublic.shadows.brand.glow};
     }
 
     .login-button:active {
-      transform: translateY(1px);
+      transform: translateY(${stylesPublic.spacing.scale[0]});
     }
 
     .login-button:disabled {
@@ -539,10 +544,10 @@ const Login = () => {
       background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 255, 255, 0.2),
+        ${stylesPublic.colors.surface.overlay}20,
         transparent
       );
-      transition: all 0.5s ease;
+      transition: all ${stylesPublic.animations.duration.base} ease;
     }
 
     .login-button:hover::after {
@@ -551,74 +556,77 @@ const Login = () => {
 
     .login-switch-form {
       text-align: center;
-      margin-top: ${isLogin ? "20px" : "15px"};
-      color: var(--huasteca-dark);
-      font-size: ${isLogin ? "13px" : "11px"};
+      margin-top: ${isLogin ? stylesPublic.spacing.scale[5] : stylesPublic.spacing.scale[4]};
+      color: ${stylesPublic.colors.text.primary};
+      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
     }
 
     .login-link {
-      color: var(--huasteca-red);
+      color: ${stylesPublic.colors.primary[500]};
       text-decoration: none;
       cursor: pointer;
-      font-weight: 600;
-      transition: color 0.3s ease;
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      transition: ${stylesPublic.animations.transitions.colors};
     }
 
     .login-link:hover {
-      color: var(--huasteca-dark);
+      color: ${stylesPublic.colors.text.primary};
       text-decoration: underline;
     }
 
     .login-terms-text {
-      font-size: ${isLogin ? "10px" : "9px"};
-      color: var(--huasteca-dark);
+      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      color: ${stylesPublic.colors.text.secondary};
       text-align: center;
-      margin-top: ${isLogin ? "15px" : "12px"};
-      line-height: 1.3;
+      margin-top: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
+      line-height: ${stylesPublic.typography.leading.normal};
     }
 
     .login-highlight {
-      color: var(--huasteca-red);
+      color: ${stylesPublic.colors.primary[500]};
       text-decoration: underline;
       cursor: pointer;
-      font-weight: 600;
-    }    .login-alert-success {
-      background-color: rgba(31, 138, 128, 0.2);
-      color: ${stylesPublic.colors.state.success};
-      padding: ${isLogin ? "12px 15px" : "10px 12px"};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+    }
+
+    .login-alert-success {
+      background-color: ${stylesPublic.colors.semantic.success.light};
+      color: ${stylesPublic.colors.semantic.success.main};
+      padding: ${isLogin ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]}`};
       border-radius: ${stylesPublic.borders.radius.md};
-      border-left: ${stylesPublic.borders.width.thicker} solid var(--huasteca-green);
-      margin-bottom: ${isLogin ? stylesPublic.spacing.md : stylesPublic.spacing.sm};
-      font-size: ${isLogin ? stylesPublic.typography.fontSize.sm : stylesPublic.typography.fontSize.xs};
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.secondary[500]};
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
+      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
     }
 
     .login-alert-error {
-      background-color: rgba(255, 0, 112, 0.2);
-      color: ${stylesPublic.colors.state.error};
-      padding: ${isLogin ? "12px 15px" : "10px 12px"};
+      background-color: ${stylesPublic.colors.semantic.error.light};
+      color: ${stylesPublic.colors.semantic.error.main};
+      padding: ${isLogin ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]}`};
       border-radius: ${stylesPublic.borders.radius.md};
-      border-left: ${stylesPublic.borders.width.thicker} solid var(--huasteca-red);
-      margin-bottom: ${isLogin ? stylesPublic.spacing.md : stylesPublic.spacing.sm};
-      font-size: ${isLogin ? stylesPublic.typography.fontSize.sm : stylesPublic.typography.fontSize.xs};
+      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[500]};
+      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
+      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
     }
 
-    @media (max-width: 1200px) {
+    /* Responsive Design */
+    @media (max-width: ${stylesPublic.breakpoints['2xl']}) {
       .login-inner-container {
-        max-width: 950px;
+        max-width: ${stylesPublic.utils.container.maxWidth.xl};
       }
       
       .login-left-content {
-        padding-right: 15px;
+        padding-right: ${stylesPublic.spacing.scale[4]};
       }
       
       .login-welcome-title {
-        font-size: 2rem;
+        font-size: ${stylesPublic.typography.scale['2xl']};
       }
     }
 
-    @media (max-width: 992px) {
+    @media (max-width: ${stylesPublic.breakpoints.lg}) {
       .login-container {
-        padding: 10px;
+        padding: ${stylesPublic.spacing.scale[3]};
         min-height: 100vh;
         align-items: flex-start;
       }
@@ -649,13 +657,13 @@ const Login = () => {
         padding: 0;
       }
       .login-form-panel {
-        padding: 20px 10px;
+        padding: ${stylesPublic.spacing.scale[5]} ${stylesPublic.spacing.scale[3]};
         min-height: 100vh;
         max-height: none;
       }
     }
 
-    @media (max-width: 576px) {
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
       .login-container {
         padding: 0;
         min-height: 100vh;
@@ -668,46 +676,46 @@ const Login = () => {
         padding: 0;
       }
       .login-form-panel {
-        padding: 12px 5px;
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[1]};
         min-height: 100vh;
         max-height: none;
       }
       .login-title {
-        font-size: 1.1rem;
+        font-size: ${stylesPublic.typography.scale.lg};
       }
       .login-input {
-        font-size: 0.95rem;
-        padding: 10px 35px 10px 10px;
+        font-size: ${stylesPublic.typography.scale.sm};
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[9]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]};
       }
       .login-button {
-        font-size: 1rem;
-        padding: 12px;
+        font-size: ${stylesPublic.typography.scale.base};
+        padding: ${stylesPublic.spacing.scale[3]};
       }
       .login-checkbox-label {
-        font-size: 11px;
+        font-size: ${stylesPublic.typography.scale.xs};
       }
       .login-terms-text {
-        font-size: 9px;
+        font-size: ${stylesPublic.typography.scale.xs};
       }
     }
 
     @keyframes pulse {
-      from { box-shadow: 0 0 0 0 rgba(255, 0, 112, 0.3); }
-      to { box-shadow: 0 0 0 6px rgba(255, 0, 112, 0.1); }
+      from { box-shadow: 0 0 0 0 ${stylesPublic.colors.primary[500]}30; }
+      to { box-shadow: 0 0 0 ${stylesPublic.spacing.scale[2]} ${stylesPublic.colors.primary[500]}10; }
     }
 
     .floating-element {
       position: fixed;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
+      width: ${stylesPublic.spacing.scale[1]};
+      height: ${stylesPublic.spacing.scale[1]};
+      border-radius: ${stylesPublic.borders.radius.full};
       opacity: 0.7;
       animation: float 8s ease-in-out infinite;
     }
 
     @keyframes float {
       0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
-      50% { transform: translateY(-20px) scale(1.2); opacity: 0.8; }
+      50% { transform: translateY(-${stylesPublic.spacing.scale[5]}) scale(1.2); opacity: 0.8; }
     }
   `
 
@@ -715,27 +723,53 @@ const Login = () => {
     <>
       <style>{cssStyles}</style>
 
-      <div
-        className="floating-elements"
-        style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
-      >        <div className="floating-element" style={{ top: "20%", left: "10%", background: stylesPublic.colors.primary.main }}></div>
-        <div
-          className="floating-element"
-          style={{ top: "60%", right: "15%", background: stylesPublic.colors.secondary.main, animationDelay: "2s" }}
-        ></div>
-        <div
-          className="floating-element"
-          style={{ bottom: "30%", left: "20%", background: stylesPublic.colors.primary.light, animationDelay: "4s" }}
-        ></div>
+      {/* Elementos flotantes decorativos */}
+      <div style={{ 
+        position: "fixed", 
+        top: 0, 
+        left: 0, 
+        width: "100%", 
+        height: "100%", 
+        pointerEvents: "none", 
+        zIndex: stylesPublic.utils.zIndex.hide 
+      }}>
+        <div className="floating-element" style={{ 
+          top: "20%", 
+          left: "10%", 
+          background: stylesPublic.colors.primary[500] 
+        }}></div>
+        <div className="floating-element" style={{ 
+          top: "60%", 
+          right: "15%", 
+          background: stylesPublic.colors.secondary[500], 
+          animationDelay: "2s" 
+        }}></div>
+        <div className="floating-element" style={{ 
+          bottom: "30%", 
+          left: "20%", 
+          background: stylesPublic.colors.primary[300], 
+          animationDelay: "4s" 
+        }}></div>
       </div>
 
       <div className="login-container">
         <div className="login-inner-container">
+          {/* Panel izquierdo - Información de la marca */}
           <div className="login-left-panel">
             <div className="login-left-content">
-              <div style={{ marginBottom: "50px" }}>
-                <h1 className="login-welcome-title">Bienvenido a La Aterciopelada</h1>
-                <p className="login-welcome-text">
+              <div style={{ marginBottom: stylesPublic.spacing.scale[12] }}>
+                <h1 style={{ 
+                  ...stylesPublic.typography.headings.h2,
+                  color: stylesPublic.colors.surface.primary,
+                  marginBottom: stylesPublic.spacing.scale[4]
+                }}>
+                  Bienvenido a La Aterciopelada
+                </h1>
+                <p style={{ 
+                  ...stylesPublic.typography.body.base,
+                  color: stylesPublic.colors.surface.primary,
+                  opacity: 0.9
+                }}>
                   Descubre el arte textil de la Huasteca. Únete a nuestra comunidad para acceder a productos exclusivos,
                   eventos culturales y más.
                 </p>
@@ -747,17 +781,36 @@ const Login = () => {
                 { icon: "🎨", text: "Diseños exclusivos huastecos" },
                 { icon: "✨", text: "Eventos culturales especiales" },
               ].map((feature, index) => (
-                <div key={index} className="login-brand-feature">
-                  <div className="login-feature-icon">{feature.icon}</div>
-                  <div className="login-feature-text">{feature.text}</div>
+                <div key={index} style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  marginBottom: stylesPublic.spacing.scale[4],
+                  padding: stylesPublic.spacing.scale[3],
+                  background: stylesPublic.colors.surface.overlay,
+                  borderRadius: stylesPublic.borders.radius.md
+                }}>
+                  <div style={{ 
+                    fontSize: stylesPublic.typography.scale.xl, 
+                    marginRight: stylesPublic.spacing.scale[3] 
+                  }}>
+                    {feature.icon}
+                  </div>
+                  <div style={{ 
+                    ...stylesPublic.typography.body.base,
+                    color: stylesPublic.colors.surface.primary 
+                  }}>
+                    {feature.text}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Panel derecho - Formularios */}
           <div className="login-right-panel">
             <div className="login-form-wrapper">
               <div className="login-form-slider">
+                {/* Formulario de Login */}
                 <div className="login-form-panel">
                   <div className="login-logo">
                     <h1 className="login-logo-text">La Aterciopelada</h1>
@@ -772,7 +825,7 @@ const Login = () => {
 
                     <form onSubmit={handleLoginSubmit}>
                       <div className="login-input-box">
-                        <label className={`login-label ${loginEmail ? "label-float" : ""}`}>Correo Electrónico*</label>
+                        <label className="login-label">Correo Electrónico*</label>
                         <input
                           type="email"
                           placeholder="Correo Electrónico"
@@ -792,7 +845,7 @@ const Login = () => {
                       </div>
 
                       <div className="login-input-box">
-                        <label className={`login-label ${loginPassword ? "label-float" : ""}`}>Contraseña*</label>
+                        <label className="login-label">Contraseña*</label>
                         <input
                           type={showPassword ? "text" : "password"}
                           placeholder="Contraseña"
@@ -849,6 +902,7 @@ const Login = () => {
                   </div>
                 </div>
 
+                {/* Formulario de Registro */}
                 <div className="login-form-panel">
                   <div className="login-logo">
                     <h1 className="login-logo-text">La Aterciopelada</h1>
@@ -863,7 +917,7 @@ const Login = () => {
 
                     <form onSubmit={handleRegisterSubmit}>
                       <div className="login-input-box">
-                        <label className={`login-label ${name ? "label-float" : ""}`}>Nombre Completo*</label>
+                        <label className="login-label">Nombre Completo*</label>
                         <input
                           type="text"
                           placeholder="Nombre Completo"
@@ -881,7 +935,7 @@ const Login = () => {
                       </div>
 
                       <div className="login-input-box">
-                        <label className={`login-label ${phone ? "label-float" : ""}`}>Teléfono*</label>
+                        <label className="login-label">Teléfono*</label>
                         <input
                           type="tel"
                           placeholder="Teléfono (ej. +521234567890)"
@@ -899,7 +953,7 @@ const Login = () => {
                       </div>
 
                       <div className="login-input-box">
-                        <label className={`login-label ${email ? "label-float" : ""}`}>Correo Electrónico*</label>
+                        <label className="login-label">Correo Electrónico*</label>
                         <input
                           type="email"
                           placeholder="Correo Electrónico"
@@ -917,7 +971,7 @@ const Login = () => {
                       </div>
 
                       <div className="login-input-box">
-                        <label className={`login-label ${password ? "label-float" : ""}`}>Contraseña*</label>
+                        <label className="login-label">Contraseña*</label>
                         <input
                           type={showPassword ? "text" : "password"}
                           placeholder="Contraseña"
@@ -953,9 +1007,7 @@ const Login = () => {
                       </div>
 
                       <div className="login-input-box">
-                        <label className={`login-label ${confirmPassword ? "label-float" : ""}`}>
-                          Confirmar Contraseña*
-                        </label>
+                        <label className="login-label">Confirmar Contraseña*</label>
                         <input
                           type={showPassword ? "text" : "password"}
                           placeholder="Confirmar Contraseña"
@@ -974,7 +1026,7 @@ const Login = () => {
                         )}
                       </div>
 
-                      <div style={{ marginBottom: "15px" }}>
+                      <div style={{ marginBottom: stylesPublic.spacing.scale[4] }}>
                         <label className="login-checkbox-label">
                           <input
                             type="checkbox"
