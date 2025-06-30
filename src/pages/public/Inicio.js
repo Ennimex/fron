@@ -1,9 +1,7 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Container, Row, Col } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-import productos from "../../services/base"
+// import productos from "../../services/base"
 import { useAuth } from "../../context/AuthContext"
 import axios from "axios"
 import {
@@ -108,7 +106,6 @@ const InicioEnhanced = () => {
       try {
         setIsLoading(true)
         const response = await axios.get("http://localhost:5000/api/public/categorias")
-
         if (response.data && response.data.length > 0) {
           const categoriasData = response.data.map((categoria) => ({
             nombre: categoria.nombre,
@@ -119,31 +116,11 @@ const InicioEnhanced = () => {
           }))
           setCategorias(categoriasData)
         } else {
-          const categoriasUnicas = [...new Set(productos.map((p) => p.category))]
-          const categoriasData = categoriasUnicas.map((categoria) => {
-            const productosCategoria = productos.filter((p) => p.category === categoria)
-            return {
-              nombre: categoria,
-              cantidad: productosCategoria.length,
-              imagen: productosCategoria[0]?.image || "",
-              descripcion: `Colección de ${categoria.toLowerCase()} con detalles artesanales únicos`,
-            }
-          })
-          setCategorias(categoriasData)
+          setCategorias([])
         }
       } catch (error) {
         console.error("Error al cargar categorías:", error)
-        const categoriasUnicas = [...new Set(productos.map((p) => p.category))]
-        const categoriasData = categoriasUnicas.map((categoria) => {
-          const productosCategoria = productos.filter((p) => p.category === categoria)
-          return {
-            nombre: categoria,
-            cantidad: productosCategoria.length,
-            imagen: productosCategoria[0]?.image || "",
-            descripcion: `Colección de ${categoria.toLowerCase()} con detalles artesanales únicos`,
-          }
-        })
-        setCategorias(categoriasData)
+        setCategorias([])
       } finally {
         setIsLoading(false)
       }
