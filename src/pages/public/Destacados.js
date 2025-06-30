@@ -1,987 +1,1099 @@
-import { useState, useEffect, useRef } from 'react';
-import { Container, Table, Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { IonIcon } from '@ionic/react';
-import { closeOutline, chevronBackOutline, chevronForwardOutline, playCircleOutline } from 'ionicons/icons';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import stylesPublic from '../../styles/stylesPublic';
-import api from '../../services/api';
+"use client"
 
-const Destacados = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [animate, setAnimate] = useState(false);
-  const [activeTab, setActiveTab] = useState('fotos');
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= parseInt(stylesPublic.breakpoints.md));
+import { useState, useEffect, useRef } from "react"
+import { Link } from "react-router-dom"
+import { IonIcon } from "@ionic/react"
+import {
+  closeOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  playCircleOutline,
+  calendarOutline,
+  locationOutline,
+} from "ionicons/icons"
+import Slider from "react-slick"
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
+import stylesPublic from "../../styles/stylesPublic"
+import api from "../../services/api"
 
-  const videoRefs = useRef([]);
-  const [fotos, setFotos] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
+const DestacadosEnhanced = () => {
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedVideo, setSelectedVideo] = useState(null)
+  const [activeTab, setActiveTab] = useState("fotos")
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= Number.parseInt(stylesPublic.breakpoints.md))
+  const [isVisible, setIsVisible] = useState(false)
 
-  // Hook para detectar cambios en el tamaño de pantalla
+  const videoRefs = useRef([])
+  const [fotos, setFotos] = useState([])
+  const [videos, setVideos] = useState([])
+  const [eventos, setEventos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [loadingEventos, setLoadingEventos] = useState(true)
+
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= parseInt(stylesPublic.breakpoints.md));
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // CSS usando exclusivamente tokens del sistema refactorizado
-  const cssStyles = `
-    .slick-slide {
-      padding: 0 ${stylesPublic.spacing.scale[2]};
+      setIsMobile(window.innerWidth <= Number.parseInt(stylesPublic.breakpoints.md))
     }
-    .slick-track {
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  const styles = `
+    .enhanced-container {
+      min-height: 100vh;
+      background: ${stylesPublic.colors.surface.primary};
+      font-family: ${stylesPublic.typography.families.body};
+    }
+
+    .enhanced-hero {
+      background: ${stylesPublic.colors.gradients.primary};
+      padding: ${stylesPublic.spacing.scale[20]} ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[16]};
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      opacity: ${isVisible ? 1 : 0};
+      transform: translateY(${isVisible ? "0" : "30px"});
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .enhanced-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .enhanced-hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .enhanced-hero-title {
+      font-size: ${stylesPublic.typography.headings.h1.fontSize};
+      font-family: ${stylesPublic.typography.headings.h1.fontFamily};
+      font-weight: 300;
+      line-height: ${stylesPublic.typography.headings.h1.lineHeight};
+      color: ${stylesPublic.colors.text.inverse};
+      margin-bottom: ${stylesPublic.spacing.scale[4]};
+      position: relative;
+    }
+
+    .enhanced-hero-title::after {
+      content: '';
+      position: absolute;
+      bottom: -${stylesPublic.spacing.scale[3]};
+      left: 50%;
+      transform: translateX(-50%);
+      width: ${stylesPublic.spacing.scale[16]};
+      height: 2px;
+      background: ${stylesPublic.colors.text.inverse};
+      opacity: 0.7;
+    }
+
+    .enhanced-hero-subtitle {
+      font-size: ${stylesPublic.typography.scale.lg};
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 300;
+      line-height: ${stylesPublic.typography.leading.relaxed};
+      margin-top: ${stylesPublic.spacing.scale[6]};
+    }
+
+    .enhanced-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[4]};
+      opacity: ${isVisible ? 1 : 0};
+      transform: translateY(${isVisible ? "0" : "20px"});
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+    }
+
+    .enhanced-section {
+      margin-bottom: ${stylesPublic.spacing.scale[16]};
+    }
+
+    .enhanced-section-title {
+      font-size: ${stylesPublic.typography.scale["2xl"]};
+      font-weight: 300;
+      color: ${stylesPublic.colors.text.primary};
+      text-align: center;
+      margin-bottom: ${stylesPublic.spacing.scale[2]};
+      position: relative;
+    }
+
+    .enhanced-section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -${stylesPublic.spacing.scale[2]};
+      left: 50%;
+      transform: translateX(-50%);
+      width: ${stylesPublic.spacing.scale[12]};
+      height: 1px;
+      background: ${stylesPublic.colors.primary[500]};
+    }
+
+    .enhanced-section-subtitle {
+      font-size: ${stylesPublic.typography.scale.base};
+      color: ${stylesPublic.colors.text.secondary};
+      text-align: center;
+      margin-bottom: ${stylesPublic.spacing.scale[10]};
+      font-weight: 300;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .enhanced-events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: ${stylesPublic.spacing.scale[6]};
+      margin-top: ${stylesPublic.spacing.scale[8]};
+    }
+
+    .enhanced-event-card {
+      background: ${stylesPublic.colors.surface.primary};
+      border: 1px solid ${stylesPublic.borders.colors.muted};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      padding: ${stylesPublic.spacing.scale[6]};
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .enhanced-event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: ${stylesPublic.shadows.lg};
+      border-color: ${stylesPublic.colors.primary[300]};
+    }
+
+    .enhanced-event-date {
       display: flex;
       align-items: center;
+      gap: ${stylesPublic.spacing.scale[2]};
+      font-size: ${stylesPublic.typography.scale.sm};
+      color: ${stylesPublic.colors.primary[500]};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      margin-bottom: ${stylesPublic.spacing.scale[3]};
+      flex-wrap: wrap;
     }
-    .slick-slide > div {
+
+    .enhanced-event-time {
+      background: ${stylesPublic.colors.primary[50]};
+      color: ${stylesPublic.colors.primary[700]};
+      padding: ${stylesPublic.spacing.scale[1]} ${stylesPublic.spacing.scale[2]};
+      border-radius: ${stylesPublic.borders.radius.sm};
+      font-size: ${stylesPublic.typography.scale.xs};
+      margin-left: ${stylesPublic.spacing.scale[2]};
+      font-weight: ${stylesPublic.typography.weights.medium};
+    }
+
+    .enhanced-event-title {
+      font-size: ${stylesPublic.typography.scale.lg};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      color: ${stylesPublic.colors.text.primary};
+      margin-bottom: ${stylesPublic.spacing.scale[2]};
+      line-height: ${stylesPublic.typography.leading.tight};
+    }
+
+    .enhanced-event-location {
+      display: flex;
+      align-items: center;
+      gap: ${stylesPublic.spacing.scale[2]};
+      font-size: ${stylesPublic.typography.scale.sm};
+      color: ${stylesPublic.colors.text.secondary};
+      margin-bottom: ${stylesPublic.spacing.scale[3]};
+    }
+
+    .enhanced-event-description {
+      font-size: ${stylesPublic.typography.scale.sm};
+      color: ${stylesPublic.colors.text.secondary};
+      line-height: ${stylesPublic.typography.leading.relaxed};
+    }
+
+    .enhanced-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: ${stylesPublic.spacing.scale[10]};
+      border-bottom: 1px solid ${stylesPublic.borders.colors.muted};
+    }
+
+    .enhanced-tab {
+      background: transparent;
+      border: none;
+      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]};
+      font-size: ${stylesPublic.typography.scale.base};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      color: ${stylesPublic.colors.text.secondary};
+      cursor: pointer;
+      transition: ${stylesPublic.animations.transitions.base};
+      position: relative;
+      font-family: ${stylesPublic.typography.families.body};
+    }
+
+    .enhanced-tab.active {
+      color: ${stylesPublic.colors.primary[500]};
+    }
+
+    .enhanced-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: ${stylesPublic.colors.primary[500]};
+    }
+
+    .enhanced-tab:hover:not(.active) {
+      color: ${stylesPublic.colors.text.primary};
+    }
+
+    .enhanced-gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: ${stylesPublic.spacing.scale[8]};
+    }
+
+    .enhanced-view-all {
+      background: transparent;
+      color: ${stylesPublic.colors.primary[500]};
+      border: 1px solid ${stylesPublic.colors.primary[500]};
+      padding: ${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]};
+      border-radius: ${stylesPublic.borders.radius.full};
+      text-decoration: none;
+      font-size: ${stylesPublic.typography.scale.sm};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      transition: ${stylesPublic.animations.transitions.base};
+      display: flex;
+      align-items: center;
+      gap: ${stylesPublic.spacing.scale[2]};
+    }
+
+    .enhanced-view-all:hover {
+      background: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.text.inverse};
+      transform: translateY(-1px);
+    }
+
+    .enhanced-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: ${stylesPublic.spacing.scale[6]};
+    }
+
+    .enhanced-gallery-item {
+      background: ${stylesPublic.colors.surface.primary};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid ${stylesPublic.borders.colors.muted};
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+
+    .enhanced-gallery-item:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: ${stylesPublic.shadows.lg};
+      border-color: ${stylesPublic.colors.primary[200]};
+    }
+
+    .enhanced-gallery-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .enhanced-gallery-item:hover .enhanced-gallery-image {
+      transform: scale(1.05);
+    }
+
+    .enhanced-gallery-content {
+      padding: ${stylesPublic.spacing.scale[5]};
+    }
+
+    .enhanced-gallery-title {
+      font-size: ${stylesPublic.typography.scale.lg};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      color: ${stylesPublic.colors.text.primary};
+      margin-bottom: ${stylesPublic.spacing.scale[2]};
+      line-height: ${stylesPublic.typography.leading.tight};
+    }
+
+    .enhanced-gallery-description {
+      font-size: ${stylesPublic.typography.scale.sm};
+      color: ${stylesPublic.colors.text.secondary};
+      line-height: ${stylesPublic.typography.leading.relaxed};
+    }
+
+    .enhanced-video-carousel {
+      margin-top: ${stylesPublic.spacing.scale[8]};
+    }
+
+    .enhanced-video-item {
+      background: ${stylesPublic.colors.surface.primary};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid ${stylesPublic.borders.colors.muted};
+      margin: 0 ${stylesPublic.spacing.scale[2]};
+      aspect-ratio: 9/16;
+      height: 400px;
+      position: relative;
+    }
+
+    .enhanced-video-item:hover {
+      transform: scale(1.03);
+      box-shadow: ${stylesPublic.shadows.lg};
+      border-color: ${stylesPublic.colors.primary[200]};
+    }
+
+    .enhanced-video-preview {
+      width: 100%;
+      height: 70%;
+      object-fit: cover;
+    }
+
+    .enhanced-video-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: ${stylesPublic.colors.text.inverse};
+      padding: ${stylesPublic.spacing.scale[4]};
+    }
+
+    .enhanced-video-title {
+      font-size: ${stylesPublic.typography.scale.base};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      margin-bottom: ${stylesPublic.spacing.scale[1]};
+      line-height: ${stylesPublic.typography.leading.tight};
+    }
+
+    .enhanced-video-description {
+      font-size: ${stylesPublic.typography.scale.sm};
+      opacity: 0.9;
+      line-height: ${stylesPublic.typography.leading.relaxed};
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .enhanced-play-icon {
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: ${stylesPublic.typography.scale["3xl"]};
+      color: ${stylesPublic.colors.text.inverse};
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+    }
+
+    .enhanced-video-item:hover .enhanced-play-icon {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .enhanced-lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: ${stylesPublic.utils.zIndex.modal};
+      padding: ${stylesPublic.spacing.scale[4]};
     }
+
+    .enhanced-lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .enhanced-lightbox-image {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: ${stylesPublic.borders.radius.md};
+    }
+
+    .enhanced-lightbox-video {
+      width: 100%;
+      max-width: ${isMobile ? "90vw" : "800px"};
+      height: ${isMobile ? "250px" : "450px"};
+      border-radius: ${stylesPublic.borders.radius.md};
+    }
+
+    .enhanced-lightbox-info {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: ${stylesPublic.colors.text.inverse};
+      padding: ${stylesPublic.spacing.scale[4]};
+      border-radius: ${stylesPublic.borders.radius.md};
+      margin-top: ${stylesPublic.spacing.scale[4]};
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .enhanced-lightbox-title {
+      font-size: ${stylesPublic.typography.scale.lg};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      margin-bottom: ${stylesPublic.spacing.scale[2]};
+    }
+
+    .enhanced-lightbox-description {
+      font-size: ${stylesPublic.typography.scale.sm};
+      opacity: 0.9;
+      line-height: ${stylesPublic.typography.leading.relaxed};
+    }
+
+    .enhanced-close-btn {
+      position: absolute;
+      top: ${stylesPublic.spacing.scale[4]};
+      right: ${stylesPublic.spacing.scale[4]};
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: ${stylesPublic.colors.text.inverse};
+      border: none;
+      border-radius: ${stylesPublic.borders.radius.full};
+      width: ${stylesPublic.spacing.scale[10]};
+      height: ${stylesPublic.spacing.scale[10]};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: ${stylesPublic.animations.transitions.base};
+    }
+
+    .enhanced-close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .enhanced-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: ${stylesPublic.colors.text.inverse};
+      border: none;
+      border-radius: ${stylesPublic.borders.radius.full};
+      width: ${stylesPublic.spacing.scale[12]};
+      height: ${stylesPublic.spacing.scale[12]};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: ${stylesPublic.animations.transitions.base};
+    }
+
+    .enhanced-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .enhanced-nav-btn.prev {
+      left: ${stylesPublic.spacing.scale[4]};
+    }
+
+    .enhanced-nav-btn.next {
+      right: ${stylesPublic.spacing.scale[4]};
+    }
+
+    .enhanced-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: ${stylesPublic.spacing.scale[16]};
+      color: ${stylesPublic.colors.text.secondary};
+    }
+
+    .enhanced-loading-spinner {
+      width: ${stylesPublic.spacing.scale[8]};
+      height: ${stylesPublic.spacing.scale[8]};
+      border: 2px solid ${stylesPublic.colors.primary[200]};
+      border-top: 2px solid ${stylesPublic.colors.primary[500]};
+      border-radius: ${stylesPublic.borders.radius.full};
+      animation: spin 1s linear infinite;
+      margin-bottom: ${stylesPublic.spacing.scale[4]};
+    }
+
+    .enhanced-empty-state {
+      text-align: center;
+      padding: ${stylesPublic.spacing.scale[16]};
+      color: ${stylesPublic.colors.text.secondary};
+    }
+
+    .enhanced-empty-icon {
+      font-size: ${stylesPublic.typography.scale["3xl"]};
+      margin-bottom: ${stylesPublic.spacing.scale[4]};
+      opacity: 0.5;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     .slick-dots {
-      bottom: -${stylesPublic.spacing.scale[12]};
+      bottom: -${stylesPublic.spacing.scale[8]};
     }
+
     .slick-dots li button:before {
       color: ${stylesPublic.colors.primary[500]};
       font-size: ${stylesPublic.typography.scale.xs};
-    }
-    .slick-dots li.slick-active button:before {
-      color: ${stylesPublic.colors.secondary[500]};
+      opacity: 0.5;
     }
 
-    /* Responsive Design */
+    .slick-dots li.slick-active button:before {
+      opacity: 1;
+    }
+
     @media (max-width: ${stylesPublic.breakpoints.lg}) {
-      .hero-section h1 {
-        font-size: ${stylesPublic.typography.scale['2xl']} !important;
+      .enhanced-hero {
+        padding: ${stylesPublic.spacing.scale[16]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[12]};
       }
-      .hero-section p {
-        font-size: ${stylesPublic.typography.scale.base} !important;
+
+      .enhanced-hero-title {
+        font-size: ${stylesPublic.typography.scale["2xl"]};
+      }
+
+      .enhanced-events-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: ${stylesPublic.spacing.scale[4]};
+      }
+
+      .enhanced-gallery-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: ${stylesPublic.spacing.scale[4]};
       }
     }
 
     @media (max-width: ${stylesPublic.breakpoints.md}) {
-      .hero-section {
-        padding: ${stylesPublic.spacing.scale[20]} 0 !important;
+      .enhanced-main {
+        padding: ${stylesPublic.spacing.scale[8]} ${stylesPublic.spacing.scale[3]};
       }
-      .hero-section h1 {
-        font-size: ${stylesPublic.typography.scale.xl} !important;
+
+      .enhanced-hero-title {
+        font-size: ${stylesPublic.typography.scale.xl};
       }
-      .gallery-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-        gap: ${stylesPublic.spacing.scale[4]} !important;
+
+      .enhanced-tabs {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .enhanced-gallery-header {
+        flex-direction: column;
+        gap: ${stylesPublic.spacing.scale[4]};
+        align-items: center;
+      }
+
+      .enhanced-events-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .enhanced-gallery-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .enhanced-video-item {
+        height: 350px;
+      }
+
+      .enhanced-lightbox-video {
+        height: 300px;
       }
     }
 
     @media (max-width: ${stylesPublic.breakpoints.sm}) {
-      .hero-section {
-        padding: ${stylesPublic.spacing.scale[15]} 0 !important;
+      .enhanced-hero {
+        padding: ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[8]};
       }
-      .hero-section h1 {
-        font-size: ${stylesPublic.typography.scale.lg} !important;
-      }
-      .gallery-grid {
-        grid-template-columns: 1fr !important;
-        gap: ${stylesPublic.spacing.scale[2]} !important;
-      }
-      .table-cell {
-        padding: ${stylesPublic.spacing.scale[2]} !important;
-        font-size: ${stylesPublic.typography.scale.xs} !important;
-      }
-    }
 
-    @media (max-width: ${stylesPublic.breakpoints.xs}) {
-      .hero-section h1 {
-        font-size: ${stylesPublic.typography.scale.base} !important;
+      .enhanced-hero-title {
+        font-size: ${stylesPublic.typography.scale.lg};
       }
-      .tab-button {
-        width: ${stylesPublic.spacing.scale[30]} !important;
-        font-size: ${stylesPublic.typography.scale.sm} !important;
-      }
-    }
-  `;
 
-  const styles = {
-    pageContainer: {
-      background: stylesPublic.colors.gradients.hero,
-      minHeight: '100vh',
-      paddingTop: stylesPublic.spacing.scale[8],
-      paddingBottom: stylesPublic.spacing.scale[15],
-      position: 'relative',
-    },
-    pageOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: stylesPublic.colors.gradients.glass,
-      opacity: 0.1,
-      pointerEvents: 'none',
-      zIndex: 1,
-    },
-    hero: {
-      background: stylesPublic.colors.gradients.accent,
-      padding: `${stylesPublic.spacing.scale[20]} 0`,
-      color: stylesPublic.colors.text.inverse,
-      marginBottom: stylesPublic.spacing.scale[12],
-      position: 'relative',
-      overflow: 'hidden',
-      textAlign: 'center',
-    },
-    heroPattern: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: `radial-gradient(${stylesPublic.colors.surface.primary} 1px, transparent 1px)`,
-      backgroundSize: `${stylesPublic.spacing.scale[5]} ${stylesPublic.spacing.scale[5]}`,
-      opacity: 0.1,
-      pointerEvents: 'none',
-      zIndex: 1,
-    },
-    sectionTitle: {
-      ...stylesPublic.typography.headings.h2,
-      color: stylesPublic.colors.text.primary,
-      marginBottom: stylesPublic.spacing.scale[6],
-      textAlign: "center",
-    },
-    titleUnderline: {
-      display: 'block',
-      width: stylesPublic.spacing.scale[20],
-      height: stylesPublic.spacing.scale[1],
-      background: stylesPublic.colors.gradients.accent,
-      borderRadius: stylesPublic.borders.radius.sm,
-      margin: `${stylesPublic.spacing.scale[4]} auto`,
-    },
-    eventsSection: {
-      width: '100%',
-      backgroundColor: stylesPublic.colors.surface.primary,
-      borderRadius: stylesPublic.borders.radius.lg,
-      padding: stylesPublic.spacing.scale[12],
-      boxShadow: stylesPublic.shadows.md,
-      border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.primary[300]}`,
-    },
-    eventsTable: {
-      backgroundColor: stylesPublic.colors.surface.primary,
-      borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: stylesPublic.shadows.md,
-      border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.secondary[500]}`,
-      overflow: 'hidden',
-      fontSize: stylesPublic.typography.scale.sm,
-    },
-    tableCell: {
-      padding: stylesPublic.spacing.scale[4],
-      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
-      verticalAlign: 'middle',
-    },
-    galleryGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: stylesPublic.spacing.scale[6],
-      marginTop: stylesPublic.spacing.scale[12],
-      padding: `0 ${stylesPublic.spacing.scale[4]}`,
-    },
-    reelsCarousel: {
-      marginTop: stylesPublic.spacing.scale[12],
-      padding: `0 ${stylesPublic.spacing.scale[6]}`,
-      position: 'relative',
-    },
-    galleryItem: {
-      position: 'relative',
-      overflow: 'hidden',
-      borderRadius: stylesPublic.borders.radius.lg,
-      boxShadow: stylesPublic.shadows.lg,
-      cursor: 'pointer',
-      height: stylesPublic.spacing.scale[88],
-      transition: stylesPublic.animations.transitions.base,
-    },
-    reelItem: {
-      position: 'relative',
-      overflow: 'hidden',
-      borderRadius: stylesPublic.borders.radius.lg,
-      boxShadow: stylesPublic.shadows.lg,
-      cursor: 'pointer',
-      aspectRatio: '9/16',
-      height: stylesPublic.spacing.scale[100],
-      margin: `0 ${stylesPublic.spacing.scale[4]}`,
-      transition: stylesPublic.animations.transitions.base,
-      background: stylesPublic.colors.surface.primary,
-    },
-    galleryImage: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      transition: stylesPublic.animations.transitions.transform
-    },
-    reelVideo: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      borderRadius: stylesPublic.borders.radius.lg,
-    },
-    playIcon: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      fontSize: stylesPublic.typography.scale['4xl'],
-      color: stylesPublic.colors.text.inverse,
-      zIndex: stylesPublic.utils.zIndex.docked,
-      transition: stylesPublic.animations.transitions.opacity,
-    },
-    captionOverlay: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      background: stylesPublic.colors.gradients.glass,
-      color: stylesPublic.colors.text.inverse,
-      padding: stylesPublic.spacing.scale[4],
-      textAlign: 'center'
-    },
-    lightbox: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: stylesPublic.colors.surface.overlay,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: stylesPublic.utils.zIndex.modal,
-      padding: stylesPublic.spacing.scale[4],
-      overflow: 'auto'
-    },
-    lightboxImageWrapper: {
-      position: 'relative',
-      maxWidth: '80%',
-      maxHeight: '80%',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    lightboxVideoWrapper: {
-      position: 'relative',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      maxWidth: '85vw',
-      maxHeight: '85vh',
-      margin: '0 auto'
-    },
-    lightboxImage: {
-      maxWidth: '100%',
-      maxHeight: '80vh',
-      objectFit: 'contain',
-      borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: stylesPublic.shadows.xl,
-    },
-    lightboxVideo: {
-      width: '100%',
-      maxWidth: stylesPublic.spacing.scale[200],
-      height: stylesPublic.spacing.scale[113],
-      borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: stylesPublic.shadows.xl
-    },
-    lightboxCaption: {
-      position: 'absolute',
-      bottom: stylesPublic.spacing.scale[8],
-      color: stylesPublic.colors.text.inverse,
-      fontSize: stylesPublic.typography.scale.lg,
-      textAlign: 'center',
-      background: stylesPublic.colors.surface.overlay,
-      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
-      borderRadius: stylesPublic.borders.radius.md,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '80%'
-    },
-    closeButton: {
-      position: 'absolute',
-      top: stylesPublic.spacing.scale[5],
-      right: stylesPublic.spacing.scale[5],
-      backgroundColor: stylesPublic.colors.primary[500],
-      color: stylesPublic.colors.text.inverse,
-      border: 'none',
-      borderRadius: stylesPublic.borders.radius.full,
-      width: stylesPublic.spacing.scale[10],
-      height: stylesPublic.spacing.scale[10],
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      cursor: 'pointer',
-      transition: stylesPublic.animations.transitions.colors,
-      zIndex: stylesPublic.utils.zIndex.popover,
-    },
-    navButton: {
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      backgroundColor: stylesPublic.colors.primary[500],
-      color: stylesPublic.colors.text.inverse,
-      border: 'none',
-      borderRadius: stylesPublic.borders.radius.full,
-      width: stylesPublic.spacing.scale[12],
-      height: stylesPublic.spacing.scale[12],
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      cursor: 'pointer',
-      transition: stylesPublic.animations.transitions.colors,
-      zIndex: stylesPublic.utils.zIndex.popover,
-    },
-    tabButtons: {
-      display: 'flex',
-      justifyContent: 'center',
-      marginBottom: stylesPublic.spacing.scale[12],
-      gap: stylesPublic.spacing.scale[4],
-    },
-    tabButton: {
-      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[6]}`,
-      borderRadius: stylesPublic.borders.radius.full,
-      border: 'none',
-      background: 'transparent',
-      color: stylesPublic.colors.text.primary,
-      fontWeight: stylesPublic.typography.weights.semibold,
-      cursor: 'pointer',
-      transition: stylesPublic.animations.transitions.base,
-    },
-    viewAllLink: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      backgroundColor: stylesPublic.colors.primary[500],
-      color: stylesPublic.colors.text.inverse,
-      padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
-      borderRadius: stylesPublic.borders.radius.full,
-      textDecoration: 'none',
-      fontSize: stylesPublic.typography.scale.sm,
-      fontWeight: stylesPublic.typography.weights.semibold,
-      transition: stylesPublic.animations.transitions.base,
-      zIndex: stylesPublic.utils.zIndex.docked,
+      .enhanced-main {
+        padding: ${stylesPublic.spacing.scale[6]} ${stylesPublic.spacing.scale[2]};
+      }
+
+      .enhanced-video-item {
+        height: 300px;
+      }
+
+      .enhanced-lightbox-video {
+        height: 250px;
+      }
     }
-  };
+  `
+
+  // Datos de eventos destacados - Ahora obtenidos dinámicamente desde la API
+  // const events = [...] // Comentado: datos estáticos eliminados
+
+  // Transformar los datos de eventos de la API
+  const events = eventos.map((evento) => {
+    // Formatear fecha
+    const fecha = new Date(evento.fecha);
+    const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    return {
+      id: evento._id,
+      date: fechaFormateada,
+      name: evento.titulo,
+      location: evento.ubicacion,
+      description: evento.descripcion,
+      horaInicio: evento.horaInicio,
+      horaFin: evento.horaFin
+    };
+  })
 
   // Transformar los datos de fotos de la API para usarlos en la galería
-  const images = fotos.map(foto => ({
+  const images = fotos.map((foto) => ({
     id: foto._id,
     src: foto.url,
     alt: foto.titulo,
-    caption: foto.descripcion
-  }));
+    caption: foto.descripcion,
+  }))
 
   // Transformar los datos de videos de la API para usarlos en el carousel
-  const reels = videos.map(video => ({
+  const reels = videos.map((video) => ({
     id: video._id,
     src: video.url,
     previewSrc: video.miniatura || video.url,
-    title: video.titulo || 'Video sin título',
-    description: video.descripcion || 'Sin descripción'
-  }));
+    title: video.titulo || "Video sin título",
+    description: video.descripcion || "Sin descripción",
+  }))
 
-  // Datos de eventos destacados
-  const events = [
-    {
-      id: 1,
-      date: '15/07/2024',
-      name: 'Exposición Premium "Arte Textil"',
-      location: 'Galería Nacional, CDMX',
-      description: 'Exhibición exclusiva de nuestras piezas más destacadas'
-    },
-    {
-      id: 2,
-      date: '22/08/2024',
-      name: 'Taller Maestro de Bordado Huasteco',
-      location: 'Centro Cultural, San Luis Potosí',
-      description: 'Experiencia premium con nuestras mejores artesanas'
-    },
-    {
-      id: 3,
-      date: '10/09/2024',
-      name: 'Presentación Colección Especial',
-      location: 'Fashion Week, Tampico',
-      description: 'Lanzamiento de nuestra línea más exclusiva'
-    },
-    {
-      id: 4,
-      date: '05/10/2024',
-      name: 'Gala "Raíces Huastecas Premium"',
-      location: 'Palacio de Bellas Artes, CDMX',
-      description: 'Evento de gala con nuestras creaciones destacadas'
-    }
-  ];
-
-  // Efecto para cargar las fotos destacadas desde la API
   useEffect(() => {
     const fetchFotos = async () => {
       try {
-        setLoading(true);
-        const data = await api.get('/public/galeria/fotos');
-        setFotos(data);
-        setLoading(false);
+        setLoading(true)
+        const data = await api.get("/public/galeria/fotos")
+        setFotos(data)
+        setLoading(false)
       } catch (error) {
-        console.error('Error al cargar las fotos destacadas:', error);
-        setLoading(false);
+        console.error("Error al cargar las fotos destacadas:", error)
+        setLoading(false)
       }
-    };
+    }
 
-    fetchFotos();
-  }, []);
+    fetchFotos()
+  }, [])
 
-  // Efecto para cargar los videos desde la API
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const data = await api.get('/videos');
-        setVideos(data);
+        const data = await api.get("/videos")
+        setVideos(data)
       } catch (error) {
-        console.error('Error al cargar los videos:', error);
+        console.error("Error al cargar los videos:", error)
       }
-    };
+    }
 
-    fetchVideos();
-  }, []);
+    fetchVideos()
+  }, [])
+
+  useEffect(() => {
+    const fetchEventos = async () => {
+      try {
+        setLoadingEventos(true)
+        const data = await api.get("/eventos")
+        // Filtrar solo eventos futuros y ordenar por fecha
+        const eventosFuturos = data.filter(evento => {
+          const fechaEvento = new Date(evento.fecha);
+          const hoy = new Date();
+          hoy.setHours(0, 0, 0, 0);
+          return fechaEvento >= hoy;
+        }).slice(0, 4); // Mostrar solo los próximos 4 eventos
+        
+        setEventos(eventosFuturos)
+        setLoadingEventos(false)
+      } catch (error) {
+        console.error("Error al cargar los eventos:", error)
+        setEventos([]) // En caso de error, mostrar array vacío
+        setLoadingEventos(false)
+      }
+    }
+
+    fetchEventos()
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setAnimate(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+      setIsVisible(true)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   const openLightbox = (image) => {
-    setSelectedImage(image);
-    setSelectedVideo(null);
-    document.body.style.overflow = 'hidden';
-  };
+    setSelectedImage(image)
+    setSelectedVideo(null)
+    document.body.style.overflow = "hidden"
+  }
 
   const openVideo = (video) => {
-    setSelectedVideo(video);
-    setSelectedImage(null);
-    document.body.style.overflow = 'hidden';
-  };
+    setSelectedVideo(video)
+    setSelectedImage(null)
+    document.body.style.overflow = "hidden"
+  }
 
   const closeLightbox = () => {
-    setSelectedImage(null);
-    setSelectedVideo(null);
-    document.body.style.overflow = 'auto';
-    
-    // Pause all videos when closing lightbox
+    setSelectedImage(null)
+    setSelectedVideo(null)
+    document.body.style.overflow = "auto"
+
     videoRefs.current.forEach((video) => {
       if (video) {
         try {
-          video.pause();
-          video.currentTime = 0;
+          video.pause()
+          video.currentTime = 0
         } catch (error) {
-          console.warn('Error pausing video:', error);
+          console.warn("Error pausing video:", error)
         }
       }
-    });
+    })
 
-    // También pausar el video del lightbox si existe
-    const lightboxVideo = document.querySelector('video[controls]');
+    const lightboxVideo = document.querySelector("video[controls]")
     if (lightboxVideo) {
-      lightboxVideo.pause();
+      lightboxVideo.pause()
     }
-  };
+  }
 
   const navigateMedia = (direction) => {
     if (selectedImage) {
-      const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
-      let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-      if (newIndex < 0) newIndex = images.length - 1;
-      if (newIndex >= images.length) newIndex = 0;
-      setSelectedImage(images[newIndex]);
+      const currentIndex = images.findIndex((img) => img.id === selectedImage.id)
+      let newIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1
+      if (newIndex < 0) newIndex = images.length - 1
+      if (newIndex >= images.length) newIndex = 0
+      setSelectedImage(images[newIndex])
     } else if (selectedVideo) {
-      const currentIndex = reels.findIndex((vid) => vid.id === selectedVideo.id);
-      let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-      if (newIndex < 0) newIndex = reels.length - 1;
-      if (newIndex >= reels.length) newIndex = 0;
-      setSelectedVideo(reels[newIndex]);
+      const currentIndex = reels.findIndex((vid) => vid.id === selectedVideo.id)
+      let newIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1
+      if (newIndex < 0) newIndex = reels.length - 1
+      if (newIndex >= reels.length) newIndex = 0
+      setSelectedVideo(reels[newIndex])
     }
-  };
+  }
 
   const handleVideoHover = (index, play) => {
-    const video = videoRefs.current[index];
+    const video = videoRefs.current[index]
     if (video) {
       try {
         if (play) {
-          video.play().catch(() => {
-            // Silently handle autoplay restrictions
-          });
+          video.play().catch(() => {})
         } else {
-          video.pause();
-          video.currentTime = 0;
+          video.pause()
+          video.currentTime = 0
         }
       } catch (error) {
-        console.warn('Error handling video hover:', error);
+        console.warn("Error handling video hover:", error)
       }
     }
-  };
+  }
 
   const sliderSettings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: isMobile ? 1 : 3,
     slidesToScroll: 1,
     swipeToSlide: true,
     arrows: false,
     autoplay: true,
-    autoplaySpeed: 3500,
-    centerMode: false,
-    variableWidth: false,
+    autoplaySpeed: 4000,
+    centerMode: isMobile,
+    centerPadding: isMobile ? "20px" : "0px",
     responsive: [
       {
-        breakpoint: parseInt(stylesPublic.breakpoints['2xl']),
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-        }
-      },
-      {
-        breakpoint: parseInt(stylesPublic.breakpoints.md),
+        breakpoint: Number.parseInt(stylesPublic.breakpoints.lg),
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
-        }
+        },
       },
       {
-        breakpoint: parseInt(stylesPublic.breakpoints.sm),
+        breakpoint: Number.parseInt(stylesPublic.breakpoints.md),
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
           centerMode: true,
-          centerPadding: stylesPublic.spacing.scale[10]
-        }
-      }
-    ]
-  };
+          centerPadding: "40px",
+        },
+      },
+    ],
+  }
 
   return (
     <>
-      <style>{cssStyles}</style>
-      
-      <div style={styles.pageContainer}>
-        <div style={styles.pageOverlay}></div>
-        <Container>
-          {/* Hero Section */}
-          <div style={styles.hero}>
-            <div style={styles.heroPattern}></div>
-            <Container>
-              <h1 style={{ 
-                ...stylesPublic.typography.headings.h1,
-                marginBottom: stylesPublic.spacing.scale[6]
-              }}>
-                Contenido Destacado
-              </h1>
-              <p style={{ 
-                ...stylesPublic.typography.body.large,
-                maxWidth: "700px", 
-                margin: "0 auto"
-              }}>
-                Descubre lo mejor de nuestras creaciones artesanales huastecas
-              </p>
-            </Container>
-          </div>
+      <style>{styles}</style>
 
+      <div className="enhanced-container">
+        {/* Hero Section */}
+        <div className="enhanced-hero">
+          <div className="enhanced-hero-content">
+            <h1 className="enhanced-hero-title">Contenido Destacado</h1>
+            <p className="enhanced-hero-subtitle">Descubre lo mejor de nuestras creaciones artesanales huastecas</p>
+          </div>
+        </div>
+
+        <div className="enhanced-main">
           {/* Sección de Eventos Destacados */}
-          <section style={{ marginBottom: stylesPublic.spacing.scale[16] }}>
-            <h2 style={styles.sectionTitle}>Eventos Destacados</h2>
-            <div style={styles.titleUnderline}></div>
-            
-            <div style={styles.eventsSection}>
-              <Table responsive style={styles.eventsTable}>
-                <thead style={styles.tableHeader}>
-                  <tr>
-                    <th className="table-cell" style={styles.tableCell}>Fecha</th>
-                    <th className="table-cell" style={styles.tableCell}>Evento</th>
-                    <th className="table-cell" style={styles.tableCell}>Lugar</th>
-                    <th className="table-cell" style={styles.tableCell}>Descripción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.map((event, index) => (
-                    <tr
-                      key={event.id}
-                      style={{
-                        opacity: animate ? 1 : 0,
-                        transform: animate ? 'translateY(0)' : `translateY(${stylesPublic.spacing.scale[5]})`,
-                        transition: `opacity ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${0.6 + index * 0.1}s, transform ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${0.6 + index * 0.1}s`,
-                        backgroundColor: index % 2 === 0 ? stylesPublic.colors.surface.primary : stylesPublic.colors.surface.secondary
-                      }}
-                    >
-                      <td className="table-cell" style={styles.tableCell}>{event.date}</td>
-                      <td className="table-cell" style={{ ...styles.tableCell, fontWeight: stylesPublic.typography.weights.semibold }}>{event.name}</td>
-                      <td className="table-cell" style={styles.tableCell}>{event.location}</td>
-                      <td className="table-cell" style={styles.tableCell}>{event.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+          <section className="enhanced-section">
+            <h2 className="enhanced-section-title">Próximos Eventos</h2>
+            <p className="enhanced-section-subtitle">
+              Acompáñanos en nuestras próximas presentaciones y talleres exclusivos
+            </p>
+
+            {loadingEventos ? (
+              <div className="enhanced-loading">
+                <div className="enhanced-loading-spinner"></div>
+                <p>Cargando eventos...</p>
+              </div>
+            ) : events.length > 0 ? (
+              <div className="enhanced-events-grid">
+                {events.map((event, index) => (
+                  <div
+                    key={event.id}
+                    className="enhanced-event-card"
+                    style={{
+                      animationDelay: `${index * 0.1}s`,
+                    }}
+                  >
+                    <div className="enhanced-event-date">
+                      <IonIcon icon={calendarOutline} />
+                      {event.date}
+                      {event.horaInicio && (
+                        <span className="enhanced-event-time">
+                          {event.horaInicio}
+                          {event.horaFin && ` - ${event.horaFin}`}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="enhanced-event-title">{event.name}</h3>
+                    <div className="enhanced-event-location">
+                      <IonIcon icon={locationOutline} />
+                      {event.location}
+                    </div>
+                    <p className="enhanced-event-description">{event.description}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="enhanced-empty-state">
+                <div className="enhanced-empty-icon">📅</div>
+                <p>No hay eventos próximos programados</p>
+                <small>¡Mantente atento a nuestras próximas actividades!</small>
+              </div>
+            )}
           </section>
 
-          {/* Pestañas de Contenido Destacado */}
-          <section style={{ marginBottom: stylesPublic.spacing.scale[16] }}>
-            <div style={styles.tabButtons}>
-              <button 
-                className="tab-button"
-                style={{ 
-                  ...styles.tabButton, 
-                  ...(activeTab === 'fotos' ? { 
-                    background: stylesPublic.colors.gradients.accent, 
-                    color: stylesPublic.colors.text.inverse
-                  } : {}) 
-                }}
-                onClick={() => setActiveTab('fotos')}
+          {/* Pestañas de Contenido */}
+          <section className="enhanced-section">
+            <div className="enhanced-tabs">
+              <button
+                className={`enhanced-tab ${activeTab === "fotos" ? "active" : ""}`}
+                onClick={() => setActiveTab("fotos")}
               >
-                Fotos Destacadas
+                Galería Destacada
               </button>
-              <button 
-                className="tab-button"
-                style={{ 
-                  ...styles.tabButton, 
-                  ...(activeTab === 'videos' ? { 
-                    background: stylesPublic.colors.gradients.accent, 
-                    color: stylesPublic.colors.text.inverse
-                  } : {}) 
-                }}
-                onClick={() => setActiveTab('videos')}
+              <button
+                className={`enhanced-tab ${activeTab === "videos" ? "active" : ""}`}
+                onClick={() => setActiveTab("videos")}
               >
                 Videos Destacados
               </button>
             </div>
 
-            {activeTab === 'fotos' ? (
+            {activeTab === "fotos" ? (
               <>
-                <div style={{ position: 'relative', marginBottom: stylesPublic.spacing.scale[6] }}>
-                  <h2 style={styles.sectionTitle}>Creaciones Destacadas</h2>
-                  <Link 
-                    to="/catalogofotos" 
-                    style={styles.viewAllLink}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500];
-                      e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[1]})`;
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500];
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
+                <div className="enhanced-gallery-header">
+                  <div>
+                    <h2 className="enhanced-section-title">Creaciones Destacadas</h2>
+                    <p className="enhanced-section-subtitle">Nuestras piezas más especiales seleccionadas para ti</p>
+                  </div>
+                  <Link to="/catalogofotos" className="enhanced-view-all">
                     Ver galería completa
+                    <IonIcon icon={chevronForwardOutline} />
                   </Link>
                 </div>
-                <div style={styles.titleUnderline}></div>
-                <p style={{ 
-                  ...stylesPublic.typography.body.large,
-                  color: stylesPublic.colors.text.secondary, 
-                  maxWidth: "800px", 
-                  margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
-                  textAlign: "center"
-                }}>
-                  Nuestras piezas más especiales seleccionadas especialmente para ti
-                </p>
 
-                <div className="gallery-grid" style={styles.galleryGrid}>
-                  {loading ? (
-                    <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
-                      <div className="spinner-border" role="status" style={{ color: stylesPublic.colors.primary[500] }}>
-                        <span className="visually-hidden">Cargando...</span>
+                {loading ? (
+                  <div className="enhanced-loading">
+                    <div className="enhanced-loading-spinner"></div>
+                    <p>Cargando contenido destacado...</p>
+                  </div>
+                ) : images.length > 0 ? (
+                  <div className="enhanced-gallery-grid">
+                    {images.slice(0, 6).map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="enhanced-gallery-item"
+                        style={{
+                          animationDelay: `${index * 0.1}s`,
+                          animation: "fadeInUp 0.6s ease-out forwards",
+                        }}
+                        onClick={() => openLightbox(image)}
+                      >
+                        <img src={image.src || "/placeholder.svg"} alt={image.alt} className="enhanced-gallery-image" />
+                        <div className="enhanced-gallery-content">
+                          <h3 className="enhanced-gallery-title">{image.alt}</h3>
+                          <p className="enhanced-gallery-description">{image.caption}</p>
+                        </div>
                       </div>
-                      <p style={{ 
-                        ...stylesPublic.typography.body.base,
-                        marginTop: stylesPublic.spacing.scale[2]
-                      }}>
-                        Cargando contenido destacado...
-                      </p>
-                    </div>
-                  ) : images.length > 0 ? (
-                    images.slice(0, 3).map((image, index) => (
-                    <div
-                      key={image.id}
-                      style={{
-                        ...styles.galleryItem,
-                        opacity: animate ? 1 : 0,
-                        transform: animate ? 'translateY(0)' : `translateY(${stylesPublic.spacing.scale[5]})`,
-                        transition: `all ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${index * 0.15}s`,
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]})`;
-                        e.currentTarget.style.boxShadow = stylesPublic.shadows.xl;
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = stylesPublic.shadows.lg;
-                      }}
-                      onClick={() => openLightbox(image)}
-                    >
-                      <img
-                        src={image.src}
-                        alt={image.alt}
-                        style={styles.galleryImage}
-                      />
-                      <div style={styles.captionOverlay}>
-                        <h5 style={{ 
-                          ...stylesPublic.typography.headings.h6,
-                          margin: 0,
-                          marginBottom: stylesPublic.spacing.scale[1],
-                        }}>
-                          {image.alt}
-                        </h5>
-                        <p style={{ 
-                          ...stylesPublic.typography.body.small,
-                          margin: 0, 
-                          opacity: 0.9
-                        }}>
-                          {image.caption}
-                        </p>
-                      </div>
-                    </div>
-                  ))) : (
-                    <div className="text-center w-100" style={{ gridColumn: '1 / -1' }}>
-                      <p style={stylesPublic.typography.body.base}>No hay contenido destacado disponible.</p>
-                    </div>
-                  )}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="enhanced-empty-state">
+                    <div className="enhanced-empty-icon">📷</div>
+                    <p>No hay contenido destacado disponible</p>
+                  </div>
+                )}
               </>
             ) : (
               <>
-                <h2 style={styles.sectionTitle}>Videos Destacados</h2>
-                <div style={styles.titleUnderline}></div>
-                <p style={{ 
-                  ...stylesPublic.typography.body.large,
-                  color: stylesPublic.colors.text.secondary, 
-                  maxWidth: "800px", 
-                  margin: `0 auto ${stylesPublic.spacing.scale[12]}`,
-                  textAlign: "center"
-                }}>
-                  Los momentos más especiales de nuestro trabajo artesanal
-                </p>
+                <h2 className="enhanced-section-title">Videos Destacados</h2>
+                <p className="enhanced-section-subtitle">Los momentos más especiales de nuestro trabajo artesanal</p>
 
-                <div style={styles.reelsCarousel}>
-                  {reels.length > 0 ? (
+                {reels.length > 0 ? (
+                  <div className="enhanced-video-carousel">
                     <Slider {...sliderSettings}>
                       {reels.map((reel, index) => (
-                      <div key={reel.id} style={{ padding: `0 ${stylesPublic.spacing.scale[2]}` }}>
-                        <Card
-                          style={{
-                            ...styles.reelItem,
-                            opacity: animate ? 1 : 0,
-                            transform: animate ? 'translateY(0)' : `translateY(${stylesPublic.spacing.scale[5]})`,
-                            transition: `all ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']} ${index * 0.1}s`,
-                            padding: 0,
-                            border: 'none',
-                            margin: 0,
-                            width: '100%'
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.03)';
-                            e.currentTarget.style.boxShadow = stylesPublic.shadows.xl;
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                            e.currentTarget.style.boxShadow = stylesPublic.shadows.lg;
-                          }}
-                          onClick={() => openVideo(reel)}
-                          onMouseEnter={() => handleVideoHover(index, true)}
-                          onMouseLeave={() => handleVideoHover(index, false)}
-                        >
-                          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <div key={reel.id}>
+                          <div
+                            className="enhanced-video-item"
+                            onClick={() => openVideo(reel)}
+                            onMouseEnter={() => handleVideoHover(index, true)}
+                            onMouseLeave={() => handleVideoHover(index, false)}
+                          >
                             <video
                               ref={(el) => (videoRefs.current[index] = el)}
                               src={reel.previewSrc || reel.src}
                               muted
                               loop
-                              style={styles.reelVideo}
+                              className="enhanced-video-preview"
                               poster={reel.previewSrc}
                             />
-                            <div style={styles.playIcon}>
-                              <IonIcon icon={playCircleOutline} style={{ fontSize: stylesPublic.spacing.scale[12] }} />
+                            <div className="enhanced-play-icon">
+                              <IonIcon icon={playCircleOutline} />
                             </div>
-                            <Card.Body style={{
-                              position: 'absolute',
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              background: stylesPublic.colors.gradients.glass,
-                              padding: stylesPublic.spacing.scale[4],
-                              color: stylesPublic.colors.text.inverse
-                            }}>
-                              <Card.Title style={{ 
-                                ...stylesPublic.typography.headings.h6,
-                                marginBottom: stylesPublic.spacing.scale[1],
-                                lineHeight: stylesPublic.typography.leading.tight
-                              }}>
-                                {reel.title}
-                              </Card.Title>
-                              <Card.Text style={{
-                                ...stylesPublic.typography.body.caption,
-                                opacity: '0.9',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden'
-                              }}>
-                                {reel.description}
-                              </Card.Text>
-                            </Card.Body>
+                            <div className="enhanced-video-content">
+                              <h3 className="enhanced-video-title">{reel.title}</h3>
+                              <p className="enhanced-video-description">{reel.description}</p>
+                            </div>
                           </div>
-                        </Card>
-                      </div>
-                    ))}
-                  </Slider>
-                  ) : (
-                    <div className="text-center w-100" style={{ 
-                      padding: stylesPublic.spacing.scale[12],
-                      backgroundColor: stylesPublic.colors.surface.primary,
-                      borderRadius: stylesPublic.borders.radius.lg,
-                      margin: `0 ${stylesPublic.spacing.scale[4]}`
-                    }}>
-                      <p style={stylesPublic.typography.body.large}>
-                        No hay videos disponibles en este momento.
-                      </p>
-                    </div>
-                  )}
-                </div>
+                        </div>
+                      ))}
+                    </Slider>
+                  </div>
+                ) : (
+                  <div className="enhanced-empty-state">
+                    <div className="enhanced-empty-icon">🎥</div>
+                    <p>No hay videos disponibles en este momento</p>
+                  </div>
+                )}
               </>
             )}
           </section>
-        </Container>
+        </div>
 
         {/* Lightbox para imágenes */}
         {selectedImage && (
-          <div style={styles.lightbox}>
-            <button
-              style={{ ...styles.navButton, left: stylesPublic.spacing.scale[5] }}
-              onClick={() => navigateMedia('prev')}
-            >
-              <IonIcon icon={chevronBackOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+          <div className="enhanced-lightbox">
+            <button className="enhanced-close-btn" onClick={closeLightbox}>
+              <IonIcon icon={closeOutline} />
             </button>
-            
-            <div style={styles.lightboxImageWrapper}>
-              <button 
-                style={styles.closeButton} 
-                onClick={closeLightbox}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
-              >
-                <IonIcon icon={closeOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
-              </button>
+
+            <button className="enhanced-nav-btn prev" onClick={() => navigateMedia("prev")}>
+              <IonIcon icon={chevronBackOutline} />
+            </button>
+
+            <div className="enhanced-lightbox-content">
               <img
-                src={selectedImage.src}
+                src={selectedImage.src || "/placeholder.svg"}
                 alt={selectedImage.alt}
-                style={styles.lightboxImage}
+                className="enhanced-lightbox-image"
               />
-              <div style={styles.lightboxCaption}>
-                <h4 style={{ 
-                  ...stylesPublic.typography.headings.h5,
-                  marginBottom: stylesPublic.spacing.scale[2] 
-                }}>
-                  {selectedImage.alt}
-                </h4>
-                <p style={{ 
-                  ...stylesPublic.typography.body.base,
-                  margin: 0 
-                }}>
-                  {selectedImage.caption}
-                </p>
+              <div className="enhanced-lightbox-info">
+                <h3 className="enhanced-lightbox-title">{selectedImage.alt}</h3>
+                <p className="enhanced-lightbox-description">{selectedImage.caption}</p>
               </div>
             </div>
-            
-            <button
-              style={{ ...styles.navButton, right: stylesPublic.spacing.scale[5] }}
-              onClick={() => navigateMedia('next')}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
-            >
-              <IonIcon icon={chevronForwardOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+
+            <button className="enhanced-nav-btn next" onClick={() => navigateMedia("next")}>
+              <IonIcon icon={chevronForwardOutline} />
             </button>
           </div>
         )}
 
         {/* Lightbox para videos */}
         {selectedVideo && (
-          <div style={styles.lightbox}>
-            <button
-              style={{ ...styles.navButton, left: stylesPublic.spacing.scale[5] }}
-              onClick={() => navigateMedia('prev')}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
-            >
-              <IonIcon icon={chevronBackOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+          <div className="enhanced-lightbox">
+            <button className="enhanced-close-btn" onClick={closeLightbox}>
+              <IonIcon icon={closeOutline} />
             </button>
-            
-            <div style={styles.lightboxVideoWrapper}>
-              <button 
-                style={styles.closeButton} 
-                onClick={closeLightbox}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
-              >
-                <IonIcon icon={closeOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
-              </button>
-              <video
-                controls
-                autoPlay
-                src={selectedVideo.src}
-                style={{
-                  ...styles.lightboxVideo,
-                  maxWidth: isMobile ? '90vw' : stylesPublic.spacing.scale[200],
-                  height: isMobile ? stylesPublic.spacing.scale[62] : stylesPublic.spacing.scale[113]
-                }}
-              >
+
+            <button className="enhanced-nav-btn prev" onClick={() => navigateMedia("prev")}>
+              <IonIcon icon={chevronBackOutline} />
+            </button>
+
+            <div className="enhanced-lightbox-content">
+              <video controls autoPlay src={selectedVideo.src} className="enhanced-lightbox-video">
                 Tu navegador no soporta la reproducción de video.
               </video>
-              
-              <div style={{
-                position: 'relative',
-                marginTop: stylesPublic.spacing.scale[4],
-                textAlign: 'center',
-                color: stylesPublic.colors.text.inverse,
-                background: stylesPublic.colors.surface.overlay,
-                padding: stylesPublic.spacing.scale[4],
-                borderRadius: stylesPublic.borders.radius.md,
-                maxWidth: stylesPublic.spacing.scale[200],
-                width: '100%'
-              }}>
-                <h4 style={{ 
-                  ...stylesPublic.typography.headings.h5,
-                  marginBottom: stylesPublic.spacing.scale[2]
-                }}>
-                  {selectedVideo.title}
-                </h4>
-                <p style={{ 
-                  ...stylesPublic.typography.body.small,
-                  margin: 0, 
-                  opacity: 0.9
-                }}>
-                  {selectedVideo.description}
-                </p>
+              <div className="enhanced-lightbox-info">
+                <h3 className="enhanced-lightbox-title">{selectedVideo.title}</h3>
+                <p className="enhanced-lightbox-description">{selectedVideo.description}</p>
               </div>
             </div>
-            
-            <button
-              style={{ ...styles.navButton, right: stylesPublic.spacing.scale[5] }}
-              onClick={() => navigateMedia('next')}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.secondary[500]}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = stylesPublic.colors.primary[500]}
-            >
-              <IonIcon icon={chevronForwardOutline} style={{ fontSize: stylesPublic.typography.scale.xl }} />
+
+            <button className="enhanced-nav-btn next" onClick={() => navigateMedia("next")}>
+              <IonIcon icon={chevronForwardOutline} />
             </button>
           </div>
         )}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Destacados;
+export default DestacadosEnhanced

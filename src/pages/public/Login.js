@@ -1,31 +1,29 @@
-"use client"
-
-import { useState, useEffect, useMemo, useContext } from "react"
-import { Button } from "react-bootstrap"
-import { IonIcon } from "@ionic/react"
-import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from "ionicons/icons"
-import { Link, useSearchParams, useNavigate } from "react-router-dom"
-import { AuthContext } from "../../context/AuthContext"
-import stylesPublic from "../../styles/stylesPublic"
+import { useState, useEffect, useMemo, useContext, useRef } from "react";
+import { Button } from "react-bootstrap";
+import { IonIcon } from "@ionic/react";
+import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from "ionicons/icons";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import stylesPublic from "../../styles/stylesPublic";
 
 const Login = () => {
-  const [searchParams] = useSearchParams()
-  const [isLogin, setIsLogin] = useState(!searchParams.get("register"))
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  const [animating, setAnimating] = useState(false)
+  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(!searchParams.get("register"));
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [animating, setAnimating] = useState(false);
 
   // Form states
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [acceptTerms, setAcceptTerms] = useState(false)
-  const [loginEmail, setLoginEmail] = useState("")
-  const [loginPassword, setLoginPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Field errors
   const [fieldErrors, setFieldErrors] = useState({
@@ -37,11 +35,16 @@ const Login = () => {
     loginEmail: false,
     loginPassword: false,
     acceptTerms: false,
-  })
+  });
 
   // Contexto y navegación
-  const { login, register } = useContext(AuthContext)
-  const navigate = useNavigate()
+  const { login, register } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Nuevas referencias para medir la altura del formulario activo
+  const activeFormRef = useRef(null);
+  const formWrapperRef = useRef(null);
+  const [formHeight, setFormHeight] = useState('auto');
 
   // Background images
   const backgroundImages = useMemo(
@@ -49,32 +52,62 @@ const Login = () => {
       "https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2787",
       "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2787",
     ],
-    [],
-  )
+    []
+  );
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * backgroundImages.length)
-    setCurrentImageIndex(randomIndex)
+    const randomIndex = Math.floor(Math.random() * backgroundImages.length);
+    setCurrentImageIndex(randomIndex);
     if (searchParams.get("register")) {
-      setIsLogin(false)
+      setIsLogin(false);
     }
-  }, [searchParams, backgroundImages])
+  }, [searchParams, backgroundImages]);
+
+  useEffect(() => {
+    // Ajustar la altura cuando cambia el formulario activo o el contenido
+    const updateFormHeight = () => {
+      if (activeFormRef.current) {
+        // Permitir que el contenido determine su altura natural
+        const height = activeFormRef.current.scrollHeight;
+        setFormHeight(`${height}px`);
+      }
+    };
+
+    // Delay para asegurar que el DOM se haya actualizado
+    const timer = setTimeout(updateFormHeight, 100);
+    return () => clearTimeout(timer);
+  }, [isLogin, password, confirmPassword, name, phone, email, error, success, fieldErrors]);
+
+  // Efecto para ajustar la altura inicial
+  useEffect(() => {
+    const initializeHeight = () => {
+      if (activeFormRef.current) {
+        const height = activeFormRef.current.scrollHeight;
+        setFormHeight(`${height}px`);
+      }
+    };
+
+    // Delay para asegurar que todos los elementos estén renderizados
+    const timer = setTimeout(initializeHeight, 100);
+    return () => clearTimeout(timer);
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   useEffect(() => {
     if (animating) {
-      const timer = setTimeout(() => setAnimating(false), 600)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setAnimating(false), 600);
+      return () => clearTimeout(timer);
     }
-  }, [animating])
+  }, [animating]);
 
   const toggleForm = () => {
-    setAnimating(true)
+    setAnimating(true);
+    
     setTimeout(() => {
-      setIsLogin(!isLogin)
-      setError("")
-      setSuccess("")
+      setIsLogin(!isLogin);
+      setError("");
+      setSuccess("");
       setFieldErrors({
         name: false,
         phone: false,
@@ -84,69 +117,69 @@ const Login = () => {
         loginEmail: false,
         loginPassword: false,
         acceptTerms: false,
-      })
-    }, 300)
-  }
+      });
+    }, 300);
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  }
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   const validatePhone = (phone) => {
-    return /^\+?\d{10,15}$/.test(phone.replace(/\s/g, ""))
-  }
+    return /^\+?\d{10,15}$/.test(phone.replace(/\s/g, ""));
+  };
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const errors = {
       loginEmail: !loginEmail || !validateEmail(loginEmail),
       loginPassword: !loginPassword,
-    }
-    setFieldErrors(errors)
+    };
+    setFieldErrors(errors);
 
     if (!errors.loginEmail && !errors.loginPassword) {
-      setError("")
-      setSuccess("")
-      setAnimating(true)
+      setError("");
+      setSuccess("");
+      setAnimating(true);
       try {
         const credentials = {
           email: loginEmail,
           password: loginPassword,
-        }
-        
-        const result = await login(credentials)
-        setAnimating(false)
-        
+        };
+
+        const result = await login(credentials);
+        setAnimating(false);
+
         if (result.success) {
-          setSuccess("¡Inicio de sesión exitoso!")
+          setSuccess("¡Inicio de sesión exitoso!");
           setTimeout(() => {
-            if (result.role === 'admin') {
-              navigate("/admin")
+            if (result.role === "admin") {
+              navigate("/admin");
             } else {
-              navigate("/Inicio")
+              navigate("/Inicio");
             }
-          }, 1500)
+          }, 1500);
         } else {
-          setError(result.message || "Error de autenticación")
-          setSuccess("")
+          setError(result.message || "Error de autenticación");
+          setSuccess("");
         }
       } catch (err) {
-        setAnimating(false)
-        setError("Error al iniciar sesión. Por favor, intenta de nuevo.")
-        setSuccess("")
+        setAnimating(false);
+        setError("Error al iniciar sesión. Por favor, intenta de nuevo.");
+        setSuccess("");
       }
     } else {
-      setError("Por favor, completa todos los campos correctamente.")
-      setSuccess("")
+      setError("Por favor, completa todos los campos correctamente.");
+      setSuccess("");
     }
-  }
+  };
 
   const handleRegisterSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const errors = {
       name: !name,
       phone: !phone || !validatePhone(phone),
@@ -154,81 +187,80 @@ const Login = () => {
       password: !password || password.length < 8,
       confirmPassword: !confirmPassword || password !== confirmPassword,
       acceptTerms: !acceptTerms,
-    }
-    setFieldErrors(errors)
+    };
+    setFieldErrors(errors);
 
     if (!Object.values(errors).some(Boolean)) {
-      setError("")
-      setSuccess("")
-      setAnimating(true)
+      setError("");
+      setSuccess("");
+      setAnimating(true);
       try {
         const registerData = {
           name,
           email,
           password,
           phone,
-        }
+        };
 
-        const result = await register(registerData)
-        setAnimating(false)
+        const result = await register(registerData);
+        setAnimating(false);
         if (result.success) {
-          setSuccess(result.message)
-          setName("")
-          setPhone("")
-          setEmail("")
-          setPassword("")
-          setConfirmPassword("")
-          setAcceptTerms(false)
+          setSuccess(result.message);
+          setName("");
+          setPhone("");
+          setEmail("");
+          setPassword("");
+          setConfirmPassword("");
+          setAcceptTerms(false);
           setTimeout(() => {
-            toggleForm()
-            setLoginEmail(email)
-            setSuccess("")
-            setError("")
-          }, 2000)
+            toggleForm();
+            setLoginEmail(email);
+            setSuccess("");
+            setError("");
+          }, 2000);
         } else {
-          setError(result.message || "Error en el registro")
-          setSuccess("")
+          setError(result.message || "Error en el registro");
+          setSuccess("");
         }
       } catch (err) {
-        setAnimating(false)
-        setError("Error al registrarse. Por favor, intenta de nuevo.")
-        setSuccess("")
+        setAnimating(false);
+        setError("Error al registrarse. Por favor, intenta de nuevo.");
+        setSuccess("");
       }
     } else {
-      setError("Por favor, completa todos los campos correctamente.")
-      setSuccess("")
+      setError("Por favor, completa todos los campos correctamente.");
+      setSuccess("");
     }
-  }
+  };
 
   const passwordStrength = (pass) => {
-    if (!pass) return 0
-    let strength = 0
-    if (pass.length >= 8) strength += 1
-    if (/[A-Z]/.test(pass)) strength += 1
-    if (/[0-9]/.test(pass)) strength += 1
-    if (/[^A-Za-z0-9]/.test(pass)) strength += 1
-    return strength
-  }
+    if (!pass) return 0;
+    let strength = 0;
+    if (pass.length >= 8) strength += 1;
+    if (/[A-Z]/.test(pass)) strength += 1;
+    if (/[0-9]/.test(pass)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) strength += 1;
+    return strength;
+  };
 
   const getPasswordStrengthColor = () => {
-    const strength = passwordStrength(password)
-    if (strength === 0) return stylesPublic.colors.semantic.error.main
-    if (strength === 1) return stylesPublic.colors.semantic.warning.main
-    if (strength === 2) return stylesPublic.colors.semantic.warning.light
-    if (strength === 3) return stylesPublic.colors.secondary[500]
-    if (strength === 4) return stylesPublic.colors.secondary[700]
-  }
+    const strength = passwordStrength(password);
+    if (strength === 0) return stylesPublic.colors.semantic.error.main;
+    if (strength === 1) return stylesPublic.colors.semantic.warning.main;
+    if (strength === 2) return stylesPublic.colors.semantic.warning.light;
+    if (strength === 3) return stylesPublic.colors.secondary[500];
+    if (strength === 4) return stylesPublic.colors.secondary[500];
+  };
 
   const getPasswordStrengthText = () => {
-    const strength = passwordStrength(password)
-    if (strength === 0) return "Muy débil"
-    if (strength === 1) return "Débil"
-    if (strength === 2) return "Media"
-    if (strength === 3) return "Fuerte"
-    if (strength === 4) return "Muy fuerte"
-  }
+    const strength = passwordStrength(password);
+    if (strength === 0) return "Muy débil";
+    if (strength === 1) return "Débil";
+    if (strength === 2) return "Media";
+    if (strength === 3) return "Fuerte";
+    if (strength === 4) return "Muy fuerte";
+  };
 
-  // CSS usando exclusivamente tokens del sistema refactorizado
   const cssStyles = `
     .login-container {
       min-height: 100vh;
@@ -236,14 +268,27 @@ const Login = () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(${stylesPublic.colors.surface.overlay}, ${stylesPublic.colors.surface.overlay}), 
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%),
+                  linear-gradient(${stylesPublic.colors.surface.overlay}, ${stylesPublic.colors.surface.overlay}), 
                   url(${backgroundImages[currentImageIndex]});
       background-size: cover;
       background-position: center;
-      background-blend-mode: overlay;
+      background-attachment: fixed;
       padding: ${stylesPublic.spacing.scale[4]};
       font-family: ${stylesPublic.typography.families.body};
-      overflow-x: hidden;
+      position: relative;
+    }
+
+    .login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+      pointer-events: none;
     }
 
     .login-inner-container {
@@ -251,16 +296,20 @@ const Login = () => {
       max-width: ${stylesPublic.utils.container.maxWidth.xl};
       width: 100%;
       position: relative;
-      min-height: min-content;
-      margin: auto;
-      box-sizing: border-box;
+      z-index: 1;
+      gap: ${stylesPublic.spacing.scale[8]};
+      align-items: center;
     }
 
     .login-left-panel {
-      flex: 1 1 45%;
-      padding: ${stylesPublic.spacing.scale[10]};
+      flex: 1;
+      padding: ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[8]};
       color: ${stylesPublic.colors.surface.primary};
       display: none;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-radius: ${stylesPublic.borders.radius.xl};
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     @media (min-width: ${stylesPublic.breakpoints.lg}) {
@@ -270,207 +319,215 @@ const Login = () => {
     }
 
     .login-right-panel {
-      flex: 1 1 55%;
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: ${stylesPublic.spacing.scale[4]};
-      min-width: 0;
     }
 
     .login-form-wrapper {
       position: relative;
       width: 100%;
-      max-width: 450px;
+      max-width: 480px;
       background: ${stylesPublic.colors.surface.glass};
-      backdrop-filter: blur(${stylesPublic.spacing.scale[3]});
+      backdrop-filter: blur(20px);
       border-radius: ${stylesPublic.borders.radius.xl};
-      box-shadow: ${stylesPublic.shadows.xl};
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                  0 0 0 1px rgba(255, 255, 255, 0.1);
       overflow: hidden;
-      border: ${stylesPublic.borders.width[1]}px solid ${stylesPublic.borders.colors.default};
-      transition: ${stylesPublic.animations.transitions.base};
-      margin: ${stylesPublic.spacing.scale[4]} auto;
+      height: ${formHeight};
+      min-height: 400px;
+      transition: height ${stylesPublic.animations.duration.slow} ${stylesPublic.animations.easing["ease-in-out"]};
     }
 
-    .login-form-slider {
-      display: flex;
-      width: 200%;
-      transition: transform ${stylesPublic.animations.duration.slowest} ${stylesPublic.animations.easing['ease-in-out']};
-      transform: ${isLogin ? "translateX(0)" : "translateX(-50%)"};
+    .login-form-container {
+      width: 100%;
+      height: 100%;
+      transition: opacity ${stylesPublic.animations.duration.slow} ease;
+      opacity: ${animating ? 0.8 : 1};
     }
 
     .login-form-panel {
-      width: 50%;
-      padding: ${isLogin ? stylesPublic.spacing.scale[8] : stylesPublic.spacing.scale[6]};
-      transition: all ${stylesPublic.animations.duration.slow} ease;
-      opacity: ${animating ? 0.7 : 1};
-      max-height: calc(100vh - ${stylesPublic.spacing.scale[10]});
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .login-form-panel::-webkit-scrollbar {
-      width: ${stylesPublic.spacing.scale[2]};
-    }
-
-    .login-form-panel::-webkit-scrollbar-thumb {
-      background-color: ${stylesPublic.colors.primary[500]};
-      border-radius: ${stylesPublic.borders.radius.sm};
-    }
-
-    .login-form-panel::-webkit-scrollbar-track {
-      background: transparent;
+      width: 100%;
+      padding: ${stylesPublic.spacing.scale[10]} ${stylesPublic.spacing.scale[8]};
+      box-sizing: border-box;
+      min-height: fit-content;
     }
 
     .login-logo {
       text-align: center;
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[4]};
+      margin-bottom: ${stylesPublic.spacing.scale[8]};
     }
 
     .login-logo-text {
-      font-size: ${stylesPublic.typography.scale['3xl']};
+      font-size: ${stylesPublic.typography.scale["3xl"]};
       font-weight: ${stylesPublic.typography.weights.bold};
-      color: ${stylesPublic.colors.primary[500]};
+      background: linear-gradient(135deg, ${stylesPublic.colors.primary[500]}, ${stylesPublic.colors.secondary[500]});
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0;
       font-family: ${stylesPublic.typography.families.display};
+      letter-spacing: -0.02em;
     }
 
     .login-logo-subtext {
       font-size: ${stylesPublic.typography.scale.sm};
       color: ${stylesPublic.colors.text.secondary};
-      margin-top: ${stylesPublic.spacing.scale[1]};
+      margin-top: ${stylesPublic.spacing.scale[2]};
       font-style: italic;
+      opacity: 0.8;
     }
 
     .login-title {
-      font-size: ${isLogin ? stylesPublic.typography.scale['2xl'] : stylesPublic.typography.scale.xl};
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[1]};
+      font-size: ${stylesPublic.typography.scale["2xl"]};
+      margin-bottom: ${stylesPublic.spacing.scale[2]};
       text-align: center;
-      color: ${stylesPublic.colors.primary[500]};
-      font-weight: ${stylesPublic.typography.weights.semibold};
+      color: ${stylesPublic.colors.text.primary};
+      font-weight: ${stylesPublic.typography.weights.bold};
       font-family: ${stylesPublic.typography.families.display};
     }
 
     .login-subtitle {
-      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.base};
       text-align: center;
       color: ${stylesPublic.colors.text.secondary};
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[5]};
+      margin-bottom: ${stylesPublic.spacing.scale[8]};
+      opacity: 0.9;
     }
 
     .login-input-box {
       position: relative;
       width: 100%;
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[5] : stylesPublic.spacing.scale[3]};
+      margin-bottom: ${stylesPublic.spacing.scale[6]};
     }
 
     .login-label {
       display: block;
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[1]};
-      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
+      margin-bottom: ${stylesPublic.spacing.scale[2]};
+      font-size: ${stylesPublic.typography.scale.sm};
       font-weight: ${stylesPublic.typography.weights.semibold};
-      color: ${stylesPublic.colors.secondary[500]};
+      color: ${stylesPublic.colors.text.primary};
+      opacity: 0.9;
     }
 
     .login-input {
       width: 100%;
-      background: ${stylesPublic.colors.surface.secondary};
-      border: ${stylesPublic.borders.width[2]}px solid ${stylesPublic.colors.secondary[500]};
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid rgba(255, 255, 255, 0.2);
       outline: none;
       color: ${stylesPublic.colors.text.primary};
-      padding: ${isLogin ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[10]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]}`};
-      border-radius: ${stylesPublic.borders.radius.md};
-      font-size: ${isLogin ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.sm};
-      transition: ${stylesPublic.animations.transitions.base};
+      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[4]};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      font-size: ${stylesPublic.typography.scale.base};
+      transition: all ${stylesPublic.animations.duration.base} ease;
       font-family: ${stylesPublic.typography.families.body};
+      backdrop-filter: blur(10px);
     }
 
     .login-input:focus {
-      background: ${stylesPublic.colors.surface.elevated};
+      background: rgba(255, 255, 255, 0.95);
       border-color: ${stylesPublic.colors.primary[500]};
-      box-shadow: 0 0 0 ${stylesPublic.spacing.scale[1]} ${stylesPublic.colors.primary[500]}20;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      transform: translateY(-1px);
     }
 
     .login-input::placeholder {
       color: ${stylesPublic.colors.text.disabled};
-      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.sm};
     }
 
     .login-input.input-error {
       border-color: ${stylesPublic.colors.semantic.error.main};
-      animation: pulse ${stylesPublic.animations.duration.base} ease-in-out infinite alternate;
+      background: rgba(239, 68, 68, 0.05);
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
     }
 
     .login-error-text {
       color: ${stylesPublic.colors.semantic.error.main};
-      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
-      margin-top: ${isLogin ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[1]};
+      font-size: ${stylesPublic.typography.scale.xs};
+      margin-top: ${stylesPublic.spacing.scale[1]};
       font-weight: ${stylesPublic.typography.weights.semibold};
+      display: flex;
+      align-items: center;
+      gap: ${stylesPublic.spacing.scale[1]};
     }
 
     .login-icon {
       position: absolute;
-      right: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
+      right: ${stylesPublic.spacing.scale[4]};
       top: 50%;
       transform: translateY(-50%);
-      font-size: ${isLogin ? stylesPublic.typography.scale.lg : stylesPublic.typography.scale.base};
+      font-size: ${stylesPublic.typography.scale.lg};
       color: ${stylesPublic.colors.primary[500]};
       display: flex;
       align-items: center;
       justify-content: center;
-      width: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
-      height: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
+      width: ${stylesPublic.spacing.scale[6]};
+      height: ${stylesPublic.spacing.scale[6]};
       pointer-events: none;
+      opacity: 0.7;
     }
 
     .login-toggle-password {
       position: absolute;
-      right: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
+      right: ${stylesPublic.spacing.scale[4]};
       top: 50%;
       transform: translateY(-50%);
-      font-size: ${isLogin ? stylesPublic.typography.scale.lg : stylesPublic.typography.scale.base};
+      font-size: ${stylesPublic.typography.scale.lg};
       color: ${stylesPublic.colors.primary[500]};
       display: flex;
       align-items: center;
       justify-content: center;
-      width: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
-      height: ${isLogin ? stylesPublic.spacing.scale[6] : stylesPublic.spacing.scale[6]};
+      width: ${stylesPublic.spacing.scale[6]};
+      height: ${stylesPublic.spacing.scale[6]};
       cursor: pointer;
       pointer-events: auto;
-      transition: ${stylesPublic.animations.transitions.colors};
+      transition: all ${stylesPublic.animations.duration.base} ease;
+      border-radius: ${stylesPublic.borders.radius.sm};
     }
 
     .login-toggle-password:hover {
       color: ${stylesPublic.colors.primary[700]};
+      background: rgba(59, 130, 246, 0.1);
     }
 
     .login-password-strength {
       display: ${password ? "block" : "none"};
       width: 100%;
-      height: ${stylesPublic.spacing.scale[1]};
+      height: 4px;
       background-color: ${stylesPublic.colors.neutral[200]};
       margin-top: ${stylesPublic.spacing.scale[2]};
-      border-radius: ${stylesPublic.borders.radius.sm};
+      border-radius: ${stylesPublic.borders.radius.full};
       overflow: hidden;
     }
 
     .login-password-strength-bar {
       height: 100%;
-      transition: width ${stylesPublic.animations.duration.slow} ease, background-color ${stylesPublic.animations.duration.slow} ease;
+      transition: all ${stylesPublic.animations.duration.slow} ease;
+      border-radius: ${stylesPublic.borders.radius.full};
     }
 
     .login-password-strength-text {
-      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.xs};
       margin-top: ${stylesPublic.spacing.scale[1]};
       text-align: right;
       transition: color ${stylesPublic.animations.duration.slow} ease;
+      font-weight: ${stylesPublic.typography.weights.semibold};
     }
 
     .login-checkbox-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[5] : stylesPublic.spacing.scale[4]};
+      margin-bottom: ${stylesPublic.spacing.scale[6]};
       flex-wrap: wrap;
       gap: ${stylesPublic.spacing.scale[3]};
     }
@@ -479,86 +536,75 @@ const Login = () => {
       display: flex;
       align-items: center;
       color: ${stylesPublic.colors.text.primary};
-      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.sm};
       cursor: pointer;
+      transition: color ${stylesPublic.animations.duration.base} ease;
+    }
+
+    .login-checkbox-label:hover {
+      color: ${stylesPublic.colors.primary[500]};
     }
 
     .login-checkbox {
       margin-right: ${stylesPublic.spacing.scale[2]};
       cursor: pointer;
       accent-color: ${stylesPublic.colors.primary[500]};
+      transform: scale(1.1);
     }
 
     .login-forgot-password {
       color: ${stylesPublic.colors.primary[500]};
-      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.sm};
       text-decoration: none;
-      transition: ${stylesPublic.animations.transitions.colors};
+      transition: all ${stylesPublic.animations.duration.base} ease;
+      font-weight: ${stylesPublic.typography.weights.semibold};
     }
 
     .login-forgot-password:hover {
-      color: ${stylesPublic.colors.text.primary};
+      color: ${stylesPublic.colors.primary[700]};
       text-decoration: underline;
     }
 
     .login-button {
       width: 100%;
-      padding: ${isLogin ? `${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]}`};
+      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[6]};
       background: ${stylesPublic.colors.gradients.accent};
       border: none;
       outline: none;
-      border-radius: ${stylesPublic.borders.radius.full};
+      border-radius: ${stylesPublic.borders.radius.lg};
       cursor: pointer;
-      font-size: ${isLogin ? stylesPublic.typography.scale.lg : stylesPublic.typography.scale.base};
+      font-size: ${stylesPublic.typography.scale.base};
       color: ${stylesPublic.colors.text.inverse};
       font-weight: ${stylesPublic.typography.weights.semibold};
-      transition: ${stylesPublic.animations.transitions.base};
-      margin-top: ${isLogin ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[1]};
+      transition: all ${stylesPublic.animations.duration.base} ease;
+      margin-top: ${stylesPublic.spacing.scale[2]};
       box-shadow: ${stylesPublic.shadows.brand.primary};
       position: relative;
       overflow: hidden;
       font-family: ${stylesPublic.typography.families.body};
+      letter-spacing: 0.025em;
     }
 
     .login-button:hover {
-      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      transform: translateY(-2px);
       box-shadow: ${stylesPublic.shadows.brand.glow};
     }
 
     .login-button:active {
-      transform: translateY(${stylesPublic.spacing.scale[0]});
+      transform: translateY(0);
     }
 
     .login-button:disabled {
-      opacity: 0.6;
+      opacity: 0.7;
       cursor: not-allowed;
-    }
-
-    .login-button::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        ${stylesPublic.colors.surface.overlay}20,
-        transparent
-      );
-      transition: all ${stylesPublic.animations.duration.base} ease;
-    }
-
-    .login-button:hover::after {
-      left: 100%;
+      transform: none;
     }
 
     .login-switch-form {
       text-align: center;
-      margin-top: ${isLogin ? stylesPublic.spacing.scale[5] : stylesPublic.spacing.scale[4]};
+      margin-top: ${stylesPublic.spacing.scale[8]};
       color: ${stylesPublic.colors.text.primary};
-      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.sm};
     }
 
     .login-link {
@@ -566,20 +612,21 @@ const Login = () => {
       text-decoration: none;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};
-      transition: ${stylesPublic.animations.transitions.colors};
+      transition: all ${stylesPublic.animations.duration.base} ease;
     }
 
     .login-link:hover {
-      color: ${stylesPublic.colors.text.primary};
+      color: ${stylesPublic.colors.primary[700]};
       text-decoration: underline;
     }
 
     .login-terms-text {
-      font-size: ${isLogin ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.xs};
+      font-size: ${stylesPublic.typography.scale.xs};
       color: ${stylesPublic.colors.text.secondary};
       text-align: center;
-      margin-top: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
+      margin-top: ${stylesPublic.spacing.scale[6]};
       line-height: ${stylesPublic.typography.leading.normal};
+      opacity: 0.8;
     }
 
     .login-highlight {
@@ -587,189 +634,231 @@ const Login = () => {
       text-decoration: underline;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};
+      transition: color ${stylesPublic.animations.duration.base} ease;
+    }
+
+    .login-highlight:hover {
+      color: ${stylesPublic.colors.primary[700]};
     }
 
     .login-alert-success {
-      background-color: ${stylesPublic.colors.semantic.success.light};
+      background: linear-gradient(135deg, ${stylesPublic.colors.semantic.success.light}, rgba(16, 185, 129, 0.1));
       color: ${stylesPublic.colors.semantic.success.main};
-      padding: ${isLogin ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]}`};
-      border-radius: ${stylesPublic.borders.radius.md};
-      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.secondary[500]};
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
-      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
+      padding: ${stylesPublic.spacing.scale[4]};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      border-left: 4px solid ${stylesPublic.colors.semantic.success.main};
+      margin-bottom: ${stylesPublic.spacing.scale[6]};
+      font-size: ${stylesPublic.typography.scale.sm};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      backdrop-filter: blur(10px);
     }
 
     .login-alert-error {
-      background-color: ${stylesPublic.colors.semantic.error.light};
+      background: linear-gradient(135deg, ${stylesPublic.colors.semantic.error.light}, rgba(239, 68, 68, 0.1));
       color: ${stylesPublic.colors.semantic.error.main};
-      padding: ${isLogin ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]}` : `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]}`};
-      border-radius: ${stylesPublic.borders.radius.md};
-      border-left: ${stylesPublic.borders.width[4]}px solid ${stylesPublic.colors.primary[500]};
-      margin-bottom: ${isLogin ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[3]};
-      font-size: ${isLogin ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.xs};
+      padding: ${stylesPublic.spacing.scale[4]};
+      border-radius: ${stylesPublic.borders.radius.lg};
+      border-left: 4px solid ${stylesPublic.colors.semantic.error.main};
+      margin-bottom: ${stylesPublic.spacing.scale[6]};
+      font-size: ${stylesPublic.typography.scale.sm};
+      font-weight: ${stylesPublic.typography.weights.semibold};
+      backdrop-filter: blur(10px);
     }
 
-    /* Responsive Design */
-    @media (max-width: ${stylesPublic.breakpoints['2xl']}) {
-      .login-inner-container {
-        max-width: ${stylesPublic.utils.container.maxWidth.xl};
-      }
-      
-      .login-left-content {
-        padding-right: ${stylesPublic.spacing.scale[4]};
-      }
-      
-      .login-welcome-title {
-        font-size: ${stylesPublic.typography.scale['2xl']};
-      }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: ${stylesPublic.spacing.scale[4]};
+      padding: ${stylesPublic.spacing.scale[4]};
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: ${stylesPublic.borders.radius.lg};
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all ${stylesPublic.animations.duration.base} ease;
     }
 
-    @media (max-width: ${stylesPublic.breakpoints.lg}) {
-      .login-container {
-        padding: ${stylesPublic.spacing.scale[3]};
-        min-height: 100vh;
-        align-items: flex-start;
-      }
-      .login-inner-container {
-        flex-direction: column;
-        max-width: 100vw;
-        min-height: unset;
-        margin: 0;
-      }
-      .login-left-panel {
-        display: none !important;
-        padding: 0;
-      }
-      .login-right-panel {
-        flex: 1 1 100%;
-        padding: 0;
-        min-width: 0;
-        width: 100vw;
-        justify-content: center;
-        align-items: flex-start;
-      }
-      .login-form-wrapper {
-        max-width: 100vw;
-        margin: 0 auto;
-        border-radius: 0;
-        box-shadow: none;
-        min-height: 100vh;
-        padding: 0;
-      }
-      .login-form-panel {
-        padding: ${stylesPublic.spacing.scale[5]} ${stylesPublic.spacing.scale[3]};
-        min-height: 100vh;
-        max-height: none;
-      }
+    .feature-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(4px);
     }
 
-    @media (max-width: ${stylesPublic.breakpoints.sm}) {
-      .login-container {
-        padding: 0;
-        min-height: 100vh;
-      }
-      .login-form-wrapper {
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
-        min-height: 100vh;
-        padding: 0;
-      }
-      .login-form-panel {
-        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[1]};
-        min-height: 100vh;
-        max-height: none;
-      }
-      .login-title {
-        font-size: ${stylesPublic.typography.scale.lg};
-      }
-      .login-input {
-        font-size: ${stylesPublic.typography.scale.sm};
-        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[9]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]};
-      }
-      .login-button {
-        font-size: ${stylesPublic.typography.scale.base};
-        padding: ${stylesPublic.spacing.scale[3]};
-      }
-      .login-checkbox-label {
-        font-size: ${stylesPublic.typography.scale.xs};
-      }
-      .login-terms-text {
-        font-size: ${stylesPublic.typography.scale.xs};
-      }
-    }
-
-    @keyframes pulse {
-      from { box-shadow: 0 0 0 0 ${stylesPublic.colors.primary[500]}30; }
-      to { box-shadow: 0 0 0 ${stylesPublic.spacing.scale[2]} ${stylesPublic.colors.primary[500]}10; }
+    .feature-icon {
+      font-size: ${stylesPublic.typography.scale.xl};
+      margin-right: ${stylesPublic.spacing.scale[3]};
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
 
     .floating-element {
       position: fixed;
-      width: ${stylesPublic.spacing.scale[1]};
-      height: ${stylesPublic.spacing.scale[1]};
+      width: 8px;
+      height: 8px;
       border-radius: ${stylesPublic.borders.radius.full};
-      opacity: 0.7;
-      animation: float 8s ease-in-out infinite;
+      opacity: 0.6;
+      animation: float 12s ease-in-out infinite;
+      pointer-events: none;
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
-      50% { transform: translateY(-${stylesPublic.spacing.scale[5]}) scale(1.2); opacity: 0.8; }
+      0%, 100% { 
+        transform: translateY(0px) scale(1) rotate(0deg); 
+        opacity: 0.4; 
+      }
+      33% { 
+        transform: translateY(-20px) scale(1.2) rotate(120deg); 
+        opacity: 0.8; 
+      }
+      66% { 
+        transform: translateY(-10px) scale(0.8) rotate(240deg); 
+        opacity: 0.6; 
+      }
     }
-  `
+
+    /* Responsive Design */
+    @media (max-width: ${stylesPublic.breakpoints.lg}) {
+      .login-container {
+        padding: ${stylesPublic.spacing.scale[2]};
+        align-items: flex-start;
+        padding-top: ${stylesPublic.spacing.scale[4]};
+      }
+      
+      .login-inner-container {
+        flex-direction: column;
+        gap: 0;
+      }
+      
+      .login-left-panel {
+        display: none !important;
+      }
+      
+      .login-right-panel {
+        width: 100%;
+        padding: 0;
+      }
+      
+      .login-form-wrapper {
+        max-width: 100%;
+        margin: 0;
+        border-radius: ${stylesPublic.borders.radius.xl};
+      }
+      
+      .login-form-panel {
+        padding: ${stylesPublic.spacing.scale[6]} ${stylesPublic.spacing.scale[4]};
+      }
+    }
+
+    @media (max-width: ${stylesPublic.breakpoints.sm}) {
+      .login-form-wrapper {
+        border-radius: ${stylesPublic.borders.radius.lg};
+      }
+      
+      .login-form-panel {
+        padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[3]};
+      }
+      
+      .login-title {
+        font-size: ${stylesPublic.typography.scale.xl};
+      }
+      
+      .login-input {
+        font-size: ${stylesPublic.typography.scale.sm};
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[10]} ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[3]};
+      }
+      
+      .login-button {
+        font-size: ${stylesPublic.typography.scale.sm};
+        padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[4]};
+      }
+    }
+  `;
 
   return (
     <>
       <style>{cssStyles}</style>
 
-      {/* Elementos flotantes decorativos */}
-      <div style={{ 
-        position: "fixed", 
-        top: 0, 
-        left: 0, 
-        width: "100%", 
-        height: "100%", 
-        pointerEvents: "none", 
-        zIndex: stylesPublic.utils.zIndex.hide 
-      }}>
-        <div className="floating-element" style={{ 
-          top: "20%", 
-          left: "10%", 
-          background: stylesPublic.colors.primary[500] 
-        }}></div>
-        <div className="floating-element" style={{ 
-          top: "60%", 
-          right: "15%", 
-          background: stylesPublic.colors.secondary[500], 
-          animationDelay: "2s" 
-        }}></div>
-        <div className="floating-element" style={{ 
-          bottom: "30%", 
-          left: "20%", 
-          background: stylesPublic.colors.primary[300], 
-          animationDelay: "4s" 
-        }}></div>
+      {/* Floating decorative elements */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: stylesPublic.utils.zIndex.hide,
+        }}
+      >
+        <div
+          className="floating-element"
+          style={{
+            top: "15%",
+            left: "8%",
+            background: stylesPublic.colors.primary[500],
+            animationDelay: "0s",
+          }}
+        ></div>
+        <div
+          className="floating-element"
+          style={{
+            top: "70%",
+            right: "12%",
+            background: stylesPublic.colors.secondary[500],
+            animationDelay: "4s",
+          }}
+        ></div>
+        <div
+          className="floating-element"
+          style={{
+            bottom: "25%",
+            left: "15%",
+            background: stylesPublic.colors.primary[300],
+            animationDelay: "8s",
+          }}
+        ></div>
+        <div
+          className="floating-element"
+          style={{
+            top: "40%",
+            right: "25%",
+            background: stylesPublic.colors.primary[500],
+            animationDelay: "2s",
+          }}
+        ></div>
+        <div
+          className="floating-element"
+          style={{
+            bottom: "60%",
+            left: "70%",
+            background: stylesPublic.colors.secondary[500],
+            animationDelay: "6s",
+          }}
+        ></div>
       </div>
 
       <div className="login-container">
         <div className="login-inner-container">
-          {/* Panel izquierdo - Información de la marca */}
+          {/* Left panel - Brand information */}
           <div className="login-left-panel">
-            <div className="login-left-content">
+            <div>
               <div style={{ marginBottom: stylesPublic.spacing.scale[12] }}>
-                <h1 style={{ 
-                  ...stylesPublic.typography.headings.h2,
-                  color: stylesPublic.colors.surface.primary,
-                  marginBottom: stylesPublic.spacing.scale[4]
-                }}>
+                <h1
+                  style={{
+                    fontSize: stylesPublic.typography.scale["2xl"],
+                    fontWeight: stylesPublic.typography.weights.bold,
+                    color: stylesPublic.colors.surface.primary,
+                    marginBottom: stylesPublic.spacing.scale[4],
+                    fontFamily: stylesPublic.typography.families.display,
+                  }}
+                >
                   Bienvenido a La Aterciopelada
                 </h1>
-                <p style={{ 
-                  ...stylesPublic.typography.body.base,
-                  color: stylesPublic.colors.surface.primary,
-                  opacity: 0.9
-                }}>
+                <p
+                  style={{
+                    fontSize: stylesPublic.typography.scale.base,
+                    color: stylesPublic.colors.surface.primary,
+                    opacity: 0.9,
+                    lineHeight: stylesPublic.typography.leading.normal,
+                  }}
+                >
                   Descubre el arte textil de la Huasteca. Únete a nuestra comunidad para acceder a productos exclusivos,
                   eventos culturales y más.
                 </p>
@@ -781,24 +870,15 @@ const Login = () => {
                 { icon: "🎨", text: "Diseños exclusivos huastecos" },
                 { icon: "✨", text: "Eventos culturales especiales" },
               ].map((feature, index) => (
-                <div key={index} style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  marginBottom: stylesPublic.spacing.scale[4],
-                  padding: stylesPublic.spacing.scale[3],
-                  background: stylesPublic.colors.surface.overlay,
-                  borderRadius: stylesPublic.borders.radius.md
-                }}>
-                  <div style={{ 
-                    fontSize: stylesPublic.typography.scale.xl, 
-                    marginRight: stylesPublic.spacing.scale[3] 
-                  }}>
-                    {feature.icon}
-                  </div>
-                  <div style={{ 
-                    ...stylesPublic.typography.body.base,
-                    color: stylesPublic.colors.surface.primary 
-                  }}>
+                <div key={index} className="feature-item">
+                  <div className="feature-icon">{feature.icon}</div>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale.base,
+                      color: stylesPublic.colors.surface.primary,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                  >
                     {feature.text}
                   </div>
                 </div>
@@ -806,267 +886,273 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Panel derecho - Formularios */}
+          {/* Right panel - Forms */}
           <div className="login-right-panel">
-            <div className="login-form-wrapper">
-              <div className="login-form-slider">
-                {/* Formulario de Login */}
-                <div className="login-form-panel">
-                  <div className="login-logo">
-                    <h1 className="login-logo-text">La Aterciopelada</h1>
-                    <p className="login-logo-subtext">Arte Textil Huasteco</p>
-                  </div>
-                  <div>
-                    <h2 className="login-title">Iniciar Sesión</h2>
-                    <p className="login-subtitle">Accede a tu cuenta para continuar</p>
+            <div className="login-form-wrapper" ref={formWrapperRef}>
+              <div className="login-form-container">
+                {isLogin ? (
+                  /* Login Form */
+                  <div className="login-form-panel" ref={activeFormRef}>
+                    <div className="login-logo">
+                      <h1 className="login-logo-text">La Aterciopelada</h1>
+                      <p className="login-logo-subtext">Arte Textil Huasteco</p>
+                    </div>
+                    <div>
+                      <h2 className="login-title">Iniciar Sesión</h2>
+                      <p className="login-subtitle">Accede a tu cuenta para continuar</p>
 
-                    {error && isLogin && <div className="login-alert-error">{error}</div>}
-                    {success && isLogin && <div className="login-alert-success">{success}</div>}
+                      {error && <div className="login-alert-error">{error}</div>}
+                      {success && <div className="login-alert-success">{success}</div>}
 
-                    <form onSubmit={handleLoginSubmit}>
-                      <div className="login-input-box">
-                        <label className="login-label">Correo Electrónico*</label>
-                        <input
-                          type="email"
-                          placeholder="Correo Electrónico"
-                          value={loginEmail}
-                          onChange={(e) => {
-                            setLoginEmail(e.target.value)
-                            setFieldErrors({ ...fieldErrors, loginEmail: false })
-                          }}
-                          className={`login-input ${fieldErrors.loginEmail ? "input-error" : ""}`}
-                        />
-                        <span className="login-icon">
-                          <IonIcon icon={mailOutline} />
-                        </span>
-                        {fieldErrors.loginEmail && (
-                          <p className="login-error-text">Por favor ingresa un correo válido</p>
-                        )}
-                      </div>
-
-                      <div className="login-input-box">
-                        <label className="login-label">Contraseña*</label>
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Contraseña"
-                          value={loginPassword}
-                          onChange={(e) => {
-                            setLoginPassword(e.target.value)
-                            setFieldErrors({ ...fieldErrors, loginPassword: false })
-                          }}
-                          className={`login-input ${fieldErrors.loginPassword ? "input-error" : ""}`}
-                        />
-                        <span className="login-toggle-password" onClick={togglePasswordVisibility}>
-                          <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
-                        </span>
-                        {fieldErrors.loginPassword && <p className="login-error-text">La contraseña es requerida</p>}
-                      </div>
-
-                      <div className="login-checkbox-container">
-                        <label className="login-checkbox-label">
+                      <form onSubmit={handleLoginSubmit}>
+                        <div className="login-input-box">
+                          <label className="login-label">Correo Electrónico*</label>
                           <input
-                            type="checkbox"
-                            className="login-checkbox"
-                            checked={rememberMe}
-                            onChange={() => setRememberMe(!rememberMe)}
+                            type="email"
+                            placeholder="tu@email.com"
+                            value={loginEmail}
+                            onChange={(e) => {
+                              setLoginEmail(e.target.value);
+                              setFieldErrors({ ...fieldErrors, loginEmail: false });
+                            }}
+                            className={`login-input ${fieldErrors.loginEmail ? "input-error" : ""}`}
                           />
-                          Recordarme
-                        </label>
-                        <Link to="/recuperar-contrasena" className="login-forgot-password">
-                          ¿Olvidaste tu contraseña?
+                          <span className="login-icon">
+                            <IonIcon icon={mailOutline} />
+                          </span>
+                          {fieldErrors.loginEmail && (
+                            <p className="login-error-text">⚠️ Por favor ingresa un correo válido</p>
+                          )}
+                        </div>
+
+                        <div className="login-input-box">
+                          <label className="login-label">Contraseña*</label>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Tu contraseña"
+                            value={loginPassword}
+                            onChange={(e) => {
+                              setLoginPassword(e.target.value);
+                              setFieldErrors({ ...fieldErrors, loginPassword: false });
+                            }}
+                            className={`login-input ${fieldErrors.loginPassword ? "input-error" : ""}`}
+                          />
+                          <span className="login-toggle-password" onClick={togglePasswordVisibility}>
+                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
+                          </span>
+                          {fieldErrors.loginPassword && <p className="login-error-text">⚠️ La contraseña es requerida</p>}
+                        </div>
+
+                        <div className="login-checkbox-container">
+                          <label className="login-checkbox-label">
+                            <input
+                              type="checkbox"
+                              className="login-checkbox"
+                              checked={rememberMe}
+                              onChange={() => setRememberMe(!rememberMe)}
+                            />
+                            Recordarme
+                          </label>
+                          <Link to="/recuperar-contrasena" className="login-forgot-password">
+                            ¿Olvidaste tu contraseña?
+                          </Link>
+                        </div>
+
+                        <Button type="submit" className="login-button" disabled={animating}>
+                          {animating ? "Iniciando..." : "Iniciar Sesión"}
+                        </Button>
+                      </form>
+
+                      <div className="login-switch-form">
+                        ¿No tienes una cuenta?{" "}
+                        <span className="login-link" onClick={toggleForm}>
+                          Regístrate aquí
+                        </span>
+                      </div>
+
+                      <div className="login-terms-text">
+                        Al iniciar sesión, aceptas nuestras{" "}
+                        <Link to="/politicas#cliente" className="login-highlight">
+                          Políticas de Cliente
+                        </Link>{" "}
+                        y{" "}
+                        <Link to="/politicas#privacidad" className="login-highlight">
+                          Políticas de Privacidad
                         </Link>
                       </div>
-
-                      <Button type="submit" className="login-button" disabled={animating}>
-                        Iniciar Sesión
-                      </Button>
-                    </form>
-
-                    <div className="login-switch-form">
-                      ¿No tienes una cuenta?{" "}
-                      <span className="login-link" onClick={toggleForm}>
-                        Regístrate aquí
-                      </span>
-                    </div>
-
-                    <div className="login-terms-text">
-                      Al iniciar sesión, aceptas nuestras{" "}
-                      <Link to="/politicas#cliente" className="login-highlight">
-                        Políticas de Cliente
-                      </Link>{" "}
-                      y{" "}
-                      <Link to="/politicas#privacidad" className="login-highlight">
-                        Políticas de Privacidad
-                      </Link>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  /* Register Form */
+                  <div className="login-form-panel" ref={activeFormRef}>
+                    <div className="login-logo">
+                      <h1 className="login-logo-text">La Aterciopelada</h1>
+                      <p className="login-logo-subtext">Arte Textil Huasteco</p>
+                    </div>
+                    <div>
+                      <h2 className="login-title">Crear Cuenta</h2>
+                      <p className="login-subtitle">Únete a nuestra comunidad</p>
 
-                {/* Formulario de Registro */}
-                <div className="login-form-panel">
-                  <div className="login-logo">
-                    <h1 className="login-logo-text">La Aterciopelada</h1>
-                    <p className="login-logo-subtext">Arte Textil Huasteco</p>
-                  </div>
-                  <div>
-                    <h2 className="login-title">Crear Cuenta</h2>
-                    <p className="login-subtitle">Únete a nuestra comunidad</p>
+                      {error && <div className="login-alert-error">{error}</div>}
+                      {success && <div className="login-alert-success">{success}</div>}
 
-                    {error && !isLogin && <div className="login-alert-error">{error}</div>}
-                    {success && !isLogin && <div className="login-alert-success">{success}</div>}
-
-                    <form onSubmit={handleRegisterSubmit}>
-                      <div className="login-input-box">
-                        <label className="login-label">Nombre Completo*</label>
-                        <input
-                          type="text"
-                          placeholder="Nombre Completo"
-                          value={name}
-                          onChange={(e) => {
-                            setName(e.target.value)
-                            setFieldErrors({ ...fieldErrors, name: false })
-                          }}
-                          className={`login-input ${fieldErrors.name ? "input-error" : ""}`}
-                        />
-                        <span className="login-icon">
-                          <IonIcon icon={personOutline} />
-                        </span>
-                        {fieldErrors.name && <p className="login-error-text">El nombre es requerido</p>}
-                      </div>
-
-                      <div className="login-input-box">
-                        <label className="login-label">Teléfono*</label>
-                        <input
-                          type="tel"
-                          placeholder="Teléfono (ej. +521234567890)"
-                          value={phone}
-                          onChange={(e) => {
-                            setPhone(e.target.value)
-                            setFieldErrors({ ...fieldErrors, phone: false })
-                          }}
-                          className={`login-input ${fieldErrors.phone ? "input-error" : ""}`}
-                        />
-                        <span className="login-icon">
-                          <IonIcon icon={callOutline} />
-                        </span>
-                        {fieldErrors.phone && <p className="login-error-text">Por favor ingresa un teléfono válido</p>}
-                      </div>
-
-                      <div className="login-input-box">
-                        <label className="login-label">Correo Electrónico*</label>
-                        <input
-                          type="email"
-                          placeholder="Correo Electrónico"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value)
-                            setFieldErrors({ ...fieldErrors, email: false })
-                          }}
-                          className={`login-input ${fieldErrors.email ? "input-error" : ""}`}
-                        />
-                        <span className="login-icon">
-                          <IonIcon icon={mailOutline} />
-                        </span>
-                        {fieldErrors.email && <p className="login-error-text">Por favor ingresa un correo válido</p>}
-                      </div>
-
-                      <div className="login-input-box">
-                        <label className="login-label">Contraseña*</label>
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Contraseña"
-                          value={password}
-                          onChange={(e) => {
-                            setPassword(e.target.value)
-                            setFieldErrors({ ...fieldErrors, password: false })
-                          }}
-                          className={`login-input ${fieldErrors.password ? "input-error" : ""}`}
-                        />
-                        <span className="login-toggle-password" onClick={togglePasswordVisibility}>
-                          <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
-                        </span>
-
-                        {password && (
-                          <>
-                            <div className="login-password-strength">
-                              <div
-                                className="login-password-strength-bar"
-                                style={{
-                                  width: `${(passwordStrength(password) / 4) * 100}%`,
-                                  backgroundColor: getPasswordStrengthColor(),
-                                }}
-                              ></div>
-                            </div>
-                            <div className="login-password-strength-text" style={{ color: getPasswordStrengthColor() }}>
-                              {getPasswordStrengthText()}
-                            </div>
-                          </>
-                        )}
-
-                        {fieldErrors.password && <p className="login-error-text">La contraseña debe tener al menos 8 caracteres</p>}
-                      </div>
-
-                      <div className="login-input-box">
-                        <label className="login-label">Confirmar Contraseña*</label>
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Confirmar Contraseña"
-                          value={confirmPassword}
-                          onChange={(e) => {
-                            setConfirmPassword(e.target.value)
-                            setFieldErrors({ ...fieldErrors, confirmPassword: false })
-                          }}
-                          className={`login-input ${fieldErrors.confirmPassword ? "input-error" : ""}`}
-                        />
-                        <span className="login-toggle-password" onClick={togglePasswordVisibility}>
-                          <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
-                        </span>
-                        {fieldErrors.confirmPassword && (
-                          <p className="login-error-text">Las contraseñas no coinciden</p>
-                        )}
-                      </div>
-
-                      <div style={{ marginBottom: stylesPublic.spacing.scale[4] }}>
-                        <label className="login-checkbox-label">
+                      <form onSubmit={handleRegisterSubmit}>
+                        <div className="login-input-box">
+                          <label className="login-label">Nombre Completo*</label>
                           <input
-                            type="checkbox"
-                            className="login-checkbox"
-                            checked={acceptTerms}
-                            onChange={() => {
-                              setAcceptTerms(!acceptTerms)
-                              setFieldErrors({ ...fieldErrors, acceptTerms: false })
+                            type="text"
+                            placeholder="Tu nombre completo"
+                            value={name}
+                            onChange={(e) => {
+                              setName(e.target.value);
+                              setFieldErrors({ ...fieldErrors, name: false });
                             }}
+                            className={`login-input ${fieldErrors.name ? "input-error" : ""}`}
                           />
-                          Acepto los términos y condiciones
-                        </label>
-                        {fieldErrors.acceptTerms && <p className="login-error-text">Debes aceptar los términos</p>}
+                          <span className="login-icon">
+                            <IonIcon icon={personOutline} />
+                          </span>
+                          {fieldErrors.name && <p className="login-error-text">⚠️ El nombre es requerido</p>}
+                        </div>
+
+                        <div className="login-input-box">
+                          <label className="login-label">Teléfono*</label>
+                          <input
+                            type="tel"
+                            placeholder="+521234567890"
+                            value={phone}
+                            onChange={(e) => {
+                              setPhone(e.target.value);
+                              setFieldErrors({ ...fieldErrors, phone: false });
+                            }}
+                            className={`login-input ${fieldErrors.phone ? "input-error" : ""}`}
+                          />
+                          <span className="login-icon">
+                            <IonIcon icon={callOutline} />
+                          </span>
+                          {fieldErrors.phone && (
+                            <p className="login-error-text">⚠️ Por favor ingresa un teléfono válido</p>
+                          )}
+                        </div>
+
+                        <div className="login-input-box">
+                          <label className="login-label">Correo Electrónico*</label>
+                          <input
+                            type="email"
+                            placeholder="tu@email.com"
+                            value={email}
+                            onChange={(e) => {
+                              setEmail(e.target.value);
+                              setFieldErrors({ ...fieldErrors, email: false });
+                            }}
+                            className={`login-input ${fieldErrors.email ? "input-error" : ""}`}
+                          />
+                          <span className="login-icon">
+                            <IonIcon icon={mailOutline} />
+                          </span>
+                          {fieldErrors.email && <p className="login-error-text">⚠️ Por favor ingresa un correo válido</p>}
+                        </div>
+
+                        <div className="login-input-box">
+                          <label className="login-label">Contraseña*</label>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Mínimo 8 caracteres"
+                            value={password}
+                            onChange={(e) => {
+                              setPassword(e.target.value);
+                              setFieldErrors({ ...fieldErrors, password: false });
+                            }}
+                            className={`login-input ${fieldErrors.password ? "input-error" : ""}`}
+                          />
+                          <span className="login-toggle-password" onClick={togglePasswordVisibility}>
+                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
+                          </span>
+
+                          {password && (
+                            <>
+                              <div className="login-password-strength">
+                                <div
+                                  className="login-password-strength-bar"
+                                  style={{
+                                    width: `${(passwordStrength(password) / 4) * 100}%`,
+                                    backgroundColor: getPasswordStrengthColor(),
+                                  }}
+                                ></div>
+                              </div>
+                              <div className="login-password-strength-text" style={{ color: getPasswordStrengthColor() }}>
+                                {getPasswordStrengthText()}
+                              </div>
+                            </>
+                          )}
+
+                          {fieldErrors.password && (
+                            <p className="login-error-text">⚠️ La contraseña debe tener al menos 8 caracteres</p>
+                          )}
+                        </div>
+
+                        <div className="login-input-box">
+                          <label className="login-label">Confirmar Contraseña*</label>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Confirma tu contraseña"
+                            value={confirmPassword}
+                            onChange={(e) => {
+                              setConfirmPassword(e.target.value);
+                              setFieldErrors({ ...fieldErrors, confirmPassword: false });
+                            }}
+                            className={`login-input ${fieldErrors.confirmPassword ? "input-error" : ""}`}
+                          />
+                          <span className="login-toggle-password" onClick={togglePasswordVisibility}>
+                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
+                          </span>
+                          {fieldErrors.confirmPassword && (
+                            <p className="login-error-text">⚠️ Las contraseñas no coinciden</p>
+                          )}
+                        </div>
+
+                        <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
+                          <label className="login-checkbox-label">
+                            <input
+                              type="checkbox"
+                              className="login-checkbox"
+                              checked={acceptTerms}
+                              onChange={() => {
+                                setAcceptTerms(!acceptTerms);
+                                setFieldErrors({ ...fieldErrors, acceptTerms: false });
+                              }}
+                            />
+                            Acepto los términos y condiciones
+                          </label>
+                          {fieldErrors.acceptTerms && <p className="login-error-text">⚠️ Debes aceptar los términos</p>}
+                        </div>
+
+                        <Button type="submit" className="login-button" disabled={animating}>
+                          {animating ? "Creando cuenta..." : "Crear Cuenta"}
+                        </Button>
+                      </form>
+
+                      <div className="login-switch-form">
+                        ¿Ya tienes una cuenta?{" "}
+                        <span className="login-link" onClick={toggleForm}>
+                          Inicia sesión aquí
+                        </span>
                       </div>
 
-                      <Button type="submit" className="login-button" disabled={animating}>
-                        Crear Cuenta
-                      </Button>
-                    </form>
-
-                    <div className="login-switch-form">
-                      ¿Ya tienes una cuenta?{" "}
-                      <span className="login-link" onClick={toggleForm}>
-                        Inicia sesión aquí
-                      </span>
-                    </div>
-
-                    <div className="login-terms-text">
-                      Al registrarte, aceptas recibir correos electrónicos sobre nuestros productos y eventos
-                      culturales.
+                      <div className="login-terms-text">
+                        Al registrarte, aceptas recibir correos electrónicos sobre nuestros productos y eventos
+                        culturales.
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

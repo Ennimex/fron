@@ -2,7 +2,7 @@
  * Sistema de Estilos Globales - La Aterciopelada
  * Versión refactorizada con mejores prácticas y consistencia profesional
  * Autor: Equipo de Desarrollo Frontend
- * Fecha: 2025-06-27
+ * Fecha: 2025-06-28
  */
 
 const stylesPublic = {
@@ -13,11 +13,11 @@ const stylesPublic = {
     // Paleta primaria - Rosa vibrante (color principal de la marca)
     primary: {
       50: '#fef7f7',
-      100: '#fdeaec', 
+      100: '#fdeaec',
       200: '#fbd5d9',
       300: '#f7b3bb',
       400: '#f18a98',
-      500: '#e00050',  // Color principal
+      500: '#e00050', // Color principal
       600: '#d1004a',
       700: '#b8003e',
       800: '#9c0035',
@@ -32,11 +32,11 @@ const stylesPublic = {
       200: '#99f6e4',
       300: '#5eead4',
       400: '#2dd4bf',
-      500: '#009885',  // Color secundario principal
-      600: '#0d9488',
-      700: '#0f766e',
-      800: '#115e59',
-      900: '#134e4a',
+      500: '#007a6b', // Ajustado para mejor contraste
+      600: '#006d60',
+      700: '#005f54',
+      800: '#005149',
+      900: '#00433e',
       contrast: '#ffffff'
     },
 
@@ -66,14 +66,14 @@ const stylesPublic = {
       },
       warning: {
         light: '#fffbeb',
-        main: '#f59e0b',
-        dark: '#d97706',
+        main: '#e68a00', // Ajustado para mejor contraste
+        dark: '#c27600',
         contrast: '#000000'
       },
       success: {
         light: '#f0fdf4',
-        main: '#16a34a',
-        dark: '#166534',
+        main: '#13843a', // Ajustado para mejor contraste
+        dark: '#11682e',
         contrast: '#ffffff'
       },
       info: {
@@ -91,27 +91,27 @@ const stylesPublic = {
       tertiary: '#f5f5f4',
       elevated: '#ffffff',
       overlay: 'rgba(28, 25, 23, 0.75)',
-      glass: 'rgba(255, 255, 255, 0.85)'
+      glass: 'rgba(245, 245, 244, 0.9)' // Ajustado para mejor compatibilidad
     },
 
     // Colores de texto con jerarquía clara
     text: {
-      primary: '#1c1917',     // neutral-900 para máxima legibilidad
-      secondary: '#44403c',   // neutral-700 para texto secundario
-      tertiary: '#78716c',    // neutral-500 para texto auxiliar
-      inverse: '#ffffff',     // Texto sobre fondos oscuros
-      accent: '#e00050',      // Texto de acento
-      disabled: '#a8a29e'     // Texto deshabilitado
+      primary: '#1c1917', // neutral-900 para máxima legibilidad
+      secondary: '#44403c', // neutral-700 para texto secundario
+      tertiary: '#78716c', // neutral-500 para texto auxiliar
+      inverse: '#ffffff', // Texto sobre fondos oscuros
+      accent: '#e00050', // primary-500
+      disabled: '#8c8783' // Ajustado para mejor contraste
     },
 
     // Gradientes de marca optimizados
     gradients: {
       primary: 'linear-gradient(135deg, #e00050 0%, #f18a98 100%)',
-      secondary: 'linear-gradient(135deg, #009885 0%, #2dd4bf 100%)',
-      hero: 'linear-gradient(135deg, #fafaf9 0%, #e00050 30%, rgba(0, 152, 133, 0.7) 60%, #fafaf9 100%)',
+      secondary: 'linear-gradient(135deg, #007a6b 0%, #2dd4bf 100%)',
+      hero: 'linear-gradient(135deg, #fafaf9 0%, #f7b3bb 30%, #5eead4 60%, #fafaf9 100%)',
       warm: 'linear-gradient(to bottom, #fafaf9 0%, #f5f5f4 50%, #fafaf9 100%)',
-      accent: 'linear-gradient(135deg, #e00050 0%, #009885 50%, #e00050 100%)',
-      glass: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%)'
+      accent: 'linear-gradient(135deg, #e00050 0%, #007a6b 50%, #e00050 100%)',
+      glass: 'linear-gradient(135deg, rgba(245, 245, 244, 0.9) 0%, rgba(245, 245, 244, 0.6) 100%)'
     }
   },
 
@@ -123,28 +123,26 @@ const stylesPublic = {
     families: {
       // Para títulos - Fuente display moderna con personalidad
       display: "'Manrope', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
-      
-      // Para texto general - Fuente geométrica legible y contemporánea  
+      // Para texto general - Fuente geométrica legible y contemporánea
       body: "'Inter', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
-      
       // Para código - Fuente monospace con ligaduras modernas
       mono: "'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace"
     },
 
     // Escala tipográfica modular basada en ratio 1.25 (cuarta mayor)
     scale: {
-      xs: '0.75rem',      // 12px
-      sm: '0.875rem',     // 14px  
-      base: '1rem',       // 16px - Tamaño base
-      lg: '1.125rem',     // 18px
-      xl: '1.25rem',      // 20px
-      '2xl': '1.5rem',    // 24px
-      '3xl': '1.875rem',  // 30px
-      '4xl': '2.25rem',   // 36px
-      '5xl': '3rem',      // 48px
-      '6xl': '3.75rem',   // 60px
-      '7xl': '4.5rem',    // 72px
-      '8xl': '6rem',      // 96px
+      xs: '0.75rem', // 12px
+      sm: '0.875rem', // 14px
+      base: '1rem', // 16px - Tamaño base
+      lg: '1.125rem', // 18px
+      xl: '1.25rem', // 20px
+      '2xl': '1.5rem', // 24px
+      '3xl': '1.875rem', // 30px
+      '4xl': '2.25rem', // 36px
+      '5xl': '3rem', // 48px
+      '6xl': '3.75rem', // 60px
+      '7xl': '4.5rem', // 72px
+      '8xl': '6rem', // 96px
     },
 
     // Jerarquía de encabezados responsivos con fuentes modernas
@@ -256,56 +254,56 @@ const stylesPublic = {
     // Escala de espaciado basada en múltiplos de 4px
     scale: {
       0: '0px',
-      1: '4px',      // 0.25rem
-      2: '8px',      // 0.5rem  - unidad base
-      3: '12px',     // 0.75rem
-      4: '16px',     // 1rem
-      5: '20px',     // 1.25rem
-      6: '24px',     // 1.5rem
-      7: '28px',     // 1.75rem
-      8: '32px',     // 2rem
-      9: '36px',     // 2.25rem
-      10: '40px',    // 2.5rem
-      11: '44px',    // 2.75rem
-      12: '48px',    // 3rem
-      14: '56px',    // 3.5rem
-      15: '60px',    // 3.75rem
-      16: '64px',    // 4rem
-      18: '72px',    // 4.5rem
-      19: '76px',    // 4.75rem
-      20: '80px',    // 5rem
-      24: '96px',    // 6rem
-      28: '112px',   // 7rem
-      30: '120px',   // 7.5rem
-      32: '128px',   // 8rem
-      36: '144px',   // 9rem
-      40: '160px',   // 10rem
-      42: '168px',   // 10.5rem
-      44: '176px',   // 11rem
-      45: '180px',   // 11.25rem
-      48: '192px',   // 12rem
-      50: '200px',   // 12.5rem
-      52: '208px',   // 13rem
-      55: '220px',   // 13.75rem
-      56: '224px',   // 14rem
-      60: '240px',   // 15rem
-      62: '248px',   // 15.5rem
-      64: '256px',   // 16rem
-      70: '280px',   // 17.5rem
-      72: '288px',   // 18rem
-      75: '300px',   // 18.75rem
-      80: '320px',   // 20rem
-      88: '352px',   // 22rem
-      96: '384px',   // 24rem
-      100: '400px',  // 25rem
-      113: '452px',  // 28.25rem
-      200: '800px',  // 50rem
+      1: '4px', // 0.25rem
+      2: '8px', // 0.5rem - unidad base
+      3: '12px', // 0.75rem
+      4: '16px', // 1rem
+      5: '20px', // 1.25rem
+      6: '24px', // 1.5rem
+      7: '28px', // 1.75rem
+      8: '32px', // 2rem
+      9: '36px', // 2.25rem
+      10: '40px', // 2.5rem
+      11: '44px', // 2.75rem
+      12: '48px', // 3rem
+      14: '56px', // 3.5rem
+      15: '60px', // 3.75rem
+      16: '64px', // 4rem
+      18: '72px', // 4.5rem
+      19: '76px', // 4.75rem
+      20: '80px', // 5rem
+      24: '96px', // 6rem
+      28: '112px', // 7rem
+      30: '120px', // 7.5rem
+      32: '128px', // 8rem
+      36: '144px', // 9rem
+      40: '160px', // 10rem
+      42: '168px', // 10.5rem
+      44: '176px', // 11rem
+      45: '180px', // 11.25rem
+      48: '192px', // 12rem
+      50: '200px', // 12.5rem
+      52: '208px', // 13rem
+      55: '220px', // 13.75rem
+      56: '224px', // 14rem
+      60: '240px', // 15rem
+      62: '248px', // 15.5rem
+      64: '256px', // 16rem
+      70: '280px', // 17.5rem
+      72: '288px', // 18rem
+      75: '300px', // 18.75rem
+      80: '320px', // 20rem
+      88: '352px', // 22rem
+      96: '384px', // 24rem
+      100: '400px', // 25rem
+      113: '452px', // 28.25rem
+      200: '800px', // 50rem
     },
 
     // Espaciado semántico para secciones
     sections: {
       xs: '2rem 1rem',
-      sm: '3rem 1.5rem', 
+      sm: '3rem 1.5rem',
       md: '4rem 2rem',
       lg: '6rem 2rem',
       xl: '8rem 2rem',
@@ -351,20 +349,20 @@ const stylesPublic = {
     width: {
       0: '0px',
       1: '1px',
-      2: '2px', 
+      2: '2px',
       4: '4px',
       8: '8px'
     },
 
     // Colores de borde semánticos
     colors: {
-      default: '#e7e5e4',      // neutral-200
-      muted: '#d6d3d1',        // neutral-300
-      strong: '#78716c',       // neutral-500
-      accent: '#e00050',       // primary-500
-      success: '#16a34a',      // success
-      error: '#dc2626',        // error
-      warning: '#f59e0b'       // warning
+      default: '#e7e5e4', // neutral-200
+      muted: '#d6d3d1', // neutral-300
+      strong: '#78716c', // neutral-500
+      accent: '#e00050', // primary-500
+      success: '#16a34a', // success
+      error: '#dc2626', // error
+      warning: '#f59e0b' // warning
     }
   },
 
@@ -397,11 +395,11 @@ const stylesPublic = {
   // BREAKPOINTS RESPONSIVOS
   // ===============================
   breakpoints: {
-    xs: '320px',   // Móviles pequeños
-    sm: '640px',   // Móviles grandes  
-    md: '768px',   // Tablets
-    lg: '1024px',  // Laptops
-    xl: '1280px',  // Desktops
+    xs: '320px', // Móviles pequeños
+    sm: '640px', // Móviles grandes
+    md: '768px', // Tablets
+    lg: '1024px', // Laptops
+    xl: '1280px', // Desktops
     '2xl': '1536px' // Pantallas grandes
   },
 
@@ -491,11 +489,11 @@ const stylesPublic = {
         },
         secondary: {
           backgroundColor: 'transparent',
-          color: '#009885',
-          border: '1px solid #009885',
+          color: '#007a6b',
+          border: '1px solid #007a6b',
           transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
           '&:hover': {
-            backgroundColor: '#009885',
+            backgroundColor: '#007a6b',
             color: '#ffffff'
           }
         },
@@ -547,8 +545,8 @@ const stylesPublic = {
         transition: 'all 200ms cubic-bezier(0, 0, 0.2, 1)',
         '&:focus': {
           outline: 'none',
-          borderColor: '#009885',
-          boxShadow: '0 0 0 3px rgba(0, 152, 133, 0.1)'
+          borderColor: '#007a6b',
+          boxShadow: '0 0 0 3px rgba(0, 122, 107, 0.1)'
         }
       },
       error: {
@@ -571,7 +569,7 @@ const stylesPublic = {
       padding: '1rem',
       maxWidth: {
         sm: '640px',
-        md: '768px', 
+        md: '768px',
         lg: '1024px',
         xl: '1280px',
         '2xl': '1400px'
