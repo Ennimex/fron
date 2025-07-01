@@ -21,6 +21,11 @@ const NavbarBase = ({
     setExpanded(false);
   };
 
+  const handleLoginClick = () => {
+    navigate("/login", { state: { showLogin: true } });
+    setExpanded(false);
+  };
+
   const navLinkStyle = ({ isActive }) => ({
     color: isActive ? colors.primaryDark : colors.primaryMedium,
     fontWeight: isActive ? "600" : "400",
@@ -99,8 +104,7 @@ const NavbarBase = ({
             </Dropdown>
           ) : (
             <Button
-              as={Link}
-              to="/login"
+              onClick={handleLoginClick}
               style={{
                 backgroundColor: colors.primaryDark,
                 borderColor: colors.primaryDark,
@@ -109,7 +113,6 @@ const NavbarBase = ({
                 fontSize: "0.9rem",
                 whiteSpace: "nowrap",
               }}
-              onClick={() => setExpanded(false)}
             >
               Iniciar Sesión
             </Button>

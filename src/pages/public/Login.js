@@ -2,13 +2,21 @@ import { useState, useEffect, useMemo, useContext, useRef } from "react";
 import { Button } from "react-bootstrap";
 import { IonIcon } from "@ionic/react";
 import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from "ionicons/icons";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import stylesPublic from "../../styles/stylesPublic";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-  const [isLogin, setIsLogin] = useState(!searchParams.get("register"));
+  const location = useLocation();
+  const [isLogin, setIsLogin] = useState(() => {
+    // Si viene del botón de la navbar, mostrar login
+    if (location.state?.showLogin) return true;
+    // Si hay parámetro register, mostrar registro
+    if (searchParams.get("register")) return false;
+    // Por defecto, mostrar login
+    return true;
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -60,10 +68,20 @@ const Login = () => {
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
     setCurrentImageIndex(randomIndex);
-    if (searchParams.get("register")) {
-      setIsLogin(false);
+    
+    // Si viene del botón de la navbar, forzar mostrar login
+    if (location.state?.showLogin) {
+      setIsLogin(true);
+      return;
     }
-  }, [searchParams, backgroundImages]);
+    
+    // Manejar cambios en los parámetros de URL
+    if (searchParams.get("register")) {
+      setIsLogin(false); // Mostrar formulario de registro
+    } else {
+      setIsLogin(true); // Mostrar formulario de login por defecto
+    }
+  }, [searchParams, backgroundImages, location.state]);
 
   useEffect(() => {
     // Ajustar la altura cuando cambia el formulario activo o el contenido
