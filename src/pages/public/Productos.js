@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
 import { useAuth } from "../../context/AuthContext"
+import { publicAPI } from "../../services/api"
 import stylesPublic from "../../styles/stylesPublic"
 
 const ProductCard = React.memo(
@@ -87,18 +88,11 @@ const Productos = () => {
     const cargarDatos = async () => {
       try {
         setLoading(true)
-        const [productosRes, categoriasRes, localidadesRes, tallasRes] = await Promise.all([
-          fetch("http://localhost:5000/api/public/productos"),
-          fetch("http://localhost:5000/api/public/categorias"),
-          fetch("http://localhost:5000/api/public/localidades"),
-          fetch("http://localhost:5000/api/public/tallas"),
-        ])
-
         const [productosData, categoriasData, localidadesData, tallasData] = await Promise.all([
-          productosRes.json(),
-          categoriasRes.json(),
-          localidadesRes.json(),
-          tallasRes.json(),
+          publicAPI.getProductos(),
+          publicAPI.getCategorias(),
+          publicAPI.getLocalidades(),
+          publicAPI.getTallas(),
         ])
 
         setProductosApi(productosData)

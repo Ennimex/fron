@@ -2,15 +2,18 @@
 import React from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import NavbarPrivate from "../layouts/private/NabvarPrivate";
-import Footer from "../layouts/shared/Footer";
+import NavbarPrivate from "./private/NabvarPrivate";
+import Footer from "./shared/Footer";
 import { useAuth } from "../context/AuthContext";
 
 const privateNavLinks = [
   { to: "/", label: "Inicio" },
-  { to: "/productos", label: "Mis Productos" },
+  { to: "/productos", label: "Productos" },
   { to: "/servicios", label: "Servicios" },
-  { to: "/perfil", label: "Mi Perfil" }
+  { to: "/nosotros", label: "Nosotros" },
+  { to: "/contacto", label: "Contacto" },
+  { to: "/destacados", label: "Destacados" },
+  { to: "/catalogofotos", label: "Galería" }
 ];
 
 const PrivateLayout = () => {

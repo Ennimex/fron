@@ -3,7 +3,7 @@ import { Container, Row, Col } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 // import productos from "../../services/base"
 import { useAuth } from "../../context/AuthContext"
-import axios from "axios"
+import { publicAPI } from "../../services/api"
 import {
   FaMountain,
   FaWater,
@@ -105,16 +105,16 @@ const InicioEnhanced = () => {
     const cargarCategorias = async () => {
       try {
         setIsLoading(true)
-        const response = await axios.get("http://localhost:5000/api/public/categorias")
-        if (response.data && response.data.length > 0) {
-          const categoriasData = response.data.map((categoria) => ({
+        const categoriasData = await publicAPI.getCategorias()
+        if (categoriasData && categoriasData.length > 0) {
+          const categoriasFormatted = categoriasData.map((categoria) => ({
             nombre: categoria.nombre,
             cantidad: categoria.productos?.length || 0,
             imagen: categoria.imagenURL || "",
             descripcion:
               categoria.descripcion || `Colección de ${categoria.nombre.toLowerCase()} con detalles artesanales únicos`,
           }))
-          setCategorias(categoriasData)
+          setCategorias(categoriasFormatted)
         } else {
           setCategorias([])
         }
@@ -129,10 +129,10 @@ const InicioEnhanced = () => {
     const cargarLocalidades = async () => {
       try {
         setIsLoadingLocalidades(true)
-        const response = await axios.get("http://localhost:5000/api/public/localidades")
+        const localidadesData = await publicAPI.getLocalidades()
 
-        if (response.data && response.data.length > 0) {
-          setLocalidades(response.data)
+        if (localidadesData && localidadesData.length > 0) {
+          setLocalidades(localidadesData)
         } else {
           setLocalidades(regions)
         }

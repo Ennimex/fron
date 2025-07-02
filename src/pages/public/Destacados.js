@@ -15,7 +15,7 @@ import Slider from "react-slick"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import stylesPublic from "../../styles/stylesPublic"
-import api from "../../services/api"
+import { publicAPI } from "../../services/api"
 
 const DestacadosEnhanced = () => {
   const [selectedImage, setSelectedImage] = useState(null)
@@ -708,7 +708,7 @@ const DestacadosEnhanced = () => {
     const fetchFotos = async () => {
       try {
         setLoading(true)
-        const data = await api.get("/public/galeria/fotos")
+        const data = await publicAPI.getFotos()
         setFotos(data)
         setLoading(false)
       } catch (error) {
@@ -723,7 +723,7 @@ const DestacadosEnhanced = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const data = await api.get("/videos")
+        const data = await publicAPI.getVideos()
         setVideos(data)
       } catch (error) {
         console.error("Error al cargar los videos:", error)
@@ -737,7 +737,7 @@ const DestacadosEnhanced = () => {
     const fetchEventos = async () => {
       try {
         setLoadingEventos(true)
-        const data = await api.get("/eventos")
+        const data = await publicAPI.getEventos()
         // Filtrar solo eventos futuros y ordenar por fecha
         const eventosFuturos = data.filter(evento => {
           const fechaEvento = new Date(evento.fecha);

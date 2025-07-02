@@ -71,7 +71,7 @@ const NavbarBase = ({
                 }}
               >
                 <PersonCircle size={20} />
-                <span>{user?.name || "Usuario"}</span>
+                <span>{user?.name || user?.email || "Usuario"}</span>
               </Dropdown.Toggle>
 
               <Dropdown.Menu className="shadow-sm border">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Container, Row, Col, Image } from "react-bootstrap"
 import stylesPublic from "../../styles/stylesPublic"
-import api from "../../services/api"
+import { publicAPI } from "../../services/api"
 
 const NosotrosEnhanced = () => {
   const [isVisible, setIsVisible] = useState({
@@ -35,14 +35,11 @@ const NosotrosEnhanced = () => {
     const fetchNosotrosData = async () => {
       try {
         setLoadingNosotros(true)
-        const response = await fetch("http://localhost:5000/api/nosotros")
-        if (response.ok) {
-          const data = await response.json()
-          setNosotrosData({
-            mision: data.mision || "",
-            vision: data.vision || "",
-          })
-        }
+        const data = await publicAPI.getNosotros()
+        setNosotrosData({
+          mision: data.mision || "",
+          vision: data.vision || "",
+        })
       } catch (error) {
         console.error("Error al cargar información de nosotros:", error)
       } finally {
@@ -52,7 +49,7 @@ const NosotrosEnhanced = () => {
 
     const fetchColaboradores = async () => {
       try {
-        const data = await api.get("/public/colaboradores")
+        const data = await publicAPI.getColaboradores()
         setColaboradores(data)
         setLoading(false)
       } catch (error) {

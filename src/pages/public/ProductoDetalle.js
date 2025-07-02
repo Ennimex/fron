@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Container, Row, Col, Image } from "react-bootstrap"
 import "bootstrap-icons/font/bootstrap-icons.min.css"
+import { FaWhatsapp, FaArrowLeft } from "react-icons/fa"
+import { publicAPI } from "../../services/api"
 import stylesPublic from "../../styles/stylesPublic"
 
 const ProductoDetalleEnhanced = () => {
@@ -21,9 +23,9 @@ const ProductoDetalleEnhanced = () => {
 
   useEffect(() => {
     // Obtener producto desde la API
-    fetch(`http://localhost:5000/api/public/productos/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+    const cargarProducto = async () => {
+      try {
+        const data = await publicAPI.getProductoById(id)
         setProducto(data)
         // Animaciones escalonadas más sofisticadas
         setTimeout(() => setIsVisible((prev) => ({ ...prev, hero: true })), 100)
@@ -31,11 +33,36 @@ const ProductoDetalleEnhanced = () => {
         setTimeout(() => setIsVisible((prev) => ({ ...prev, details: true })), 500)
         setTimeout(() => setIsVisible((prev) => ({ ...prev, specs: true })), 700)
         setTimeout(() => setIsVisible((prev) => ({ ...prev, actions: true })), 900)
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error("Error al cargar producto:", error)
         navigate("/productos")
-      })
+      }
+    }
+    
+    cargarProducto()
   }, [id, navigate])
+
+  // Función para manejar el contacto por WhatsApp
+  const handleWhatsAppContact = () => {
+    const phoneNumber = "527715563522" // Número de ejemplo - reemplaza con el número real de la empresa
+    const message = `¡Hola! Me interesa este producto de La Aterciopelada:
+
+📋 *${producto?.nombre || 'Producto'}*
+
+${producto?.descripcion ? `📝 Descripción: ${producto.descripcion}` : ''}
+${producto?.localidadId?.nombre ? `📍 Localidad: ${producto.localidadId.nombre}` : ''}
+${producto?.tallasDisponibles?.length ? `� Tallas disponibles: ${producto.tallasDisponibles.length}` : ''}
+
+¿Podrían proporcionarme más información sobre disponibilidad, precios y formas de pago?
+
+¡Gracias! 😊`
+
+    const encodedMessage = encodeURIComponent(message)
+    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+    
+    // Abrir en nueva ventana
+    window.open(whatsappURL, '_blank')
+  }
 
   // CSS con animaciones y estilos refinados
   const cssStyles = `
@@ -217,6 +244,51 @@ const ProductoDetalleEnhanced = () => {
       background: ${stylesPublic.colors.gradients.secondary};
     }
 
+    .whatsapp-button {
+      display: inline-flex;
+      align-items: center;
+      gap: ${stylesPublic.spacing.scale[3]};
+      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]};
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: white;
+      border: none;
+      border-radius: ${stylesPublic.borders.radius.full};
+      font-family: ${stylesPublic.typography.families.body};
+      font-weight: ${stylesPublic.typography.weights.medium};
+      font-size: ${stylesPublic.typography.scale.base};
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      margin-left: ${stylesPublic.spacing.scale[4]};
+    }
+
+    .whatsapp-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .whatsapp-button:hover::before {
+      left: 100%;
+    }
+
+    .whatsapp-button:hover {
+      transform: translateY(-${stylesPublic.spacing.scale[1]});
+      box-shadow: 0 12px 24px -8px rgba(37, 211, 102, 0.4);
+      background: linear-gradient(135deg, #128C7E, #25D366);
+    }
+
+    .whatsapp-button:active {
+      transform: translateY(0);
+    }
+
     .loading-skeleton {
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
@@ -273,6 +345,12 @@ const ProductoDetalleEnhanced = () => {
       .back-button {
         width: 100%;
         justify-content: center;
+        margin-bottom: ${stylesPublic.spacing.scale[3]};
+      }
+      .whatsapp-button {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
       }
     }
 
@@ -597,8 +675,12 @@ const ProductoDetalleEnhanced = () => {
                     }}
                   >
                     <button className="back-button" onClick={() => navigate("/productos")}>
-                      <i className="bi bi-arrow-left"></i>
+                      <FaArrowLeft />
                       Volver a Productos
+                    </button>
+                    <button className="whatsapp-button" onClick={handleWhatsAppContact}>
+                      <FaWhatsapp />
+                      Contactar por WhatsApp
                     </button>
                   </div>
                 </div>

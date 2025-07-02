@@ -10,7 +10,7 @@ import { closeOutline, chevronBackOutline, chevronForwardOutline } from "ionicon
 
 // Internal imports
 import stylesPublic from "../../styles/stylesPublic"
-import api from "../../services/api"
+import { publicAPI } from "../../services/api"
 
 const GaleriaCompleta = () => {
   // State management
@@ -484,7 +484,7 @@ const GaleriaCompleta = () => {
     const fetchFotos = async () => {
       try {
         setLoading(true)
-        const data = await api.get("/public/galeria/fotos")
+        const data = await publicAPI.getFotos()
         setFotos(data)
 
         // Trigger entrance animation

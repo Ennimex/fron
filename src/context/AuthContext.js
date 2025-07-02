@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import { authAPI } from '../services/api';
 
 export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -77,14 +78,8 @@ export const AuthProvider = ({ children }) => {
       if (!email) throw new Error('El correo electrónico es requerido');
       if (!password) throw new Error('La contraseña es requerida');
 
-      const response = await fetch('https://back-three-gamma.vercel.app/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Error en la autenticación');
+      const data = await authAPI.login({ email, password });
+      
       if (!data.token) throw new Error('No se recibió el token de autenticación');
 
       const decoded = jwtDecode(data.token);
@@ -121,14 +116,7 @@ export const AuthProvider = ({ children }) => {
       if (!registerData.password) throw new Error('La contraseña es requerida');
       if (!registerData.phone) throw new Error('El número de teléfono es requerido');
 
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registerData),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'No se pudo registrar');
+      const data = await authAPI.register(registerData);
 
       return {
         success: true,

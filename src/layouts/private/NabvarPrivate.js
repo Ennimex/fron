@@ -1,10 +1,10 @@
 // components/private/NavbarPrivate.js
 import React from "react";
 import { useAuth } from "../../context/AuthContext";
-import NavbarBase from "../../layouts/common/NavbarBase";
+import NavbarBase from "../common/NavbarBase";
 
 const NavbarPrivate = ({ navLinks }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   
   if (!user) return null;
 
@@ -12,8 +12,8 @@ const NavbarPrivate = ({ navLinks }) => {
     <NavbarBase
       isAuthenticated={true}
       user={user}
-      onLogout={() => {}}
-      brandName="Mi App"
+      onLogout={logout}
+      brandName="La Aterciopelada"
       navLinks={navLinks}
     />
   );
