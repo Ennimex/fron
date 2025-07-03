@@ -1,10 +1,9 @@
 import { useState, useEffect, useMemo, useContext, useRef } from "react";
-import { Button } from "react-bootstrap";
 import { IonIcon } from "@ionic/react";
 import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from "ionicons/icons";
 import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import stylesPublic from "../../styles/stylesPublic";
+import stylesPublic from "../../styles/stylesGlobal";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
@@ -286,7 +285,7 @@ const Login = () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%),
+      background: linear-gradient(135deg, rgba(214, 51, 132, 0.08) 0%, rgba(107, 155, 107, 0.06) 50%, rgba(230, 167, 86, 0.04) 100%),
                   linear-gradient(${stylesPublic.colors.surface.overlay}, ${stylesPublic.colors.surface.overlay}), 
                   url(${backgroundImages[currentImageIndex]});
       background-size: cover;
@@ -304,8 +303,8 @@ const Login = () => {
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-                  radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+      background: radial-gradient(circle at 30% 20%, rgba(214, 51, 132, 0.12) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(107, 155, 107, 0.10) 0%, transparent 50%);
       pointer-events: none;
     }
 
@@ -322,12 +321,13 @@ const Login = () => {
     .login-left-panel {
       flex: 1;
       padding: ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[8]};
-      color: ${stylesPublic.colors.surface.primary};
+      color: ${stylesPublic.colors.text.inverse};
       display: none;
-      background: rgba(255, 255, 255, 0.05);
+      background: ${stylesPublic.colors.gradients.elegant};
       backdrop-filter: blur(20px);
       border-radius: ${stylesPublic.borders.radius.xl};
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: ${stylesPublic.shadows.xl};
     }
 
     @media (min-width: ${stylesPublic.breakpoints.lg}) {
@@ -351,18 +351,18 @@ const Login = () => {
       background: ${stylesPublic.colors.surface.glass};
       backdrop-filter: blur(20px);
       border-radius: ${stylesPublic.borders.radius.xl};
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
-                  0 0 0 1px rgba(255, 255, 255, 0.1);
+      box-shadow: ${stylesPublic.shadows.brand.elegant};
+      border: 1px solid rgba(255, 255, 255, 0.2);
       overflow: hidden;
       height: ${formHeight};
       min-height: 400px;
-      transition: height ${stylesPublic.animations.duration.slow} ${stylesPublic.animations.easing["ease-in-out"]};
+      transition: height ${stylesPublic.animations.duration.elegant} ${stylesPublic.animations.easing.elegant};
     }
 
     .login-form-container {
       width: 100%;
       height: 100%;
-      transition: opacity ${stylesPublic.animations.duration.slow} ease;
+      transition: opacity ${stylesPublic.animations.duration.elegant} ${stylesPublic.animations.easing.elegant};
       opacity: ${animating ? 0.8 : 1};
     }
 
@@ -381,13 +381,13 @@ const Login = () => {
     .login-logo-text {
       font-size: ${stylesPublic.typography.scale["3xl"]};
       font-weight: ${stylesPublic.typography.weights.bold};
-      background: linear-gradient(135deg, ${stylesPublic.colors.primary[500]}, ${stylesPublic.colors.secondary[500]});
+      background: ${stylesPublic.colors.gradients.elegant};
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin: 0;
       font-family: ${stylesPublic.typography.families.display};
-      letter-spacing: -0.02em;
+      letter-spacing: ${stylesPublic.typography.tracking.tight};
     }
 
     .login-logo-subtext {
@@ -431,34 +431,29 @@ const Login = () => {
     }
 
     .login-input {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      outline: none;
-      color: ${stylesPublic.colors.text.primary};
-      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[4]};
-      border-radius: ${stylesPublic.borders.radius.lg};
-      font-size: ${stylesPublic.typography.scale.base};
-      transition: all ${stylesPublic.animations.duration.base} ease;
-      font-family: ${stylesPublic.typography.families.body};
+      ${Object.entries(stylesPublic.components.input.base).map(([key, value]) => 
+        `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`
+      ).join(' ')}
+      padding-right: ${stylesPublic.spacing.scale[12]};
       backdrop-filter: blur(10px);
     }
 
     .login-input:focus {
-      background: rgba(255, 255, 255, 0.95);
+      outline: none;
       border-color: ${stylesPublic.colors.primary[500]};
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(214, 51, 132, 0.1);
+      background: rgba(255, 255, 255, 0.95);
       transform: translateY(-1px);
     }
 
     .login-input::placeholder {
-      color: ${stylesPublic.colors.text.disabled};
+      color: ${stylesPublic.colors.text.muted};
       font-size: ${stylesPublic.typography.scale.sm};
     }
 
     .login-input.input-error {
       border-color: ${stylesPublic.colors.semantic.error.main};
-      background: rgba(239, 68, 68, 0.05);
+      background: rgba(225, 29, 72, 0.05);
       animation: shake 0.5s ease-in-out;
     }
 
@@ -508,13 +503,14 @@ const Login = () => {
       height: ${stylesPublic.spacing.scale[6]};
       cursor: pointer;
       pointer-events: auto;
-      transition: all ${stylesPublic.animations.duration.base} ease;
+      transition: ${stylesPublic.animations.transitions.elegant};
       border-radius: ${stylesPublic.borders.radius.sm};
     }
 
     .login-toggle-password:hover {
       color: ${stylesPublic.colors.primary[700]};
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(214, 51, 132, 0.1);
+      transform: translateY(-50%) scale(1.1);
     }
 
     .login-password-strength {
@@ -529,7 +525,7 @@ const Login = () => {
 
     .login-password-strength-bar {
       height: 100%;
-      transition: all ${stylesPublic.animations.duration.slow} ease;
+      transition: all ${stylesPublic.animations.duration.elegant} ${stylesPublic.animations.easing.elegant};
       border-radius: ${stylesPublic.borders.radius.full};
     }
 
@@ -537,7 +533,7 @@ const Login = () => {
       font-size: ${stylesPublic.typography.scale.xs};
       margin-top: ${stylesPublic.spacing.scale[1]};
       text-align: right;
-      transition: color ${stylesPublic.animations.duration.slow} ease;
+      transition: color ${stylesPublic.animations.duration.elegant} ${stylesPublic.animations.easing.elegant};
       font-weight: ${stylesPublic.typography.weights.semibold};
     }
 
@@ -556,7 +552,7 @@ const Login = () => {
       color: ${stylesPublic.colors.text.primary};
       font-size: ${stylesPublic.typography.scale.sm};
       cursor: pointer;
-      transition: color ${stylesPublic.animations.duration.base} ease;
+      transition: ${stylesPublic.animations.transitions.colors};
     }
 
     .login-checkbox-label:hover {
@@ -574,7 +570,7 @@ const Login = () => {
       color: ${stylesPublic.colors.primary[500]};
       font-size: ${stylesPublic.typography.scale.sm};
       text-decoration: none;
-      transition: all ${stylesPublic.animations.duration.base} ease;
+      transition: ${stylesPublic.animations.transitions.colors};
       font-weight: ${stylesPublic.typography.weights.semibold};
     }
 
@@ -585,27 +581,28 @@ const Login = () => {
 
     .login-button {
       width: 100%;
-      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[6]};
-      background: ${stylesPublic.colors.gradients.accent};
+      ${Object.entries({
+        ...stylesPublic.components.button.sizes.base,
+        ...stylesPublic.components.button.variants.primary
+      }).map(([key, value]) => 
+        `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`
+      ).join(' ')}
       border: none;
       outline: none;
-      border-radius: ${stylesPublic.borders.radius.lg};
       cursor: pointer;
-      font-size: ${stylesPublic.typography.scale.base};
-      color: ${stylesPublic.colors.text.inverse};
       font-weight: ${stylesPublic.typography.weights.semibold};
-      transition: all ${stylesPublic.animations.duration.base} ease;
       margin-top: ${stylesPublic.spacing.scale[2]};
-      box-shadow: ${stylesPublic.shadows.brand.primary};
       position: relative;
       overflow: hidden;
       font-family: ${stylesPublic.typography.families.body};
       letter-spacing: 0.025em;
+      background: ${stylesPublic.colors.gradients.primary};
     }
 
     .login-button:hover {
       transform: translateY(-2px);
       box-shadow: ${stylesPublic.shadows.brand.glow};
+      background: linear-gradient(135deg, ${stylesPublic.colors.primary[600]} 0%, ${stylesPublic.colors.primary[400]} 100%);
     }
 
     .login-button:active {
@@ -630,7 +627,7 @@ const Login = () => {
       text-decoration: none;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};
-      transition: all ${stylesPublic.animations.duration.base} ease;
+      transition: ${stylesPublic.animations.transitions.colors};
     }
 
     .login-link:hover {
@@ -652,7 +649,7 @@ const Login = () => {
       text-decoration: underline;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};
-      transition: color ${stylesPublic.animations.duration.base} ease;
+      transition: ${stylesPublic.animations.transitions.colors};
     }
 
     .login-highlight:hover {
@@ -660,7 +657,7 @@ const Login = () => {
     }
 
     .login-alert-success {
-      background: linear-gradient(135deg, ${stylesPublic.colors.semantic.success.light}, rgba(16, 185, 129, 0.1));
+      background: linear-gradient(135deg, ${stylesPublic.colors.semantic.success.light}, rgba(34, 197, 94, 0.1));
       color: ${stylesPublic.colors.semantic.success.main};
       padding: ${stylesPublic.spacing.scale[4]};
       border-radius: ${stylesPublic.borders.radius.lg};
@@ -672,7 +669,7 @@ const Login = () => {
     }
 
     .login-alert-error {
-      background: linear-gradient(135deg, ${stylesPublic.colors.semantic.error.light}, rgba(239, 68, 68, 0.1));
+      background: linear-gradient(135deg, ${stylesPublic.colors.semantic.error.light}, rgba(225, 29, 72, 0.1));
       color: ${stylesPublic.colors.semantic.error.main};
       padding: ${stylesPublic.spacing.scale[4]};
       border-radius: ${stylesPublic.borders.radius.lg};
@@ -692,7 +689,7 @@ const Login = () => {
       border-radius: ${stylesPublic.borders.radius.lg};
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all ${stylesPublic.animations.duration.base} ease;
+      transition: ${stylesPublic.animations.transitions.elegant};
     }
 
     .feature-item:hover {
@@ -976,9 +973,9 @@ const Login = () => {
                           </Link>
                         </div>
 
-                        <Button type="submit" className="login-button" disabled={animating}>
+                        <button type="submit" className="login-button" disabled={animating}>
                           {animating ? "Iniciando..." : "Iniciar Sesión"}
-                        </Button>
+                        </button>
                       </form>
 
                       <div className="login-switch-form">
@@ -1145,9 +1142,9 @@ const Login = () => {
                           {fieldErrors.acceptTerms && <p className="login-error-text">⚠️ Debes aceptar los términos</p>}
                         </div>
 
-                        <Button type="submit" className="login-button" disabled={animating}>
+                        <button type="submit" className="login-button" disabled={animating}>
                           {animating ? "Creando cuenta..." : "Crear Cuenta"}
-                        </Button>
+                        </button>
                       </form>
 
                       <div className="login-switch-form">

@@ -1,7 +1,7 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { Container, Row, Col } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-// import productos from "../../services/base"
 import { useAuth } from "../../context/AuthContext"
 import { publicAPI } from "../../services/api"
 import {
@@ -15,22 +15,17 @@ import {
   FaSeedling,
   FaLandmark,
   FaMapMarkedAlt,
+  FaHeart,
+  FaShieldAlt,
+  FaAward,
+  FaStar,
 } from "react-icons/fa"
-import stylesPublic from "../../styles/stylesPublic"
+import stylesPublic from "../../styles/stylesGlobal"
 
 const InicioEnhanced = () => {
   const navigate = useNavigate()
   const [categorias, setCategorias] = useState([])
   const [localidades, setLocalidades] = useState([])
-  const [isVisible, setIsVisible] = useState({
-    hero: false,
-    reasons: false,
-    regions: false,
-    clothing: false,
-    collections: false,
-    comments: false,
-    cta: false,
-  })
   const [comentarios, setComentarios] = useState([])
   const [comentarioTexto, setComentarioTexto] = useState("")
   const { user } = useAuth()
@@ -40,44 +35,18 @@ const InicioEnhanced = () => {
 
   const getLocalidadIcon = (nombre) => {
     const hash = nombre.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-
     const iconos = [
-      { icon: <FaMountain size={28} />, color: stylesPublic.colors.gradients.primary },
-      { icon: <FaWater size={28} />, color: stylesPublic.colors.gradients.secondary },
-      {
-        icon: <FaLeaf size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.success.main}, ${stylesPublic.colors.semantic.success.light})`,
-      },
-      {
-        icon: <FaTree size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.neutral[800]}, ${stylesPublic.colors.neutral[600]})`,
-      },
-      {
-        icon: <FaUmbrellaBeach size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.warning.main}, ${stylesPublic.colors.semantic.warning.light})`,
-      },
-      {
-        icon: <FaCity size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.neutral[600]}, ${stylesPublic.colors.neutral[400]})`,
-      },
-      {
-        icon: <FaMonument size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.neutral[700]}, ${stylesPublic.colors.neutral[500]})`,
-      },
-      {
-        icon: <FaLandmark size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.secondary[600]}, ${stylesPublic.colors.secondary[400]})`,
-      },
-      {
-        icon: <FaSeedling size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.success.dark}, ${stylesPublic.colors.semantic.success.main})`,
-      },
-      {
-        icon: <FaMapMarkedAlt size={28} />,
-        color: `linear-gradient(135deg, ${stylesPublic.colors.semantic.info.main}, ${stylesPublic.colors.semantic.info.light})`,
-      },
+      { icon: <FaMountain size={24} />, color: stylesPublic.colors.gradients.primary },
+      { icon: <FaWater size={24} />, color: stylesPublic.colors.gradients.secondary },
+      { icon: <FaLeaf size={24} />, color: stylesPublic.colors.gradients.luxury },
+      { icon: <FaTree size={24} />, color: stylesPublic.colors.gradients.elegant },
+      { icon: <FaUmbrellaBeach size={24} />, color: stylesPublic.colors.gradients.warm },
+      { icon: <FaCity size={24} />, color: stylesPublic.colors.gradients.glass },
+      { icon: <FaMonument size={24} />, color: stylesPublic.colors.gradients.sunset },
+      { icon: <FaLandmark size={24} />, color: stylesPublic.colors.gradients.secondary },
+      { icon: <FaSeedling size={24} />, color: stylesPublic.colors.gradients.luxury },
+      { icon: <FaMapMarkedAlt size={24} />, color: stylesPublic.colors.gradients.primary },
     ]
-
     return iconos[hash % iconos.length]
   }
 
@@ -130,7 +99,6 @@ const InicioEnhanced = () => {
       try {
         setIsLoadingLocalidades(true)
         const localidadesData = await publicAPI.getLocalidades()
-
         if (localidadesData && localidadesData.length > 0) {
           setLocalidades(localidadesData)
         } else {
@@ -146,937 +114,1085 @@ const InicioEnhanced = () => {
 
     cargarCategorias()
     cargarLocalidades()
-
-    // Animaciones más suaves y escalonadas
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, hero: true })), 100)
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, reasons: true })), 400)
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, regions: true })), 700)
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, clothing: true })), 1000)
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, collections: true })), 1300)
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, comments: true })), 1600)
-    setTimeout(() => setIsVisible((prev) => ({ ...prev, cta: true })), 1900)
   }, [])
 
   const handleSubmitComentario = (e) => {
     e.preventDefault()
     if (!comentarioTexto.trim()) return
+
     const nuevoComentario = {
       id: Date.now(),
       texto: comentarioTexto,
       fecha: new Date(),
       usuario: "Usuario actual",
     }
+
     setComentarios([nuevoComentario, ...comentarios])
     setComentarioTexto("")
   }
 
-  const clothingItems = categorias.map((cat) => ({
-    image: cat.imagen,
-    name: cat.nombre,
-    description: cat.descripcion,
-    onClick: () => navigate(`/productos?categoria=${cat.nombre}`),
-  }))
+  const buttonStyle = {
+    fontFamily: stylesPublic.typography.families.body,
+    fontSize: stylesPublic.typography.scale.base,
+    fontWeight: 500,
+    padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[6]}`,
+    borderRadius: stylesPublic.borders.radius.full,
+    border: "none",
+    cursor: "pointer",
+    transition: stylesPublic.animations.transitions.elegant,
+    textDecoration: "none",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }
 
-  const reasons = [
-    {
-      name: "Calidad Artesanal",
-      description:
-        "Cada pieza es elaborada a mano por maestras artesanas, garantizando una calidad excepcional y atención al detalle.",
-    },
-    {
-      name: "Exclusividad",
-      description:
-        "Ofrecemos diseños únicos que combinan tradición y modernidad, perfectos para quienes buscan piezas irrepetibles.",
-    },
-    {
-      name: "Sostenibilidad",
-      description:
-        "Nuestros procesos respetan el medio ambiente, utilizando materiales naturales y apoyando comunidades locales.",
-    },
-    {
-      name: "Conexión Cultural",
-      description: "Cada creación celebra la rica herencia huasteca, conectándote con siglos de historia y tradición.",
-    },
-  ]
+  const primaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: stylesPublic.colors.primary[500],
+    color: stylesPublic.colors.primary.contrast,
+    boxShadow: stylesPublic.shadows.brand.primary,
+  }
 
-  const collections = [
-    {
-      icon: "👗",
-      title: "Alta Costura Tradicional",
-      description:
-        "Piezas únicas de vestimenta ceremonial y cotidiana, donde cada bordado narra historias ancestrales.",
-    },
-    {
-      icon: "✨",
-      title: "Accesorios de Autor",
-      description: "Complementos exclusivos que elevan cualquier atuendo, desde rebozos hasta joyería textil.",
-    },
-  ]
+  const secondaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: "transparent",
+    color: stylesPublic.colors.secondary[500],
+    border: `2px solid ${stylesPublic.colors.secondary[500]}`,
+  }
 
-  const styles = `
-    .enhanced-inicio {
-      font-family: ${stylesPublic.typography.families.body};
-      background: ${stylesPublic.colors.surface.primary};
-    }
-
-    .enhanced-hero {
-      background: ${stylesPublic.colors.gradients.hero};
-      min-height: 85vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      opacity: ${isVisible.hero ? 1 : 0};
-      transform: translateY(${isVisible.hero ? "0" : "30px"});
-      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .enhanced-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
-      opacity: 0.3;
-    }
-
-    .enhanced-hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: ${stylesPublic.spacing.scale[8]};
-    }
-
-    .enhanced-hero-title {
-      font-size: ${stylesPublic.typography.headings.h1.fontSize};
-      font-family: ${stylesPublic.typography.headings.h1.fontFamily};
-      font-weight: 300;
-      line-height: ${stylesPublic.typography.headings.h1.lineHeight};
-      color: ${stylesPublic.colors.text.primary};
-      margin-bottom: ${stylesPublic.spacing.scale[4]};
-      position: relative;
-    }
-
-    .enhanced-hero-title::after {
-      content: '';
-      position: absolute;
-      bottom: -${stylesPublic.spacing.scale[3]};
-      left: 50%;
-      transform: translateX(-50%);
-      width: ${stylesPublic.spacing.scale[20]};
-      height: 2px;
-      background: ${stylesPublic.colors.primary[500]};
-    }
-
-    .enhanced-hero-subtitle {
-      font-size: ${stylesPublic.typography.scale.xl};
-      color: ${stylesPublic.colors.text.secondary};
-      margin: ${stylesPublic.spacing.scale[6]} 0 ${stylesPublic.spacing.scale[8]};
-      font-weight: 300;
-      line-height: ${stylesPublic.typography.leading.relaxed};
-    }
-
-    .enhanced-hero-button {
-      background: ${stylesPublic.colors.primary[500]};
-      color: ${stylesPublic.colors.text.inverse};
-      border: 2px solid ${stylesPublic.colors.primary[500]};
-      padding: ${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]};
-      border-radius: ${stylesPublic.borders.radius.full};
-      font-weight: ${stylesPublic.typography.weights.medium};
-      font-size: ${stylesPublic.typography.scale.lg};
-      transition: all 0.3s ease;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .enhanced-hero-button:hover {
-      background: transparent;
-      color: ${stylesPublic.colors.primary[500]};
-      transform: translateY(-2px);
-      box-shadow: ${stylesPublic.shadows.xl};
-    }
-
-    .enhanced-section {
-      padding: ${stylesPublic.spacing.scale[20]} 0;
-      position: relative;
-    }
-
-    .enhanced-section-title {
-      font-size: ${stylesPublic.typography.scale["2xl"]};
-      font-weight: 300;
-      color: ${stylesPublic.colors.text.primary};
-      text-align: center;
-      margin-bottom: ${stylesPublic.spacing.scale[4]};
-      position: relative;
-    }
-
-    .enhanced-section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -${stylesPublic.spacing.scale[3]};
-      left: 50%;
-      transform: translateX(-50%);
-      width: ${stylesPublic.spacing.scale[12]};
-      height: 1px;
-      background: ${stylesPublic.colors.primary[500]};
-    }
-
-    .enhanced-section-subtitle {
-      font-size: ${stylesPublic.typography.scale.lg};
-      color: ${stylesPublic.colors.text.secondary};
-      text-align: center;
-      margin-bottom: ${stylesPublic.spacing.scale[12]};
-      font-weight: 300;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .enhanced-reasons-section {
-      background: ${stylesPublic.colors.surface.secondary};
-      opacity: ${isVisible.reasons ? 1 : 0};
-      transform: translateY(${isVisible.reasons ? "0" : "20px"});
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
-    }
-
-    .enhanced-regions-section {
-      background: ${stylesPublic.colors.gradients.secondary};
-      opacity: ${isVisible.regions ? 1 : 0};
-      transform: translateY(${isVisible.regions ? "0" : "20px"});
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
-    }
-
-    .enhanced-clothing-section {
-      background: ${stylesPublic.colors.surface.primary};
-      opacity: ${isVisible.clothing ? 1 : 0};
-      transform: translateY(${isVisible.clothing ? "0" : "20px"});
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
-    }
-
-    .enhanced-collections-section {
-      background: ${stylesPublic.colors.gradients.primary};
-      opacity: ${isVisible.collections ? 1 : 0};
-      transform: translateY(${isVisible.collections ? "0" : "20px"});
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.8s;
-    }
-
-    .enhanced-comments-section {
-      background: ${stylesPublic.colors.surface.secondary};
-      opacity: ${isVisible.comments ? 1 : 0};
-      transform: translateY(${isVisible.comments ? "0" : "20px"});
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1s;
-    }
-
-    .enhanced-cta-section {
-      background: ${stylesPublic.colors.gradients.accent};
-      opacity: ${isVisible.cta ? 1 : 0};
-      transform: translateY(${isVisible.cta ? "0" : "20px"});
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1.2s;
-    }
-
-    .enhanced-card {
-      background: ${stylesPublic.colors.surface.primary};
-      border: 1px solid ${stylesPublic.borders.colors.muted};
-      border-radius: ${stylesPublic.borders.radius.xl};
-      padding: ${stylesPublic.spacing.scale[8]};
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      height: 100%;
-      box-shadow: ${stylesPublic.shadows.base};
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
-
-    .enhanced-card:hover {
-      transform: translateY(-6px);
-      box-shadow: ${stylesPublic.shadows.xl};
-      border-color: ${stylesPublic.colors.primary[300]};
-    }
-
-    .enhanced-region-card {
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .enhanced-region-icon {
-      width: ${stylesPublic.spacing.scale[14]};
-      height: ${stylesPublic.spacing.scale[14]};
-      border-radius: ${stylesPublic.borders.radius.full};
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto ${stylesPublic.spacing.scale[6]};
-      color: ${stylesPublic.colors.text.inverse};
-      box-shadow: ${stylesPublic.shadows.lg};
-      transition: transform 0.3s ease;
-    }
-
-    .enhanced-region-card:hover .enhanced-region-icon {
-      transform: scale(1.1);
-    }
-
-    .enhanced-clothing-card {
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .enhanced-clothing-image {
-      width: 100%;
-      max-width: 200px;
-      height: 150px;
-      object-fit: cover;
-      border-radius: ${stylesPublic.borders.radius.lg};
-      margin: 0 auto ${stylesPublic.spacing.scale[6]};
-      transition: transform 0.3s ease;
-    }
-
-    .enhanced-clothing-card:hover .enhanced-clothing-image {
-      transform: scale(1.05);
-    }
-
-    .enhanced-collection-card {
-      text-align: center;
-    }
-
-    .enhanced-collection-icon {
-      width: ${stylesPublic.spacing.scale[14]};
-      height: ${stylesPublic.spacing.scale[14]};
-      border-radius: ${stylesPublic.borders.radius.full};
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto ${stylesPublic.spacing.scale[6]};
-      font-size: ${stylesPublic.typography.scale["2xl"]};
-      box-shadow: ${stylesPublic.shadows.lg};
-      transition: transform 0.3s ease;
-    }
-
-    .enhanced-collection-card:hover .enhanced-collection-icon {
-      transform: scale(1.1);
-    }
-
-    .enhanced-comment-form {
-      background: ${stylesPublic.colors.surface.glass};
-      border: 1px solid ${stylesPublic.borders.colors.muted};
-      border-radius: ${stylesPublic.borders.radius.xl};
-      padding: ${stylesPublic.spacing.scale[8]};
-      margin-bottom: ${stylesPublic.spacing.scale[12]};
-      backdrop-filter: blur(10px);
-    }
-
-    .enhanced-comment-input {
-      width: 100%;
-      padding: ${stylesPublic.spacing.scale[4]};
-      border: 1px solid ${stylesPublic.borders.colors.muted};
-      border-radius: ${stylesPublic.borders.radius.lg};
-      background: ${stylesPublic.colors.surface.primary};
-      font-family: ${stylesPublic.typography.families.body};
-      font-size: ${stylesPublic.typography.scale.base};
-      resize: none;
-      transition: ${stylesPublic.animations.transitions.base};
-    }
-
-    .enhanced-comment-input:focus {
-      outline: none;
-      border-color: ${stylesPublic.colors.primary[500]};
-      box-shadow: 0 0 0 3px ${stylesPublic.colors.primary[500]}20;
-    }
-
-    .enhanced-comment-button {
-      background: ${stylesPublic.colors.primary[500]};
-      color: ${stylesPublic.colors.text.inverse};
-      border: none;
-      padding: ${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[6]};
-      border-radius: ${stylesPublic.borders.radius.full};
-      font-weight: ${stylesPublic.typography.weights.medium};
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .enhanced-comment-button:hover {
-      background: ${stylesPublic.colors.primary[600]};
-      transform: translateY(-1px);
-    }
-
-    .enhanced-loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: ${stylesPublic.spacing.scale[16]};
-      color: ${stylesPublic.colors.text.secondary};
-    }
-
-    .enhanced-loading-spinner {
-      width: ${stylesPublic.spacing.scale[8]};
-      height: ${stylesPublic.spacing.scale[8]};
-      border: 2px solid ${stylesPublic.colors.primary[200]};
-      border-top: 2px solid ${stylesPublic.colors.primary[500]};
-      border-radius: ${stylesPublic.borders.radius.full};
-      animation: spin 1s linear infinite;
-      margin-bottom: ${stylesPublic.spacing.scale[4]};
-    }
-
-    .enhanced-empty-state {
-      text-align: center;
-      padding: ${stylesPublic.spacing.scale[16]};
-      color: ${stylesPublic.colors.text.secondary};
-    }
-
-    .enhanced-empty-icon {
-      font-size: ${stylesPublic.typography.scale["4xl"]};
-      margin-bottom: ${stylesPublic.spacing.scale[4]};
-      opacity: 0.5;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @media (max-width: ${stylesPublic.breakpoints.lg}) {
-      .enhanced-hero {
-        min-height: 70vh;
-        padding: ${stylesPublic.spacing.scale[16]} ${stylesPublic.spacing.scale[4]};
-      }
-
-      .enhanced-hero-title {
-        font-size: ${stylesPublic.typography.scale["2xl"]};
-      }
-
-      .enhanced-section {
-        padding: ${stylesPublic.spacing.scale[16]} 0;
-      }
-    }
-
-    @media (max-width: ${stylesPublic.breakpoints.md}) {
-      .enhanced-hero {
-        min-height: 60vh;
-        padding: ${stylesPublic.spacing.scale[12]} ${stylesPublic.spacing.scale[3]};
-      }
-
-      .enhanced-hero-title {
-        font-size: ${stylesPublic.typography.scale.xl};
-      }
-
-      .enhanced-hero-subtitle {
-        font-size: ${stylesPublic.typography.scale.lg};
-      }
-
-      .enhanced-section {
-        padding: ${stylesPublic.spacing.scale[12]} 0;
-      }
-
-      .enhanced-clothing-image {
-        max-width: 150px;
-        height: 120px;
-      }
-    }
-
-    @media (max-width: ${stylesPublic.breakpoints.sm}) {
-      .enhanced-hero {
-        min-height: 50vh;
-        padding: ${stylesPublic.spacing.scale[8]} ${stylesPublic.spacing.scale[2]};
-      }
-
-      .enhanced-hero-title {
-        font-size: ${stylesPublic.typography.scale.lg};
-      }
-
-      .enhanced-section {
-        padding: ${stylesPublic.spacing.scale[8]} 0;
-      }
-
-      .enhanced-card {
-        padding: ${stylesPublic.spacing.scale[6]};
-      }
-
-      .enhanced-clothing-image {
-        max-width: 120px;
-        height: 100px;
-      }
-    }
-  `
+  const cardStyle = {
+    backgroundColor: stylesPublic.colors.surface.primary,
+    borderRadius: stylesPublic.borders.radius.xl,
+    border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+    boxShadow: stylesPublic.shadows.base,
+    transition: stylesPublic.animations.transitions.elegant,
+    padding: stylesPublic.spacing.scale[6],
+  }
 
   return (
-    <>
-      <style>{styles}</style>
-
-      <div className="enhanced-inicio">
-        {/* Hero Section */}
-        <section className="enhanced-hero">
-          <Container>
-            <div className="enhanced-hero-content">
-              <h1 className="enhanced-hero-title">La Aterciopelada</h1>
-              <p className="enhanced-hero-subtitle">Boutique Huasteca · Tradición Artesanal Refinada</p>
-              <a
-                href="/productos"
-                className="enhanced-hero-button"
-                onClick={(e) => {
-                  e.preventDefault()
-                  navigate("/productos")
-                }}
-              >
-                Explorar Colección
-              </a>
-            </div>
-          </Container>
-        </section>
-
-        {/* Reasons Section */}
-        <section className="enhanced-reasons-section enhanced-section">
-          <Container>
-            <h2 className="enhanced-section-title">¿Por qué elegir La Aterciopelada?</h2>
-            <p className="enhanced-section-subtitle">Sumérgete en la pasión y el arte de la artesanía huasteca</p>
-            <Row className="g-4">
-              {reasons.map((reason, idx) => (
-                <Col md={6} lg={3} key={idx}>
-                  <div className="enhanced-card" style={{ animationDelay: `${idx * 0.1}s` }}>
-                    <h3
-                      style={{
-                        fontSize: stylesPublic.typography.scale.lg,
-                        fontWeight: stylesPublic.typography.weights.medium,
-                        color: stylesPublic.colors.text.primary,
-                        marginBottom: stylesPublic.spacing.scale[4],
-                      }}
-                    >
-                      {reason.name}
-                    </h3>
-                    <p
-                      style={{
-                        fontSize: stylesPublic.typography.scale.sm,
-                        color: stylesPublic.colors.text.secondary,
-                        lineHeight: stylesPublic.typography.leading.relaxed,
-                      }}
-                    >
-                      {reason.description}
-                    </p>
-                  </div>
-                </Col>
-              ))}
-            </Row>
-          </Container>
-        </section>
-
-        {/* Regions Section */}
-        <section className="enhanced-regions-section enhanced-section">
-          <Container>
-            <h2 className="enhanced-section-title" style={{ color: stylesPublic.colors.text.inverse }}>
-              Localidades de la Huasteca
-            </h2>
-            <p className="enhanced-section-subtitle" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
-              Descubre la riqueza cultural que inspira nuestras creaciones artesanales
-            </p>
-
-            {isLoadingLocalidades ? (
-              <div className="enhanced-loading">
-                <div className="enhanced-loading-spinner"></div>
-                <p style={{ color: stylesPublic.colors.text.inverse }}>Cargando localidades...</p>
-              </div>
-            ) : localidades.length > 0 ? (
-              <Row className="g-4">
-                {localidades.map((localidad, idx) => {
-                  const { icon, color } = getLocalidadIcon(localidad.nombre)
-                  return (
-                    <Col md={6} lg={localidades.length <= 3 ? 4 : 3} key={localidad._id || idx}>
-                      <div
-                        className="enhanced-card enhanced-region-card"
-                        style={{ animationDelay: `${idx * 0.1}s` }}
-                        onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
-                      >
-                        <div className="enhanced-region-icon" style={{ background: color }}>
-                          {icon}
-                        </div>
-                        <h3
-                          style={{
-                            fontSize: stylesPublic.typography.scale.lg,
-                            fontWeight: stylesPublic.typography.weights.medium,
-                            color: stylesPublic.colors.text.primary,
-                            marginBottom: stylesPublic.spacing.scale[4],
-                          }}
-                        >
-                          {localidad.nombre}
-                        </h3>
-                        <p
-                          style={{
-                            fontSize: stylesPublic.typography.scale.sm,
-                            color: stylesPublic.colors.text.secondary,
-                            lineHeight: stylesPublic.typography.leading.relaxed,
-                          }}
-                        >
-                          {localidad.descripcion}
-                        </p>
-                      </div>
-                    </Col>
-                  )
-                })}
-              </Row>
-            ) : (
-              <div className="enhanced-empty-state">
-                <div className="enhanced-empty-icon" style={{ color: stylesPublic.colors.text.inverse }}>
-                  <i className="bi bi-geo-alt"></i>
-                </div>
-                <h3
+    <div
+      style={{
+        minHeight: "100vh",
+        background: stylesPublic.colors.gradients.hero,
+        fontFamily: stylesPublic.typography.families.body,
+      }}
+    >
+      {/* Hero Section */}
+      <section
+        style={{
+          position: "relative",
+          padding: `${stylesPublic.spacing.scale[20]} 0`,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: stylesPublic.colors.gradients.sunset,
+            opacity: 0.5,
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: `0 ${stylesPublic.spacing.scale[4]}`,
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: stylesPublic.spacing.scale[12],
+              alignItems: "center",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: stylesPublic.spacing.scale[8] }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: stylesPublic.spacing.scale[4] }}>
+                <div
                   style={{
-                    fontSize: stylesPublic.typography.scale.xl,
-                    color: stylesPublic.colors.text.inverse,
-                    marginBottom: stylesPublic.spacing.scale[4],
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: stylesPublic.spacing.scale[2],
+                    background: stylesPublic.colors.gradients.luxury,
+                    padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
+                    borderRadius: stylesPublic.borders.radius.full,
+                    width: "fit-content",
                   }}
                 >
-                  No se encontraron localidades
-                </h3>
-                <p style={{ color: stylesPublic.colors.text.inverse, opacity: 0.8 }}>
-                  Estamos trabajando para agregar nuevas localidades pronto.
+                  <FaStar
+                    style={{
+                      width: stylesPublic.spacing.scale[4],
+                      height: stylesPublic.spacing.scale[4],
+                      color: stylesPublic.colors.primary[600],
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: stylesPublic.typography.scale.sm,
+                      fontWeight: 500,
+                      color: stylesPublic.colors.primary[800],
+                    }}
+                  >
+                    Boutique Huasteca Premium
+                  </span>
+                </div>
+                <h1
+                  style={{
+                    ...stylesPublic.typography.headings.h1,
+                    margin: 0,
+                  }}
+                >
+                  La Aterciopelada
+                  <span
+                    style={{
+                      display: "block",
+                      background: stylesPublic.colors.gradients.elegant,
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    Tradición Artesanal
+                  </span>
+                </h1>
+                <p
+                  style={{
+                    ...stylesPublic.typography.body.large,
+                    maxWidth: "500px",
+                    margin: 0,
+                  }}
+                >
+                  Descubre piezas únicas tejidas con la esencia de la tradición huasteca. Cada creación celebra siglos
+                  de historia y artesanía refinada.
                 </p>
               </div>
-            )}
-          </Container>
-        </section>
 
-        {/* Clothing Categories Section */}
-        <section className="enhanced-clothing-section enhanced-section">
-          <Container>
-            <h2 className="enhanced-section-title">Categorías de Ropa</h2>
-            <p className="enhanced-section-subtitle">
-              Descubre piezas únicas tejidas con la esencia de la tradición huasteca
-            </p>
-
-            {isLoading ? (
-              <div className="enhanced-loading">
-                <div className="enhanced-loading-spinner"></div>
-                <p>Cargando categorías...</p>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: stylesPublic.spacing.scale[4],
+                }}
+              >
+                <button style={primaryButtonStyle} onClick={() => navigate("/productos")}>
+                  Explorar Colección
+                </button>
+                <button style={secondaryButtonStyle} onClick={() => navigate("/contacto")}>
+                  Agendar Consulta
+                </button>
               </div>
-            ) : clothingItems.length > 0 ? (
-              <Row className="g-4">
-                {clothingItems.map((item, idx) => (
-                  <Col md={6} lg={clothingItems.length <= 3 ? 4 : 3} key={idx}>
-                    <div
-                      className="enhanced-card enhanced-clothing-card"
-                      style={{ animationDelay: `${idx * 0.1}s` }}
-                      onClick={item.onClick}
-                    >
-                      <img
-                        src={item.image || "https://via.placeholder.com/200x150?text=Sin+Imagen"}
-                        alt={item.name}
-                        className="enhanced-clothing-image"
-                        onError={(e) => {
-                          e.target.onerror = null
-                          e.target.src = "https://via.placeholder.com/200x150?text=Imagen+No+Disponible"
-                        }}
-                      />
-                      <h3
-                        style={{
-                          fontSize: stylesPublic.typography.scale.lg,
-                          fontWeight: stylesPublic.typography.weights.medium,
-                          color: stylesPublic.colors.text.primary,
-                          marginBottom: stylesPublic.spacing.scale[4],
-                        }}
-                      >
-                        {item.name}
-                      </h3>
-                      <p
-                        style={{
-                          fontSize: stylesPublic.typography.scale.sm,
-                          color: stylesPublic.colors.text.secondary,
-                          lineHeight: stylesPublic.typography.leading.relaxed,
-                        }}
-                      >
-                        {item.description}
-                      </p>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
-            ) : (
-              <div className="enhanced-empty-state">
-                <div className="enhanced-empty-icon">
-                  <i className="bi bi-emoji-frown"></i>
-                </div>
-                <h3
-                  style={{
-                    fontSize: stylesPublic.typography.scale.xl,
-                    color: stylesPublic.colors.text.primary,
-                    marginBottom: stylesPublic.spacing.scale[4],
-                  }}
-                >
-                  No se encontraron categorías
-                </h3>
-                <p>Estamos trabajando para agregar nuevas categorías pronto.</p>
-              </div>
-            )}
-          </Container>
-        </section>
 
-        {/* Collections Section */}
-        <section className="enhanced-collections-section enhanced-section">
-          <Container>
-            <h2 className="enhanced-section-title" style={{ color: stylesPublic.colors.text.inverse }}>
-              Colecciones Selectas
-            </h2>
-            <p className="enhanced-section-subtitle" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
-              Viste la historia, abraza la artesanía
-            </p>
-            <Row className="g-4">
-              {collections.map((collection, idx) => (
-                <Col md={6} lg={6} key={idx}>
-                  <div className="enhanced-card enhanced-collection-card" style={{ animationDelay: `${idx * 0.2}s` }}>
-                    <div
-                      className="enhanced-collection-icon"
-                      style={{
-                        background:
-                          idx === 0 ? stylesPublic.colors.gradients.primary : stylesPublic.colors.gradients.secondary,
-                      }}
-                    >
-                      {collection.icon}
-                    </div>
-                    <h3
-                      style={{
-                        fontSize: stylesPublic.typography.scale.lg,
-                        fontWeight: stylesPublic.typography.weights.medium,
-                        color: stylesPublic.colors.text.primary,
-                        marginBottom: stylesPublic.spacing.scale[6],
-                      }}
-                    >
-                      {collection.title}
-                    </h3>
-                    <p
-                      style={{
-                        fontSize: stylesPublic.typography.scale.sm,
-                        color: stylesPublic.colors.text.secondary,
-                        lineHeight: stylesPublic.typography.leading.relaxed,
-                      }}
-                    >
-                      {collection.description}
-                    </p>
-                  </div>
-                </Col>
-              ))}
-            </Row>
-          </Container>
-        </section>
-
-        {/* Comments Section */}
-        <section className="enhanced-comments-section enhanced-section">
-          <Container>
-            <h2 className="enhanced-section-title">Comentarios de la Comunidad</h2>
-            <p className="enhanced-section-subtitle">Comparte tu experiencia con nuestra comunidad artesanal</p>
-
-            {isAuthenticated ? (
-              <div className="enhanced-comment-form">
-                <form onSubmit={handleSubmitComentario}>
+              {/* Stats */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: stylesPublic.spacing.scale[8],
+                  paddingTop: stylesPublic.spacing.scale[8],
+                }}
+              >
+                <div style={{ textAlign: "center" }}>
                   <div
-                    style={{ display: "flex", alignItems: "flex-start", marginBottom: stylesPublic.spacing.scale[4] }}
+                    style={{
+                      fontSize: stylesPublic.typography.scale["2xl"],
+                      fontWeight: 700,
+                      color: stylesPublic.colors.text.primary,
+                    }}
                   >
-                    <div style={{ marginRight: stylesPublic.spacing.scale[3] }}>
-                      <div
-                        style={{
-                          width: stylesPublic.spacing.scale[12],
-                          height: stylesPublic.spacing.scale[12],
-                          borderRadius: stylesPublic.borders.radius.full,
-                          background: stylesPublic.colors.primary[500],
-                          color: stylesPublic.colors.text.inverse,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <i className="bi bi-person-circle fs-4"></i>
-                      </div>
-                    </div>
-                    <textarea
-                      rows="3"
-                      placeholder="¿Qué te pareció tu experiencia con nosotros?"
-                      value={comentarioTexto}
-                      onChange={(e) => setComentarioTexto(e.target.value)}
-                      className="enhanced-comment-input"
-                    />
+                    500+
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div
-                      style={{
-                        fontSize: stylesPublic.typography.scale.sm,
-                        color: stylesPublic.colors.text.secondary,
-                      }}
-                    >
-                      <i className="bi bi-info-circle me-1"></i>
-                      Tu comentario será visible para toda la comunidad
-                    </div>
-                    <button type="submit" className="enhanced-comment-button">
-                      <i className="bi bi-send-fill me-2"></i>
-                      Publicar comentario
-                    </button>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale.sm,
+                      color: stylesPublic.colors.text.tertiary,
+                    }}
+                  >
+                    Clientas Felices
                   </div>
-                </form>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale["2xl"],
+                      fontWeight: 700,
+                      color: stylesPublic.colors.text.primary,
+                    }}
+                  >
+                    100%
+                  </div>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale.sm,
+                      color: stylesPublic.colors.text.tertiary,
+                    }}
+                  >
+                    Artesanal
+                  </div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale["2xl"],
+                      fontWeight: 700,
+                      color: stylesPublic.colors.text.primary,
+                    }}
+                  >
+                    5★
+                  </div>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale.sm,
+                      color: stylesPublic.colors.text.tertiary,
+                    }}
+                  >
+                    Calificación
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="enhanced-comment-form" style={{ textAlign: "center" }}>
-                <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
-                  <i className="bi bi-chat-quote display-4" style={{ color: stylesPublic.colors.primary[500] }}></i>
+            </div>
+
+            {/* Hero Image */}
+            <div style={{ position: "relative" }}>
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 10,
+                  background: stylesPublic.colors.gradients.warm,
+                  borderRadius: stylesPublic.borders.radius["3xl"],
+                  padding: stylesPublic.spacing.scale[8],
+                  boxShadow: stylesPublic.shadows.xl,
+                }}
+              >
+                <img
+                  src={`${process.env.PUBLIC_URL}/images/logo-aterciopelada.jpeg`}
+                  alt="La Aterciopelada - Boutique Huasteca"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: stylesPublic.borders.radius["2xl"],
+                    objectFit: "cover",
+                    maxHeight: "500px",
+                    minHeight: "300px",
+                    boxShadow: stylesPublic.shadows.lg,
+                    transition: stylesPublic.animations.transitions.base,
+                  }}
+                  onError={(e) => {
+                    console.error("Error loading image:", e.target.src);
+                    console.log("Attempting alternative paths...");
+                    
+                    // Intentar rutas alternativas
+                    const alternativePaths = [
+                      "/images/logo-aterciopelada.jpeg",
+                      "./images/logo-aterciopelada.jpeg",
+                      `${window.location.origin}/images/logo-aterciopelada.jpeg`
+                    ];
+                    
+                    let currentIndex = 0;
+                    const tryNextPath = () => {
+                      if (currentIndex < alternativePaths.length) {
+                        console.log(`Trying path: ${alternativePaths[currentIndex]}`);
+                        e.target.src = alternativePaths[currentIndex];
+                        currentIndex++;
+                      } else {
+                        // Si todas las rutas fallan, mostrar placeholder
+                        e.target.style.display = "none";
+                        const placeholder = document.createElement("div");
+                        placeholder.style.cssText = `
+                          width: 100%;
+                          height: 400px;
+                          border-radius: ${stylesPublic.borders.radius["2xl"]};
+                          background: linear-gradient(135deg, #f9a8d4 0%, #ec4899 50%, #be185d 100%);
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                          justify-content: center;
+                          color: white;
+                          text-align: center;
+                          font-family: ${stylesPublic.typography.families.body};
+                          box-shadow: ${stylesPublic.shadows.lg};
+                        `;
+                        placeholder.innerHTML = `
+                          <div style="font-size: 4rem; margin-bottom: 1rem;">👜</div>
+                          <h3 style="font-size: 1.5rem; font-weight: bold; margin: 0 0 0.5rem 0;">La Aterciopelada</h3>
+                          <p style="font-size: 1rem; margin: 0;">Boutique Huasteca</p>
+                          <small style="font-size: 0.8rem; opacity: 0.8; margin-top: 1rem;">Logo de la boutique</small>
+                        `;
+                        if (e.target.parentNode) {
+                          e.target.parentNode.appendChild(placeholder);
+                        }
+                      }
+                    };
+                    
+                    // Remover el evento onError temporalmente para evitar bucle infinito
+                    e.target.onError = tryNextPath;
+                    tryNextPath();
+                  }}
+                  onLoad={(e) => {
+                    console.log("✅ Logo de La Aterciopelada cargado correctamente desde:", e.target.src);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section - Why Choose Us */}
+      <section
+        style={{
+          padding: `${stylesPublic.spacing.scale[20]} 0`,
+          backgroundColor: stylesPublic.colors.surface.glass,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: `0 ${stylesPublic.spacing.scale[4]}`,
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+              marginBottom: stylesPublic.spacing.scale[16],
+            }}
+          >
+            <h2
+              style={{
+                ...stylesPublic.typography.headings.h2,
+                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+              }}
+            >
+              ¿Por qué elegir La Aterciopelada?
+            </h2>
+            <p
+              style={{
+                ...stylesPublic.typography.body.large,
+                maxWidth: "600px",
+                margin: "0 auto",
+              }}
+            >
+              Sumérgete en la pasión y el arte de la artesanía huasteca con productos que respetan la tradición
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: stylesPublic.spacing.scale[8],
+            }}
+          >
+            {[
+              {
+                icon: (
+                  <FaHeart style={{ width: stylesPublic.spacing.scale[8], height: stylesPublic.spacing.scale[8] }} />
+                ),
+                title: "Calidad Artesanal",
+                description:
+                  "Cada pieza es elaborada a mano por maestras artesanas, garantizando una calidad excepcional y atención al detalle.",
+                color: "primary",
+              },
+              {
+                icon: (
+                  <FaShieldAlt style={{ width: stylesPublic.spacing.scale[8], height: stylesPublic.spacing.scale[8] }} />
+                ),
+                title: "Tradición Auténtica",
+                description:
+                  "Preservamos técnicas ancestrales transmitidas de generación en generación en la región huasteca.",
+                color: "secondary",
+              },
+              {
+                icon: (
+                  <FaAward style={{ width: stylesPublic.spacing.scale[8], height: stylesPublic.spacing.scale[8] }} />
+                ),
+                title: "Exclusividad Premium",
+                description:
+                  "Diseños únicos que combinan tradición y modernidad, perfectos para quienes buscan piezas irrepetibles.",
+                color: "accent",
+              },
+            ].map((feature, index) => (
+              <div
+                key={index}
+                style={{
+                  ...cardStyle,
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-8px)"
+                  e.currentTarget.style.boxShadow = stylesPublic.shadows.lg
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)"
+                  e.currentTarget.style.boxShadow = stylesPublic.shadows.base
+                }}
+              >
+                <div
+                  style={{
+                    display: "inline-flex",
+                    padding: stylesPublic.spacing.scale[3],
+                    borderRadius: stylesPublic.borders.radius["2xl"],
+                    background:
+                      feature.color === "primary"
+                        ? stylesPublic.colors.gradients.primary
+                        : feature.color === "secondary"
+                          ? stylesPublic.colors.gradients.secondary
+                          : stylesPublic.colors.gradients.luxury,
+                    color: stylesPublic.colors.surface.primary,
+                    marginBottom: stylesPublic.spacing.scale[4],
+                  }}
+                >
+                  {feature.icon}
                 </div>
                 <h3
                   style={{
                     fontSize: stylesPublic.typography.scale.xl,
-                    fontWeight: stylesPublic.typography.weights.medium,
+                    fontWeight: 600,
                     color: stylesPublic.colors.text.primary,
-                    marginBottom: stylesPublic.spacing.scale[4],
+                    margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
                   }}
                 >
-                  ¡Únete a la conversación!
+                  {feature.title}
                 </h3>
                 <p
                   style={{
-                    fontSize: stylesPublic.typography.scale.base,
-                    color: stylesPublic.colors.text.secondary,
-                    marginBottom: stylesPublic.spacing.scale[6],
+                    ...stylesPublic.typography.body.base,
+                    color: stylesPublic.colors.text.tertiary,
+                    margin: 0,
                   }}
                 >
-                  Inicia sesión para compartir tu experiencia con la comunidad artesanal
+                  {feature.description}
                 </p>
-                <a
-                  href="/login"
-                  className="enhanced-hero-button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    navigate("/login")
-                  }}
-                >
-                  <i className="bi bi-box-arrow-in-right me-2"></i>
-                  Iniciar Sesión
-                </a>
               </div>
-            )}
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <Row className="g-4">
-              {comentarios.map((comentario) => (
-                <Col lg={4} md={6} key={comentario.id}>
-                  <div className="enhanced-card" style={{ animationDelay: "0.2s" }}>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: stylesPublic.spacing.scale[3] }}>
-                      <div
-                        style={{
-                          width: stylesPublic.spacing.scale[10],
-                          height: stylesPublic.spacing.scale[10],
-                          borderRadius: stylesPublic.borders.radius.full,
-                          background: stylesPublic.colors.primary[500],
-                          color: stylesPublic.colors.text.inverse,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginRight: stylesPublic.spacing.scale[3],
-                        }}
-                      >
-                        <i className="bi bi-person"></i>
-                      </div>
-                      <div>
-                        <h6
-                          style={{
-                            fontSize: stylesPublic.typography.scale.base,
-                            fontWeight: stylesPublic.typography.weights.medium,
-                            color: stylesPublic.colors.text.primary,
-                            marginBottom: 0,
-                          }}
-                        >
-                          {comentario.usuario}
-                        </h6>
-                        <small
-                          style={{
-                            fontSize: stylesPublic.typography.scale.xs,
-                            color: stylesPublic.colors.text.secondary,
-                          }}
-                        >
-                          {new Date(comentario.fecha).toLocaleDateString("es-MX", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </small>
-                      </div>
-                    </div>
-                    <p
+      {/* Regions Section */}
+      <section
+        style={{
+          padding: `${stylesPublic.spacing.scale[20]} 0`,
+          background: stylesPublic.colors.gradients.primary,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: `0 ${stylesPublic.spacing.scale[4]}`,
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+              marginBottom: stylesPublic.spacing.scale[16],
+            }}
+          >
+            <h2
+              style={{
+                ...stylesPublic.typography.headings.h2,
+                color: stylesPublic.colors.primary.contrast,
+                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+              }}
+            >
+              Localidades de la Huasteca
+            </h2>
+            <p
+              style={{
+                ...stylesPublic.typography.body.large,
+                color: stylesPublic.colors.primary[100],
+                maxWidth: "600px",
+                margin: "0 auto",
+              }}
+            >
+              Descubre la riqueza cultural que inspira nuestras creaciones artesanales
+            </p>
+          </div>
+
+          {isLoadingLocalidades ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: stylesPublic.spacing.scale[16],
+                color: stylesPublic.colors.primary.contrast,
+              }}
+            >
+              <div
+                style={{
+                  width: stylesPublic.spacing.scale[8],
+                  height: stylesPublic.spacing.scale[8],
+                  border: `2px solid ${stylesPublic.colors.primary[200]}`,
+                  borderTop: `2px solid ${stylesPublic.colors.primary.contrast}`,
+                  borderRadius: stylesPublic.borders.radius.full,
+                  animation: "spin 1s linear infinite",
+                  marginBottom: stylesPublic.spacing.scale[4],
+                }}
+              />
+              <p>Cargando localidades...</p>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: stylesPublic.spacing.scale[8],
+              }}
+            >
+              {localidades.map((localidad, index) => {
+                const { icon, color } = getLocalidadIcon(localidad.nombre)
+                return (
+                  <div
+                    key={localidad._id || index}
+                    style={{
+                      ...cardStyle,
+                      cursor: "pointer",
+                      textAlign: "center",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-8px)"
+                      e.currentTarget.style.boxShadow = stylesPublic.shadows.lg
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)"
+                      e.currentTarget.style.boxShadow = stylesPublic.shadows.base
+                    }}
+                    onClick={() => navigate(`/productos?localidad=${localidad.nombre}`)}
+                  >
+                    <div
                       style={{
-                        fontSize: stylesPublic.typography.scale.base,
-                        color: stylesPublic.colors.text.secondary,
-                        marginBottom: 0,
-                        lineHeight: stylesPublic.typography.leading.relaxed,
+                        display: "inline-flex",
+                        padding: stylesPublic.spacing.scale[3],
+                        borderRadius: stylesPublic.borders.radius["2xl"],
+                        background: color,
+                        color: stylesPublic.colors.surface.primary,
+                        marginBottom: stylesPublic.spacing.scale[4],
                       }}
                     >
-                      {comentario.texto}
+                      {icon}
+                    </div>
+                    <h3
+                      style={{
+                        fontSize: stylesPublic.typography.scale.xl,
+                        fontWeight: 600,
+                        color: stylesPublic.colors.text.primary,
+                        margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+                      }}
+                    >
+                      {localidad.nombre}
+                    </h3>
+                    <p
+                      style={{
+                        ...stylesPublic.typography.body.base,
+                        color: stylesPublic.colors.text.tertiary,
+                        margin: 0,
+                      }}
+                    >
+                      {localidad.descripcion}
                     </p>
                   </div>
-                </Col>
-              ))}
-            </Row>
-          </Container>
-        </section>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </section>
 
-        {/* CTA Section - Solo se muestra si el usuario NO está autenticado */}
-        {!isAuthenticated && (
-          <section className="enhanced-cta-section enhanced-section">
-            <Container>
-              <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
+      {/* Categories Section */}
+      <section
+        style={{
+          padding: `${stylesPublic.spacing.scale[20]} 0`,
+          backgroundColor: stylesPublic.colors.surface.secondary,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: `0 ${stylesPublic.spacing.scale[4]}`,
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+              marginBottom: stylesPublic.spacing.scale[16],
+            }}
+          >
+            <h2
+              style={{
+                ...stylesPublic.typography.headings.h2,
+                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+              }}
+            >
+              Categorías de Productos
+            </h2>
+            <p
+              style={{
+                ...stylesPublic.typography.body.large,
+                maxWidth: "600px",
+                margin: "0 auto",
+              }}
+            >
+              Descubre piezas únicas tejidas con la esencia de la tradición huasteca
+            </p>
+          </div>
+
+          {isLoading ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: stylesPublic.spacing.scale[16],
+                color: stylesPublic.colors.text.secondary,
+              }}
+            >
+              <div
+                style={{
+                  width: stylesPublic.spacing.scale[8],
+                  height: stylesPublic.spacing.scale[8],
+                  border: `2px solid ${stylesPublic.colors.primary[200]}`,
+                  borderTop: `2px solid ${stylesPublic.colors.primary[500]}`,
+                  borderRadius: stylesPublic.borders.radius.full,
+                  animation: "spin 1s linear infinite",
+                  marginBottom: stylesPublic.spacing.scale[4],
+                }}
+              />
+              <p>Cargando categorías...</p>
+            </div>
+          ) : categorias.length > 0 ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: stylesPublic.spacing.scale[8],
+              }}
+            >
+              {categorias.map((categoria, index) => (
+                <div
+                  key={index}
+                  style={{
+                    ...cardStyle,
+                    cursor: "pointer",
+                    textAlign: "center",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-8px)"
+                    e.currentTarget.style.boxShadow = stylesPublic.shadows.lg
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)"
+                    e.currentTarget.style.boxShadow = stylesPublic.shadows.base
+                  }}
+                  onClick={() => navigate(`/productos?categoria=${categoria.nombre}`)}
+                >
+                  <img
+                    src={categoria.imagen || "/placeholder.svg?height=200&width=300"}
+                    alt={categoria.nombre}
+                    style={{
+                      width: "100%",
+                      height: "200px",
+                      objectFit: "cover",
+                      borderRadius: stylesPublic.borders.radius.lg,
+                      marginBottom: stylesPublic.spacing.scale[4],
+                    }}
+                    onError={(e) => {
+                      e.target.src = "/placeholder.svg?height=200&width=300"
+                    }}
+                  />
+                  <h3
+                    style={{
+                      fontSize: stylesPublic.typography.scale.xl,
+                      fontWeight: 600,
+                      color: stylesPublic.colors.text.primary,
+                      margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+                    }}
+                  >
+                    {categoria.nombre}
+                  </h3>
+                  <p
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      color: stylesPublic.colors.text.tertiary,
+                      margin: 0,
+                    }}
+                  >
+                    {categoria.descripcion}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div
+              style={{
+                textAlign: "center",
+                padding: stylesPublic.spacing.scale[16],
+                color: stylesPublic.colors.text.secondary,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: stylesPublic.typography.scale["4xl"],
+                  marginBottom: stylesPublic.spacing.scale[4],
+                  opacity: 0.5,
+                }}
+              >
+                🎨
+              </div>
+              <h3
+                style={{
+                  fontSize: stylesPublic.typography.scale.xl,
+                  color: stylesPublic.colors.text.primary,
+                  marginBottom: stylesPublic.spacing.scale[4],
+                }}
+              >
+                Próximamente nuevas categorías
+              </h3>
+              <p>Estamos trabajando para agregar nuevas categorías pronto.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Comments Section */}
+      <section
+        style={{
+          padding: `${stylesPublic.spacing.scale[20]} 0`,
+          backgroundColor: stylesPublic.colors.surface.glass,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: `0 ${stylesPublic.spacing.scale[4]}`,
+          }}
+        >
+          <div
+            style={{
+              textAlign: "center",
+              marginBottom: stylesPublic.spacing.scale[16],
+            }}
+          >
+            <h2
+              style={{
+                ...stylesPublic.typography.headings.h2,
+                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+              }}
+            >
+              Comentarios de la Comunidad
+            </h2>
+            <p
+              style={{
+                ...stylesPublic.typography.body.large,
+                maxWidth: "600px",
+                margin: "0 auto",
+              }}
+            >
+              Comparte tu experiencia con nuestra comunidad artesanal
+            </p>
+          </div>
+
+          {isAuthenticated ? (
+            <div
+              style={{
+                ...cardStyle,
+                marginBottom: stylesPublic.spacing.scale[12],
+              }}
+            >
+              <form onSubmit={handleSubmitComentario}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: stylesPublic.spacing.scale[3],
+                    marginBottom: stylesPublic.spacing.scale[4],
+                  }}
+                >
+                  <div
+                    style={{
+                      width: stylesPublic.spacing.scale[12],
+                      height: stylesPublic.spacing.scale[12],
+                      borderRadius: stylesPublic.borders.radius.full,
+                      background: stylesPublic.colors.primary[500],
+                      color: stylesPublic.colors.primary.contrast,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    👤
+                  </div>
+                  <textarea
+                    rows="3"
+                    placeholder="¿Qué te pareció tu experiencia con nosotros?"
+                    value={comentarioTexto}
+                    onChange={(e) => setComentarioTexto(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: stylesPublic.spacing.scale[4],
+                      border: `1px solid ${stylesPublic.colors.neutral[300]}`,
+                      borderRadius: stylesPublic.borders.radius.lg,
+                      background: stylesPublic.colors.surface.primary,
+                      fontFamily: stylesPublic.typography.families.body,
+                      fontSize: stylesPublic.typography.scale.base,
+                      resize: "none",
+                      transition: stylesPublic.animations.transitions.base,
+                    }}
+                  />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div
+                    style={{
+                      fontSize: stylesPublic.typography.scale.sm,
+                      color: stylesPublic.colors.text.secondary,
+                    }}
+                  >
+                    ℹ️ Tu comentario será visible para toda la comunidad
+                  </div>
+                  <button type="submit" style={primaryButtonStyle}>
+                    Publicar comentario
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div
+              style={{
+                ...cardStyle,
+                textAlign: "center",
+                marginBottom: stylesPublic.spacing.scale[12],
+              }}
+            >
+              <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
+                <div
+                  style={{
+                    fontSize: stylesPublic.typography.scale["4xl"],
+                    color: stylesPublic.colors.primary[500],
+                  }}
+                >
+                  💬
+                </div>
+              </div>
+              <h3
+                style={{
+                  fontSize: stylesPublic.typography.scale.xl,
+                  fontWeight: 600,
+                  color: stylesPublic.colors.text.primary,
+                  margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
+                }}
+              >
+                ¡Únete a la conversación!
+              </h3>
+              <p
+                style={{
+                  ...stylesPublic.typography.body.base,
+                  color: stylesPublic.colors.text.secondary,
+                  marginBottom: stylesPublic.spacing.scale[6],
+                }}
+              >
+                Inicia sesión para compartir tu experiencia con la comunidad artesanal
+              </p>
+              <button style={primaryButtonStyle} onClick={() => navigate("/login")}>
+                Iniciar Sesión
+              </button>
+            </div>
+          )}
+
+          {comentarios.length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: stylesPublic.spacing.scale[6],
+              }}
+            >
+              {comentarios.map((comentario) => (
+                <div key={comentario.id} style={cardStyle}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: stylesPublic.spacing.scale[3],
+                      marginBottom: stylesPublic.spacing.scale[3],
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: stylesPublic.spacing.scale[10],
+                        height: stylesPublic.spacing.scale[10],
+                        borderRadius: stylesPublic.borders.radius.full,
+                        background: stylesPublic.colors.primary[500],
+                        color: stylesPublic.colors.primary.contrast,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      👤
+                    </div>
+                    <div>
+                      <h6
+                        style={{
+                          fontSize: stylesPublic.typography.scale.base,
+                          fontWeight: 600,
+                          color: stylesPublic.colors.text.primary,
+                          margin: 0,
+                        }}
+                      >
+                        {comentario.usuario}
+                      </h6>
+                      <small
+                        style={{
+                          fontSize: stylesPublic.typography.scale.xs,
+                          color: stylesPublic.colors.text.secondary,
+                        }}
+                      >
+                        {new Date(comentario.fecha).toLocaleDateString("es-MX", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </small>
+                    </div>
+                  </div>
+                  <p
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      color: stylesPublic.colors.text.secondary,
+                      margin: 0,
+                    }}
+                  >
+                    {comentario.texto}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* CTA Section - Solo se muestra si el usuario NO está autenticado */}
+      {!isAuthenticated && (
+        <section
+          style={{
+            padding: `${stylesPublic.spacing.scale[20]} 0`,
+            background: stylesPublic.colors.gradients.luxury,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.1)",
+            }}
+          />
+          <div
+            style={{
+              position: "relative",
+              maxWidth: "1024px",
+              margin: "0 auto",
+              textAlign: "center",
+              padding: `0 ${stylesPublic.spacing.scale[4]}`,
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: stylesPublic.spacing.scale[8] }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: stylesPublic.spacing.scale[4] }}>
                 <h2
                   style={{
-                    fontSize: stylesPublic.typography.scale["2xl"],
-                    fontWeight: 300,
-                    color: stylesPublic.colors.text.inverse,
-                    marginBottom: stylesPublic.spacing.scale[4],
+                    ...stylesPublic.typography.headings.h2,
+                    color: stylesPublic.colors.primary.contrast,
+                    margin: 0,
                   }}
                 >
                   Celebra la Tradición Huasteca
                 </h2>
                 <p
                   style={{
-                    fontSize: stylesPublic.typography.scale.lg,
+                    ...stylesPublic.typography.body.large,
                     color: "rgba(255, 255, 255, 0.9)",
-                    maxWidth: "700px",
-                    margin: `0 auto ${stylesPublic.spacing.scale[8]}`,
-                    lineHeight: stylesPublic.typography.leading.relaxed,
+                    maxWidth: "600px",
+                    margin: "0 auto",
                   }}
                 >
-                  Únete a nuestra comunidad y descubre piezas artesanales únicas
-                </p>
-                <a
-                  href="/login?register=true"
-                  className="enhanced-hero-button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    navigate("/login?register=true")
-                  }}
-                >
-                  Regístrate
-                </a>
-                <p
-                  style={{
-                    fontSize: stylesPublic.typography.scale.sm,
-                    color: "rgba(255, 255, 255, 0.8)",
-                    marginTop: stylesPublic.spacing.scale[4],
-                  }}
-                >
-                  <i className="bi bi-shield-check me-2"></i>
-                  Tu información está segura con nosotros.
+                  Únete a nuestra comunidad y descubre piezas artesanales únicas que celebran siglos de historia
                 </p>
               </div>
-            </Container>
-          </section>
-        )}
-      </div>
-    </>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: stylesPublic.spacing.scale[4],
+                  justifyContent: "center",
+                }}
+              >
+                <button
+                  style={{
+                    ...buttonStyle,
+                    backgroundColor: stylesPublic.colors.surface.primary,
+                    color: stylesPublic.colors.primary[700],
+                    boxShadow: stylesPublic.shadows.lg,
+                  }}
+                  onClick={() => navigate("/login?register=true")}
+                >
+                  Regístrate Ahora
+                </button>
+                <button
+                  style={{
+                    ...buttonStyle,
+                    backgroundColor: "transparent",
+                    color: stylesPublic.colors.primary.contrast,
+                    border: `2px solid ${stylesPublic.colors.primary.contrast}`,
+                  }}
+                  onClick={() => navigate("/login")}
+                >
+                  Iniciar Sesión
+                </button>
+              </div>
+
+              <p
+                style={{
+                  fontSize: stylesPublic.typography.scale.sm,
+                  color: "rgba(255, 255, 255, 0.8)",
+                }}
+              >
+                🛡️ Tu información está segura con nosotros
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
   )
 }
 
