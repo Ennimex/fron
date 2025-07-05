@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { adminAPI } from '../../services/api';
+import adminService from '../../services/adminServices';
 import { 
   FaUsers, FaBoxOpen, FaChartLine, 
   FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus, 
@@ -321,50 +323,38 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Obtener datos del dashboard
-        const dashboardResponse = await fetch('http://localhost:5000/api/admin/dashboard', {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
+        // Obtener datos del dashboard usando adminAPI
+        const dashboardData = await adminAPI.getDashboard();
+        
+        // Obtener lista de usuarios recientes usando adminAPI
+        const usersData = await adminAPI.getUsers();
 
-        // Obtener lista de usuarios recientes
-        const usersResponse = await fetch('http://localhost:5000/api/admin/users', {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
-
-        // Obtener actividad reciente (hipotéticamente podría ser comentarios, etc.)
-        const activityResponse = await fetch('http://localhost:5000/api/admin/activity', {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        }).catch(() => ({ ok: true, json: () => Promise.resolve([]) })); // Fallback si el endpoint no existe
-
-        if (!dashboardResponse.ok || !usersResponse.ok) {
-          throw new Error('Error al cargar los datos');
+        // Obtener actividad reciente usando adminService
+        let activityData = [];
+        try {
+          activityData = await adminService.getActivity();
+        } catch (err) {
+          console.log('Activity endpoint not available, using fallback');
+          activityData = [];
         }
 
-        const dashboardData = await dashboardResponse.json();
-        const usersData = await usersResponse.json();
-        const activityData = activityResponse.ok ? await activityResponse.json() : [];
+        // Procesar datos del dashboard
+        setStats({
+          users: dashboardData.stats?.users || usersData.length || 0,
+          products: dashboardData.stats?.products || 0,
+          categories: dashboardData.stats?.categories || 0,
+          locations: dashboardData.stats?.locations || 0
+        });
+
+        // Procesar usuarios recientes (tomar los últimos 5)
+        const sortedUsers = usersData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setRecentUsers(sortedUsers.slice(0, 5));
+        
+        // Procesar actividad reciente
+        setRecentActivity(activityData.slice(0, 5));
 
         // Datos para el gráfico de usuarios registrados
         const usersChartData = dashboardData.usersChart || generateMockUserChartData(timeRange);
-
-        setStats({
-          users: dashboardData.stats.totalUsers || 0,
-          products: dashboardData.stats.totalProducts || 0,
-          categories: dashboardData.stats.totalCategories || 0,
-          locations: dashboardData.stats.totalLocations || 0
-        });
-
-        // Obtener solo los 5 usuarios más recientes
-        setRecentUsers(usersData.slice(0, 5));
-        
-        // Actividad reciente
-        setRecentActivity(activityData.slice(0, 5));
 
         // Configurar datos del gráfico
         setChartData({

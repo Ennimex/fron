@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock } from 'react-icons/fa';
-import axios from 'axios';
+import { adminAPI } from '../../services/api';
 import adminStyles from '../../styles/stylesAdmin';
 
 const GestionVideos = () => {
-  const { user } = useAuth();
 
   // Mapeo de estilos globales
   const styles = {
@@ -208,13 +206,6 @@ const GestionVideos = () => {
     imagenPreview: null,
     videoPreview: null
   });
-  // Configuración de API
-  const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
 
   // Cargar videos al montar el componente
   useEffect(() => {
@@ -226,8 +217,8 @@ const GestionVideos = () => {
   const fetchVideos = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/videos');
-      setVideos(response.data);
+      const data = await adminAPI.getVideos();
+      setVideos(data);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
       console.error('Error al cargar videos:', err);
@@ -324,19 +315,12 @@ const GestionVideos = () => {
         formDataToSend.append('imagen', formData.imagen);
       }
       
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${user.token}`
-        }
-      };
-      
       setUploading(true);
       
       if (currentVideo) {
-        await api.put(`/videos/${currentVideo._id}`, formDataToSend, config);
+        await adminAPI.updateVideo(currentVideo._id, formDataToSend);
       } else {
-        await api.post('/videos', formDataToSend, config);
+        await adminAPI.createVideo(formDataToSend);
       }
       
       setUploading(false);
@@ -356,11 +340,7 @@ const GestionVideos = () => {
     }
     
     try {
-      await api.delete(`/videos/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
+      await adminAPI.deleteVideo(id);
       
       fetchVideos();
     } catch (err) {

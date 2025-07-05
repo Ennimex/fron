@@ -375,7 +375,7 @@ const Perfil = () => {
     },
     formControlFocus: {
       ...stylesPublic.components.input.base,
-      borderColor: stylesPublic.colors.primary[500],
+      border: `1px solid ${stylesPublic.colors.primary[500]}`,
       boxShadow: `0 0 0 3px ${stylesPublic.colors.primary[100]}`,
       backgroundColor: stylesPublic.colors.surface.primary,
     },
@@ -714,7 +714,7 @@ const Perfil = () => {
         
         input:focus {
           outline: none;
-          border-color: ${stylesPublic.colors.primary[500]} !important;
+          border: 1px solid ${stylesPublic.colors.primary[500]} !important;
           box-shadow: 0 0 0 3px ${stylesPublic.colors.primary[100]} !important;
         }
         

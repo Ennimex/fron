@@ -589,12 +589,12 @@ const forms = {
   
   inputFocus: {
     outline: 'none',
-    borderColor: colors.primary,
+    border: `1px solid ${colors.primary}`,
     boxShadow: `0 0 0 3px rgba(13, 27, 42, 0.1)`,
   },
   
   inputError: {
-    borderColor: colors.danger,
+    border: `1px solid ${colors.danger}`,
     boxShadow: `0 0 0 3px rgba(220, 38, 38, 0.1)`,
   },
   

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaEdit, FaSave, FaLock, FaLightbulb, FaEye } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { adminAPI } from '../../services/api';
 import { Navigate } from 'react-router-dom';
 import adminStyles from '../../styles/stylesAdmin';
 
@@ -163,18 +164,8 @@ const GestionMision = () => {
   const fetchNosotrosData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/nosotros', {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        }
-      });
+      const data = await adminAPI.getNosotros();
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al cargar la información');
-      }
-      
-      const data = await response.json();
       setNosotrosData({
         mision: data.mision || '',
         vision: data.vision || ''
@@ -184,11 +175,11 @@ const GestionMision = () => {
         vision: data.vision || ''
       });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error al cargar la información');
     } finally {
       setLoading(false);
     }
-  }, [user?.token]);
+  }, []);
 
   // Cargar datos al montar el componente
   useEffect(() => {
@@ -229,23 +220,12 @@ const GestionMision = () => {
       setSaving(true);
       setError(null);
       
-      const response = await fetch('http://localhost:5000/api/nosotros', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
-        },
-        body: JSON.stringify({
-          mision: tempData.mision.trim(),
-          vision: tempData.vision.trim()
-        })
-      });
+      const nosotrosData = {
+        mision: tempData.mision.trim(),
+        vision: tempData.vision.trim()
+      };
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al guardar la información');
-      }
+      await adminAPI.updateNosotros(nosotrosData);
 
       // Actualizar datos locales
       setNosotrosData({
@@ -259,7 +239,7 @@ const GestionMision = () => {
       setTimeout(() => setSuccess(null), 3000);
       
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error al guardar la información');
     } finally {
       setSaving(false);
     }

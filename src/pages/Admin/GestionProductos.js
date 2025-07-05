@@ -1,92 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import adminService from "../../services/adminServices";
 import { useAuth } from "../../context/AuthContext";
-import adminStyles from "../../styles/stylesAdmin";
+import { useAdminNotifications } from "../../services/adminHooks";
+import NotificationContainer from "../../components/admin/NotificationContainer";
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import stylesPublic from "../../styles/stylesGlobal"; // Importamos los estilos globales
 
 const GestionProductos = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-
-  // Mapeo de estilos globales
-  const styles = {
-    pageContainer: adminStyles.containers.page,
-    container: adminStyles.containers.content,
-    header: adminStyles.headerStyles.headerSimple,
-    headerContent: adminStyles.headerStyles.headerContent,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    addButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
-    },
-    content: { padding: adminStyles.spacing.xl },
-    error: adminStyles.messageStyles.error,
-    controlsContainer: adminStyles.searchStyles.container,
-    searchContainer: adminStyles.searchStyles.searchContainer,
-    searchInput: adminStyles.searchStyles.searchInput,
-    filterSelect: adminStyles.searchStyles.filterSelect,
-    tableContainer: adminStyles.tables.container,
-    table: adminStyles.tables.table,
-    tableHeader: adminStyles.tables.header,
-    tableHeaderCell: adminStyles.tables.headerCell,
-    tableRow: adminStyles.tables.row,
-    tableCell: adminStyles.tables.cell,
-    actionsContainer: adminStyles.tables.actionsContainer,
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
-    modalOverlay: adminStyles.modalStyles.overlay,
-    modalContent: adminStyles.modalStyles.content,
-    modalHeader: adminStyles.modalStyles.header,
-    modalTitle: adminStyles.modalStyles.title,
-    modalCloseButton: adminStyles.modalStyles.closeButton,
-    modalBody: adminStyles.modalStyles.body,
-    formGrid: adminStyles.forms.formGrid2,
-    formGroup: adminStyles.forms.formGroup,
-    label: adminStyles.forms.label,
-    requiredField: adminStyles.forms.requiredField,
-    input: adminStyles.forms.input,
-    select: adminStyles.forms.select,
-    textarea: adminStyles.forms.textarea,
-    imageUploadArea: adminStyles.forms.uploadArea,
-    uploadText: adminStyles.forms.uploadText,
-    uploadSubtext: adminStyles.forms.uploadSubtext,
-    fileInput: adminStyles.forms.fileInput,
-    previewContainer: { marginTop: adminStyles.spacing.md },
-    previewImage: adminStyles.forms.imagePreview,
-    tallasSection: adminStyles.componentStyles.tallasSection,
-    tallasContainer: adminStyles.componentStyles.tallasContainer,
-    genderGroup: adminStyles.componentStyles.genderGroup,
-    genderTitle: adminStyles.componentStyles.genderTitle,
-    sizesGrid: adminStyles.componentStyles.sizesGrid,
-    tallaCheckbox: adminStyles.componentStyles.tallaCheckbox,
-    tallaCheckboxSelected: {
-      ...adminStyles.componentStyles.tallaCheckbox,
-      ...adminStyles.componentStyles.tallaCheckboxSelected,
-    },
-    helpText: adminStyles.forms.helpText,
-    progressContainer: adminStyles.progressStyles.container,
-    progressBar: adminStyles.progressStyles.bar,
-    progressBarFill: adminStyles.progressStyles.fill,
-    progressText: adminStyles.progressStyles.text,
-    submitButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
-      width: '100%',
-      justifyContent: 'center',
-      marginTop: adminStyles.spacing.lg,
-    },
-    submitButtonDisabled: adminStyles.buttons.disabled,
-    badge: adminStyles.badgeStyles.base,
-    productImage: adminStyles.tables.productImage,
-    actionButton: adminStyles.buttons.actionButton,
-    editAction: adminStyles.buttons.editAction,
-    deleteAction: adminStyles.buttons.deleteAction,
-    viewAction: adminStyles.buttons.viewAction,
-  };
 
   // Estados para datos
   const [localidades, setLocalidades] = useState([]);
@@ -103,6 +27,24 @@ const GestionProductos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLocalidad, setFilterLocalidad] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Hook de notificaciones del componente
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
+  
+  // Crear una referencia estable para addNotification
+  const addNotificationRef = useRef(addNotification);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+  }, [addNotification]);
+
+  // Suscribirse a las notificaciones de adminService
+  useEffect(() => {
+    const unsubscribe = adminService.onNotification((notification) => {
+      addNotification(notification.message, notification.type, notification.duration);
+    });
+
+    return unsubscribe;
+  }, [addNotification]);
 
   const [producto, setProducto] = useState({
     nombre: "",
@@ -121,17 +63,17 @@ const GestionProductos = () => {
     if (user.role !== "admin") {
       navigate("/no-autorizado");
     }
-  }, [user, navigate, location, user?.role]);
+  }, [user, navigate, location]);
 
   // Función para cargar productos
   const fetchProductos = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/productos", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      setProductos(response.data);
+      const response = await adminService.getProductos();
+      setProductos(response);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cargar los productos");
+      // adminService ya maneja las notificaciones de error
+      // Solo actualizamos el estado local de error para el UI
+      setError(err.message || "Error al cargar los productos");
     }
   };
 
@@ -145,22 +87,18 @@ const GestionProductos = () => {
         setError(null);
 
         const [locResponse, tallasResponse, productosResponse] = await Promise.all([
-          axios.get("http://localhost:5000/api/public/localidades", {
-            headers: { Authorization: `Bearer ${user.token}` },
-          }),
-          axios.get("http://localhost:5000/api/public/tallas", {
-            headers: { Authorization: `Bearer ${user.token}` },
-          }),
-          axios.get("http://localhost:5000/api/productos", {
-            headers: { Authorization: `Bearer ${user.token}` },
-          }),
+          adminService.getLocalidades(),
+          adminService.getTallas(),
+          adminService.getProductos(),
         ]);
 
-        setLocalidades(locResponse.data);
-        setTallas(tallasResponse.data);
-        setProductos(productosResponse.data);
+        setLocalidades(locResponse);
+        setTallas(tallasResponse);
+        setProductos(productosResponse);
       } catch (err) {
-        setError(err.response?.data?.error || "Error al cargar los datos");
+        // adminService ya maneja las notificaciones de error
+        // Solo actualizamos el estado local de error para el UI
+        setError(err.message || "Error al cargar los datos");
       } finally {
         setLoading(false);
       }
@@ -169,7 +107,7 @@ const GestionProductos = () => {
     fetchData();
   }, [user?.token, user?.role]);
 
-  // Manejadores de eventos para formulario
+  // Manejadores de eventos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProducto((prev) => ({
@@ -201,12 +139,16 @@ const GestionProductos = () => {
     if (!file) return;
 
     if (!file.type.match("image.*")) {
-      setError("Por favor, selecciona un archivo de imagen válido");
+      const errorMessage = "Por favor, selecciona un archivo de imagen válido";
+      setError(errorMessage);
+      addNotificationRef.current(errorMessage, 'error', 5000);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("La imagen no debe exceder los 5MB");
+      const errorMessage = "La imagen no debe exceder los 5MB";
+      setError(errorMessage);
+      addNotificationRef.current(errorMessage, 'error', 5000);
       return;
     }
 
@@ -218,120 +160,7 @@ const GestionProductos = () => {
     reader.readAsDataURL(file);
   };
 
-  // Modificar el handleSubmit para incluir validación
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validación del formulario
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      // Aseguramos que no enviamos _id al crear un nuevo producto
-      // Solo incluimos _id para actualización
-      if (isEditMode && producto._id) {
-        formData.append("_id", producto._id);
-      }
-      
-      // Agregamos el resto de los campos
-      formData.append("nombre", producto.nombre);
-      formData.append("descripcion", producto.descripcion);
-      formData.append("localidadId", producto.localidadId);
-      formData.append("tipoTela", producto.tipoTela);
-      
-      // Procesamos las tallas disponibles
-      if (producto.tallasDisponibles && producto.tallasDisponibles.length > 0) {
-        producto.tallasDisponibles.forEach((t) => {
-          formData.append("tallasDisponibles[]", t._id);
-        });
-      }
-
-      const imageInput = document.querySelector('input[type="file"]');
-      if (imageInput.files[0]) {
-        formData.append("imagen", imageInput.files[0]);
-      }
-
-      let response;
-      if (isEditMode) {
-        response = await axios.put(
-          `http://localhost:5000/api/productos/${producto._id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${user.token}`,
-            },
-            onUploadProgress: (progressEvent) => {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              setUploadProgress(percentCompleted);
-            },
-          }
-        );
-      } else {
-        response = await axios.post("http://localhost:5000/api/productos", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${user.token}`,
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          },
-        });
-      }
-
-      console.log("Backend response:", response.data); // Debug log
-
-      if (response.status === 201 || response.status === 200) {
-        // Normalize response: handle both { producto: {...} } and direct product object
-        const newProduct = response.data.producto || response.data;
-        if (!newProduct || !newProduct._id || !newProduct.nombre) {
-          throw new Error("Producto inválido devuelto por el servidor");
-        }
-        if (isEditMode) {
-          setProductos((prev) =>
-            prev.map((p) => (p._id === producto._id ? newProduct : p))
-          );
-        } else {
-          // Refetch products to ensure the list is up-to-date
-          await fetchProductos();
-        }
-        setProducto({
-          nombre: "",
-          descripcion: "",
-          localidadId: "",
-          tipoTela: "",
-          tallasDisponibles: [],
-        });
-        setImagePreview(null);
-        setShowModal(false);
-        setIsEditMode(false);
-        setError(null);
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          `Error al ${isEditMode ? "actualizar" : "crear"} el producto`
-      );
-    } finally {
-      setLoading(false);
-      setUploadProgress(0);
-    }
-  };
-
-  // Agregar función de validación del formulario
   const validateForm = () => {
-    // Validar nombre
     if (!producto.nombre.trim()) {
       setError("El nombre del producto es obligatorio");
       return false;
@@ -347,7 +176,6 @@ const GestionProductos = () => {
       return false;
     }
     
-    // Validar descripción
     if (!producto.descripcion.trim()) {
       setError("La descripción del producto es obligatoria");
       return false;
@@ -363,13 +191,11 @@ const GestionProductos = () => {
       return false;
     }
     
-    // Validar localidad
     if (!producto.localidadId) {
       setError("Debe seleccionar una localidad");
       return false;
     }
     
-    // Validar tipo de tela
     if (!producto.tipoTela.trim()) {
       setError("El tipo de tela es obligatorio");
       return false;
@@ -380,20 +206,17 @@ const GestionProductos = () => {
       return false;
     }
     
-    // Validar tallas
     if (producto.tallasDisponibles.length === 0) {
       setError("Selecciona al menos una talla disponible");
       return false;
     }
     
-    // Validar imagen en caso de producto nuevo
     const imageInput = document.querySelector('input[type="file"]');
     if (!isEditMode && !imagePreview && !imageInput.files[0]) {
       setError("La imagen del producto es obligatoria");
       return false;
     }
     
-    // Validar tipo y tamaño de imagen si se seleccionó un archivo
     if (imageInput.files[0]) {
       const file = imageInput.files[0];
       
@@ -411,6 +234,75 @@ const GestionProductos = () => {
     return true;
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      if (isEditMode && producto._id) {
+        formData.append("_id", producto._id);
+      }
+      
+      formData.append("nombre", producto.nombre);
+      formData.append("descripcion", producto.descripcion);
+      formData.append("localidadId", producto.localidadId);
+      formData.append("tipoTela", producto.tipoTela);
+      
+      producto.tallasDisponibles.forEach((t) => {
+        formData.append("tallasDisponibles[]", t._id);
+      });
+
+      const imageInput = document.querySelector('input[type="file"]');
+      if (imageInput.files[0]) {
+        formData.append("imagen", imageInput.files[0]);
+      }
+
+      let response;
+      if (isEditMode) {
+        response = await adminService.updateProducto(producto._id, formData);
+      } else {
+        response = await adminService.createProducto(formData);
+      }
+
+      if (response) {
+        // adminService ya maneja las notificaciones de éxito automáticamente
+        // Solo actualizamos el estado local
+        const newProduct = response.producto || response;
+        if (isEditMode) {
+          setProductos((prev) =>
+            prev.map((p) => (p._id === producto._id ? newProduct : p))
+          );
+        } else {
+          await fetchProductos();
+        }
+        
+        setProducto({
+          nombre: "",
+          descripcion: "",
+          localidadId: "",
+          tipoTela: "",
+          tallasDisponibles: [],
+        });
+        setImagePreview(null);
+        setShowModal(false);
+        setIsEditMode(false);
+        setError(null);
+      }
+    } catch (err) {
+      // adminService ya maneja las notificaciones de error
+      // Solo actualizamos el estado local de error para el UI
+      setError(err?.error || err?.message || `Error al ${isEditMode ? "actualizar" : "crear"} el producto`);
+    } finally {
+      setLoading(false);
+      setUploadProgress(0);
+    }
+  };
+
   const handleEditProduct = (product) => {
     setProducto({
       _id: product._id,
@@ -422,28 +314,30 @@ const GestionProductos = () => {
     });
     setImagePreview(product.imagenURL || null);
     setIsEditMode(true);
+    setError(null);
     setShowModal(true);
   };
 
   const handleDeleteProduct = async (productId) => {
-    if (!window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
-      return;
-    }
+    if (!window.confirm("¿Estás seguro de que quieres eliminar este producto?")) return;
+
+    setError(null);
 
     try {
-      await axios.delete(`http://localhost:5000/api/productos/${productId}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-
+      // adminService ya maneja las notificaciones de éxito automáticamente
+      await adminService.deleteProducto(productId);
+      
+      // Solo actualizamos el estado local
       setProductos((prev) => prev.filter((p) => p._id !== productId));
     } catch (err) {
-      setError(err.response?.data?.error || "Error al eliminar el producto");
+      // adminService ya maneja las notificaciones de error
+      // Solo actualizamos el estado local de error para el UI
+      setError(err?.error || err?.message || "Error al eliminar el producto");
     }
   };
 
   // Filtrar productos
   const filteredProducts = productos.filter((producto) => {
-    if (!producto || typeof producto !== "object") return false; // Skip invalid entries
     const matchesSearch =
       (producto.nombre?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (producto.descripcion?.toLowerCase() || "").includes(searchTerm.toLowerCase());
@@ -456,16 +350,12 @@ const GestionProductos = () => {
     return matchesSearch && matchesLocalidad;
   });
 
-  // Función para obtener el nombre de la localidad
   const getLocalidadNombre = (localidadId) => {
-    if (typeof localidadId === "object" && localidadId !== null) {
-      return localidadId.nombre || "Sin localidad";
-    }
+    if (typeof localidadId === "object") return localidadId.nombre || "Sin localidad";
     const localidad = localidades.find((l) => l._id === localidadId);
     return localidad?.nombre || "Sin localidad";
   };
 
-  // Función para obtener las tallas específicas de un producto
   const getProductSizes = (tallasDisponibles) => {
     if (!tallasDisponibles || tallasDisponibles.length === 0) return [];
     return tallasDisponibles.map((t) => ({
@@ -477,12 +367,9 @@ const GestionProductos = () => {
     }));
   };
 
-  // Lógica para agrupar tallas
   const groupedTallas = tallas.reduce((acc, talla) => {
     const genero = talla.genero || "Otro";
-    if (!acc[genero]) {
-      acc[genero] = [];
-    }
+    if (!acc[genero]) acc[genero] = [];
     acc[genero].push(talla);
     return acc;
   }, {});
@@ -497,11 +384,348 @@ const GestionProductos = () => {
     return indexA - indexB;
   });
 
+  // Estilos basados en stylesPublic
+  const styles = {
+    pageContainer: {
+      minHeight: "100vh",
+      backgroundColor: stylesPublic.colors.neutral[100],
+      padding: stylesPublic.spacing.sections.sm,
+    },
+    container: {
+      maxWidth: stylesPublic.utils.container.maxWidth["2xl"],
+      margin: "0 auto",
+      backgroundColor: stylesPublic.colors.surface.primary,
+      borderRadius: stylesPublic.borders.radius.lg,
+      boxShadow: stylesPublic.shadows.base,
+    },
+    header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: stylesPublic.spacing.scale[6],
+      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
+    },
+    headerContent: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: "100%",
+    },
+    title: {
+      ...stylesPublic.typography.headings.h3,
+      margin: 0,
+    },
+    subtitle: {
+      ...stylesPublic.typography.body.small,
+      color: stylesPublic.colors.text.tertiary,
+      margin: 0,
+    },
+    addButton: {
+      ...stylesPublic.components.button.sizes.base,
+      ...stylesPublic.components.button.variants.primary,
+      display: "flex",
+      alignItems: "center",
+    },
+    content: {
+      padding: stylesPublic.spacing.scale[6],
+    },
+    error: {
+      padding: stylesPublic.spacing.scale[4],
+      backgroundColor: stylesPublic.colors.semantic.error.light,
+      color: stylesPublic.colors.semantic.error.main,
+      borderRadius: stylesPublic.borders.radius.base,
+      marginBottom: stylesPublic.spacing.scale[4],
+      border: `1px solid ${stylesPublic.colors.semantic.error.main}`,
+    },
+    success: {
+      padding: stylesPublic.spacing.scale[4],
+      backgroundColor: stylesPublic.colors.semantic.success.light,
+      color: stylesPublic.colors.semantic.success.main,
+      borderRadius: stylesPublic.borders.radius.base,
+      marginBottom: stylesPublic.spacing.scale[4],
+      border: `1px solid ${stylesPublic.colors.semantic.success.main}`,
+      display: "flex",
+      alignItems: "center",
+      gap: stylesPublic.spacing.scale[2],
+    },
+    controlsContainer: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: stylesPublic.spacing.scale[6],
+    },
+    searchContainer: {
+      display: "flex",
+      gap: stylesPublic.spacing.scale[4],
+      alignItems: "center",
+    },
+    searchInput: {
+      ...stylesPublic.components.input.base,
+      minWidth: "300px",
+    },
+    filterSelect: {
+      ...stylesPublic.components.input.base,
+      minWidth: "200px",
+    },
+    tableContainer: {
+      overflowX: "auto",
+      borderRadius: stylesPublic.borders.radius.base,
+      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+    },
+    table: {
+      width: "100%",
+      borderCollapse: "collapse",
+    },
+    tableHeader: {
+      backgroundColor: stylesPublic.colors.neutral[100],
+    },
+    tableHeaderCell: {
+      padding: stylesPublic.spacing.scale[4],
+      textAlign: "left",
+      fontWeight: stylesPublic.typography.weights.semibold,
+      color: stylesPublic.colors.text.secondary,
+      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
+    },
+    tableRow: {
+      "&:hover": {
+        backgroundColor: stylesPublic.colors.neutral[50],
+      },
+    },
+    tableCell: {
+      padding: stylesPublic.spacing.scale[4],
+      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
+    },
+    actionsContainer: {
+      display: "flex",
+      gap: stylesPublic.spacing.scale[2],
+    },
+    emptyState: {
+      padding: stylesPublic.spacing.scale[10],
+      textAlign: "center",
+      color: stylesPublic.colors.text.tertiary,
+    },
+    emptyStateText: {
+      ...stylesPublic.typography.headings.h4,
+      marginBottom: stylesPublic.spacing.scale[2],
+    },
+    emptyStateSubtext: {
+      ...stylesPublic.typography.body.base,
+    },
+    modalOverlay: {
+      ...stylesPublic.utils.overlay.base,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    modalContent: {
+      backgroundColor: stylesPublic.colors.surface.primary,
+      borderRadius: stylesPublic.borders.radius.xl,
+      width: "90%",
+      maxWidth: "800px",
+      maxHeight: "90vh",
+      overflowY: "auto",
+      boxShadow: stylesPublic.shadows.xl,
+    },
+    modalHeader: {
+      padding: stylesPublic.spacing.scale[6],
+      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    modalTitle: {
+      ...stylesPublic.typography.headings.h3,
+      margin: 0,
+    },
+    modalCloseButton: {
+      background: "none",
+      border: "none",
+      fontSize: stylesPublic.typography.scale["2xl"],
+      cursor: "pointer",
+      color: stylesPublic.colors.text.tertiary,
+      "&:hover": {
+        color: stylesPublic.colors.text.primary,
+      },
+    },
+    modalBody: {
+      padding: stylesPublic.spacing.scale[6],
+    },
+    formGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: stylesPublic.spacing.scale[4],
+      marginBottom: stylesPublic.spacing.scale[4],
+    },
+    formGroup: {
+      marginBottom: stylesPublic.spacing.scale[4],
+    },
+    label: {
+      ...stylesPublic.typography.body.small,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      display: "block",
+      marginBottom: stylesPublic.spacing.scale[1],
+    },
+    requiredField: {
+      color: stylesPublic.colors.semantic.error.main,
+    },
+    input: {
+      ...stylesPublic.components.input.base,
+    },
+    select: {
+      ...stylesPublic.components.input.base,
+    },
+    textarea: {
+      ...stylesPublic.components.input.base,
+      minHeight: "100px",
+      resize: "vertical",
+    },
+    imageUploadArea: {
+      border: `2px dashed ${stylesPublic.colors.neutral[300]}`,
+      borderRadius: stylesPublic.borders.radius.base,
+      padding: stylesPublic.spacing.scale[6],
+      textAlign: "center",
+      cursor: "pointer",
+      transition: stylesPublic.animations.transitions.base,
+      "&:hover": {
+        borderColor: stylesPublic.colors.primary[500],
+      },
+    },
+    uploadText: {
+      ...stylesPublic.typography.body.base,
+      fontWeight: stylesPublic.typography.weights.semibold,
+    },
+    uploadSubtext: {
+      ...stylesPublic.typography.body.small,
+      color: stylesPublic.colors.text.tertiary,
+    },
+    fileInput: {
+      display: "none",
+    },
+    previewContainer: {
+      marginTop: stylesPublic.spacing.scale[4],
+    },
+    previewImage: {
+      maxWidth: "100%",
+      maxHeight: "200px",
+      borderRadius: stylesPublic.borders.radius.base,
+    },
+    tallasSection: {
+      marginBottom: stylesPublic.spacing.scale[6],
+    },
+    tallasContainer: {
+      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      borderRadius: stylesPublic.borders.radius.base,
+      padding: stylesPublic.spacing.scale[4],
+    },
+    genderGroup: {
+      marginBottom: stylesPublic.spacing.scale[4],
+    },
+    genderTitle: {
+      ...stylesPublic.typography.body.small,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      marginBottom: stylesPublic.spacing.scale[2],
+    },
+    sizesGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+      gap: stylesPublic.spacing.scale[2],
+    },
+    tallaCheckbox: {
+      display: "flex",
+      alignItems: "center",
+      padding: stylesPublic.spacing.scale[2],
+      borderRadius: stylesPublic.borders.radius.sm,
+      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      cursor: "pointer",
+      transition: stylesPublic.animations.transitions.base,
+    },
+    tallaCheckboxSelected: {
+      backgroundColor: stylesPublic.colors.primary[100],
+      borderColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.primary[500],
+    },
+    helpText: {
+      ...stylesPublic.typography.body.small,
+      color: stylesPublic.colors.text.tertiary,
+    },
+    progressContainer: {
+      marginTop: stylesPublic.spacing.scale[4],
+    },
+    progressBar: {
+      height: "8px",
+      backgroundColor: stylesPublic.colors.neutral[200],
+      borderRadius: stylesPublic.borders.radius.full,
+      overflow: "hidden",
+    },
+    progressBarFill: {
+      height: "100%",
+      backgroundColor: stylesPublic.colors.primary[500],
+      transition: "width 0.3s ease",
+    },
+    progressText: {
+      ...stylesPublic.typography.body.small,
+      textAlign: "center",
+      marginTop: stylesPublic.spacing.scale[1],
+    },
+    submitButton: {
+      ...stylesPublic.components.button.sizes.base,
+      ...stylesPublic.components.button.variants.primary,
+    },
+    submitButtonDisabled: {
+      opacity: 0.6,
+      cursor: "not-allowed",
+    },
+    badge: {
+      display: "inline-block",
+      padding: `${stylesPublic.spacing.scale[1]} ${stylesPublic.spacing.scale[2]}`,
+      borderRadius: stylesPublic.borders.radius.full,
+      backgroundColor: stylesPublic.colors.neutral[100],
+      color: stylesPublic.colors.text.secondary,
+      fontSize: stylesPublic.typography.scale.sm,
+      fontWeight: stylesPublic.typography.weights.semibold,
+    },
+    productImage: {
+      width: "50px",
+      height: "50px",
+      objectFit: "cover",
+      borderRadius: stylesPublic.borders.radius.sm,
+    },
+    actionButton: {
+      ...stylesPublic.components.button.sizes.sm,
+      padding: stylesPublic.spacing.scale[2],
+      minWidth: "32px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editAction: {
+      backgroundColor: stylesPublic.colors.semantic.info.main,
+      color: stylesPublic.colors.semantic.info.contrast,
+      "&:hover": {
+        backgroundColor: stylesPublic.colors.semantic.info.dark,
+      },
+    },
+    deleteAction: {
+      backgroundColor: stylesPublic.colors.semantic.error.main,
+      color: stylesPublic.colors.semantic.error.contrast,
+      "&:hover": {
+        backgroundColor: stylesPublic.colors.semantic.error.dark,
+      },
+    },
+    viewAction: {
+      backgroundColor: stylesPublic.colors.semantic.success.main,
+      color: stylesPublic.colors.semantic.success.contrast,
+      "&:hover": {
+        backgroundColor: stylesPublic.colors.semantic.success.dark,
+      },
+    },
+  };
+
   // Manejar loading y error
   if (loading && !productos.length && !localidades.length && !tallas.length) {
     return (
       <div style={{ ...styles.pageContainer, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div style={{ textAlign: "center", padding: "2rem" }}>
+        <div style={{ textAlign: "center" }}>
           <h3>Cargando datos...</h3>
         </div>
       </div>
@@ -511,15 +735,7 @@ const GestionProductos = () => {
   if (error && !user) {
     return (
       <div style={{ ...styles.pageContainer, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div
-          style={{
-            textAlign: "center",
-            padding: "2rem",
-            backgroundColor: "#fee2e2",
-            borderRadius: "8px",
-            color: "#991b1b",
-          }}
-        >
+        <div style={{ textAlign: "center", padding: "2rem", backgroundColor: "#fee2e2", borderRadius: "8px", color: "#991b1b" }}>
           <h3>Error</h3>
           <p>{error}</p>
           <button
@@ -541,41 +757,8 @@ const GestionProductos = () => {
     );
   }
 
-  return (    <div style={styles.pageContainer}>
-      <style>
-        {adminStyles.animations}
-        {`
-          .form-input:focus {
-            outline: none !important;
-            border-color: ${adminStyles.colors.primary} !important;
-            box-shadow: 0 0 0 2px rgba(13, 27, 42, 0.1) !important;
-          }
-          .submit-button:hover:not(:disabled) {
-            background-color: ${adminStyles.colors.primaryLight};
-          }
-          .table-row:hover {
-            background-color: ${adminStyles.colors.tableHover};
-          }
-          .action-button:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
-          }
-          .add-button:hover {
-            background-color: ${adminStyles.colors.primaryLight};
-          }
-          .modal-close:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-          }
-          .size-checkbox {
-            transition: all 0.2s ease;
-          }
-          .size-checkbox:hover {
-            transform: translateY(-1px);
-            box-shadow: ${adminStyles.shadows.sm};
-          }
-        `}
-      </style>
-
+  return (
+    <div style={styles.pageContainer}>
       <div style={styles.container}>
         {/* Header */}
         <div style={styles.header}>
@@ -583,13 +766,9 @@ const GestionProductos = () => {
             <div>
               <h1 style={styles.title}>Gestión de Productos</h1>
               <p style={styles.subtitle}>Administra tu catálogo de productos</p>
-            </div>            <button
-              className="add-button"
-              style={{ 
-                ...styles.addButton, 
-                backgroundColor: adminStyles.colors.primary, 
-                color: adminStyles.colors.white 
-              }}
+            </div>
+            <button
+              style={styles.addButton}
               onClick={() => {
                 setIsEditMode(false);
                 setProducto({
@@ -600,6 +779,7 @@ const GestionProductos = () => {
                   tallasDisponibles: [],
                 });
                 setImagePreview(null);
+                setError(null);
                 setShowModal(true);
               }}
             >
@@ -609,36 +789,32 @@ const GestionProductos = () => {
           </div>
         </div>
 
-        {/* Content */}        <div style={styles.content}>
-          {error && (
-            <div style={{ 
-              ...styles.error, 
-              backgroundColor: adminStyles.colors.errorBg, 
-              color: adminStyles.colors.errorText, 
-              padding: adminStyles.spacing.lg, 
-              borderRadius: adminStyles.borders.radius 
-            }}>
-              {error}
-            </div>
-          )}
+        {/* Content */}
+        <div style={styles.content}>
+          {/* Sistema de notificaciones centralizado */}
+          <NotificationContainer
+            notifications={notifications}
+            onRemoveNotification={removeNotification}
+            onClearAll={clearAllNotifications}
+          />
+          
+          {error && <div style={styles.error}>{error}</div>}
 
           {/* Controles */}
           <div style={styles.controlsContainer}>
             <div style={styles.searchContainer}>
-              <FaSearch style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#64748b" }} size={16} />
+              <FaSearch style={{ color: stylesPublic.colors.text.tertiary }} size={16} />
               <input
                 type="text"
                 placeholder="Buscar productos por nombre o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ ...styles.searchInput, paddingLeft: "3rem" }}
-                className="form-input"
+                style={styles.searchInput}
               />
               <select
                 value={filterLocalidad}
                 onChange={(e) => setFilterLocalidad(e.target.value)}
                 style={styles.filterSelect}
-                className="form-input"
               >
                 <option value="">Todas las localidades</option>
                 {localidades.map((localidad) => (
@@ -648,7 +824,9 @@ const GestionProductos = () => {
                 ))}
               </select>
             </div>
-            <div style={{ fontSize: "0.9rem", color: "#64748b" }}>Total: {filteredProducts.length} productos</div>
+            <div style={{ ...stylesPublic.typography.body.small, color: stylesPublic.colors.text.tertiary }}>
+              Total: {filteredProducts.length} productos
+            </div>
           </div>
 
           {/* Tabla de productos */}
@@ -669,17 +847,19 @@ const GestionProductos = () => {
                   {filteredProducts.map((producto) => {
                     const productSizes = getProductSizes(producto.tallasDisponibles);
                     return (
-                      <tr key={producto._id} className="table-row" style={styles.tableRow}>
+                      <tr key={producto._id} style={styles.tableRow}>
                         <td style={styles.tableCell}>
                           <img
-                            src={producto.imagenURL || "/placeholder.svg?height=50&width=50"}
+                            src={producto.imagenURL || "/placeholder.svg"}
                             alt={producto.nombre || "Producto"}
                             style={styles.productImage}
                           />
                         </td>
                         <td style={styles.tableCell}>
-                          <div style={styles.productName}>{producto.nombre || "Sin nombre"}</div>
-                          <div style={styles.productDescription}>
+                          <div style={{ fontWeight: stylesPublic.typography.weights.semibold }}>
+                            {producto.nombre || "Sin nombre"}
+                          </div>
+                          <div style={{ ...stylesPublic.typography.body.small, color: stylesPublic.colors.text.tertiary }}>
                             {producto.descripcion?.length > 80
                               ? `${producto.descripcion.substring(0, 80)}...`
                               : producto.descripcion || "-"}
@@ -694,7 +874,7 @@ const GestionProductos = () => {
                         <td style={styles.tableCell}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
                             {productSizes.map((talla) => (
-                              <span key={talla._id} style={styles.sizeBadge}>
+                              <span key={talla._id} style={styles.badge}>
                                 {talla.talla}
                                 {talla.rangoEdad && ` (${talla.rangoEdad})`}
                                 {talla.medida && ` (${talla.medida})`}
@@ -703,34 +883,23 @@ const GestionProductos = () => {
                           </div>
                         </td>
                         <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer}>                            <button
-                              className="action-button"
-                              style={{ 
-                                ...styles.actionButton, 
-                                ...styles.viewAction 
-                              }}
+                          <div style={styles.actionsContainer}>
+                            <button
+                              style={{ ...styles.actionButton, ...styles.viewAction }}
                               onClick={() => setSelectedProduct(producto)}
                               title="Ver detalles"
                             >
                               <FaEye size={14} />
                             </button>
                             <button
-                              className="action-button"
-                              style={{ 
-                                ...styles.actionButton, 
-                                ...styles.editAction 
-                              }}
+                              style={{ ...styles.actionButton, ...styles.editAction }}
                               onClick={() => handleEditProduct(producto)}
                               title="Editar producto"
                             >
                               <FaEdit size={14} />
                             </button>
                             <button
-                              className="action-button"
-                              style={{ 
-                                ...styles.actionButton, 
-                                ...styles.deleteAction 
-                              }}
+                              style={{ ...styles.actionButton, ...styles.deleteAction }}
                               onClick={() => handleDeleteProduct(producto._id)}
                               title="Eliminar producto"
                             >
@@ -765,33 +934,20 @@ const GestionProductos = () => {
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <h2 style={styles.modalTitle}>{isEditMode ? "Editar Producto" : "Agregar Nuevo Producto"}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)} style={styles.modalCloseButton}>
+              <button onClick={() => setShowModal(false)} style={styles.modalCloseButton}>
                 ×
               </button>
-            </div>            <div style={styles.modalBody}>
-              {error && (
-                <div style={{ 
-                  ...styles.error, 
-                  backgroundColor: adminStyles.colors.errorBg, 
-                  color: adminStyles.colors.errorText, 
-                  padding: adminStyles.spacing.lg, 
-                  borderRadius: adminStyles.borders.radius 
-                }}>
-                  {error}
-                </div>
-              )}
+            </div>
+            <div style={styles.modalBody}>
+              {error && <div style={styles.error}>{error}</div>}
 
               <form onSubmit={handleSubmit}>
                 <div style={styles.formGrid}>
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="nombre">
                       Nombre<span style={styles.requiredField}>*</span>
-                      <span style={{fontSize: "0.7rem", color: "#718096", marginLeft: "0.5rem"}}>
-                        ({producto.nombre.length}/100)
-                      </span>
                     </label>
                     <input
-                      className="form-input"
                       style={styles.input}
                       type="text"
                       id="nombre"
@@ -811,7 +967,6 @@ const GestionProductos = () => {
                       Localidad<span style={styles.requiredField}>*</span>
                     </label>
                     <select
-                      className="form-input"
                       style={styles.select}
                       id="localidadId"
                       name="localidadId"
@@ -832,12 +987,8 @@ const GestionProductos = () => {
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="tipoTela">
                       Tipo de Tela<span style={styles.requiredField}>*</span>
-                      <span style={{fontSize: "0.7rem", color: "#718096", marginLeft: "0.5rem"}}>
-                        ({producto.tipoTela.length}/50)
-                      </span>
                     </label>
                     <input
-                      className="form-input"
                       style={styles.input}
                       type="text"
                       id="tipoTela"
@@ -856,12 +1007,8 @@ const GestionProductos = () => {
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="descripcion">
                       Descripción<span style={styles.requiredField}>*</span>
-                      <span style={{fontSize: "0.7rem", color: "#718096", marginLeft: "0.5rem"}}>
-                        ({producto.descripcion.length}/500)
-                      </span>
                     </label>
                     <textarea
-                      className="form-input"
                       style={styles.textarea}
                       id="descripcion"
                       name="descripcion"
@@ -880,7 +1027,6 @@ const GestionProductos = () => {
                       Imagen{isEditMode ? "" : <span style={styles.requiredField}>*</span>}
                     </label>
                     <div
-                      className="form-input"
                       style={styles.imageUploadArea}
                       onClick={() => document.getElementById("imagen").click()}
                     >
@@ -907,9 +1053,7 @@ const GestionProductos = () => {
                 <div style={{ ...styles.formGroup, ...styles.tallasSection }}>
                   <label style={styles.label}>
                     Tallas Disponibles<span style={styles.requiredField}>*</span>
-                    <span style={{ ...styles.helpText, marginLeft: "0.5rem", display: "inline" }}>
-                      (Seleccione al menos una)
-                    </span>
+                    <span style={styles.helpText}> (Seleccione al menos una)</span>
                   </label>
                   <div style={styles.tallasContainer}>
                     {orderedGroupedTallas.map(([genero, sizes]) => (
@@ -918,21 +1062,18 @@ const GestionProductos = () => {
                         <div style={styles.sizesGrid}>
                           {sizes.map((talla) => {
                             const isSelected = producto.tallasDisponibles.some((t) => t._id === talla._id);
-                            return (                              <label
+                            return (
+                              <label
                                 key={talla._id}
-                                className="size-checkbox"
-                                style={{
-                                  ...styles.tallaCheckbox,
-                                  ...(isSelected ? styles.tallaCheckboxSelected : {}),
-                                }}
+                                style={isSelected ? { ...styles.tallaCheckbox, ...styles.tallaCheckboxSelected } : styles.tallaCheckbox}
                               >
                                 <input
-                                  style={styles.checkbox}
                                   type="checkbox"
                                   id={`talla-${talla._id}`}
                                   checked={isSelected}
                                   onChange={() => handleTallaChange(talla._id)}
                                   disabled={loading}
+                                  style={{ marginRight: "8px" }}
                                 />
                                 {`${talla.talla}${talla.rangoEdad ? ` (${talla.rangoEdad})` : ""}${
                                   talla.medida ? ` (${talla.medida})` : ""
@@ -949,11 +1090,7 @@ const GestionProductos = () => {
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div style={styles.progressContainer}>
                     <div style={styles.progressBar}>
-                      <div style={{ 
-                        ...styles.progressBarFill, 
-                        width: `${uploadProgress}%`, 
-                        backgroundColor: adminStyles.colors.primary 
-                      }}></div>
+                      <div style={{ ...styles.progressBarFill, width: `${uploadProgress}%` }}></div>
                     </div>
                     <div style={styles.progressText}>Subiendo... {uploadProgress}%</div>
                   </div>
@@ -980,12 +1117,10 @@ const GestionProductos = () => {
                   </button>
                   <button
                     type="submit"
-                    className="submit-button"                    style={{
+                    style={{
                       ...styles.submitButton,
-                      backgroundColor: adminStyles.colors.primary,
                       ...(loading ? styles.submitButtonDisabled : {}),
                       flex: "2",
-                      marginTop: 0,
                     }}
                     disabled={loading}
                   >
@@ -1004,138 +1139,48 @@ const GestionProductos = () => {
           <div style={{ ...styles.modalContent, maxWidth: "700px" }} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <h2 style={styles.modalTitle}>Detalles del Producto</h2>
-              <button className="modal-close" onClick={() => setSelectedProduct(null)} style={styles.modalCloseButton}>
+              <button onClick={() => setSelectedProduct(null)} style={styles.modalCloseButton}>
                 ×
               </button>
             </div>
 
             <div style={styles.modalBody}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "200px 1fr",
-                  gap: "1.5rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                <div
-                  style={{
-                    height: "200px",
-                    backgroundColor: "#f8f9fa",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "1px solid #e2e8f0",
-                  }}
-                >
+              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+                <div style={{ height: "200px", backgroundColor: "#f8f9fa", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
                   <img
                     src={selectedProduct.imagenURL || "/placeholder.svg"}
                     alt={selectedProduct.nombre || "Producto"}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 </div>
 
                 <div>
-                  <h3
-                    style={{
-                      color: "#1e293b",
-                      marginBottom: "0.75rem",
-                      fontSize: "1.5rem",
-                      fontWeight: "700",
-                      lineHeight: "1.3",
-                    }}
-                  >
+                  <h3 style={{ color: "#1e293b", marginBottom: "0.75rem", fontSize: "1.5rem", fontWeight: "700", lineHeight: "1.3" }}>
                     {selectedProduct.nombre || "Sin nombre"}
                   </h3>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "0.5rem",
-                      marginBottom: "1rem",
-                      flexWrap: "wrap",
-                    }}
-                  >                    <span
-                      style={{
-                        ...styles.badge,
-                        backgroundColor: adminStyles.colors.secondary + '20',
-                        color: adminStyles.colors.primary,
-                        fontWeight: "600",
-                      }}
-                    >
+                  <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+                    <span style={{ ...styles.badge, backgroundColor: stylesPublic.colors.secondary[100], color: stylesPublic.colors.secondary[600] }}>
                       📍 {getLocalidadNombre(selectedProduct.localidadId)}
                     </span>
-                    <span
-                      style={{
-                        ...styles.badge,
-                        backgroundColor: adminStyles.colors.chartPurple + '20',
-                        color: adminStyles.colors.primary,
-                        fontWeight: "600",
-                      }}
-                    >
+                    <span style={{ ...styles.badge, backgroundColor: stylesPublic.colors.accent[100], color: stylesPublic.colors.accent[600] }}>
                       🧵 {selectedProduct.tipoTela || "-"}
                     </span>
                   </div>
 
-                  <div
-                    style={{
-                      backgroundColor: "#f8fafc",
-                      padding: "1rem",
-                      borderRadius: "8px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <h4
-                      style={{
-                        color: "#64748b",
-                        marginBottom: "0.5rem",
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
+                  <div style={{ backgroundColor: "#f8fafc", padding: "1rem", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    <h4 style={{ color: "#64748b", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                       Descripción
                     </h4>
-                    <p
-                      style={{
-                        color: "#475569",
-                        fontSize: "0.95rem",
-                        lineHeight: "1.6",
-                        margin: 0,
-                      }}
-                    >
+                    <p style={{ color: "#475569", fontSize: "0.95rem", lineHeight: "1.6", margin: 0 }}>
                       {selectedProduct.descripcion || "Sin descripción"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div
-                style={{
-                  backgroundColor: "#f8fafc",
-                  borderRadius: "8px",
-                  padding: "1.5rem",
-                  border: "1px solid #e2e8f0",
-                }}
-              >
-                <h4
-                  style={{
-                    color: "#1e293b",
-                    marginBottom: "1.25rem",
-                    fontSize: "1.2rem",
-                    fontWeight: "600",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                  }}
-                >
+              <div style={{ backgroundColor: "#f8fafc", borderRadius: "8px", padding: "1.5rem", border: "1px solid #e2e8f0" }}>
+                <h4 style={{ color: "#1e293b", marginBottom: "1.25rem", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.75rem" }}>
                   📏 Tallas Disponibles
                 </h4>
 
@@ -1148,41 +1193,16 @@ const GestionProductos = () => {
 
                   return (
                     <div key={genero} style={{ marginBottom: "1.5rem" }}>
-                      <h5
-                        style={{
-                          color: "#64748b",
-                          marginBottom: "0.75rem",
-                          fontSize: "0.9rem",
-                          fontWeight: "600",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "8px",
-                            height: "8px",
-                            backgroundColor: "#0D1B2A",
-                            borderRadius: "50%",
-                          }}
-                        ></span>
+                      <h5 style={{ color: "#64748b", marginBottom: "0.75rem", fontSize: "0.9rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span style={{ width: "8px", height: "8px", backgroundColor: "#0D1B2A", borderRadius: "50%" }}></span>
                         {genero}
                       </h5>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "0.5rem",
-                        }}
-                      >
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                         {availableSizes.map((talla) => (
                           <div
                             key={talla._id}
                             style={{
-                              backgroundColor: "#0D1B2A",
+                              backgroundColor: stylesPublic.colors.primary[500],
                               color: "white",
                               padding: "0.5rem 1rem",
                               borderRadius: "6px",
@@ -1211,15 +1231,7 @@ const GestionProductos = () => {
                 })}
 
                 {selectedProduct.tallasDisponibles?.length === 0 && (
-                  <div
-                    style={{
-                      textAlign: "center",
-                      color: "#94a3b8",
-                      fontSize: "0.95rem",
-                      fontStyle: "italic",
-                      padding: "2rem",
-                    }}
-                  >
+                  <div style={{ textAlign: "center", color: "#94a3b8", fontSize: "0.95rem", fontStyle: "italic", padding: "2rem" }}>
                     No hay tallas disponibles para este producto
                   </div>
                 )}

@@ -27,3 +27,12 @@ export const uploadVideo = async (file) => {
 export const deleteResource = async (public_id, resource_type) => {
   return api.delete(`/delete/${resource_type}/${public_id}`);
 };
+
+// Exportación por defecto
+const uploadService = {
+  uploadImage,
+  uploadVideo,
+  deleteResource
+};
+
+export default uploadService;

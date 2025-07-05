@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
 import {
   FaEdit,
   FaTrash,
@@ -12,229 +11,303 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
-import adminStyles from "../../styles/stylesAdmin";
+import stylesGlobal from "../../styles/stylesGlobal";
+
+// Importar los nuevos servicios
+import { tallaService, categoriaService } from "../../services";
+import { useAdminNotifications } from "../../services/adminHooks";
+import NotificationContainer from "../../components/admin/NotificationContainer";
 
 const GestionTallas = () => {
   const { user, isAuthenticated } = useAuth();
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
 
   // Mapeo de estilos globales
   const styles = {
-    pageContainer: adminStyles.containers.page,
-    mainContainer: adminStyles.containers.main,
-    header: adminStyles.headerStyles.headerSimple,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    addButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+    pageContainer: {
+      ...stylesGlobal.utils.container,
+      padding: stylesGlobal.spacing.sections.md,
+      backgroundColor: stylesGlobal.colors.surface.primary,
     },
-    content: adminStyles.containers.content,
-    error: adminStyles.messageStyles.error,
-    success: adminStyles.messageStyles.success,
-    
-    // Estilos de filtros y búsqueda
+    mainContainer: {
+      maxWidth: stylesGlobal.utils.container.maxWidth.lg,
+      margin: stylesGlobal.spacing.margins.auto,
+      padding: stylesGlobal.spacing.scale[4],
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: stylesGlobal.spacing.scale[8],
+      flexWrap: 'wrap',
+      gap: stylesGlobal.spacing.gaps.md,
+    },
+    title: stylesGlobal.typography.headings.h1,
+    subtitle: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.secondary,
+    },
+    addButton: {
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
+    },
+    content: {
+      padding: stylesGlobal.spacing.scale[4],
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+    },
+    error: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.error.main,
+      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      padding: stylesGlobal.spacing.scale[3],
+      borderRadius: stylesGlobal.borders.radius.sm,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
+    success: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.success.main,
+      backgroundColor: stylesGlobal.colors.semantic.success.light,
+      padding: stylesGlobal.spacing.scale[3],
+      borderRadius: stylesGlobal.borders.radius.sm,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
     filtersContainer: {
-      ...adminStyles.containers.content,
-      ...adminStyles.forms.formGroup,
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: adminStyles.spacing.lg,
+      gap: stylesGlobal.spacing.gaps.lg,
       alignItems: 'end',
+      padding: stylesGlobal.spacing.scale[4],
     },
     searchContainer: {
       position: 'relative',
     },
     searchIcon: {
       position: 'absolute',
-      left: '0.75rem',
+      left: stylesGlobal.spacing.scale[3],
       top: '50%',
       transform: 'translateY(-50%)',
-      color: adminStyles.colors.grayLight,
+      color: stylesGlobal.colors.text.muted,
     },
     searchInput: {
-      ...adminStyles.forms.input,
-      paddingLeft: '2.5rem',
+      ...stylesGlobal.components.input.base,
+      paddingLeft: stylesGlobal.spacing.scale[10],
     },
-    filterSelect: adminStyles.forms.input,
+    filterSelect: stylesGlobal.components.input.base,
     totalCounter: {
-      ...adminStyles.utilities.flexEnd,
-      ...adminStyles.utilities.textRight,
-      color: adminStyles.colors.gray,
-      fontSize: '0.875rem',
-      fontWeight: '500',
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      color: stylesGlobal.colors.text.muted,
+      textAlign: 'right',
     },
-      // Estilos de tabla
     tableContainer: {
-      ...adminStyles.containers.content,
       overflowX: 'auto',
+      padding: stylesGlobal.spacing.scale[2],
     },
     table: {
-      ...adminStyles.tables.table,
-      borderSpacing: '0 8px', // Espaciado vertical entre filas
-      borderCollapse: 'separate', // Necesario para que funcione borderSpacing
+      width: '100%',
+      borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
+      borderCollapse: 'separate',
     },
-    tableHeader: adminStyles.tables.th,
+    tableHeader: {
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.secondary,
+      padding: stylesGlobal.spacing.scale[3],
+      textAlign: 'left',
+      backgroundColor: stylesGlobal.colors.surface.tertiary,
+    },
     tableHeaderRight: {
-      ...adminStyles.tables.th,
-      ...adminStyles.utilities.textRight,
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.secondary,
+      padding: stylesGlobal.spacing.scale[3],
+      textAlign: 'right',
+      backgroundColor: stylesGlobal.colors.surface.tertiary,
     },
     tableCell: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-    },    tableCellBold: {
-      ...adminStyles.tables.td,
-      fontWeight: '500',
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+    },
+    tableCellBold: {
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     tableCellFirst: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-      borderLeft: `1px solid ${adminStyles.colors.border}`,
-      borderTopLeftRadius: adminStyles.borders.radius,
-      borderBottomLeftRadius: adminStyles.borders.radius,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderLeft: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderTopLeftRadius: stylesGlobal.borders.radius.sm,
+      borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
     },
     tableCellLast: {
-      ...adminStyles.tables.td,
-      ...adminStyles.utilities.textRight,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-      borderRight: `1px solid ${adminStyles.colors.border}`,
-      borderTopRightRadius: adminStyles.borders.radius,
-      borderBottomRightRadius: adminStyles.borders.radius,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderRight: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderTopRightRadius: stylesGlobal.borders.radius.sm,
+      borderBottomRightRadius: stylesGlobal.borders.radius.sm,
+      textAlign: 'right',
     },
-      // Estilos de botones de acción
     actionButton: {
-      ...adminStyles.buttons.actionButton,
-      padding: `${adminStyles.spacing.sm} ${adminStyles.spacing.md}`,
-      minWidth: '80px',
-      fontSize: adminStyles.typography.textSm,
-      fontWeight: adminStyles.typography.weightMedium,
-      marginRight: adminStyles.spacing.sm,
-
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.sm,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    editAction: adminStyles.buttons.editAction,
-    deleteAction: adminStyles.buttons.deleteAction,
+    editAction: {
+      color: stylesGlobal.colors.semantic.info.main,
+      borderColor: stylesGlobal.colors.semantic.info.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.info.light,
+        color: stylesGlobal.colors.semantic.info.dark,
+      },
+    },
+    deleteAction: {
+      color: stylesGlobal.colors.semantic.error.main,
+      borderColor: stylesGlobal.colors.semantic.error.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.error.light,
+        color: stylesGlobal.colors.semantic.error.dark,
+      },
+    },
     actionsContainer: {
       display: 'flex',
       alignItems: 'center',
-      gap: adminStyles.spacing.sm,
+      gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
     },
-    
-    // Estilos de modal
-    modalOverlay: adminStyles.modalStyles.overlay,
+    modalOverlay: {
+      ...stylesGlobal.utils.overlay.base,
+      ...stylesGlobal.utils.overlay.elegant,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: stylesGlobal.utils.zIndex.modal,
+    },
     modalContent: {
-      ...adminStyles.modalStyles.content,
+      ...stylesGlobal.components.card.luxury,
       maxWidth: '700px',
       maxHeight: '90vh',
       overflow: 'auto',
+      position: 'relative',
+      margin: '0 20px',
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      zIndex: stylesGlobal.utils.zIndex.modal + 1,
     },
     modalHeader: {
-      ...adminStyles.utilities.flexBetween,
-      marginBottom: adminStyles.spacing.xl,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
-    modalTitle: adminStyles.modalStyles.title,
-    modalCloseButton: adminStyles.modalStyles.closeButton,
+    modalTitle: stylesGlobal.typography.headings.h2,
+    modalCloseButton: {
+      ...stylesGlobal.components.button.variants.ghost,
+      ...stylesGlobal.components.button.sizes.xs,
+    },
     modalBody: {
-      padding: adminStyles.spacing.xl,
+      padding: stylesGlobal.spacing.scale[6],
     },
     modalActions: {
-      ...adminStyles.modalStyles.actions,
-      marginTop: adminStyles.spacing.xl,
-      paddingTop: adminStyles.spacing.lg,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
+      display: 'flex',
+      justifyContent: 'flex-end',
+      gap: stylesGlobal.spacing.gaps.md,
+      marginTop: stylesGlobal.spacing.scale[6],
+      paddingTop: stylesGlobal.spacing.scale[4],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
-    
-    // Estilos de formulario mejorados
     formContainer: {
       width: '100%',
     },
     formGrid: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
-      gap: adminStyles.spacing.lg,
-      marginBottom: adminStyles.spacing.xl,
+      gap: stylesGlobal.spacing.gaps.lg,
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     formGroup: {
-      marginBottom: adminStyles.spacing.xl,
+      marginBottom: stylesGlobal.spacing.scale[6],
       width: '100%',
     },
     label: {
-      ...adminStyles.forms.label,
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      color: stylesGlobal.colors.text.primary,
+      marginBottom: stylesGlobal.spacing.scale[2],
       display: 'block',
-      marginBottom: adminStyles.spacing.md,
-      fontWeight: adminStyles.typography.weightMedium,
-      color: adminStyles.colors.textPrimary,
-      fontSize: adminStyles.typography.textSm,
-      lineHeight: '1.5',
     },
     requiredField: {
-      ...adminStyles.forms.requiredField,
-      marginLeft: adminStyles.spacing.xs,
-      color: adminStyles.colors.danger,
+      color: stylesGlobal.colors.semantic.error.main,
+      marginLeft: stylesGlobal.spacing.scale[1],
     },
     charCount: {
-      ...adminStyles.forms.charCount,
-      marginLeft: adminStyles.spacing.sm,
-      fontSize: adminStyles.typography.textXs,
-      color: adminStyles.colors.textMuted,
-      fontWeight: 'normal',
+      ...stylesGlobal.typography.body.caption,
+      color: stylesGlobal.colors.text.muted,
+      marginLeft: stylesGlobal.spacing.scale[2],
     },
-    input: {
-      ...adminStyles.forms.input,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-      '&:focus': {
-        borderColor: adminStyles.colors.primary,
-        boxShadow: `0 0 0 3px ${adminStyles.colors.primary}20`,
-        outline: 'none',
-      },
-    },
+    input: stylesGlobal.components.input.base,
     select: {
-      ...adminStyles.forms.input,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
+      ...stylesGlobal.components.input.base,
       cursor: 'pointer',
-      backgroundColor: adminStyles.colors.backgroundLight,
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
     },
-    
-    // Estilos de botones
     outlineButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.outline,
-      marginRight: adminStyles.spacing.lg,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.base,
     },
     primaryButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    disabledButton: adminStyles.buttons.disabled,
-    
-    // Estilos de estados
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    loadingContainer: adminStyles.loadingStyles.container,
-    loadingSpinner: adminStyles.loadingStyles.spinner,
-    
-    // Utilidades
-    flexBetween: adminStyles.utilities.flexBetween,
-    textCenter: adminStyles.utilities.textCenter,
-    flexCenter: adminStyles.utilities.flexCenter,
+    disabledButton: {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
+    emptyState: {
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+    },
+    emptyStateText: stylesGlobal.typography.headings.h3,
+    loadingContainer: {
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+    },
+    loadingSpinner: {
+      animation: 'spin 1s linear infinite',
+      marginRight: stylesGlobal.spacing.scale[2],
+    },
+    flexBetween: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    flexCenter: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   };
 
   // Main states
@@ -262,29 +335,20 @@ const GestionTallas = () => {
     categoria: "",
   });
 
-  // Axios configuration
-  const api = useMemo(() => {
-    return axios.create({
-      baseURL: "http://localhost:5000/api",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-  }, []);
-
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [tallasRes, categoriasRes] = await Promise.all([
-          api.get("/tallas"),
-          api.get("/public/categorias"),
+          tallaService.getAll(),
+          categoriaService.getAll(),
         ]);
-        setTallas(tallasRes.data);
-        setCategorias(categoriasRes.data);
+        setTallas(tallasRes);
+        setCategorias(categoriasRes);
       } catch (err) {
-        setError(err.response?.data?.error || "Error al cargar datos");
+        const errorMsg = err.error || err.message || "Error al cargar datos";
+        setError(errorMsg);
+        addNotification(errorMsg, 'error');
       } finally {
         setLoading({
           table: false,
@@ -295,7 +359,55 @@ const GestionTallas = () => {
     };
 
     fetchData();
-  }, [api]);
+  }, [addNotification]);
+
+  // Reset form
+  const resetForm = useCallback(() => {
+    setTallaActual({
+      _id: "",
+      categoriaId: "",
+      genero: "Unisex",
+      talla: "",
+      rangoEdad: "",
+      medida: "",
+    });
+    setModoEdicion(false);
+    setError(null);
+  }, []);
+
+  // Modal controls
+  const closeModal = useCallback(() => {
+    setModalVisible(false);
+    resetForm();
+    
+    // Retornar el foco al botón que abrió el modal
+    setTimeout(() => {
+      const addButton = document.querySelector('button[aria-label="Nueva talla"]');
+      if (addButton) {
+        addButton.focus();
+      }
+    }, 100);
+  }, [resetForm]);
+
+  // Manejo de tecla Escape para cerrar modal
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && modalVisible) {
+        closeModal();
+      }
+    };
+
+    if (modalVisible) {
+      document.addEventListener('keydown', handleEscape);
+      // Bloquear scroll del body cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [modalVisible, closeModal]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -306,52 +418,18 @@ const GestionTallas = () => {
     }));
   };
 
-  // Validate form
-  const validateForm = () => {
-    if (!tallaActual.talla.trim()) {
-      setError("La talla es obligatoria");
-      return false;
-    }
-    
-    if (tallaActual.talla.trim().length < 1) {
-      setError("La talla debe tener al menos 1 caracter");
-      return false;
-    }
-    
-    if (tallaActual.talla.trim().length > 20) {
-      setError("La talla no puede exceder los 20 caracteres");
-      return false;
-    }
-    
-    if (!tallaActual.categoriaId) {
-      setError("Debe seleccionar una categoría");
-      return false;
-    }
-    
-    if (tallaActual.rangoEdad && tallaActual.rangoEdad.length > 30) {
-      setError("El rango de edad no puede exceder los 30 caracteres");
-      return false;
-    }
-    
-    if (tallaActual.medida && tallaActual.medida.length > 30) {
-      setError("La medida no puede exceder los 30 caracteres");
-      return false;
-    }
-    
-    const generosValidos = ["Unisex", "Niño", "Niña", "Dama", "Caballero"];
-    if (!generosValidos.includes(tallaActual.genero)) {
-      setError("El género seleccionado no es válido");
-      return false;
-    }
-    
-    setError(null);
-    return true;
-  };
+
 
   // Save or update size
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    
+    // Validar con el nuevo servicio
+    const validation = tallaService.validate(tallaActual);
+    if (!validation.isValid) {
+      setError(validation.errors.join(', '));
+      return;
+    }
 
     try {
       setLoading({ ...loading, form: true });
@@ -360,19 +438,28 @@ const GestionTallas = () => {
         categoriaId: tallaActual.categoriaId?._id || tallaActual.categoriaId,
       };
 
-      let response;
       if (modoEdicion) {
-        response = await api.put(`/tallas/${tallaData._id}`, tallaData);
+        await tallaService.update(tallaData._id, tallaData);
+        // Agregar notificación de éxito para actualización
+        const categoria = categorias.find(c => c._id === tallaData.categoriaId);
+        const msg = `Talla "${tallaData.talla}" de la categoría "${categoria?.nombre || 'N/A'}" actualizada exitosamente`;
+        addNotification(msg, 'success');
       } else {
-        response = await api.post("/tallas", tallaData);
+        await tallaService.create(tallaData);
+        // Agregar notificación de éxito para creación
+        const categoria = categorias.find(c => c._id === tallaData.categoriaId);
+        const msg = `Nueva talla "${tallaData.talla}" creada en la categoría "${categoria?.nombre || 'N/A'}"`;
+        addNotification(msg, 'success');
       }
 
-      if (response.data) {
-        await fetchTallas();
-        closeModal();
-      }
+      await fetchTallas();
+      closeModal();
+      setError(null);
     } catch (err) {
-      setError(err.response?.data?.error || `Error al ${modoEdicion ? "actualizar" : "crear"} la talla`);
+      const errorMsg = err.error || err.message || `Error al ${modoEdicion ? "actualizar" : "crear"} la talla`;
+      setError(errorMsg);
+      // Agregar notificación de error
+      addNotification(errorMsg, 'error');
     } finally {
       setLoading({ ...loading, form: false });
     }
@@ -382,10 +469,12 @@ const GestionTallas = () => {
   const fetchTallas = async () => {
     try {
       setLoading({ ...loading, table: true });
-      const response = await api.get("/tallas");
-      setTallas(response.data);
+      const response = await tallaService.getAll();
+      setTallas(response);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al cargar tallas");
+      const errorMsg = err.error || err.message || "Error al cargar tallas";
+      setError(errorMsg);
+      addNotification(errorMsg, 'error');
     } finally {
       setLoading({ ...loading, table: false });
     }
@@ -398,13 +487,19 @@ const GestionTallas = () => {
       setModoEdicion(true);
     } else {
       resetForm();
+      setModoEdicion(false);
     }
+    
     setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    resetForm();
+    setError(null); // Limpiar errores previos
+    
+    // Enfocar el primer campo del formulario después de que se abra el modal
+    setTimeout(() => {
+      const firstInput = document.querySelector('select[name="categoriaId"]');
+      if (firstInput) {
+        firstInput.focus();
+      }
+    }, 100);
   };
 
   // Edit and delete
@@ -413,48 +508,41 @@ const GestionTallas = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Está seguro de eliminar esta talla?")) return;
+    // Encontrar la talla que se va a eliminar para mostrar información en la notificación
+    const tallaAEliminar = tallas.find(t => t._id === id);
+    const confirmMessage = tallaAEliminar 
+      ? `¿Está seguro de eliminar la talla "${tallaAEliminar.talla}" de la categoría "${getCategoriaNombre(tallaAEliminar.categoriaId)}"?`
+      : "¿Está seguro de eliminar esta talla?";
+    
+    if (!window.confirm(confirmMessage)) return;
 
     try {
       setLoading({ ...loading, table: true });
-      await api.delete(`/tallas/${id}`);
+      await tallaService.delete(id);
+      
+      // Agregar notificación de éxito
+      if (tallaAEliminar) {
+        const msg = `Talla "${tallaAEliminar.talla}" eliminada exitosamente`;
+        addNotification(msg, 'success');
+      }
+      
       await fetchTallas();
+      setError(null);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al eliminar la talla");
+      const errorMsg = err.error || err.message || "Error al eliminar la talla";
+      setError(errorMsg);
+      // Agregar notificación de error
+      addNotification(errorMsg, 'error');
     } finally {
       setLoading({ ...loading, table: false });
     }
   };
 
-  // Reset form
-  const resetForm = () => {
-    setTallaActual({
-      _id: "",
-      categoriaId: "",
-      genero: "Unisex",
-      talla: "",
-      rangoEdad: "",
-      medida: "",
-    });
-    setModoEdicion(false);
-    setError(null);
-  };
-
-  // Filtering
-  const filteredTallas = tallas.filter((talla) => {
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch =
-      talla.talla.toLowerCase().includes(searchLower) ||
-      talla.genero.toLowerCase().includes(searchLower) ||
-      (talla.rangoEdad && talla.rangoEdad.toLowerCase().includes(searchLower)) ||
-      (talla.medida && talla.medida.toLowerCase().includes(searchLower)) ||
-      (getCategoriaNombre(talla.categoriaId)?.toLowerCase().includes(searchLower));
-
-    const matchesGenero = !filters.genero || talla.genero === filters.genero;
-    const matchesCategoria = !filters.categoria ||
-      (talla.categoriaId?._id || talla.categoriaId) === filters.categoria;
-
-    return matchesSearch && matchesGenero && matchesCategoria;
+  // Filter sizes using new service
+  const filteredTallas = tallaService.filter(tallas, {
+    search: searchTerm,
+    genero: filters.genero,
+    categoria: filters.categoria
   });
 
   // Get category name
@@ -482,14 +570,15 @@ const GestionTallas = () => {
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-    if (user?.role !== 'admin') {
+  if (user?.role !== 'admin') {
     return (
-      <div style={adminStyles.combineStyles(
-        styles.pageContainer,
-        styles.flexCenter,
-        { height: '80vh', textAlign: 'center' }
-      )}>
-        <FaLock size={50} style={adminStyles.icons.error} />
+      <div style={{
+        ...styles.pageContainer,
+        ...styles.flexCenter,
+        height: '80vh',
+        textAlign: 'center',
+      }}>
+        <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
         <h2 style={styles.title}>Acceso Denegado</h2>
         <p style={styles.subtitle}>
           No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
@@ -497,6 +586,7 @@ const GestionTallas = () => {
       </div>
     );
   }
+
   return (
     <div style={styles.pageContainer}>
       <div style={styles.mainContainer}>
@@ -514,8 +604,9 @@ const GestionTallas = () => {
             style={styles.addButton}
             onClick={() => openModal()}
             aria-label="Nueva talla"
+            type="button"
           >
-            <FaPlus size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+            <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
             Nueva Talla
           </button>
         </div>
@@ -581,12 +672,13 @@ const GestionTallas = () => {
             Total: {filteredTallas.length} tallas
           </div>
         </div>
+
         {/* Table Container */}
         {loading.table || loading.categorias ? (
           <div style={styles.loadingContainer}>
             <FaSpinner style={styles.loadingSpinner} />
             <div style={styles.textCenter}>
-              <h3>Cargando tallas...</h3>
+              <h3 style={stylesGlobal.typography.headings.h3}>Cargando tallas...</h3>
             </div>
           </div>
         ) : filteredTallas.length === 0 ? (
@@ -594,7 +686,7 @@ const GestionTallas = () => {
             <h3 style={styles.emptyStateText}>
               {searchTerm ? "No se encontraron tallas" : "No hay tallas registradas"}
             </h3>
-            <p style={adminStyles.containers.emptyStateSubtext}>
+            <p style={stylesGlobal.typography.body.base}>
               {searchTerm ? "Intenta con otros términos de búsqueda" : "¡Agrega una nueva talla para comenzar!"}
             </p>
           </div>
@@ -621,10 +713,10 @@ const GestionTallas = () => {
                       <div style={styles.actionsContainer}>
                         <button
                           onClick={() => handleEdit(talla)}
-                          style={adminStyles.combineStyles(
-                            styles.actionButton,
-                            styles.editAction
-                          )}
+                          style={{
+                            ...styles.actionButton,
+                            ...styles.editAction,
+                          }}
                           title="Editar talla"
                           disabled={loading.form}
                           aria-label={`Editar talla ${talla.talla}`}
@@ -634,11 +726,10 @@ const GestionTallas = () => {
                         </button>
                         <button
                           onClick={() => handleDelete(talla._id)}
-                          style={adminStyles.combineStyles(
-                            styles.actionButton,
-                            styles.deleteAction,
-                            { marginRight: 0 } // Eliminar margen del último botón
-                          )}
+                          style={{
+                            ...styles.actionButton,
+                            ...styles.deleteAction,
+                          }}
                           title="Eliminar talla"
                           disabled={loading.table}
                           aria-label={`Eliminar talla ${talla.talla}`}
@@ -654,19 +745,54 @@ const GestionTallas = () => {
             </table>
           </div>
         )}
+
         {/* Modal */}
         {modalVisible && (
-          <div style={styles.modalOverlay} className="modal-overlay">
-            <div style={styles.modalContent}>
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1400,
+            }}
+            className="modal-overlay"
+            onClick={(e) => {
+              // Cerrar modal al hacer click en el overlay, pero no en el contenido
+              if (e.target === e.currentTarget) {
+                closeModal();
+              }
+            }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '20px',
+              maxWidth: '700px',
+              width: '90%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+              position: 'relative',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            }}>
               <div style={styles.modalBody}>
                 <div style={styles.modalHeader}>
-                  <h3 style={styles.modalTitle}>
+                  <h3 id="modal-title" style={styles.modalTitle}>
                     {modoEdicion ? "Editar Talla" : "Nueva Talla"}
                   </h3>
                   <button
                     onClick={closeModal}
                     style={styles.modalCloseButton}
                     aria-label="Cerrar modal"
+                    type="button"
                   >
                     <FaTimes />
                   </button>
@@ -762,7 +888,7 @@ const GestionTallas = () => {
                         maxLength={30}
                         placeholder="Ej: 2-4 años"
                       />
-                      <small style={adminStyles.forms.helpText}>
+                      <small style={stylesGlobal.typography.body.caption}>
                         Opcional: Especifica el rango de edad recomendado para esta talla.
                       </small>
                     </div>
@@ -784,7 +910,7 @@ const GestionTallas = () => {
                         maxLength={30}
                         placeholder="Ej: 90cm, 32 pulgadas"
                       />
-                      <small style={adminStyles.forms.helpText}>
+                      <small style={stylesGlobal.typography.body.caption}>
                         Opcional: Proporciona medidas específicas para esta talla.
                       </small>
                     </div>
@@ -800,10 +926,10 @@ const GestionTallas = () => {
                     </button>
                     <button
                       type="submit"
-                      style={adminStyles.combineStyles(
-                        styles.primaryButton,
-                        loading.form ? styles.disabledButton : {}
-                      )}
+                      style={{
+                        ...styles.primaryButton,
+                        ...(loading.form ? styles.disabledButton : {}),
+                      }}
                       disabled={loading.form}
                       aria-label={modoEdicion ? "Actualizar talla" : "Crear talla"}
                     >
@@ -814,7 +940,7 @@ const GestionTallas = () => {
                         </>
                       ) : (
                         <>
-                          <FaSave style={{ marginRight: adminStyles.spacing.xs }} />
+                          <FaSave style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
                           {modoEdicion ? "Actualizar" : "Guardar"}
                         </>
                       )}
@@ -825,6 +951,13 @@ const GestionTallas = () => {
             </div>
           </div>
         )}
+
+        {/* Contenedor de notificaciones */}
+        <NotificationContainer
+          notifications={notifications}
+          onRemoveNotification={removeNotification}
+          onClearAll={clearAllNotifications}
+        />
       </div>
     </div>
   );

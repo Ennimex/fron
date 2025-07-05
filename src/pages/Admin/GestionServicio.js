@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import servicioService from '../../services/servicioService';
+import { adminAPI } from '../../services/api';
 import adminStyles from '../../styles/stylesAdmin';
 
 const GestionServicio = () => {
@@ -109,7 +109,7 @@ const GestionServicio = () => {
   const fetchServicios = async () => {
     try {
       setLoading(true);
-      const response = await servicioService.getAll();
+      const response = await adminAPI.getServicios();
       setServicios(response || []);
       setError(null);
     } catch (error) {
@@ -294,10 +294,10 @@ const GestionServicio = () => {
       }
 
       if (isEditMode) {
-        await servicioService.update(selectedServicio._id, formData);
+        await adminAPI.updateServicio(selectedServicio._id, formData);
         setSuccess('Servicio actualizado exitosamente');
       } else {
-        await servicioService.create(formData);
+        await adminAPI.createServicio(formData);
         setSuccess('Servicio creado exitosamente');
       }
 
@@ -319,7 +319,7 @@ const GestionServicio = () => {
 
     try {
       setLoading(true);
-      await servicioService.delete(id);
+      await adminAPI.deleteServicio(id);
       setSuccess('Servicio eliminado exitosamente');
       await fetchServicios();
     } catch (error) {

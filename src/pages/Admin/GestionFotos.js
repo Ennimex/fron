@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaImage, FaLock } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
+import { adminAPI } from '../../services/api';
 import adminStyles from '../../styles/stylesAdmin';
 
 const GestionFotos = () => {
@@ -237,14 +238,7 @@ const GestionFotos = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('http://localhost:5000/api/fotos');
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al cargar las fotos');
-      }
-      
-      const data = await response.json();
+      const data = await adminAPI.getFotos();
       setFotos(data);
     } catch (err) {
       setError(err.message);
@@ -319,18 +313,7 @@ const GestionFotos = () => {
     if (window.confirm('¿Estás seguro que deseas eliminar esta foto?')) {
       try {
         setError(null);
-        const response = await fetch(`http://localhost:5000/api/fotos/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error al eliminar la foto');
-        }
+        await adminAPI.deleteFoto(id);
 
         // Update the photo list by excluding the deleted one
         setFotos(fotos.filter(foto => foto._id !== id));
@@ -362,31 +345,12 @@ const GestionFotos = () => {
         formDataToSend.append('imagen', formData.imagen);
       }
 
-      let response;
-      
       if (currentFoto) {
         // Update existing photo
-        response = await fetch(`http://localhost:5000/api/fotos/${currentFoto._id}`, {
-          method: 'PUT',
-          body: formDataToSend,
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
+        await adminAPI.updateFoto(currentFoto._id, formDataToSend);
       } else {
         // Create new photo
-        response = await fetch('http://localhost:5000/api/fotos', {
-          method: 'POST',
-          body: formDataToSend,
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || (currentFoto ? 'Error al actualizar la foto' : 'Error al crear la foto'));
+        await adminAPI.createFoto(formDataToSend);
       }
 
       // Show success message

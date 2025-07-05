@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock } from "react-icons/fa";
-import api from "../../services/api";
-import adminStyles from "../../styles/stylesAdmin";
+import eventoService from "../../services/eventoService";
+import { useAdminNotifications } from "../../services/adminHooks";
+import NotificationContainer from "../../components/admin/NotificationContainer";
+import stylesGlobal from "../../styles/stylesGlobal";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -10,14 +12,14 @@ const Modal = ({ open, onClose, children, styles }) => {
   if (!open) return null;
   return (
     <div 
-      style={styles?.modalOverlay || adminStyles.modalStyles.overlay} 
+      style={styles?.modalOverlay || stylesGlobal.utils.overlay.base} 
       className="modal-overlay"
       onClick={(e) => e.target.className === 'modal-overlay' && onClose()}
     >
-      <div style={styles?.modalContent || adminStyles.modalStyles.content}>
+      <div style={styles?.modalContent || stylesGlobal.components.card.base}>
         <button 
           onClick={onClose} 
-          style={styles?.modalCloseButton || adminStyles.modalStyles.closeButton}
+          style={styles?.modalCloseButton || stylesGlobal.components.button.variants.secondary}
           aria-label="Cerrar modal"
         >
           ✕
@@ -29,205 +31,247 @@ const Modal = ({ open, onClose, children, styles }) => {
 };
 
 const GestionEventos = () => {
-  const { user, isAuthenticated, checkTokenExpiration } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   // Mapeo de estilos globales
   const styles = {
-    pageContainer: adminStyles.containers.page,
-    mainContainer: adminStyles.containers.main,
-    header: adminStyles.headerStyles.headerSimple,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    addButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+    pageContainer: {
+      ...stylesGlobal.utils.container,
+      padding: stylesGlobal.spacing.sections.md,
+      backgroundColor: stylesGlobal.colors.surface.primary,
     },
-    content: adminStyles.containers.content,
-    error: adminStyles.messageStyles.error,
-    success: adminStyles.messageStyles.success,
-    
-    // Estilos de tabla mejorados
+    mainContainer: {
+      maxWidth: stylesGlobal.utils.container.maxWidth.lg,
+      margin: stylesGlobal.spacing.margins.auto,
+      padding: stylesGlobal.spacing.scale[4],
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: stylesGlobal.spacing.scale[8],
+      flexWrap: 'wrap',
+      gap: stylesGlobal.spacing.gaps.md,
+    },
+    title: stylesGlobal.typography.headings.h1,
+    subtitle: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.secondary,
+    },
+    addButton: {
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
+    },
+    content: {
+      padding: stylesGlobal.spacing.scale[4],
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+    },
+    error: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.error.main,
+      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      padding: stylesGlobal.spacing.scale[3],
+      borderRadius: stylesGlobal.borders.radius.sm,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
+    success: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.success.main,
+      backgroundColor: stylesGlobal.colors.semantic.success.light,
+      padding: stylesGlobal.spacing.scale[3],
+      borderRadius: stylesGlobal.borders.radius.sm,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
     tableContainer: {
-      ...adminStyles.containers.content,
       overflowX: 'auto',
+      padding: stylesGlobal.spacing.scale[2],
     },
     table: {
-      ...adminStyles.tables.table,
-      borderSpacing: '0 8px', // Espaciado vertical entre filas
-      borderCollapse: 'separate', // Necesario para que funcione borderSpacing
+      width: '100%',
+      borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
+      borderCollapse: 'separate',
     },
-    tableHeader: adminStyles.tables.th,
+    tableHeader: {
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.secondary,
+      padding: stylesGlobal.spacing.scale[3],
+      textAlign: 'left',
+      backgroundColor: stylesGlobal.colors.surface.tertiary,
+    },
     tableCell: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     tableCellFirst: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-      borderLeft: `1px solid ${adminStyles.colors.border}`,
-      borderTopLeftRadius: adminStyles.borders.radius,
-      borderBottomLeftRadius: adminStyles.borders.radius,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderLeft: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderTopLeftRadius: stylesGlobal.borders.radius.sm,
+      borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
     },
     tableCellLast: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-      borderRight: `1px solid ${adminStyles.colors.border}`,
-      borderTopRightRadius: adminStyles.borders.radius,
-      borderBottomRightRadius: adminStyles.borders.radius,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderRight: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderTopRightRadius: stylesGlobal.borders.radius.sm,
+      borderBottomRightRadius: stylesGlobal.borders.radius.sm,
     },
-    
-    // Estilos de botones de acción
     actionButton: {
-      ...adminStyles.buttons.actionButton,
-      padding: `${adminStyles.spacing.sm} ${adminStyles.spacing.md}`,
-      minWidth: '80px',
-      fontSize: adminStyles.typography.textSm,
-      fontWeight: adminStyles.typography.weightMedium,
-      marginRight: adminStyles.spacing.sm,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.sm,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    editAction: adminStyles.buttons.editAction,
-    deleteAction: adminStyles.buttons.deleteAction,
+    editAction: {
+      color: stylesGlobal.colors.semantic.info.main,
+      borderColor: stylesGlobal.colors.semantic.info.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.info.light,
+        color: stylesGlobal.colors.semantic.info.dark,
+      },
+    },
+    deleteAction: {
+      color: stylesGlobal.colors.semantic.error.main,
+      borderColor: stylesGlobal.colors.semantic.error.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.error.light,
+        color: stylesGlobal.colors.semantic.error.dark,
+      },
+    },
     actionsContainer: {
       display: 'flex',
       alignItems: 'center',
-      gap: adminStyles.spacing.sm,
+      gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
     },
-    
-    // Estilos de modal
-    modalOverlay: adminStyles.modalStyles.overlay,
+    modalOverlay: stylesGlobal.utils.overlay.elegant,
     modalContent: {
-      ...adminStyles.modalStyles.content,
+      ...stylesGlobal.components.card.luxury,
       maxWidth: '700px',
       maxHeight: '90vh',
       overflow: 'auto',
     },
-    modalCloseButton: adminStyles.modalStyles.closeButton,
-    modalTitle: {
-      ...adminStyles.modalStyles.title,
-      marginBottom: adminStyles.spacing.xl,
+    modalCloseButton: {
+      ...stylesGlobal.components.button.variants.ghost,
+      ...stylesGlobal.components.button.sizes.xs,
+      position: 'absolute',
+      top: stylesGlobal.spacing.scale[2],
+      right: stylesGlobal.spacing.scale[2],
     },
+    modalTitle: stylesGlobal.typography.headings.h2,
     modalActions: {
-      ...adminStyles.modalStyles.actions,
-      marginTop: adminStyles.spacing.xl,
-      paddingTop: adminStyles.spacing.lg,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
+      display: 'flex',
+      justifyContent: 'flex-end',
+      gap: stylesGlobal.spacing.gaps.md,
+      marginTop: stylesGlobal.spacing.scale[6],
+      paddingTop: stylesGlobal.spacing.scale[4],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
-    
-    // Estilos de formulario mejorados
     formContainer: {
       width: '100%',
-      padding: adminStyles.spacing.xl,
+      padding: stylesGlobal.spacing.scale[6],
     },
     formGroup: {
-      marginBottom: adminStyles.spacing.xl,
+      marginBottom: stylesGlobal.spacing.scale[6],
       width: '100%',
     },
     formRow: {
       display: 'flex',
-      gap: adminStyles.spacing.lg,
+      gap: stylesGlobal.spacing.gaps.lg,
       flexWrap: 'wrap',
-      marginBottom: adminStyles.spacing.xl,
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     formRowThree: {
       display: 'flex',
-      gap: adminStyles.spacing.lg,
+      gap: stylesGlobal.spacing.gaps.lg,
       flexWrap: 'wrap',
-      marginBottom: adminStyles.spacing.xl,
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     label: {
-      ...adminStyles.forms.label,
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      color: stylesGlobal.colors.text.primary,
+      marginBottom: stylesGlobal.spacing.scale[2],
       display: 'block',
-      marginBottom: adminStyles.spacing.md,
-      fontWeight: adminStyles.typography.weightMedium,
-      color: adminStyles.colors.textPrimary,
-      fontSize: adminStyles.typography.textSm,
-      lineHeight: '1.5',
     },
     requiredField: {
-      ...adminStyles.forms.requiredField,
-      marginLeft: adminStyles.spacing.xs,
-      color: adminStyles.colors.danger,
+      color: stylesGlobal.colors.semantic.error.main,
+      marginLeft: stylesGlobal.spacing.scale[1],
     },
     input: {
-      ...adminStyles.forms.input,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      ...stylesGlobal.components.input.base,
       flex: 1,
       minWidth: '200px',
     },
     inputSmall: {
-      ...adminStyles.forms.input,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      ...stylesGlobal.components.input.base,
       flex: 1,
       minWidth: '150px',
     },
     textarea: {
-      ...adminStyles.forms.textarea,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
+      ...stylesGlobal.components.input.base,
       minHeight: '120px',
       resize: 'vertical',
-      fontFamily: 'inherit',
-      lineHeight: '1.5',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      lineHeight: stylesGlobal.typography.leading.normal,
     },
     helpText: {
-      ...adminStyles.forms.helpText,
-      display: 'block',
-      marginTop: adminStyles.spacing.md,
-      marginBottom: 0,
-      fontSize: adminStyles.typography.textSm,
-      color: adminStyles.colors.textMuted,
-      lineHeight: '1.4',
+      ...stylesGlobal.typography.body.caption,
+      marginTop: stylesGlobal.spacing.scale[2],
       fontStyle: 'italic',
     },
-    
-    // Estilos de botones
     outlineButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.outline,
-      marginRight: adminStyles.spacing.lg,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.base,
     },
     primaryButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
     },
     deleteButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.deleteAction,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.base,
+      color: stylesGlobal.colors.semantic.error.main,
+      borderColor: stylesGlobal.colors.semantic.error.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.error.light,
+        color: stylesGlobal.colors.semantic.error.dark,
+      },
     },
-    disabledButton: adminStyles.buttons.disabled,
-    
-    // Estilos de estados
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    loadingContainer: adminStyles.loadingStyles.container,
-    
-    // Utilidades
-    textCenter: adminStyles.utilities.textCenter,
-    flexCenter: adminStyles.utilities.flexCenter,
+    disabledButton: {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
+    emptyState: {
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+    },
+    emptyStateText: stylesGlobal.typography.headings.h3,
+    loadingContainer: {
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    flexCenter: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   };
 
   // Estados del componente
@@ -248,6 +292,23 @@ const GestionEventos = () => {
   const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'delete'
   const [eventoToDelete, setEventoToDelete] = useState(null);
 
+  // Usar el hook de notificaciones
+  const { notifications, removeNotification, clearAllNotifications } = useAdminNotifications();
+
+  // Fetch eventos
+  const fetchEventos = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const eventos = await eventoService.getAll();
+      setEventos(eventos);
+    } catch (err) {
+      setError(err.message || "Error al cargar eventos");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Check authentication and admin permissions
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -255,32 +316,7 @@ const GestionEventos = () => {
       setLoading(false);
       return;
     }
-    
-    if (!checkTokenExpiration()) {
-      return; // checkTokenExpiration handles redirection
-    }
-  }, [isAuthenticated, user, checkTokenExpiration]);
-  
-  const fetchEventos = useCallback(async () => {
-    if (!isAuthenticated || !checkTokenExpiration()) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const data = await api.get("/eventos");
-      setEventos(data);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
-      } else {
-        setError("Error al cargar los eventos");
-      }
-      console.error('Error fetching eventos:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [isAuthenticated, checkTokenExpiration]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     if (isAuthenticated && user?.role === 'admin') {
@@ -327,28 +363,20 @@ const GestionEventos = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!isAuthenticated || !checkTokenExpiration()) {
-      return;
-    }
 
     setFormLoading(true);
     setFormError('');
     try {
       if (editId) {
-        const updated = await api.put(`/eventos/${editId}`, formData);
+        const updated = await eventoService.update(editId, formData);
         setEventos(eventos.map((e) => (e._id === editId ? updated : e)));
       } else {
-        const created = await api.post('/eventos', formData);
+        const created = await eventoService.create(formData);
         setEventos([created, ...eventos]);
       }
       setModalType(null);
     } catch (err) {
-      if (err.response?.status === 401) {
-        setFormError('Sesión expirada. Por favor, inicia sesión nuevamente.');
-      } else {
-        setFormError(err?.error || err?.message || 'Error al guardar el evento');
-      }
+      setFormError(err.message || 'Error al guardar el evento');
       console.error('Error saving evento:', err);
     } finally {
       setFormLoading(false);
@@ -357,22 +385,14 @@ const GestionEventos = () => {
 
   const confirmDelete = async () => {
     if (!eventoToDelete) return;
-    
-    if (!isAuthenticated || !checkTokenExpiration()) {
-      return;
-    }
 
     try {
-      await api.delete(`/eventos/${eventoToDelete._id}`);
+      await eventoService.delete(eventoToDelete._id);
       setEventos(eventos.filter((e) => e._id !== eventoToDelete._id));
       setModalType(null);
       setEventoToDelete(null);
     } catch (err) {
-      if (err.response?.status === 401) {
-        setFormError('Sesión expirada. Por favor, inicia sesión nuevamente.');
-      } else {
-        setFormError('Error al eliminar el evento');
-      }
+      setFormError(err.message || 'Error al eliminar el evento');
       console.error('Error deleting evento:', err);
     }
   };
@@ -383,12 +403,13 @@ const GestionEventos = () => {
   }
   if (user?.role !== 'admin') {
     return (
-      <div style={adminStyles.combineStyles(
-        styles.pageContainer,
-        styles.flexCenter,
-        { height: '80vh', textAlign: 'center' }
-      )}>
-        <FaLock size={50} style={adminStyles.icons.error} />
+      <div style={{
+        ...styles.pageContainer,
+        ...styles.flexCenter,
+        height: '80vh',
+        textAlign: 'center',
+      }}>
+        <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
         <h2 style={styles.title}>Acceso Denegado</h2>
         <p style={styles.subtitle}>
           No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
@@ -396,13 +417,14 @@ const GestionEventos = () => {
       </div>
     );
   }
+
   return (
     <div style={styles.pageContainer}>
       <div style={styles.mainContainer}>
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>
-              <FaCalendarAlt style={{ marginRight: adminStyles.spacing.md }} />
+              <FaCalendarAlt style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
               Gestión de Eventos
             </h1>
             <p style={styles.subtitle}>
@@ -414,10 +436,11 @@ const GestionEventos = () => {
             onClick={handleAddClick}
             aria-label="Nuevo evento"
           >
-            <FaPlus size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+            <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
             Nuevo Evento
           </button>
-        </div>        {/* Modal for add/edit */}
+        </div>
+        {/* Modal for add/edit */}
         <Modal open={modalType === 'add' || modalType === 'edit'} onClose={() => setModalType(null)} styles={styles}>
           <div style={styles.formContainer}>
             <h2 style={styles.modalTitle}>
@@ -540,10 +563,10 @@ const GestionEventos = () => {
                 </button>
                 <button 
                   type="submit" 
-                  style={adminStyles.combineStyles(
-                    styles.primaryButton,
-                    formLoading ? styles.disabledButton : {}
-                  )} 
+                  style={{
+                    ...styles.primaryButton,
+                    ...(formLoading ? styles.disabledButton : {}),
+                  }} 
                   disabled={formLoading}
                   aria-label={editId ? "Actualizar evento" : "Crear evento"}
                 >
@@ -555,23 +578,23 @@ const GestionEventos = () => {
               </div>
             </form>
           </div>
-        </Modal>        {/* Modal for delete */}
+        </Modal>
+        {/* Modal for delete */}
         <Modal open={modalType === 'delete'} onClose={() => setModalType(null)} styles={styles}>
           <div style={styles.formContainer}>
             <h2 style={styles.modalTitle}>Eliminar Evento</h2>
             <p style={{ 
-              marginBottom: adminStyles.spacing.xl, 
-              fontSize: adminStyles.typography.textBase,
-              lineHeight: '1.5',
-              color: adminStyles.colors.textSecondary 
+              marginBottom: stylesGlobal.spacing.scale[6], 
+              ...stylesGlobal.typography.body.base,
+              color: stylesGlobal.colors.text.secondary,
             }}>
               ¿Estás seguro de que deseas eliminar el evento <strong>{eventoToDelete?.titulo}</strong>?
             </p>
             <p style={{ 
-              marginBottom: adminStyles.spacing.xl, 
-              fontSize: adminStyles.typography.textSm,
-              color: adminStyles.colors.textMuted,
-              fontStyle: 'italic' 
+              marginBottom: stylesGlobal.spacing.scale[6], 
+              ...stylesGlobal.typography.body.caption,
+              color: stylesGlobal.colors.text.muted,
+              fontStyle: 'italic',
             }}>
               Esta acción no se puede deshacer.
             </p>
@@ -598,10 +621,11 @@ const GestionEventos = () => {
               </button>
             </div>
           </div>
-        </Modal>        {loading ? (
+        </Modal>
+        {loading ? (
           <div style={styles.loadingContainer}>
             <div style={styles.textCenter}>
-              <h3>Cargando eventos...</h3>
+              <h3 style={stylesGlobal.typography.headings.h3}>Cargando eventos...</h3>
             </div>
           </div>
         ) : error ? (
@@ -611,7 +635,7 @@ const GestionEventos = () => {
         ) : eventos.length === 0 ? (
           <div style={styles.emptyState}>
             <h3 style={styles.emptyStateText}>No hay eventos registrados</h3>
-            <p style={adminStyles.containers.emptyStateSubtext}>
+            <p style={stylesGlobal.typography.body.base}>
               ¡Crea un nuevo evento para comenzar!
             </p>
           </div>
@@ -651,10 +675,10 @@ const GestionEventos = () => {
                     <td style={styles.tableCellLast}>
                       <div style={styles.actionsContainer}>
                         <button 
-                          style={adminStyles.combineStyles(
-                            styles.actionButton,
-                            styles.editAction
-                          )} 
+                          style={{
+                            ...styles.actionButton,
+                            ...styles.editAction,
+                          }} 
                           title="Editar evento"
                           onClick={() => handleEditClick(evento)}
                           aria-label={`Editar evento ${evento.titulo}`}
@@ -663,11 +687,10 @@ const GestionEventos = () => {
                           Editar
                         </button>
                         <button 
-                          style={adminStyles.combineStyles(
-                            styles.actionButton,
-                            styles.deleteAction,
-                            { marginRight: 0 } // Eliminar margen del último botón
-                          )} 
+                          style={{
+                            ...styles.actionButton,
+                            ...styles.deleteAction,
+                          }} 
                           title="Eliminar evento"
                           onClick={() => handleDeleteClick(evento)}
                           aria-label={`Eliminar evento ${evento.titulo}`}
@@ -684,6 +707,182 @@ const GestionEventos = () => {
           </div>
         )}
       </div>
+
+      {/* Modal for add/edit */}
+      <Modal open={modalType === 'add' || modalType === 'edit'} onClose={() => setModalType(null)} styles={styles}>
+        <div style={styles.modalContent}>
+          <h2 style={styles.modalTitle}>
+            {modalType === 'edit' ? 'Editar Evento' : 'Agregar Nuevo Evento'}
+          </h2>
+          
+          {formError && (
+            <div style={styles.error}>
+              {formError}
+            </div>
+          )}
+          
+          <form onSubmit={handleFormSubmit}>
+            <div style={styles.formContainer}>
+              <div style={styles.formGroup}>
+                <label style={styles.label} htmlFor="titulo">
+                  Título <span style={styles.requiredField}>*</span>
+                </label>
+                <input
+                  id="titulo"
+                  type="text"
+                  name="titulo"
+                  value={formData.titulo}
+                  onChange={handleInputChange}
+                  style={styles.input}
+                  placeholder="Ingrese el título del evento"
+                  required
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label} htmlFor="descripcion">
+                  Descripción <span style={styles.requiredField}>*</span>
+                </label>
+                <textarea
+                  id="descripcion"
+                  name="descripcion"
+                  value={formData.descripcion}
+                  onChange={handleInputChange}
+                  style={styles.textarea}
+                  placeholder="Descripción del evento"
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div style={styles.formRow}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label} htmlFor="fecha">
+                    Fecha <span style={styles.requiredField}>*</span>
+                  </label>
+                  <input
+                    id="fecha"
+                    type="date"
+                    name="fecha"
+                    value={formData.fecha}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    required
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label} htmlFor="ubicacion">
+                    Ubicación <span style={styles.requiredField}>*</span>
+                  </label>
+                  <input
+                    id="ubicacion"
+                    type="text"
+                    name="ubicacion"
+                    value={formData.ubicacion}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    placeholder="Ubicación del evento"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={styles.formRow}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label} htmlFor="horaInicio">
+                    Hora de Inicio
+                  </label>
+                  <input
+                    id="horaInicio"
+                    type="time"
+                    name="horaInicio"
+                    value={formData.horaInicio}
+                    onChange={handleInputChange}
+                    style={styles.inputSmall}
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label} htmlFor="horaFin">
+                    Hora de Fin
+                  </label>
+                  <input
+                    id="horaFin"
+                    type="time"
+                    name="horaFin"
+                    value={formData.horaFin}
+                    onChange={handleInputChange}
+                    style={styles.inputSmall}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.modalActions}>
+                <button
+                  type="button"
+                  onClick={() => setModalType(null)}
+                  style={styles.outlineButton}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    ...styles.primaryButton,
+                    ...(formLoading ? styles.disabledButton : {})
+                  }}
+                  disabled={formLoading}
+                >
+                  {formLoading ? 'Guardando...' : (modalType === 'edit' ? 'Actualizar' : 'Crear')}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </Modal>
+
+      {/* Modal for delete confirmation */}
+      <Modal open={modalType === 'delete'} onClose={() => setModalType(null)} styles={styles}>
+        <div style={styles.modalContent}>
+          <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
+          
+          {formError && (
+            <div style={styles.error}>
+              {formError}
+            </div>
+          )}
+          
+          <p>
+            ¿Estás seguro de que quieres eliminar el evento "<strong>{eventoToDelete?.titulo}</strong>"?
+            Esta acción no se puede deshacer.
+          </p>
+          
+          <div style={styles.modalActions}>
+            <button
+              type="button"
+              onClick={() => setModalType(null)}
+              style={styles.outlineButton}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={confirmDelete}
+              style={styles.deleteButton}
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Contenedor de notificaciones */}
+      <NotificationContainer
+        notifications={notifications}
+        onRemoveNotification={removeNotification}
+        onClearAll={clearAllNotifications}
+      />
     </div>
   );
 };

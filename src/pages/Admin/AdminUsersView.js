@@ -17,33 +17,118 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
-import adminStyles from "../../styles/stylesAdmin";
+import { adminAPI } from "../../services/api";
+import stylesPublic from "../../styles/stylesGlobal"; // Import global styles
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const { user } = useAuth();
 
-  // Mapeo de estilos globales (similar a GestionProductos)
+  // Updated styles object using stylesPublic
   const styles = {
-    pageContainer: adminStyles.containers.page,
-    mainContainer: adminStyles.containers.main,
-    header: adminStyles.headerStyles.headerSimple,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    content: adminStyles.containers.content,
-    tableContainer: adminStyles.tables.container,
-    table: adminStyles.tables.table,
-    tableHeader: adminStyles.tables.header,
-    tableHeaderCell: adminStyles.tables.headerCell,
-    tableRow: adminStyles.tables.row,
-    tableCell: adminStyles.tables.cell,
-    actionsContainer: adminStyles.tables.actionsContainer,
-    actionButton: adminStyles.buttons.actionButton,
-    editAction: adminStyles.buttons.editAction,
-    deleteAction: adminStyles.buttons.deleteAction,
-    badge: adminStyles.badgeStyles.base,
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
+    pageContainer: {
+      minHeight: "100vh",
+      backgroundColor: stylesPublic.colors.surface.primary,
+      padding: stylesPublic.spacing.scale[8],
+    },
+    mainContainer: {
+      ...stylesPublic.components.card.base,
+      maxWidth: stylesPublic.utils.container.maxWidth.xl,
+      margin: stylesPublic.spacing.margins.auto,
+      padding: stylesPublic.spacing.scale[8],
+    },
+    header: {
+      marginBottom: stylesPublic.spacing.scale[8],
+      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
+      paddingBottom: stylesPublic.spacing.scale[4],
+    },
+    title: {
+      ...stylesPublic.typography.headings.h1,
+      display: "flex",
+      alignItems: "center",
+      gap: stylesPublic.spacing.scale[2],
+    },
+    subtitle: {
+      ...stylesPublic.typography.body.small,
+      marginTop: stylesPublic.spacing.scale[2],
+    },
+    content: {
+      padding: stylesPublic.spacing.scale[8],
+    },
+    tableContainer: {
+      overflowX: "auto",
+      borderRadius: stylesPublic.borders.radius.md,
+      boxShadow: stylesPublic.shadows.base,
+      backgroundColor: stylesPublic.colors.surface.primary,
+    },
+    table: {
+      width: "100%",
+      borderCollapse: "collapse",
+    },
+    tableHeader: {
+      backgroundColor: stylesPublic.colors.surface.secondary,
+    },
+    tableHeaderCell: {
+      padding: stylesPublic.spacing.scale[3],
+      textAlign: "left",
+      fontSize: stylesPublic.typography.scale.sm,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      color: stylesPublic.colors.text.secondary,
+      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
+      cursor: "pointer",
+    },
+    tableRow: {
+      transition: "all 0.2s ease",
+    },
+    tableCell: {
+      padding: stylesPublic.spacing.scale[3],
+      fontSize: stylesPublic.typography.scale.sm,
+      color: stylesPublic.colors.text.primary,
+      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.muted}`,
+    },
+    actionsContainer: {
+      display: "flex",
+      gap: stylesPublic.spacing.gaps.xs,
+      justifyContent: "flex-end",
+    },
+    actionButton: {
+      ...stylesPublic.components.button.variants.ghost,
+      ...stylesPublic.components.button.sizes.xs,
+      padding: stylesPublic.spacing.scale[2],
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editAction: {
+      color: stylesPublic.colors.secondary[500],
+    },
+    deleteAction: {
+      color: stylesPublic.colors.primary[500],
+    },
+    badge: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: stylesPublic.spacing.scale[1],
+      padding: `${stylesPublic.spacing.scale[1]} ${stylesPublic.spacing.scale[2]}`,
+      fontSize: stylesPublic.typography.scale.xs,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      borderRadius: stylesPublic.borders.radius.sm,
+      backgroundColor: stylesPublic.colors.neutral[100],
+      color: stylesPublic.colors.text.primary,
+    },
+    emptyState: {
+      textAlign: "center",
+      padding: stylesPublic.spacing.scale[12],
+      backgroundColor: stylesPublic.colors.surface.secondary,
+      borderRadius: stylesPublic.borders.radius.md,
+      boxShadow: stylesPublic.shadows.base,
+    },
+    emptyStateText: {
+      ...stylesPublic.typography.headings.h3,
+      marginBottom: stylesPublic.spacing.scale[2],
+    },
+    emptyStateSubtext: {
+      ...stylesPublic.typography.body.small,
+    },
   };
 
   const [users, setUsers] = useState([]);
@@ -74,25 +159,15 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const [formLoading, setFormLoading] = useState(false);
 
   // Fetch users from backend
+  // TODO: Could extract API fetching logic to a custom hook (e.g., useUsers)
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/admin/users", {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Error al cargar los usuarios");
-        }
-
-        const data = await response.json();
+        const data = await adminAPI.getUsers();
         setUsers(data);
         setFilteredUsers(data);
       } catch (error) {
-        setError(error.message);
+        setError(error?.error || error?.message || "Error al cargar los usuarios");
       } finally {
         setLoading(false);
       }
@@ -104,6 +179,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   }, [user?.token]);
 
   // Filter and sort users
+  // TODO: Could move filtering and sorting logic to a custom hook (e.g., useUserFilters)
   const processedUsers = useMemo(() => {
     const filtered = users.filter((user) => {
       const matchesSearch =
@@ -143,6 +219,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   }, [users, searchTerm, selectedRole, sortField, sortDirection]);
 
   // Pagination
+  // TODO: Could extract pagination logic to a separate Pagination component
   const totalPages = Math.ceil(processedUsers.length / usersPerPage);
   const startIndex = (currentPage - 1) * usersPerPage;
   const paginatedUsers = processedUsers.slice(startIndex, startIndex + usersPerPage);
@@ -164,22 +241,15 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
       try {
-        const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Error al eliminar el usuario");
-        }
-
+        const response = await adminAPI.deleteUser(userId);
         setUsers(users.filter((user) => user._id !== userId));
         setFilteredUsers(filteredUsers.filter((user) => user._id !== userId));
         setSelectedUsers(new Set([...selectedUsers].filter((id) => id !== userId)));
+        
+        // Opcional: mostrar mensaje de éxito
+        console.log(response.message || "Usuario eliminado exitosamente");
       } catch (error) {
-        setError(error.message);
+        setError(error?.error || error?.message || "Error al eliminar el usuario");
       }
     }
   };
@@ -201,6 +271,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   };
 
   // Handle edit form submission
+  // TODO: Could extract form submission logic to a reusable UserForm component
   const handleEditFormSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -211,40 +282,30 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     if (!updateData.password) delete updateData.password;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${editingUserId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
+      const response = await adminAPI.updateUser(editingUserId, updateData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error al actualizar el usuario");
-      }
-
+      // El backend devuelve { success: true, data: user, message: '...' }
+      const updatedUser = response.data || response;
       const updatedUsers = users.map((user) =>
-        user._id === editingUserId ? { ...user, ...data.data } : user
+        user._id === editingUserId ? { ...user, ...updatedUser } : user
       );
       setUsers(updatedUsers);
 
-      setFormSuccess("Usuario actualizado con éxito");
+      setFormSuccess(response.message || "Usuario actualizado con éxito");
       setTimeout(() => {
         setShowEditForm(false);
         setEditingUserId(null);
         setFormSuccess("");
       }, 2000);
     } catch (error) {
-      setFormError(error.message);
+      setFormError(error?.error || error?.message || "Error al actualizar el usuario");
     } finally {
       setFormLoading(false);
     }
   };
 
   // Handle new user form submission
+  // TODO: Could reuse the same UserForm component for both create and edit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -252,22 +313,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     setFormLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/admin/users", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await adminAPI.createUser(formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error al crear el usuario");
-      }
-
-      setUsers([...users, data.data]);
+      // El backend devuelve { success: true, data: user, message: '...' }
+      const newUser = response.data || response;
+      setUsers([...users, newUser]);
       setFormData({
         name: "",
         email: "",
@@ -276,13 +326,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         role: "user",
       });
 
-      setFormSuccess("Usuario creado con éxito");
+      setFormSuccess(response.message || "Usuario creado con éxito");
       setTimeout(() => {
         setShowUserForm(false);
         setFormSuccess("");
       }, 2000);
     } catch (error) {
-      setFormError(error.message);
+      setFormError(error?.error || error?.message || "Error al crear el usuario");
     } finally {
       setFormLoading(false);
     }
@@ -295,6 +345,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   }, []);
 
   // Handle user selection
+  // TODO: Could extract selection logic to a BulkActions component
   const handleSelectUser = useCallback(
     (userId) => {
       const newSelected = new Set(selectedUsers);
@@ -317,12 +368,14 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   }, [selectedUsers.size, paginatedUsers]);
 
   // Render sort icon
+  // TODO: Could move to a utilities file
   const renderSortIcon = (field) => {
     if (sortField !== field) return <FaSort size={12} style={{ opacity: 0.5 }} />;
     return sortDirection === "asc" ? <FaSortUp size={12} /> : <FaSortDown size={12} />;
   };
 
   // Render role badge
+  // TODO: Could move to a utilities file or a RoleBadge component
   const renderRoleBadge = (role) => {
     const roleLabels = {
       admin: "Administrador",
@@ -334,13 +387,21 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       user: <FaUser size={12} />,
     };
 
+    const badgeStyles = {
+      admin: {
+        backgroundColor: stylesPublic.colors.primary[50],
+        color: stylesPublic.colors.primary[500],
+        border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.primary[500]}`,
+      },
+      user: {
+        backgroundColor: stylesPublic.colors.secondary[50],
+        color: stylesPublic.colors.secondary[500],
+        border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.secondary[500]}`,
+      },
+    };
+
     return (
-      <span
-        style={adminStyles.combineStyles(
-          styles.badge,
-          role === "admin" ? adminStyles.badgeStyles.roleAdmin : adminStyles.badgeStyles.roleUser
-        )}
-      >
+      <span style={{ ...styles.badge, ...badgeStyles[role] }}>
         {roleIcons[role]}
         {roleLabels[role]}
       </span>
@@ -348,6 +409,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   };
 
   // Format date
+  // TODO: Could move to a utilities file
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("es-MX", {
@@ -360,9 +422,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   // Handle loading state
   if (loading) {
     return (
-      <div style={adminStyles.combineStyles(styles.pageContainer, adminStyles.loadingStyles.container)}>
-        <div style={adminStyles.utilities.textCenter}>
-          <h3>Cargando usuarios...</h3>
+      <div style={styles.pageContainer}>
+        <div style={{ textAlign: "center", padding: stylesPublic.spacing.scale[8] }}>
+          <h3 style={stylesPublic.typography.headings.h3}>Cargando usuarios...</h3>
         </div>
       </div>
     );
@@ -372,12 +434,22 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   if (error) {
     return (
       <div style={styles.pageContainer}>
-        <div style={adminStyles.containers.errorContainer}>
-          <h3>Error</h3>
-          <p>{error}</p>
+        <div
+          style={{
+            textAlign: "center",
+            padding: stylesPublic.spacing.scale[8],
+            backgroundColor: stylesPublic.colors.semantic.error.light,
+            borderRadius: stylesPublic.borders.radius.md,
+          }}
+        >
+          <h3 style={stylesPublic.typography.headings.h3}>Error</h3>
+          <p style={stylesPublic.typography.body.base}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.danger)}
+            style={{
+              ...stylesPublic.components.button.variants.primary,
+              ...stylesPublic.components.button.sizes.base,
+            }}
           >
             Reintentar
           </button>
@@ -394,7 +466,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>
-              <FaUsers style={{ marginRight: adminStyles.spacing.md }} />
+              <FaUsers style={{ marginRight: stylesPublic.spacing.scale[2] }} />
               Gestión de Usuarios
             </h1>
             <p style={styles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
@@ -402,31 +474,71 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
 
         <div style={styles.content}>
-          <div style={adminStyles.searchStyles.toolbar}>
-            <div style={adminStyles.searchStyles.searchWrapper}>
-              <FaSearch style={adminStyles.searchStyles.searchIcon} size={16} />
+          {/* TODO: Could extract to a UserSearchFilter component */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: stylesPublic.spacing.scale[6],
+              flexWrap: "wrap",
+              gap: stylesPublic.spacing.gaps.md,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+                flex: 1,
+                minWidth: "200px",
+                maxWidth: "600px",
+              }}
+            >
+              <FaSearch
+                style={{
+                  position: "absolute",
+                  left: stylesPublic.spacing.scale[3],
+                  color: stylesPublic.colors.text.secondary,
+                }}
+                size={16}
+              />
               <input
                 type="text"
                 placeholder="Buscar por nombre, email o teléfono..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={adminStyles.searchStyles.searchInput}
+                style={{
+                  ...stylesPublic.components.input.base,
+                  paddingLeft: stylesPublic.spacing.scale[10],
+                }}
               />
             </div>
-            <div style={adminStyles.searchStyles.buttonGroup}>
+            <div
+              style={{
+                display: "flex",
+                gap: stylesPublic.spacing.gaps.sm,
+              }}
+            >
               <button
-                style={adminStyles.combineStyles(
-                  adminStyles.buttons.base,
-                  adminStyles.buttons.ghost,
-                  showFilters ? adminStyles.buttons.outline : {}
-                )}
+                style={{
+                  ...stylesPublic.components.button.variants.ghost,
+                  ...stylesPublic.components.button.sizes.sm,
+                  ...(showFilters ? { border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.borders.accent}` } : {}),
+                }}
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <FaFilter size={14} />
                 Filtros
               </button>
               <button
-                style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.primary)}
+                style={{
+                  ...stylesPublic.components.button.variants.primary,
+                  ...stylesPublic.components.button.sizes.sm,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: stylesPublic.spacing.scale[2],
+                }}
                 onClick={() => setShowUserForm(true)}
               >
                 <FaPlus size={14} />
@@ -436,23 +548,52 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
 
           {showFilters && (
-            <div style={adminStyles.searchStyles.filtersContainer}>
-              <div style={adminStyles.searchStyles.filtersGrid}>
-                <div style={adminStyles.searchStyles.filterGroup}>
-                  <label style={adminStyles.forms.label}>Rol</label>
+            <div
+              style={{
+                marginBottom: stylesPublic.spacing.scale[6],
+                padding: stylesPublic.spacing.scale[4],
+                backgroundColor: stylesPublic.colors.surface.secondary,
+                borderRadius: stylesPublic.borders.radius.md,
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: stylesPublic.spacing.gaps.lg,
+                }}
+              >
+                <div>
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                      marginBottom: stylesPublic.spacing.scale[2],
+                    }}
+                  >
+                    Rol
+                  </label>
                   <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    style={adminStyles.forms.select}
+                    style={stylesPublic.components.input.base}
                   >
                     <option value="all">Todos los roles</option>
                     <option value="admin">Administrador</option>
                     <option value="user">Usuario</option>
                   </select>
                 </div>
-                <div style={adminStyles.combineStyles(adminStyles.searchStyles.filterGroup, adminStyles.utilities.flexEnd)}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                  }}
+                >
                   <button
-                    style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.ghost)}
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.sm,
+                    }}
                     onClick={() => {
                       setSearchTerm("");
                       setSelectedRole("all");
@@ -467,30 +608,77 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           )}
 
           <div style={styles.tableContainer}>
+            {/* TODO: Could extract to a BulkActions component */}
             {selectedUsers.size > 0 && (
-              <div style={adminStyles.bulkActionStyles.container}>
-                <span style={adminStyles.bulkActionStyles.text}>{selectedUsers.size} usuario(s) seleccionado(s)</span>
-                <div style={adminStyles.bulkActionStyles.buttons}>
-                  <button style={adminStyles.bulkActionStyles.button} disabled={true}>
-                    <FaUserCheck size={12} style={{ marginRight: adminStyles.spacing.xs }} />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: stylesPublic.spacing.scale[4],
+                  backgroundColor: stylesPublic.colors.neutral[50],
+                  borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.borders.default}`,
+                }}
+              >
+                <span
+                  style={{
+                    ...stylesPublic.typography.body.base,
+                    color: stylesPublic.colors.text.secondary,
+                  }}
+                >
+                  {selectedUsers.size} usuario(s) seleccionado(s)
+                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: stylesPublic.spacing.gaps.sm,
+                  }}
+                >
+                  <button
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.sm,
+                      opacity: 0.5,
+                      cursor: "not-allowed",
+                    }}
+                    disabled={true}
+                  >
+                    <FaUserCheck size={12} style={{ marginRight: stylesPublic.spacing.scale[1] }} />
                     Activar
                   </button>
-                  <button style={adminStyles.bulkActionStyles.button} disabled={true}>
-                    <FaUserTimes size={12} style={{ marginRight: adminStyles.spacing.xs }} />
+                  <button
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.sm,
+                      opacity: 0.5,
+                      cursor: "not-allowed",
+                    }}
+                    disabled={true}
+                  >
+                    <FaUserTimes size={12} style={{ marginRight: stylesPublic.spacing.scale[1] }} />
                     Suspender
                   </button>
-                  <button style={adminStyles.bulkActionStyles.button} disabled={true}>
-                    <FaTrash size={12} style={{ marginRight: adminStyles.spacing.xs }} />
+                  <button
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.sm,
+                      opacity: 0.5,
+                      cursor: "not-allowed",
+                    }}
+                    disabled={true}
+                  >
+                    <FaTrash size={12} style={{ marginRight: stylesPublic.spacing.scale[1] }} />
                     Eliminar
                   </button>
                 </div>
               </div>
             )}
 
-            <div style={adminStyles.tables.responsiveContainer}>
+            {/* TODO: Could extract to a UsersTable component */}
+            <div style={{ overflowX: "auto" }}>
               {noUsers ? (
                 <div style={styles.emptyState}>
-                  <FaUsers size={40} style={{ opacity: 0.3, marginBottom: adminStyles.spacing.lg }} />
+                  <FaUsers size={40} style={{ opacity: 0.3, marginBottom: stylesPublic.spacing.scale[4] }} />
                   <h3 style={styles.emptyStateText}>No se encontraron usuarios</h3>
                   <p style={styles.emptyStateSubtext}>
                     Intenta ajustar los filtros de búsqueda o añade nuevos usuarios.
@@ -503,35 +691,71 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                       <th style={styles.tableHeaderCell}>
                         <input
                           type="checkbox"
-                          style={adminStyles.forms.checkbox}
+                          style={{
+                            width: stylesPublic.spacing.scale[4],
+                            height: stylesPublic.spacing.scale[4],
+                            accentColor: stylesPublic.colors.primary[500],
+                          }}
                           checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
                           onChange={handleSelectAll}
                           aria-label="Seleccionar todos los usuarios"
                         />
                       </th>
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("name")}>
-                        <div style={adminStyles.utilities.flexCenter}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: stylesPublic.spacing.scale[2],
+                          }}
+                        >
                           Nombre
                           {renderSortIcon("name")}
                         </div>
                       </th>
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("email")}>
-                        <div style={adminStyles.utilities.flexCenter}>Email</div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: stylesPublic.spacing.scale[2],
+                          }}
+                        >
+                          Email
+                        </div>
                       </th>
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("phone")}>
-                        <div style={adminStyles.utilities.flexCenter}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: stylesPublic.spacing.scale[2],
+                          }}
+                        >
                           Teléfono
                           {renderSortIcon("phone")}
                         </div>
                       </th>
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("role")}>
-                        <div style={adminStyles.utilities.flexCenter}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: stylesPublic.spacing.scale[2],
+                          }}
+                        >
                           Rol
                           {renderSortIcon("role")}
                         </div>
                       </th>
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("createdAt")}>
-                        <div style={adminStyles.utilities.flexCenter}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: stylesPublic.spacing.scale[2],
+                          }}
+                        >
                           Fecha de Registro
                           {renderSortIcon("createdAt")}
                         </div>
@@ -543,29 +767,68 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     {paginatedUsers.map((user, index) => (
                       <tr
                         key={user._id}
-                        style={adminStyles.combineStyles(
-                          styles.tableRow,
-                          hoveredRow === index ? adminStyles.tables.rowHover : {},
-                          index === paginatedUsers.length - 1 ? adminStyles.tables.rowNoBorder : {}
-                        )}
+                        style={{
+                          ...styles.tableRow,
+                          ...(hoveredRow === index ? { backgroundColor: stylesPublic.colors.neutral[50] } : {}),
+                          ...(index === paginatedUsers.length - 1 ? { borderBottom: "none" } : {}),
+                        }}
                         onMouseEnter={() => setHoveredRow(index)}
                         onMouseLeave={() => setHoveredRow(null)}
                       >
                         <td style={styles.tableCell}>
                           <input
                             type="checkbox"
-                            style={adminStyles.forms.checkbox}
+                            style={{
+                              width: stylesPublic.spacing.scale[4],
+                              height: stylesPublic.spacing.scale[4],
+                              accentColor: stylesPublic.colors.primary[500],
+                            }}
                             checked={selectedUsers.has(user._id)}
                             onChange={() => handleSelectUser(user._id)}
                             aria-label={`Seleccionar usuario ${user.name || "Sin nombre"}`}
                           />
                         </td>
                         <td style={styles.tableCell}>
-                          <div style={adminStyles.tables.userInfo}>
-                            <div style={adminStyles.tables.avatar}>{user.name ? user.name[0].toUpperCase() : "-"}</div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: stylesPublic.spacing.scale[2],
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: stylesPublic.spacing.scale[8],
+                                height: stylesPublic.spacing.scale[8],
+                                borderRadius: stylesPublic.borders.radius.full,
+                                backgroundColor: stylesPublic.colors.primary[50],
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: stylesPublic.typography.scale.sm,
+                                fontWeight: stylesPublic.typography.weights.semibold,
+                                color: stylesPublic.colors.primary[500],
+                              }}
+                            >
+                              {user.name ? user.name[0].toUpperCase() : "-"}
+                            </div>
                             <div>
-                              <div style={adminStyles.tables.userName}>{user.name || "Sin nombre"}</div>
-                              <div style={adminStyles.tables.userEmail}>{user.email}</div>
+                              <div
+                                style={{
+                                  fontWeight: stylesPublic.typography.weights.semibold,
+                                  color: stylesPublic.colors.text.primary,
+                                }}
+                              >
+                                {user.name || "Sin nombre"}
+                              </div>
+                              <div
+                                style={{
+                                  ...stylesPublic.typography.body.small,
+                                  color: stylesPublic.colors.text.secondary,
+                                }}
+                              >
+                                {user.email}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -607,17 +870,37 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             </div>
 
             {!noUsers && (
-              <div style={adminStyles.paginationStyles.container}>
-                <div style={adminStyles.paginationStyles.info}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: stylesPublic.spacing.scale[4],
+                  flexWrap: "wrap",
+                  gap: stylesPublic.spacing.gaps.md,
+                }}
+              >
+                <div
+                  style={{
+                    ...stylesPublic.typography.body.small,
+                    color: stylesPublic.colors.text.secondary,
+                  }}
+                >
                   Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
                   {processedUsers.length} usuarios
                 </div>
-                <div style={adminStyles.paginationStyles.buttons}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: stylesPublic.spacing.gaps.xs,
+                  }}
+                >
                   <button
-                    style={adminStyles.combineStyles(
-                      adminStyles.paginationStyles.button,
-                      currentPage === 1 ? adminStyles.paginationStyles.buttonDisabled : {}
-                    )}
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.xs,
+                      ...(currentPage === 1 ? { opacity: 0.5, cursor: "not-allowed" } : {}),
+                    }}
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     aria-label="Página anterior"
@@ -627,10 +910,17 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
-                      style={adminStyles.combineStyles(
-                        adminStyles.paginationStyles.button,
-                        page === currentPage ? adminStyles.paginationStyles.buttonActive : {}
-                      )}
+                      style={{
+                        ...stylesPublic.components.button.variants.ghost,
+                        ...stylesPublic.components.button.sizes.xs,
+                        ...(page === currentPage
+                          ? {
+                              backgroundColor: stylesPublic.colors.primary[500],
+                              color: stylesPublic.colors.primary.contrast,
+                              boxShadow: stylesPublic.shadows.base,
+                            }
+                          : {}),
+                      }}
                       onClick={() => setCurrentPage(page)}
                       aria-label={`Página ${page}`}
                     >
@@ -638,10 +928,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     </button>
                   ))}
                   <button
-                    style={adminStyles.combineStyles(
-                      adminStyles.paginationStyles.button,
-                      currentPage === totalPages ? adminStyles.paginationStyles.buttonDisabled : {}
-                    )}
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.xs,
+                      ...(currentPage === totalPages ? { opacity: 0.5, cursor: "not-allowed" } : {}),
+                    }}
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     aria-label="Página siguiente"
@@ -655,27 +946,98 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
 
         {/* New User Form Modal */}
+        {/* TODO: Could extract to a reusable UserForm component */}
         {showUserForm && (
-          <div style={adminStyles.modalStyles.overlay}>
-            <div style={adminStyles.modalStyles.content}>
+          <div style={stylesPublic.utils.overlay.base}>
+            <div
+              style={{
+                ...stylesPublic.components.card.base,
+                maxWidth: "600px",
+                width: "90%",
+                margin: stylesPublic.spacing.margins.auto,
+                maxHeight: "90vh",
+                overflowY: "auto",
+              }}
+            >
               <button
                 onClick={() => setShowUserForm(false)}
-                style={adminStyles.modalStyles.closeButton}
+                style={{
+                  position: "absolute",
+                  top: stylesPublic.spacing.scale[2],
+                  right: stylesPublic.spacing.scale[2],
+                  backgroundColor: "transparent",
+                  border: "none",
+                  fontSize: stylesPublic.typography.scale.lg,
+                  color: stylesPublic.colors.text.secondary,
+                  cursor: "pointer",
+                  padding: stylesPublic.spacing.scale[2],
+                  borderRadius: stylesPublic.borders.radius.sm,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: stylesPublic.colors.neutral[50],
+                  },
+                }}
                 aria-label="Cerrar modal"
               >
                 ✕
               </button>
-              <h2 style={adminStyles.modalStyles.title}>Agregar Nuevo Usuario</h2>
+              <h2 style={{ ...stylesPublic.typography.headings.h2, padding: stylesPublic.spacing.scale[4] }}>
+                Agregar Nuevo Usuario
+              </h2>
               {formError && (
-                <div style={adminStyles.messageStyles.error}>{formError}</div>
+                <div
+                  style={{
+                    backgroundColor: stylesPublic.colors.semantic.error.light,
+                    color: stylesPublic.colors.semantic.error.main,
+                    padding: stylesPublic.spacing.scale[4],
+                    borderRadius: stylesPublic.borders.radius.md,
+                    margin: stylesPublic.spacing.scale[4],
+                    textAlign: "center",
+                  }}
+                >
+                  {formError}
+                </div>
               )}
               {formSuccess && (
-                <div style={adminStyles.messageStyles.success}>{formSuccess}</div>
+                <div
+                  style={{
+                    backgroundColor: stylesPublic.colors.semantic.success.light,
+                    color: stylesPublic.colors.semantic.success.main,
+                    padding: stylesPublic.spacing.scale[4],
+                    borderRadius: stylesPublic.borders.radius.md,
+                    margin: stylesPublic.spacing.scale[4],
+                    display: "flex",
+                    alignItems: "center",
+                    gap: stylesPublic.spacing.scale[2],
+                    justifyContent: "center",
+                  }}
+                >
+                  {formSuccess}
+                </div>
               )}
-              <form onSubmit={handleFormSubmit} style={adminStyles.forms.formGroup}>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="name">
-                    Nombre <span style={adminStyles.forms.requiredField}>*</span>
+              <form
+                onSubmit={handleFormSubmit}
+                style={{
+                  display: "grid",
+                  gap: stylesPublic.spacing.gaps.lg,
+                  padding: stylesPublic.spacing.scale[6],
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="name"
+                  >
+                    Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -684,12 +1046,24 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.name}
                     onChange={handleFormChange}
                     required
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="email">
-                    Correo Electrónico <span style={adminStyles.forms.requiredField}>*</span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="email"
+                  >
+                    Correo Electrónico <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
                   </label>
                   <input
                     type="email"
@@ -698,23 +1072,49 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.email}
                     onChange={handleFormChange}
                     required
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="phone">Teléfono</label>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="phone"
+                  >
+                    Teléfono
+                  </label>
                   <input
                     type="text"
                     id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleFormChange}
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="password">
-                    Contraseña <span style={adminStyles.forms.requiredField}>*</span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="password"
+                  >
+                    Contraseña <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
                   </label>
                   <input
                     type="password"
@@ -723,38 +1123,68 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.password}
                     onChange={handleFormChange}
                     required
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="role">Rol</label>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="role"
+                  >
+                    Rol
+                  </label>
                   <select
                     id="role"
                     name="role"
                     value={formData.role}
                     onChange={handleFormChange}
-                    style={adminStyles.forms.select}
+                    style={stylesPublic.components.input.base}
                   >
                     <option value="user">Usuario</option>
                     <option value="admin">Administrador</option>
                   </select>
                 </div>
-                <div style={adminStyles.modalStyles.actions}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: stylesPublic.spacing.gaps.md,
+                    justifyContent: "flex-end",
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => setShowUserForm(false)}
-                    style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.outline)}
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.base,
+                    }}
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={formLoading}
-                    style={adminStyles.combineStyles(
-                      adminStyles.buttons.base,
-                      adminStyles.buttons.primary,
-                      formLoading ? adminStyles.buttons.disabled : {}
-                    )}
+                    style={{
+                      ...stylesPublic.components.button.variants.primary,
+                      ...stylesPublic.components.button.sizes.base,
+                      ...(formLoading
+                        ? {
+                            backgroundColor: stylesPublic.colors.neutral[300],
+                            color: stylesPublic.colors.text.muted,
+                            cursor: "not-allowed",
+                            boxShadow: "none",
+                          }
+                        : {}),
+                    }}
                   >
                     {formLoading ? "Guardando..." : "Guardar Usuario"}
                   </button>
@@ -765,27 +1195,98 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         )}
 
         {/* Edit User Form Modal */}
+        {/* TODO: Could reuse the UserForm component for edit mode */}
         {showEditForm && (
-          <div style={adminStyles.modalStyles.overlay}>
-            <div style={adminStyles.modalStyles.content}>
+          <div style={stylesPublic.utils.overlay.base}>
+            <div
+              style={{
+                ...stylesPublic.components.card.base,
+                maxWidth: "600px",
+                width: "90%",
+                margin: stylesPublic.spacing.margins.auto,
+                maxHeight: "90vh",
+                overflowY: "auto",
+              }}
+            >
               <button
                 onClick={() => setShowEditForm(false)}
-                style={adminStyles.modalStyles.closeButton}
+                style={{
+                  position: "absolute",
+                  top: stylesPublic.spacing.scale[2],
+                  right: stylesPublic.spacing.scale[2],
+                  backgroundColor: "transparent",
+                  border: "none",
+                  fontSize: stylesPublic.typography.scale.lg,
+                  color: stylesPublic.colors.text.secondary,
+                  cursor: "pointer",
+                  padding: stylesPublic.spacing.scale[2],
+                  borderRadius: stylesPublic.borders.radius.sm,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: stylesPublic.colors.neutral[50],
+                  },
+                }}
                 aria-label="Cerrar modal"
               >
                 ✕
               </button>
-              <h2 style={adminStyles.modalStyles.title}>Editar Usuario</h2>
+              <h2 style={{ ...stylesPublic.typography.headings.h2, padding: stylesPublic.spacing.scale[4] }}>
+                Editar Usuario
+              </h2>
               {formError && (
-                <div style={adminStyles.messageStyles.error}>{formError}</div>
+                <div
+                  style={{
+                    backgroundColor: stylesPublic.colors.semantic.error.light,
+                    color: stylesPublic.colors.semantic.error.main,
+                    padding: stylesPublic.spacing.scale[4],
+                    borderRadius: stylesPublic.borders.radius.md,
+                    margin: stylesPublic.spacing.scale[4],
+                    textAlign: "center",
+                  }}
+                >
+                  {formError}
+                </div>
               )}
               {formSuccess && (
-                <div style={adminStyles.messageStyles.success}>{formSuccess}</div>
+                <div
+                  style={{
+                    backgroundColor: stylesPublic.colors.semantic.success.light,
+                    color: stylesPublic.colors.semantic.success.main,
+                    padding: stylesPublic.spacing.scale[4],
+                    borderRadius: stylesPublic.borders.radius.md,
+                    margin: stylesPublic.spacing.scale[4],
+                    display: "flex",
+                    alignItems: "center",
+                    gap: stylesPublic.spacing.scale[2],
+                    justifyContent: "center",
+                  }}
+                >
+                  {formSuccess}
+                </div>
               )}
-              <form onSubmit={handleEditFormSubmit} style={adminStyles.forms.formGroup}>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="name">
-                    Nombre <span style={adminStyles.forms.requiredField}>*</span>
+              <form
+                onSubmit={handleEditFormSubmit}
+                style={{
+                  display: "grid",
+                  gap: stylesPublic.spacing.gaps.lg,
+                  padding: stylesPublic.spacing.scale[6],
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="name"
+                  >
+                    Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -794,12 +1295,24 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.name}
                     onChange={handleFormChange}
                     required
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="email">
-                    Correo Electrónico <span style={adminStyles.forms.requiredField}>*</span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="email"
+                  >
+                    Correo Electrónico <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
                   </label>
                   <input
                     type="email"
@@ -808,49 +1321,93 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.email}
                     onChange={handleFormChange}
                     required
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="phone">Teléfono</label>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="phone"
+                  >
+                    Teléfono
+                  </label>
                   <input
                     type="text"
                     id="phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleFormChange}
-                    style={adminStyles.forms.input}
+                    style={stylesPublic.components.input.base}
                   />
                 </div>
-                <div style={adminStyles.forms.formGroup}>
-                  <label style={adminStyles.forms.label} htmlFor="role">Rol</label>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: stylesPublic.spacing.scale[2],
+                  }}
+                >
+                  <label
+                    style={{
+                      ...stylesPublic.typography.body.base,
+                      fontWeight: stylesPublic.typography.weights.semibold,
+                    }}
+                    htmlFor="role"
+                  >
+                    Rol
+                  </label>
                   <select
                     id="role"
                     name="role"
                     value={formData.role}
                     onChange={handleFormChange}
-                    style={adminStyles.forms.select}
+                    style={stylesPublic.components.input.base}
                   >
                     <option value="user">Usuario</option>
                     <option value="admin">Administrador</option>
                   </select>
                 </div>
-                <div style={adminStyles.modalStyles.actions}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: stylesPublic.spacing.gaps.md,
+                    justifyContent: "flex-end",
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => setShowEditForm(false)}
-                    style={adminStyles.combineStyles(adminStyles.buttons.base, adminStyles.buttons.outline)}
+                    style={{
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.base,
+                    }}
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={formLoading}
-                    style={adminStyles.combineStyles(
-                      adminStyles.buttons.base,
-                      adminStyles.buttons.primary,
-                      formLoading ? adminStyles.buttons.disabled : {}
-                    )}
+                    style={{
+                      ...stylesPublic.components.button.variants.primary,
+                      ...stylesPublic.components.button.sizes.base,
+                      ...(formLoading
+                        ? {
+                            backgroundColor: stylesPublic.colors.neutral[300],
+                            color: stylesPublic.colors.text.muted,
+                            cursor: "not-allowed",
+                            boxShadow: "none",
+                          }
+                        : {}),
+                    }}
                   >
                     {formLoading ? "Guardando..." : "Guardar Cambios"}
                   </button>
@@ -860,6 +1417,33 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
         )}
       </div>
+
+      {/* Inline styles for dynamic effects */}
+      <style>
+        {`
+          .action-button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+          }
+          .table-row:hover {
+            background-color: ${stylesPublic.colors.neutral[50]};
+          }
+          input[type="checkbox"] {
+            cursor: pointer;
+          }
+          select:focus, input:focus {
+            outline: none;
+            border-color: ${stylesPublic.colors.secondary[500]};
+            box-shadow: 0 0 0 3px rgba(107, 155, 107, 0.1);
+          }
+          button:disabled {
+            background-color: ${stylesPublic.colors.neutral[300]};
+            color: ${stylesPublic.colors.text.muted};
+            cursor: not-allowed;
+            box-shadow: none;
+          }
+        `}
+      </style>
     </div>
   );
 };

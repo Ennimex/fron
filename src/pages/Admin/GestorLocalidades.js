@@ -1,233 +1,300 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaLock } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaSave } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import localidadService from '../../services/localidadService';
+import { useAdminNotifications } from '../../services/adminHooks';
+import NotificationContainer from '../../components/admin/NotificationContainer';
 import { Navigate } from 'react-router-dom';
-import adminStyles from '../../styles/stylesAdmin';
+import stylesGlobal from '../../styles/stylesGlobal';
 
 const GestorLocalidades = () => {
   const { user, isAuthenticated } = useAuth();
 
   // Mapeo de estilos globales
   const styles = {
-    pageContainer: adminStyles.containers.page,
-    mainContainer: adminStyles.containers.main,
-    header: adminStyles.headerStyles.headerSimple,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    addButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+    pageContainer: {
+      ...stylesGlobal.utils.container,
+      padding: stylesGlobal.spacing.sections.md,
+      backgroundColor: stylesGlobal.colors.surface.primary,
     },
-    content: adminStyles.containers.content,
-    error: adminStyles.messageStyles.error,
-    success: adminStyles.messageStyles.success,
-    
-    // Estilos de tabla mejorados
+    mainContainer: {
+      maxWidth: stylesGlobal.utils.container.maxWidth.lg,
+      margin: stylesGlobal.spacing.margins.auto,
+      padding: stylesGlobal.spacing.scale[4],
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: stylesGlobal.spacing.scale[8],
+      flexWrap: 'wrap',
+      gap: stylesGlobal.spacing.gaps.md,
+    },
+    title: stylesGlobal.typography.headings.h1,
+    subtitle: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.secondary,
+    },
+    addButton: {
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
+    },
+    content: {
+      padding: stylesGlobal.spacing.scale[4],
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+    },
+    error: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.error.main,
+      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      padding: stylesGlobal.spacing.scale[3],
+      borderRadius: stylesGlobal.borders.radius.sm,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
+    success: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.success.main,
+      backgroundColor: stylesGlobal.colors.semantic.success.light,
+      padding: stylesGlobal.spacing.scale[3],
+      borderRadius: stylesGlobal.borders.radius.sm,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
     tableContainer: {
-      ...adminStyles.containers.content,
       overflowX: 'auto',
+      padding: stylesGlobal.spacing.scale[2],
     },
     table: {
-      ...adminStyles.tables.table,
-      borderSpacing: '0 8px', // Espaciado vertical entre filas
-      borderCollapse: 'separate', // Necesario para que funcione borderSpacing
+      width: '100%',
+      borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
+      borderCollapse: 'separate',
     },
-    tableHeader: adminStyles.tables.th,
+    tableHeader: {
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.secondary,
+      padding: stylesGlobal.spacing.scale[3],
+      textAlign: 'left',
+      backgroundColor: stylesGlobal.colors.surface.tertiary,
+    },
     tableCell: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     tableCellFirst: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-      borderLeft: `1px solid ${adminStyles.colors.border}`,
-      borderTopLeftRadius: adminStyles.borders.radius,
-      borderBottomLeftRadius: adminStyles.borders.radius,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderLeft: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderTopLeftRadius: stylesGlobal.borders.radius.sm,
+      borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
     },
     tableCellBold: {
-      ...adminStyles.tables.td,
-      fontWeight: '500',
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     tableCellLast: {
-      ...adminStyles.tables.td,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
-      borderBottom: `1px solid ${adminStyles.colors.border}`,
-      borderRight: `1px solid ${adminStyles.colors.border}`,
-      borderTopRightRadius: adminStyles.borders.radius,
-      borderBottomRightRadius: adminStyles.borders.radius,
+      ...stylesGlobal.typography.body.base,
+      padding: stylesGlobal.spacing.scale[3],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderRight: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderTopRightRadius: stylesGlobal.borders.radius.sm,
+      borderBottomRightRadius: stylesGlobal.borders.radius.sm,
     },
-    
-    // Estilos de botones de acción
     actionButton: {
-      ...adminStyles.buttons.actionButton,
-      padding: `${adminStyles.spacing.sm} ${adminStyles.spacing.md}`,
-      minWidth: '80px',
-      fontSize: adminStyles.typography.textSm,
-      fontWeight: adminStyles.typography.weightMedium,
-      marginRight: adminStyles.spacing.sm,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.sm,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    editAction: adminStyles.buttons.editAction,
-    deleteAction: adminStyles.buttons.deleteAction,
+    editAction: {
+      color: stylesGlobal.colors.semantic.info.main,
+      borderColor: stylesGlobal.colors.semantic.info.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.info.light,
+        color: stylesGlobal.colors.semantic.info.dark,
+      },
+    },
+    deleteAction: {
+      color: stylesGlobal.colors.semantic.error.main,
+      borderColor: stylesGlobal.colors.semantic.error.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.error.light,
+        color: stylesGlobal.colors.semantic.error.dark,
+      },
+    },
     actionsContainer: {
       display: 'flex',
       alignItems: 'center',
-      gap: adminStyles.spacing.sm,
+      gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
     },
-    
-    // Estilos de modal
-    modalOverlay: adminStyles.modalStyles.overlay,
+    modalOverlay: stylesGlobal.utils.overlay.elegant,
     modalContent: {
-      ...adminStyles.modalStyles.content,
+      ...stylesGlobal.components.card.luxury,
       maxWidth: '600px',
       maxHeight: '90vh',
       overflow: 'auto',
     },
-    modalCloseButton: adminStyles.modalStyles.closeButton,
-    modalTitle: {
-      ...adminStyles.modalStyles.title,
-      marginBottom: adminStyles.spacing.xl,
+    modalCloseButton: {
+      ...stylesGlobal.components.button.variants.ghost,
+      ...stylesGlobal.components.button.sizes.xs,
+      position: 'absolute',
+      top: stylesGlobal.spacing.scale[2],
+      right: stylesGlobal.spacing.scale[2],
     },
+    modalTitle: stylesGlobal.typography.headings.h2,
     modalActions: {
-      ...adminStyles.modalStyles.actions,
-      marginTop: adminStyles.spacing.xl,
-      paddingTop: adminStyles.spacing.lg,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
+      display: 'flex',
+      justifyContent: 'flex-end',
+      gap: stylesGlobal.spacing.gaps.md,
+      marginTop: stylesGlobal.spacing.scale[6],
+      paddingTop: stylesGlobal.spacing.scale[4],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     modalBody: {
-      padding: adminStyles.spacing.xl,
+      padding: stylesGlobal.spacing.scale[6],
+      position: 'relative',
     },
-    
-    // Estilos de formulario mejorados
     formContainer: {
       width: '100%',
     },
     formGroup: {
-      marginBottom: adminStyles.spacing.xl,
+      marginBottom: stylesGlobal.spacing.scale[6],
       width: '100%',
     },
     label: {
-      ...adminStyles.forms.label,
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      color: stylesGlobal.colors.text.primary,
+      marginBottom: stylesGlobal.spacing.scale[2],
       display: 'block',
-      marginBottom: adminStyles.spacing.md,
-      fontWeight: adminStyles.typography.weightMedium,
-      color: adminStyles.colors.textPrimary,
-      fontSize: adminStyles.typography.textSm,
-      lineHeight: '1.5',
     },
     requiredField: {
-      ...adminStyles.forms.requiredField,
-      marginLeft: adminStyles.spacing.xs,
-      color: adminStyles.colors.danger,
+      color: stylesGlobal.colors.semantic.error.main,
+      marginLeft: stylesGlobal.spacing.scale[1],
     },
-    input: {
-      ...adminStyles.forms.input,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-      '&:focus': {
-        borderColor: adminStyles.colors.primary,
-        boxShadow: `0 0 0 3px ${adminStyles.colors.primary}20`,
-        outline: 'none',
-      },
-    },
+    input: stylesGlobal.components.input.base,
     textarea: {
-      ...adminStyles.forms.textarea,
-      width: '100%',
-      padding: `${adminStyles.spacing.md} ${adminStyles.spacing.lg}`,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
+      ...stylesGlobal.components.input.base,
       minHeight: '120px',
       resize: 'vertical',
-      fontFamily: 'inherit',
-      lineHeight: '1.5',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-      '&:focus': {
-        borderColor: adminStyles.colors.primary,
-        boxShadow: `0 0 0 3px ${adminStyles.colors.primary}20`,
-        outline: 'none',
-      },
+      lineHeight: stylesGlobal.typography.leading.normal,
     },
     helpText: {
-      ...adminStyles.forms.helpText,
-      display: 'block',
-      marginTop: adminStyles.spacing.md,
-      marginBottom: 0,
-      fontSize: adminStyles.typography.textSm,
-      color: adminStyles.colors.textMuted,
-      lineHeight: '1.4',
+      ...stylesGlobal.typography.body.caption,
+      marginTop: stylesGlobal.spacing.scale[2],
       fontStyle: 'italic',
+      color: stylesGlobal.colors.text.muted,
     },
-    
-    // Estilos de botones
     outlineButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.outline,
-      marginRight: adminStyles.spacing.lg,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.base,
     },
     primaryButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    
-    // Estilos de estados
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    loadingContainer: adminStyles.loadingStyles.container,
-    
-    // Utilidades
-    textCenter: adminStyles.utilities.textCenter,
-    flexCenter: adminStyles.utilities.flexCenter,
+    disabledButton: {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
+    emptyState: {
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+    },
+    emptyStateText: stylesGlobal.typography.headings.h3,
+    loadingContainer: {
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    flexCenter: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   };
+
   // Estados del componente
   const [localidades, setLocalidades] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentLocalidad, setCurrentLocalidad] = useState({ nombre: '', descripcion: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [formError, setFormError] = useState('');
 
+  // Usar el hook de notificaciones
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
+  
+  // Crear una referencia estable para addNotification
+  const addNotificationRef = useRef(addNotification);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+  }, [addNotification]);
+
   // Fetch all localities
   const fetchLocalidades = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/localidades', {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al cargar localidades');
-      }
-      
-      const data = await response.json();
-      setLocalidades(data);
+      setError(null);
+      const localidades = await localidadService.getAll();
+      setLocalidades(localidades);
     } catch (err) {
-      setError(err.message);
+      const errorMsg = err.message || "Error al cargar localidades";
+      setError(errorMsg);
+      addNotificationRef.current(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
-  }, [user?.token]);
+  }, []); // Sin dependencias para evitar bucle infinito
 
   // Load localities on mount
   useEffect(() => {
-    fetchLocalidades();
-  }, [fetchLocalidades]);
+    if (isAuthenticated && user?.role === 'admin') {
+      fetchLocalidades();
+    }
+  }, [isAuthenticated, user, fetchLocalidades]);
+
+  // Manejo de tecla Escape para cerrar modal
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && modalOpen) {
+        setModalOpen(false);
+      }
+    };
+
+    if (modalOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Bloquear scroll del body cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [modalOpen]);
 
   // Open modal for creating new locality
   const handleOpenCreateModal = () => {
@@ -235,14 +302,34 @@ const GestorLocalidades = () => {
     setIsEditing(false);
     setFormError('');
     setModalOpen(true);
+    
+    // Enfocar el primer campo del formulario después de que se abra el modal
+    setTimeout(() => {
+      const firstInput = document.querySelector('input[name="nombre"]');
+      if (firstInput) {
+        firstInput.focus();
+      }
+    }, 100);
   };
 
   // Open modal for editing locality
   const handleOpenEditModal = (localidad) => {
-    setCurrentLocalidad(localidad);
+    setCurrentLocalidad({
+      _id: localidad._id,
+      nombre: localidad.nombre,
+      descripcion: localidad.descripcion || '',
+    });
     setIsEditing(true);
     setFormError('');
     setModalOpen(true);
+    
+    // Enfocar el primer campo del formulario después de que se abra el modal
+    setTimeout(() => {
+      const firstInput = document.querySelector('input[name="nombre"]');
+      if (firstInput) {
+        firstInput.focus();
+      }
+    }, 100);
   };
 
   // Handle form input changes
@@ -254,69 +341,85 @@ const GestorLocalidades = () => {
     }));
   };
 
+  // Validate form
+  const validateForm = () => {
+    if (!currentLocalidad.nombre.trim()) {
+      setFormError('El nombre de la localidad es obligatorio');
+      return false;
+    }
+    if (currentLocalidad.nombre.length > 100) {
+      setFormError('El nombre no puede exceder los 100 caracteres');
+      return false;
+    }
+    if (currentLocalidad.descripcion && currentLocalidad.descripcion.length > 500) {
+      setFormError('La descripción no puede exceder los 500 caracteres');
+      return false;
+    }
+    setFormError('');
+    return true;
+  };
+
   // Save locality (create or update)
   const handleSaveLocalidad = async (e) => {
     e.preventDefault();
-    
-    if (!currentLocalidad.nombre.trim()) {
-      setFormError('El nombre de la localidad es obligatorio');
-      return;
-    }
+    if (!validateForm()) return;
 
+    setFormLoading(true);
+    setFormError('');
     try {
-      const url = isEditing 
-        ? `http://localhost:5000/api/localidades/${currentLocalidad._id}`
-        : 'http://localhost:5000/api/localidades';
-      
-      const method = isEditing ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
-        },
-        body: JSON.stringify({
-          nombre: currentLocalidad.nombre,
-          descripcion: currentLocalidad.descripcion
-        })
-      });
+      const localidadData = {
+        nombre: currentLocalidad.nombre.trim(),
+        descripcion: currentLocalidad.descripcion.trim() || '',
+      };
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al guardar la localidad');
+      if (isEditing) {
+        await localidadService.update(currentLocalidad._id, localidadData);
+        addNotification(`Localidad "${localidadData.nombre}" actualizada exitosamente`, 'success');
+      } else {
+        await localidadService.create(localidadData);
+        addNotification(`Nueva localidad "${localidadData.nombre}" creada exitosamente`, 'success');
       }
 
       // Refresh localities list
-      fetchLocalidades();
+      await fetchLocalidades();
       setModalOpen(false);
     } catch (err) {
-      setFormError(err.message);
+      const errorMsg = err.message || `Error al ${isEditing ? 'actualizar' : 'crear'} la localidad`;
+      setFormError(errorMsg);
+      addNotification(errorMsg, 'error');
+    } finally {
+      setFormLoading(false);
     }
   };
 
   // Delete locality
   const handleDeleteLocalidad = async (id) => {
-    if (window.confirm('¿Está seguro que desea eliminar esta localidad?')) {
-      try {
-        const response = await fetch(`http://localhost:5000/api/localidades/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${user?.token}`
-          }
-        });
+    // Encontrar la localidad que se va a eliminar para mostrar información en la notificación
+    const localidadAEliminar = localidades.find(l => l._id === id);
+    const confirmMessage = localidadAEliminar 
+      ? `¿Está seguro de eliminar la localidad "${localidadAEliminar.nombre}"?`
+      : "¿Está seguro de eliminar esta localidad?";
+    
+    if (!window.confirm(confirmMessage)) return;
 
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Error al eliminar la localidad');
-        }
-
-        // Refresh list after deletion
-        fetchLocalidades();
-      } catch (err) {
-        setError(err.message);
+    try {
+      setLoading(true);
+      setError(null);
+      await localidadService.delete(id);
+      
+      // Agregar notificación de éxito
+      if (localidadAEliminar) {
+        addNotification(`Localidad "${localidadAEliminar.nombre}" eliminada exitosamente`, 'success');
       }
+      
+      // Refresh list after deletion
+      await fetchLocalidades();
+    } catch (err) {
+      const errorMsg = err.message || 'Error al eliminar la localidad';
+      setError(errorMsg);
+      addNotification(errorMsg, 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -326,12 +429,13 @@ const GestorLocalidades = () => {
   }
   if (user?.role !== 'admin') {
     return (
-      <div style={adminStyles.combineStyles(
-        styles.pageContainer,
-        styles.flexCenter,
-        { height: '80vh', textAlign: 'center' }
-      )}>
-        <FaLock size={50} style={adminStyles.icons.error} />
+      <div style={{
+        ...styles.pageContainer,
+        ...styles.flexCenter,
+        height: '80vh',
+        textAlign: 'center',
+      }}>
+        <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
         <h2 style={styles.title}>Acceso Denegado</h2>
         <p style={styles.subtitle}>
           No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
@@ -340,22 +444,15 @@ const GestorLocalidades = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.textCenter}>
-          <h3>Cargando localidades...</h3>
-        </div>
-      </div>
-    );
-  }
   return (
     <div style={styles.pageContainer}>
       <div style={styles.mainContainer}>
         {/* Header */}
         <div style={styles.header}>
           <div>
-            <h1 style={styles.title}>Gestión de Localidades</h1>
+            <h1 style={styles.title}>
+              Gestión de Localidades
+            </h1>
             <p style={styles.subtitle}>
               Administra y supervisa todas las localidades del sistema
             </p>
@@ -364,8 +461,10 @@ const GestorLocalidades = () => {
             style={styles.addButton}
             onClick={handleOpenCreateModal}
             aria-label="Agregar nueva localidad"
+            disabled={loading}
+            type="button"
           >
-            <FaPlus size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+            <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
             Agregar Localidad
           </button>
         </div>
@@ -375,13 +474,37 @@ const GestorLocalidades = () => {
           <div style={styles.error}>
             {error}
           </div>
-        )}        {/* Empty state */}
-        {!error && localidades.length === 0 ? (
+        )}
+
+        {/* Loading state */}
+        {loading ? (
+          <div style={styles.loadingContainer}>
+            <div style={styles.textCenter}>
+              <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[2] }} />
+              <h3 style={stylesGlobal.typography.headings.h3}>Cargando localidades...</h3>
+              <p style={stylesGlobal.typography.body.small}>
+                Por favor espere mientras se cargan los datos...
+              </p>
+            </div>
+          </div>
+        ) : localidades.length === 0 ? (
+          /* Empty state */
           <div style={styles.emptyState}>
             <h3 style={styles.emptyStateText}>No hay localidades registradas</h3>
-            <p style={adminStyles.containers.emptyStateSubtext}>
+            <p style={stylesGlobal.typography.body.base}>
               ¡Agrega una nueva localidad para comenzar!
             </p>
+            <button
+              style={{
+                ...styles.addButton,
+                marginTop: stylesGlobal.spacing.scale[4],
+              }}
+              onClick={handleOpenCreateModal}
+              type="button"
+            >
+              <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+              Crear Primera Localidad
+            </button>
           </div>
         ) : (
           /* Table */
@@ -401,31 +524,34 @@ const GestorLocalidades = () => {
                       <strong>{localidad.nombre}</strong>
                     </td>
                     <td style={styles.tableCell}>
-                      {localidad.descripcion || '—'}
+                      {localidad.descripcion?.length > 50
+                        ? `${localidad.descripcion.substring(0, 50)}...`
+                        : localidad.descripcion || '—'}
                     </td>
                     <td style={styles.tableCellLast}>
                       <div style={styles.actionsContainer}>
                         <button
-                          style={adminStyles.combineStyles(
-                            styles.actionButton,
-                            styles.editAction
-                          )}
+                          style={{
+                            ...styles.actionButton,
+                            ...styles.editAction,
+                          }}
                           onClick={() => handleOpenEditModal(localidad)}
                           title="Editar localidad"
                           aria-label={`Editar localidad ${localidad.nombre}`}
+                          disabled={loading}
                         >
                           <FaEdit size={12} />
                           Editar
                         </button>
                         <button
-                          style={adminStyles.combineStyles(
-                            styles.actionButton,
-                            styles.deleteAction,
-                            { marginRight: 0 } // Eliminar margen del último botón
-                          )}
+                          style={{
+                            ...styles.actionButton,
+                            ...styles.deleteAction,
+                          }}
                           onClick={() => handleDeleteLocalidad(localidad._id)}
                           title="Eliminar localidad"
                           aria-label={`Eliminar localidad ${localidad.nombre}`}
+                          disabled={loading}
                         >
                           <FaTrash size={12} />
                           Eliminar
@@ -437,25 +563,68 @@ const GestorLocalidades = () => {
               </tbody>
             </table>
           </div>
-        )}        {/* Modal for create/edit locality */}
+        )}
+
+        {/* Modal for create/edit locality */}
         {modalOpen && (
           <div 
-            style={styles.modalOverlay}
-            className="modal"
-            onClick={(e) => e.target.className === 'modal' && setModalOpen(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1400,
+            }}
+            className="modal-overlay"
+            onClick={(e) => {
+              // Cerrar modal al hacer click en el overlay, pero no en el contenido
+              if (e.target === e.currentTarget) {
+                setModalOpen(false);
+              }
+            }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
           >
-            <div style={styles.modalContent}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '20px',
+              maxWidth: '600px',
+              width: '90%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+              position: 'relative',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            }}>
               <div style={styles.modalBody}>
-                <button
-                  style={styles.modalCloseButton}
-                  onClick={() => setModalOpen(false)}
-                  aria-label="Cerrar modal"
-                >
-                  ✗
-                </button>
-                <h2 style={styles.modalTitle}>
-                  {isEditing ? 'Editar Localidad' : 'Agregar Nueva Localidad'}
-                </h2>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: stylesGlobal.spacing.scale[6],
+                }}>
+                  <h2 id="modal-title" style={styles.modalTitle}>
+                    {isEditing ? 'Editar Localidad' : 'Agregar Nueva Localidad'}
+                  </h2>
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    style={{
+                      ...stylesGlobal.components.button.variants.ghost,
+                      ...stylesGlobal.components.button.sizes.xs,
+                    }}
+                    aria-label="Cerrar modal"
+                    disabled={formLoading}
+                    type="button"
+                  >
+                    ✗
+                  </button>
+                </div>
                 
                 {formError && (
                   <div style={styles.error}>
@@ -478,7 +647,12 @@ const GestorLocalidades = () => {
                       style={styles.input}
                       placeholder="Ingresa el nombre de la localidad"
                       required
+                      maxLength={100}
+                      disabled={formLoading}
                     />
+                    <small style={styles.helpText}>
+                      Máximo 100 caracteres
+                    </small>
                   </div>
                   
                   <div style={styles.formGroup}>
@@ -493,9 +667,11 @@ const GestorLocalidades = () => {
                       style={styles.textarea}
                       placeholder="Describe la localidad, ubicación, características, etc. (opcional)"
                       rows={4}
+                      maxLength={500}
+                      disabled={formLoading}
                     />
                     <small style={styles.helpText}>
-                      Proporciona información adicional sobre la localidad que ayude a identificarla.
+                      Máximo 500 caracteres. Proporciona información adicional sobre la localidad que ayude a identificarla.
                     </small>
                   </div>
                   
@@ -503,16 +679,37 @@ const GestorLocalidades = () => {
                     <button
                       type="button"
                       onClick={() => setModalOpen(false)}
-                      style={styles.outlineButton}
+                      style={{
+                        ...styles.outlineButton,
+                        ...(formLoading ? styles.disabledButton : {}),
+                      }}
+                      disabled={formLoading}
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      style={styles.primaryButton}
+                      style={{
+                        ...styles.primaryButton,
+                        ...(formLoading ? styles.disabledButton : {}),
+                      }}
+                      disabled={formLoading}
                       aria-label={isEditing ? 'Actualizar localidad' : 'Crear localidad'}
                     >
-                      {isEditing ? 'Actualizar Localidad' : 'Guardar Localidad'}
+                      {formLoading ? (
+                        <>
+                          <FaSpinner style={{ 
+                            animation: 'spin 1s linear infinite', 
+                            marginRight: stylesGlobal.spacing.scale[1] 
+                          }} />
+                          {isEditing ? 'Actualizando...' : 'Guardando...'}
+                        </>
+                      ) : (
+                        <>
+                          <FaSave style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+                          {isEditing ? 'Actualizar Localidad' : 'Guardar Localidad'}
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -521,6 +718,13 @@ const GestorLocalidades = () => {
           </div>
         )}
       </div>
+      
+      {/* Contenedor de notificaciones */}
+      <NotificationContainer
+        notifications={notifications}
+        onRemoveNotification={removeNotification}
+        onClearAll={clearAllNotifications}
+      />
     </div>
   );
 };

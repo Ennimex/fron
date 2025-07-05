@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, role: decoded.role };
     } catch (error) {
       console.error('Error de login:', error);
-      return { success: false, message: error.message || 'Error al iniciar sesión' };
+      return { success: false, message: error?.error || error?.message || 'Error al iniciar sesión' };
     }
   };
 
@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }) => {
       };
     } catch (error) {
       console.error('Error de registro:', error);
-      return { success: false, message: error.message };
+      return { success: false, message: error?.error || error?.message || 'Error al registrarse' };
     }
   };
 

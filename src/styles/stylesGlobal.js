@@ -6,7 +6,7 @@
  * Fecha: 2025-01-02
  */
 
-const stylesPublic = {
+const stylesGlobal = {
   // ===============================
   // TOKENS DE DISEÑO - COLORES MEJORADOS
   // ===============================
@@ -694,4 +694,4 @@ const stylesPublic = {
   },
 }
 
-export default stylesPublic
+export default stylesGlobal

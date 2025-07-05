@@ -440,7 +440,7 @@ const Login = () => {
 
     .login-input:focus {
       outline: none;
-      border-color: ${stylesPublic.colors.primary[500]};
+      border: 1px solid ${stylesPublic.colors.primary[500]};
       box-shadow: 0 0 0 3px rgba(214, 51, 132, 0.1);
       background: rgba(255, 255, 255, 0.95);
       transform: translateY(-1px);
@@ -452,7 +452,7 @@ const Login = () => {
     }
 
     .login-input.input-error {
-      border-color: ${stylesPublic.colors.semantic.error.main};
+      border: 1px solid ${stylesPublic.colors.semantic.error.main};
       background: rgba(225, 29, 72, 0.05);
       animation: shake 0.5s ease-in-out;
     }
