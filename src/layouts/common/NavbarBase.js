@@ -15,6 +15,7 @@ const NavbarBase = ({
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 375);
 
   // Detectar scroll para aplicar estilos
   useEffect(() => {
@@ -27,10 +28,13 @@ const NavbarBase = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Cerrar menú móvil cuando se hace resize
+  // Cerrar menú móvil cuando se hace resize y detectar móviles muy pequeños
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 992) { // lg breakpoint
+      const width = window.innerWidth;
+      setIsMobile(width <= 375);
+      
+      if (width >= 992) { // lg breakpoint
         setExpanded(false);
       }
     };
@@ -98,8 +102,12 @@ const NavbarBase = ({
     mobileActions: {
       display: "flex",
       alignItems: "center",
-      gap: "4px", // Gap más pequeño en móviles
+      gap: "2px", // Gap mínimo en móviles
       marginLeft: "auto", // Empujar hacia la derecha
+      flexShrink: 0, // Evitar que se comprima
+      height: "40px", // Altura fija para alineación
+      paddingRight: "0px", // Sin padding extra
+      maxWidth: "fit-content", // Ajustar al contenido
     },
     loginButton: {
       ...stylesGlobal.components.button.variants.primary,
@@ -145,7 +153,10 @@ const NavbarBase = ({
         style={navbarStyles.navbar}
         className="px-0"
       >
-        <Container fluid style={{ padding: "0 2rem" }}>
+        <Container fluid style={{ 
+          padding: isMobile ? "0 0.5rem" : "0 1rem",
+          maxWidth: "100%"
+        }}>
           {/* Brand */}
           <Navbar.Brand
             as={Link}
@@ -238,11 +249,13 @@ const NavbarBase = ({
                   onClick={handleLoginClick}
                   style={{
                     ...navbarStyles.loginButton,
-                    fontSize: "0.875rem",
-                    padding: "6px 12px",
+                    fontSize: isMobile ? "0.75rem" : "0.8rem",
+                    padding: isMobile ? "3px 6px" : "4px 8px",
+                    flexShrink: 0,
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  Iniciar Sesión
+                  {isMobile ? "Login" : "Iniciar Sesión"}
                 </Button>
               )}
               
@@ -251,7 +264,7 @@ const NavbarBase = ({
                 style={{
                   background: "none",
                   border: "none",
-                  padding: "6px",
+                  padding: isMobile ? "3px" : "4px",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -259,8 +272,9 @@ const NavbarBase = ({
                   borderRadius: "6px",
                   transition: "all 0.3s ease",
                   color: "#524842",
-                  minWidth: "40px",
-                  minHeight: "40px",
+                  minWidth: isMobile ? "32px" : "36px",
+                  minHeight: isMobile ? "32px" : "36px",
+                  flexShrink: 0,
                 }}
                 onClick={() => setExpanded(!expanded)}
                 aria-label="Toggle navigation"
@@ -273,7 +287,7 @@ const NavbarBase = ({
                   e.target.style.color = "#524842";
                 }}
               >
-                {expanded ? <X size={22} /> : <List size={22} />}
+                {expanded ? <X size={isMobile ? 18 : 20} /> : <List size={isMobile ? 18 : 20} />}
               </button>
             </div>
           </div>
