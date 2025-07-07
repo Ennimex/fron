@@ -1,265 +1,546 @@
-import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock } from 'react-icons/fa';
-import { adminAPI } from '../../services/api';
-import adminStyles from '../../styles/stylesAdmin';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock, FaLock, FaSpinner } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+import { Navigate } from 'react-router-dom';
+import adminService from '../../services/adminServices';
+import { useAdminNotifications } from '../../services/adminHooks';
+import NotificationContainer from '../../components/admin/NotificationContainer';
+import stylesGlobal from '../../styles/stylesGlobal';
+
+// Agregar estilos CSS para animaciones
+const modalStyles = `
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .modal-overlay {
+    animation: overlayFadeIn 0.3s ease-out;
+  }
+
+  .modal-content {
+    animation: modalFadeIn 0.3s ease-out;
+  }
+
+  .modal-content:hover .modal-close-btn {
+    opacity: 1;
+  }
+
+  .modal-close-btn {
+    transition: all 0.2s ease;
+    opacity: 0.7;
+  }
+
+  .modal-close-btn:hover {
+    opacity: 1 !important;
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = modalStyles;
+  if (!document.head.querySelector('style[data-modal-styles]')) {
+    styleElement.setAttribute('data-modal-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
 
 const GestionVideos = () => {
+  const { user, isAuthenticated } = useAuth();
+
+  // Hook de notificaciones
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
+  
+  // Crear una referencia estable para addNotification
+  const addNotificationRef = useRef(addNotification);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+  }, [addNotification]);
+
+  // Suscribirse a las notificaciones de adminService
+  useEffect(() => {
+    const unsubscribe = adminService.onNotification((notification) => {
+      addNotification(notification.message, notification.type, notification.duration);
+    });
+
+    return unsubscribe;
+  }, [addNotification]);
 
   // Mapeo de estilos globales
   const styles = {
-    pageContainer: adminStyles.containers.page,
-    mainContainer: adminStyles.containers.main,
-    header: adminStyles.headerStyles.headerSimple,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    addButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+    pageContainer: {
+      ...stylesGlobal.utils.container,
+      padding: stylesGlobal.spacing.sections.md,
+      backgroundColor: stylesGlobal.colors.surface.primary,
     },
-    content: adminStyles.containers.content,
-    error: adminStyles.messageStyles.error,
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
-    
-    // Estilos de cards
-    cardBase: adminStyles.cards.base,
-    cardImageContainer: adminStyles.cards.imageContainer,
-    cardImage: adminStyles.cards.image,
-    cardPlayButton: adminStyles.cards.playButton,    cardPlaceholder: adminStyles.cards.placeholder,
-    cardContent: adminStyles.cards.content,
-    cardTitle: adminStyles.cards.title,
-    cardDescription: adminStyles.cards.description,
-      // Estilos de modal
-    modalOverlay: adminStyles.modalStyles.overlay,
+    mainContainer: {
+      maxWidth: stylesGlobal.utils.container.maxWidth.xl,
+      margin: stylesGlobal.spacing.margins.auto,
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: stylesGlobal.spacing.scale[8],
+    },
+    title: {
+      ...stylesGlobal.typography.headings.h1,
+      display: 'flex',
+      alignItems: 'center',
+    },
+    subtitle: {
+      ...stylesGlobal.typography.body.small,
+      color: stylesGlobal.colors.text.secondary,
+    },
+    addButton: {
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      display: 'flex',
+      alignItems: 'center',
+    },
+    content: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: stylesGlobal.spacing.gaps.lg,
+    },
+    error: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.semantic.error.main,
+      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      padding: stylesGlobal.spacing.scale[4],
+      borderRadius: stylesGlobal.borders.radius.md,
+      marginBottom: stylesGlobal.spacing.scale[4],
+      textAlign: 'center',
+    },
+    emptyState: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: stylesGlobal.spacing.scale[12],
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      border: `1px solid ${stylesGlobal.borders.colors.muted}`,
+    },
+    emptyStateText: {
+      ...stylesGlobal.typography.headings.h3,
+      marginBottom: stylesGlobal.spacing.scale[2],
+    },
+    emptyStateSubtext: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.tertiary,
+    },
+    cardBase: {
+      ...stylesGlobal.components.card.base,
+      ...stylesGlobal.components.card.interactive,
+    },
+    cardImageContainer: {
+      position: 'relative',
+      width: '100%',
+      aspectRatio: '16 / 9',
+      overflow: 'hidden',
+      borderTopLeftRadius: stylesGlobal.borders.radius.lg,
+      borderTopRightRadius: stylesGlobal.borders.radius.lg,
+    },
+    cardImage: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+    },
+    cardPlayButton: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: stylesGlobal.colors.surface.glass,
+      borderRadius: stylesGlobal.borders.radius.full,
+      padding: stylesGlobal.spacing.scale[4],
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: stylesGlobal.animations.transitions.elegant,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.primary[500],
+        color: stylesGlobal.colors.primary.contrast,
+      },
+    },
+    cardPlaceholder: {
+      ...stylesGlobal.components.card.base,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      backgroundColor: stylesGlobal.colors.neutral[100],
+      color: stylesGlobal.colors.neutral[500],
+    },
+    cardContent: {
+      padding: stylesGlobal.spacing.scale[4],
+    },
+    cardTitle: {
+      ...stylesGlobal.typography.headings.h4,
+      marginBottom: stylesGlobal.spacing.scale[2],
+    },
+    cardDescription: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.secondary,
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
+    cardActions: {
+      display: 'flex',
+      gap: stylesGlobal.spacing.gaps.md,
+    },
+    modalOverlay: {
+      ...stylesGlobal.utils.overlay.elegant,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1300,
+    },
     modalContent: {
-      ...adminStyles.modalStyles.content,
+      ...stylesGlobal.components.card.luxury,
       maxWidth: '600px',
+      width: '90%',
       maxHeight: '90vh',
       overflow: 'auto',
+      position: 'relative',
+      margin: '20px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
+      transform: 'scale(1)',
+      transition: 'all 0.3s ease-in-out',
     },
-    modalCloseButton: adminStyles.modalStyles.closeButton,
+    deleteModalContent: {
+      ...stylesGlobal.components.card.luxury,
+      maxWidth: '500px',
+      width: '90%',
+      textAlign: 'center',
+      position: 'relative',
+      margin: '20px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
+      transform: 'scale(1)',
+      transition: 'all 0.3s ease-in-out',
+    },
+    modalCloseButton: {
+      ...stylesGlobal.components.button.variants.ghost,
+      ...stylesGlobal.components.button.sizes.sm,
+      position: 'absolute',
+      top: stylesGlobal.spacing.scale[3],
+      right: stylesGlobal.spacing.scale[3],
+      width: '32px',
+      height: '32px',
+      borderRadius: stylesGlobal.borders.radius.full,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '18px',
+      fontWeight: 'bold',
+      zIndex: 10,
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+      cursor: 'pointer',
+    },
     modalTitle: {
-      ...adminStyles.modalStyles.title,
-      marginBottom: adminStyles.spacing.xl,
+      ...stylesGlobal.typography.headings.h2,
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     modalActions: {
-      ...adminStyles.modalStyles.actions,
-      marginTop: adminStyles.spacing.xl,
-      paddingTop: adminStyles.spacing.lg,
-      borderTop: `1px solid ${adminStyles.colors.border}`,
+      display: 'flex',
+      justifyContent: 'flex-end',
+      gap: stylesGlobal.spacing.gaps.md,
+      marginTop: stylesGlobal.spacing.scale[6],
+      paddingTop: stylesGlobal.spacing.scale[4],
+      borderTop: `1px solid ${stylesGlobal.borders.colors.muted}`,
     },
     modalBody: {
-      padding: adminStyles.spacing.xl,
+      padding: stylesGlobal.spacing.scale[6],
+      position: 'relative',
+      paddingTop: stylesGlobal.spacing.scale[8], // Extra space for close button
     },
-    
-    // Estilos de formulario mejorados
     formContainer: {
-      padding: adminStyles.spacing.xl,
+      width: '100%',
     },
     formGroup: {
-      marginBottom: adminStyles.spacing.xl,
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     label: {
-      ...adminStyles.forms.label,
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.primary,
+      marginBottom: stylesGlobal.spacing.scale[2],
       display: 'block',
-      marginBottom: adminStyles.spacing.md,
-      fontWeight: adminStyles.typography.weightMedium,
-      color: adminStyles.colors.textPrimary,
     },
     requiredField: {
-      ...adminStyles.forms.requiredField,
-      marginLeft: adminStyles.spacing.xs,
+      color: stylesGlobal.colors.semantic.error.main,
+      marginLeft: stylesGlobal.spacing.scale[1],
     },
     input: {
-      ...adminStyles.forms.input,
-      width: '100%',
-      padding: adminStyles.spacing.md,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+      ...stylesGlobal.components.input.base,
     },
     inputFocus: {
-      borderColor: adminStyles.colors.primary,
-      boxShadow: `0 0 0 3px rgba(13, 27, 42, 0.1)`,
-      outline: 'none',
+      ...stylesGlobal.components.input.base['&:focus'],
     },
     textarea: {
-      ...adminStyles.forms.textarea,
-      width: '100%',
-      padding: adminStyles.spacing.md,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
+      ...stylesGlobal.components.input.base,
       minHeight: '100px',
       resize: 'vertical',
-      fontFamily: 'inherit',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
     },
     fileInputContainer: {
       position: 'relative',
     },
     fileInput: {
-      ...adminStyles.forms.fileInput,
-      width: '100%',
-      padding: adminStyles.spacing.md,
-      border: `1px solid ${adminStyles.colors.border}`,
-      borderRadius: adminStyles.borders.radius,
-      fontSize: adminStyles.typography.textBase,
-      marginBottom: 0,
-      boxSizing: 'border-box',
+      ...stylesGlobal.components.input.base,
       cursor: 'pointer',
     },
     helpText: {
-      ...adminStyles.forms.helpText,
-      display: 'block',
-      marginTop: adminStyles.spacing.sm,
-      marginBottom: adminStyles.spacing.md,
-      fontSize: adminStyles.typography.textSm,
-      color: adminStyles.colors.textMuted,
-      lineHeight: '1.4',
+      ...stylesGlobal.typography.body.caption,
+      color: stylesGlobal.colors.text.muted,
+      marginTop: stylesGlobal.spacing.scale[2],
+      marginBottom: stylesGlobal.spacing.scale[2],
     },
     previewContainer: {
-      marginTop: adminStyles.spacing.lg,
-      padding: adminStyles.spacing.md,
-      backgroundColor: adminStyles.colors.backgroundGray,
-      borderRadius: adminStyles.borders.radius,
-      border: `1px solid ${adminStyles.colors.border}`,
+      marginTop: stylesGlobal.spacing.scale[4],
+      padding: stylesGlobal.spacing.scale[4],
+      backgroundColor: stylesGlobal.colors.neutral[50],
+      borderRadius: stylesGlobal.borders.radius.md,
+      border: `1px solid ${stylesGlobal.borders.colors.muted}`,
     },
     previewLabel: {
-      display: 'block',
-      marginBottom: adminStyles.spacing.md,
-      fontSize: adminStyles.typography.textSm,
-      fontWeight: adminStyles.typography.weightMedium,
-      color: adminStyles.colors.textSecondary,
+      ...stylesGlobal.typography.body.caption,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.secondary,
+      marginBottom: stylesGlobal.spacing.scale[2],
     },
     previewMedia: {
-      ...adminStyles.forms.previewMedia,
       maxWidth: '100%',
       height: 'auto',
-      borderRadius: adminStyles.borders.radius,
-      border: `1px solid ${adminStyles.colors.border}`,
+      borderRadius: stylesGlobal.borders.radius.md,
+      border: `1px solid ${stylesGlobal.borders.colors.muted}`,
     },
-      // Estilos de botones
     actionButton: {
-      ...adminStyles.buttons.actionButton,
-      padding: `${adminStyles.spacing.sm} ${adminStyles.spacing.lg}`,
-      minWidth: '90px',
-      fontSize: adminStyles.typography.textSm,
-      fontWeight: adminStyles.typography.weightMedium,
+      ...stylesGlobal.components.button.variants.secondary,
+      ...stylesGlobal.components.button.sizes.sm,
     },
     editAction: {
-      ...adminStyles.buttons.editAction,
-      marginRight: adminStyles.spacing.md,
+      ...stylesGlobal.components.button.variants.secondary,
     },
-    deleteAction: adminStyles.buttons.deleteAction,
-    cardActions: {
-      ...adminStyles.cards.actions,
-      gap: adminStyles.spacing.md,
-      paddingTop: adminStyles.spacing.sm,
-    },    outlineButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.outline,
-      marginRight: adminStyles.spacing.lg,
+    deleteAction: {
+      ...stylesGlobal.components.button.variants.secondary,
+      borderColor: stylesGlobal.colors.semantic.error.main,
+      color: stylesGlobal.colors.semantic.error.main,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.error.main,
+        color: stylesGlobal.colors.semantic.error.contrast,
+      },
+    },
+    outlineButton: {
+      ...stylesGlobal.components.button.variants.ghost,
+      ...stylesGlobal.components.button.sizes.base,
     },
     primaryButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+      ...stylesGlobal.components.button.variants.primary,
+      ...stylesGlobal.components.button.sizes.base,
     },
-    disabledButton: adminStyles.buttons.disabled,
-    
-    // Estilos de loading
+    disabledButton: {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
     loadingContainer: {
-      ...adminStyles.containers.page,
-      ...adminStyles.loadingStyles.container,
+      ...stylesGlobal.utils.container,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
     },
-    loadingOverlay: adminStyles.loadingStyles.overlay,
-    loadingSpinner: adminStyles.loadingStyles.spinner,
-    loadingText: adminStyles.loadingStyles.text,
-    loadingSubtext: adminStyles.loadingStyles.subtext,
-    
-    // Utilidades
-    textCenter: adminStyles.utilities.textCenter,
+    loadingOverlay: {
+      ...stylesGlobal.utils.overlay.base,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1400,
+    },
+    loadingSpinner: {
+      fontSize: '2rem',
+      animation: 'spin 1s linear infinite',
+      color: stylesGlobal.colors.primary[500],
+    },
+    loadingText: {
+      ...stylesGlobal.typography.headings.h3,
+      marginTop: stylesGlobal.spacing.scale[4],
+    },
+    loadingSubtext: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.secondary,
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    flexCenter: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   };
 
   // Estados para datos
   const [videos, setVideos] = useState([]);
-
-  // Estados para UI
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [videoToDelete, setVideoToDelete] = useState(null);
   const [currentVideo, setCurrentVideo] = useState(null);
-  const [uploading, setUploading] = useState(false);
-
-  // Estado para el formulario
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
     video: null,
     imagen: null,
     imagenPreview: null,
-    videoPreview: null
+    videoPreview: null,
   });
 
-  // Cargar videos al montar el componente
-  useEffect(() => {
-    fetchVideos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Función para cargar videos
-  const fetchVideos = async () => {
+  // Fetch videos
+  const fetchVideos = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await adminAPI.getVideos();
+      const data = await adminService.getVideos();
       setVideos(data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      // adminService ya maneja las notificaciones de error
       console.error('Error al cargar videos:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch videos on component mount
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'admin') {
+      fetchVideos();
+    }
+  }, [isAuthenticated, user, fetchVideos]);
+
+  // Cleanup preview URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (formData.imagenPreview && formData.imagenPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.imagenPreview);
+      }
+      if (formData.videoPreview && formData.videoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.videoPreview);
+      }
+    };
+  }, [formData.imagenPreview, formData.videoPreview]);
 
   // Manejadores de eventos para formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        addNotificationRef.current('La imagen no debe exceder los 5MB', 'error');
+        return;
+      }
+      // Validate file type
+      if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+        addNotificationRef.current('Solo se permiten imágenes JPG, PNG o GIF', 'error');
+        return;
+      }
+      // Revoke previous preview URL
+      if (formData.imagenPreview && formData.imagenPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.imagenPreview);
+      }
       const imageUrl = URL.createObjectURL(file);
-      
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         imagen: file,
-        imagenPreview: imageUrl
-      });
+        imagenPreview: imageUrl,
+      }));
     }
   };
 
   const handleVideoChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      // Validate file size (100MB max)
+      if (file.size > 100 * 1024 * 1024) {
+        addNotificationRef.current('El video no debe exceder los 100MB', 'error');
+        return;
+      }
+      // Validate file type
+      if (!file.type.startsWith('video/')) {
+        addNotificationRef.current('Solo se permiten archivos de video', 'error');
+        return;
+      }
+      // Revoke previous preview URL
+      if (formData.videoPreview && formData.videoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.videoPreview);
+      }
       const videoUrl = URL.createObjectURL(file);
-      
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         video: file,
-        videoPreview: videoUrl
-      });
+        videoPreview: videoUrl,
+      }));
     }
+  };
+
+  // Validate form
+  const validateForm = () => {
+    if (!formData.titulo.trim()) {
+      addNotificationRef.current('El título del video es obligatorio', 'error');
+      return false;
+    }
+    if (formData.titulo.length > 100) {
+      addNotificationRef.current('El título no puede exceder los 100 caracteres', 'error');
+      return false;
+    }
+    if (formData.descripcion && formData.descripcion.length > 500) {
+      addNotificationRef.current('La descripción no puede exceder los 500 caracteres', 'error');
+      return false;
+    }
+    if (!currentVideo && !formData.video) {
+      addNotificationRef.current('Debes seleccionar un video', 'error');
+      return false;
+    }
+    return true;
   };
 
   // Manejadores de modal
@@ -271,7 +552,7 @@ const GestionVideos = () => {
       video: null,
       imagen: null,
       imagenPreview: null,
-      videoPreview: null
+      videoPreview: null,
     });
     setModalOpen(true);
   };
@@ -284,68 +565,91 @@ const GestionVideos = () => {
       video: null,
       imagen: null,
       imagenPreview: video.miniatura || null,
-      videoPreview: null
+      videoPreview: null,
     });
     setModalOpen(true);
   };
 
   const handleCloseModal = () => {
+    // Revoke preview URLs
+    if (formData.imagenPreview && formData.imagenPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.imagenPreview);
+    }
+    if (formData.videoPreview && formData.videoPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.videoPreview);
+    }
     setModalOpen(false);
+    setFormData({
+      titulo: '',
+      descripcion: '',
+      video: null,
+      imagen: null,
+      imagenPreview: null,
+      videoPreview: null,
+    });
+    setCurrentVideo(null);
   };
 
-  const handleOutsideClick = (e) => {
-    if (e.target.className === 'modal-overlay') {
-      handleCloseModal();
-    }
+  // Handle delete modal
+  const handleOpenDeleteModal = (video) => {
+    setVideoToDelete(video);
+    setDeleteModalOpen(true);
   };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setVideoToDelete(null);
+  };
+
   // Función para enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    if (!validateForm()) return;
+
     try {
+      setFormLoading(true);
       const formDataToSend = new FormData();
-      formDataToSend.append('titulo', formData.titulo);
-      formDataToSend.append('descripcion', formData.descripcion);
-      
+      formDataToSend.append('titulo', formData.titulo.trim());
+      formDataToSend.append('descripcion', formData.descripcion.trim());
       if (formData.video) {
         formDataToSend.append('video', formData.video);
       }
-      
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
       }
-      
-      setUploading(true);
-      
+
       if (currentVideo) {
-        await adminAPI.updateVideo(currentVideo._id, formDataToSend);
+        await adminService.updateVideo(currentVideo._id, formDataToSend);
       } else {
-        await adminAPI.createVideo(formDataToSend);
+        await adminService.createVideo(formDataToSend);
       }
-      
-      setUploading(false);
-      setModalOpen(false);
-      fetchVideos();
+
+      // adminService ya maneja las notificaciones de éxito automáticamente
+      handleCloseModal();
+      await fetchVideos();
     } catch (err) {
-      setUploading(false);
-      setError(err.response?.data?.message || err.message);
-      console.error('Error al guardar video:', err);
+      // adminService ya maneja las notificaciones de error
+      console.error('Error al procesar video:', err);
+    } finally {
+      setFormLoading(false);
     }
   };
 
-  // Función para eliminar video
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este video?')) {
-      return;
-    }
-    
+  // Handle video deletion
+  const handleDelete = async () => {
+    if (!videoToDelete) return;
+
     try {
-      await adminAPI.deleteVideo(id);
-      
-      fetchVideos();
+      setFormLoading(true);
+      await adminService.deleteVideo(videoToDelete._id);
+      // adminService ya maneja las notificaciones de éxito automáticamente
+      handleCloseDeleteModal();
+      await fetchVideos();
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      // adminService ya maneja las notificaciones de error
       console.error('Error al eliminar video:', err);
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -356,16 +660,40 @@ const GestionVideos = () => {
     }
   };
 
+  // Check if the user is authenticated and has admin role
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (user?.role !== 'admin') {
+    return (
+      <div style={{
+        ...styles.pageContainer,
+        ...styles.flexCenter,
+        height: '80vh',
+        textAlign: 'center',
+      }}>
+        <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
+        <h2 style={styles.title}>Acceso Denegado</h2>
+        <p style={styles.subtitle}>
+          No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
+        </p>
+      </div>
+    );
+  }
+
   // Renderizado condicional para loading
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.textCenter}>
-          <h3>Cargando videos...</h3>
+          <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[2] }} />
+          <h3 style={stylesGlobal.typography.headings.h3}>Cargando videos...</h3>
         </div>
       </div>
     );
   }
+
   return (
     <div style={styles.pageContainer}>
       <div style={styles.mainContainer}>
@@ -373,7 +701,7 @@ const GestionVideos = () => {
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>
-              <FaVideo style={{ marginRight: adminStyles.spacing.md }} />
+              <FaVideo style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
               Gestión de Videos
             </h1>
             <p style={styles.subtitle}>
@@ -381,55 +709,49 @@ const GestionVideos = () => {
             </p>
           </div>
           <button
-            style={styles.addButton}
+            style={{
+              ...styles.addButton,
+              ...(formLoading || loading ? styles.disabledButton : {}),
+            }}
             onClick={handleOpenCreateModal}
             aria-label="Agregar nuevo video"
+            disabled={formLoading || loading}
           >
-            <FaPlus size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+            <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
             Agregar Video
           </button>
         </div>
 
-        {/* Mensaje de error */}
-        {error && (
-          <div style={styles.error}>
-            {error}
-          </div>
-        )}
+        {/* Sistema de notificaciones centralizado */}
+        <NotificationContainer
+          notifications={notifications}
+          onRemoveNotification={removeNotification}
+          onClearAll={clearAllNotifications}
+        />
 
         {/* Contenido principal */}
         {videos.length === 0 ? (
           <div style={styles.emptyState}>
-            <FaVideo size={40} style={{ opacity: 0.3, marginBottom: adminStyles.spacing.lg }} />
+            <FaVideo size={40} style={{ opacity: 0.3, marginBottom: stylesGlobal.spacing.scale[4] }} />
             <h3 style={styles.emptyStateText}>No hay videos disponibles</h3>
             <p style={styles.emptyStateSubtext}>
               ¡Agrega un nuevo video para comenzar!
             </p>
           </div>
         ) : (
-          <div style={adminStyles.combineStyles(
-            styles.content,
-            {
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: adminStyles.spacing.lg
-            }
-          )}>
+          <div style={styles.content}>
             {videos.map((video) => (
               <div key={video._id} style={styles.cardBase}>
-                <div 
-                  style={adminStyles.combineStyles(
-                    styles.cardImageContainer,
-                    { cursor: 'pointer' }
-                  )}
+                <div
+                  style={{ ...styles.cardImageContainer, cursor: 'pointer' }}
                   onClick={() => handlePlayVideo(video.url)}
                 >
                   {video.miniatura ? (
                     <>
-                      <img 
-                        src={video.miniatura} 
-                        alt={video.titulo} 
-                        style={styles.cardImage} 
+                      <img
+                        src={video.miniatura}
+                        alt={video.titulo}
+                        style={styles.cardImage}
                       />
                       <div style={styles.cardPlayButton}>
                         <FaPlay size={20} />
@@ -448,29 +770,26 @@ const GestionVideos = () => {
                   </h3>
                   <p style={styles.cardDescription}>
                     {video.descripcion || 'Sin descripción'}
-                  </p>                  <div style={styles.cardActions}>
+                  </p>
+                  <div style={styles.cardActions}>
                     <button
-                      style={adminStyles.combineStyles(
-                        styles.actionButton,
-                        styles.editAction
-                      )}
+                      style={styles.editAction}
                       onClick={() => handleOpenEditModal(video)}
                       title="Editar video"
                       aria-label={`Editar video ${video.titulo || 'Sin título'}`}
+                      disabled={formLoading || loading}
                     >
-                      <FaEdit size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+                      <FaEdit size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
                       Editar
                     </button>
                     <button
-                      style={adminStyles.combineStyles(
-                        styles.actionButton,
-                        styles.deleteAction
-                      )}
-                      onClick={() => handleDelete(video._id)}
+                      style={styles.deleteAction}
+                      onClick={() => handleOpenDeleteModal(video)}
                       title="Eliminar video"
                       aria-label={`Eliminar video ${video.titulo || 'Sin título'}`}
+                      disabled={formLoading || loading}
                     >
-                      <FaTrash size={14} style={{ marginRight: adminStyles.spacing.xs }} />
+                      <FaTrash size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
                       Eliminar
                     </button>
                   </div>
@@ -478,33 +797,39 @@ const GestionVideos = () => {
               </div>
             ))}
           </div>
-        )}        {/* Modal para crear/editar video */}
+        )}
+
+        {/* Modal para crear/editar video */}
         {modalOpen && (
-          <div 
+          <div
             style={styles.modalOverlay}
             className="modal-overlay"
-            onClick={handleOutsideClick}
+            onClick={(e) => e.target.classList.contains('modal-overlay') && handleCloseModal()}
           >
-            <div style={styles.modalContent}>
+            <div style={styles.modalContent} className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div style={styles.modalBody}>
                 <button
                   style={styles.modalCloseButton}
+                  className="modal-close-btn"
                   onClick={handleCloseModal}
                   aria-label="Cerrar modal"
+                  disabled={formLoading}
+                  title="Cerrar"
                 >
-                  ✕
+                  ×
                 </button>
                 <h2 style={styles.modalTitle}>
                   {currentVideo ? 'Editar Video' : 'Agregar Nuevo Video'}
                 </h2>
-                
-                <div style={styles.formContainer}>
-                  <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} style={styles.formContainer}>
                     {/* Campo título */}
                     <div style={styles.formGroup}>
                       <label style={styles.label} htmlFor="titulo">
-                        Título
+                        Título del Video
                         <span style={styles.requiredField}>*</span>
+                        <span style={{ ...stylesGlobal.typography.body.caption, marginLeft: stylesGlobal.spacing.scale[2] }}>
+                          ({formData.titulo.length}/100)
+                        </span>
                       </label>
                       <input
                         style={styles.input}
@@ -513,15 +838,22 @@ const GestionVideos = () => {
                         name="titulo"
                         value={formData.titulo}
                         onChange={handleChange}
-                        placeholder="Ingresa el título del video"
+                        placeholder="Ingresa un título descriptivo para el video"
                         required
+                        maxLength={100}
+                        disabled={formLoading}
                       />
+                      <small style={styles.helpText}>
+                        Máximo 100 caracteres
+                      </small>
                     </div>
-                    
                     {/* Campo descripción */}
                     <div style={styles.formGroup}>
                       <label style={styles.label} htmlFor="descripcion">
                         Descripción
+                        <span style={{ ...stylesGlobal.typography.body.caption, marginLeft: stylesGlobal.spacing.scale[2] }}>
+                          ({formData.descripcion.length}/500)
+                        </span>
                       </label>
                       <textarea
                         style={styles.textarea}
@@ -531,14 +863,18 @@ const GestionVideos = () => {
                         onChange={handleChange}
                         placeholder="Describe el contenido del video (opcional)"
                         rows={4}
+                        maxLength={500}
+                        disabled={formLoading}
                       />
+                      <small style={styles.helpText}>
+                        Máximo 500 caracteres. Proporciona una descripción que ayude a los usuarios a comprender mejor el contenido.
+                      </small>
                     </div>
-                    
                     {/* Campo archivo de video */}
                     <div style={styles.formGroup}>
                       <label style={styles.label} htmlFor="video">
                         Archivo de Video
-                        <span style={styles.requiredField}>*</span>
+                        {!currentVideo && <span style={styles.requiredField}>*</span>}
                       </label>
                       <div style={styles.fileInputContainer}>
                         <input
@@ -548,26 +884,26 @@ const GestionVideos = () => {
                           name="video"
                           accept="video/*"
                           onChange={handleVideoChange}
+                          disabled={formLoading}
                           {...(currentVideo ? {} : { required: true })}
                         />
                         <small style={styles.helpText}>
-                          Formatos recomendados: MP4, WebM, AVI (Máximo 100MB)
+                          Formatos recomendados: MP4, WebM, AVI. Tamaño máximo: 100MB.
+                          {currentVideo && ' Deja vacío para mantener el video actual.'}
                         </small>
                       </div>
-                      
                       {formData.videoPreview && (
                         <div style={styles.previewContainer}>
                           <span style={styles.previewLabel}>Vista previa del video:</span>
-                          <video 
-                            controls 
-                            src={formData.videoPreview} 
+                          <video
+                            controls
+                            src={formData.videoPreview}
                             style={styles.previewMedia}
                             preload="metadata"
                           />
                         </div>
                       )}
                     </div>
-                    
                     {/* Campo miniatura personalizada */}
                     <div style={styles.formGroup}>
                       <label style={styles.label} htmlFor="imagen">
@@ -581,53 +917,134 @@ const GestionVideos = () => {
                           name="imagen"
                           accept="image/*"
                           onChange={handleImageChange}
+                          disabled={formLoading}
                         />
                         <small style={styles.helpText}>
-                          Formatos recomendados: JPG, PNG, GIF (Máximo 5MB)
+                          Formatos recomendados: JPG, PNG, GIF. Tamaño máximo: 5MB.
                         </small>
                         <small style={styles.helpText}>
                           Si no seleccionas una miniatura, el sistema generará una automáticamente desde el video.
                         </small>
                       </div>
-                      
                       {formData.imagenPreview && (
                         <div style={styles.previewContainer}>
                           <span style={styles.previewLabel}>Vista previa de la miniatura:</span>
-                          <img 
-                            src={formData.imagenPreview} 
-                            alt="Vista previa de miniatura" 
-                            style={styles.previewMedia} 
+                          <img
+                            src={formData.imagenPreview}
+                            alt="Vista previa de miniatura"
+                            style={styles.previewMedia}
                           />
                         </div>
                       )}
                     </div>
-                    
                     {/* Acciones del modal */}
                     <div style={styles.modalActions}>
                       <button
                         type="button"
                         onClick={handleCloseModal}
-                        style={styles.outlineButton}
+                        style={{
+                          ...styles.outlineButton,
+                          ...(formLoading ? styles.disabledButton : {}),
+                        }}
+                        disabled={formLoading}
                       >
                         Cancelar
                       </button>
                       <button
                         type="submit"
-                        disabled={uploading}
-                        style={adminStyles.combineStyles(
-                          styles.primaryButton,
-                          uploading ? styles.disabledButton : {}
-                        )}
+                        style={{
+                          ...styles.primaryButton,
+                          ...(formLoading ? styles.disabledButton : {}),
+                        }}
+                        disabled={formLoading}
+                        aria-label={currentVideo ? 'Actualizar video' : 'Crear video'}
                       >
-                        {uploading 
-                          ? 'Procesando...' 
-                          : currentVideo 
-                            ? 'Actualizar Video' 
-                            : 'Crear Video'
-                        }
+                        {formLoading ? (
+                          <>
+                            <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[1] }} />
+                            {currentVideo ? 'Actualizando...' : 'Creando...'}
+                          </>
+                        ) : (
+                          <>
+                            <FaPlus size={12} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+                            {currentVideo ? 'Actualizar Video' : 'Crear Video'}
+                          </>
+                        )}
                       </button>
                     </div>
-                  </form>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de confirmación para eliminar video */}
+        {deleteModalOpen && videoToDelete && (
+          <div
+            style={styles.modalOverlay}
+            className="modal-overlay"
+            onClick={(e) => e.target.classList.contains('modal-overlay') && handleCloseDeleteModal()}
+          >
+            <div style={styles.deleteModalContent} className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div style={styles.modalBody}>
+                <button
+                  style={styles.modalCloseButton}
+                  className="modal-close-btn"
+                  onClick={handleCloseDeleteModal}
+                  aria-label="Cerrar modal"
+                  disabled={formLoading}
+                  title="Cerrar"
+                >
+                  ×
+                </button>
+                <div style={{ textAlign: 'center' }}>
+                  <FaTrash size={48} style={{ color: stylesGlobal.colors.semantic.error.main, marginBottom: stylesGlobal.spacing.scale[4] }} />
+                  <h2 style={styles.modalTitle}>
+                    ¿Eliminar Video?
+                  </h2>
+                  <p style={{ ...stylesGlobal.typography.body.base, marginBottom: stylesGlobal.spacing.scale[6] }}>
+                    ¿Estás seguro de que deseas eliminar el video <strong>"{videoToDelete.titulo || 'Sin título'}"</strong>?
+                  </p>
+                  <p style={{ ...stylesGlobal.typography.body.caption, color: stylesGlobal.colors.text.muted, marginBottom: stylesGlobal.spacing.scale[6] }}>
+                    Esta acción no se puede deshacer. El video y toda su información asociada se eliminarán permanentemente.
+                  </p>
+                  <div style={styles.modalActions}>
+                    <button
+                      type="button"
+                      onClick={handleCloseDeleteModal}
+                      style={{
+                        ...styles.outlineButton,
+                        ...(formLoading ? styles.disabledButton : {}),
+                      }}
+                      disabled={formLoading}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      style={{
+                        ...styles.primaryButton,
+                        backgroundColor: stylesGlobal.colors.semantic.error.main,
+                        borderColor: stylesGlobal.colors.semantic.error.main,
+                        ...(formLoading ? styles.disabledButton : {}),
+                      }}
+                      disabled={formLoading}
+                      aria-label={`Confirmar eliminación del video ${videoToDelete.titulo || 'Sin título'}`}
+                    >
+                      {formLoading ? (
+                        <>
+                          <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[1] }} />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <FaTrash size={12} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+                          Eliminar Video
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -635,7 +1052,7 @@ const GestionVideos = () => {
         )}
 
         {/* Overlay de carga durante subida */}
-        {uploading && (
+        {formLoading && (
           <div style={styles.loadingOverlay}>
             <FaClock style={styles.loadingSpinner} />
             <div style={styles.loadingText}>Espera...</div>

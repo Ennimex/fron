@@ -83,7 +83,7 @@ class AdminService {
   async createCategoria(formData) {
     return this.handleApiResponse(
       () => api.post('/categorias', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Categoría creada exitosamente',
       'Error al crear categoría'
@@ -93,7 +93,7 @@ class AdminService {
   async updateCategoria(categoriaId, formData) {
     return this.handleApiResponse(
       () => api.put(`/categorias/${categoriaId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Categoría actualizada exitosamente',
       'Error al actualizar categoría'
@@ -120,7 +120,7 @@ class AdminService {
   async createProducto(formData) {
     return this.handleApiResponse(
       () => api.post('/productos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Producto creado exitosamente',
       'Error al crear producto'
@@ -130,7 +130,7 @@ class AdminService {
   async updateProducto(productoId, formData) {
     return this.handleApiResponse(
       () => api.put(`/productos/${productoId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Producto actualizado exitosamente',
       'Error al actualizar producto'
@@ -280,7 +280,7 @@ class AdminService {
   async createFoto(formData) {
     return this.handleApiResponse(
       () => api.post('/fotos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Foto subida exitosamente',
       'Error al subir foto'
@@ -290,7 +290,7 @@ class AdminService {
   async updateFoto(fotoId, formData) {
     return this.handleApiResponse(
       () => api.put(`/fotos/${fotoId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Foto actualizada exitosamente',
       'Error al actualizar foto'
@@ -325,7 +325,7 @@ class AdminService {
   async createVideo(formData) {
     return this.handleApiResponse(
       () => api.post('/videos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Video subido exitosamente',
       'Error al subir video'
@@ -335,7 +335,7 @@ class AdminService {
   async updateVideo(videoId, formData) {
     return this.handleApiResponse(
       () => api.put(`/videos/${videoId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Video actualizado exitosamente',
       'Error al actualizar video'
@@ -370,7 +370,9 @@ class AdminService {
   async createServicio(formData) {
     return this.handleApiResponse(
       () => api.post('/servicios', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 
+          'Content-Type': undefined // Permitir que el navegador establezca el Content-Type automáticamente para FormData
+        }
       }),
       'Servicio creado exitosamente',
       'Error al crear servicio'
@@ -380,7 +382,9 @@ class AdminService {
   async updateServicio(servicioId, formData) {
     return this.handleApiResponse(
       () => api.put(`/servicios/${servicioId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 
+          'Content-Type': undefined // Permitir que el navegador establezca el Content-Type automáticamente para FormData
+        }
       }),
       'Servicio actualizado exitosamente',
       'Error al actualizar servicio'
@@ -456,7 +460,7 @@ class AdminService {
   async createColaborador(formData) {
     return this.handleApiResponse(
       () => api.post('/colaboradores', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Colaborador creado exitosamente',
       'Error al crear colaborador'
@@ -466,7 +470,7 @@ class AdminService {
   async updateColaborador(colaboradorId, formData) {
     return this.handleApiResponse(
       () => api.put(`/colaboradores/${colaboradorId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': undefined }
       }),
       'Colaborador actualizado exitosamente',
       'Error al actualizar colaborador'

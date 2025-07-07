@@ -3,18 +3,19 @@ import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './admin/SidebarAdmin';
 import NavbarAdmin from './admin/NavbarAdmin';
 import { useAuth } from '../context/AuthContext';
-import { colors } from '../styles/styles';
+import stylesGlobal from '../styles/stylesGlobal';
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   
   const handleSidebarToggle = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
   
-  if (!user || user.role !== 'admin') {
-    return <Navigate to="/login" replace />;
+  // Verificar autenticación y rol de admin
+  if (!isAuthenticated || !user || user.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
   
   const styles = {
@@ -22,69 +23,24 @@ const AdminLayout = () => {
       display: 'flex',
       height: '100vh',
       overflow: 'hidden',
+      backgroundColor: stylesGlobal.colors.surface.secondary,
     },
     content: {
       flex: 1,
       marginLeft: sidebarCollapsed ? '70px' : '280px',
-      transition: 'margin-left 0.3s ease-in-out',
+      transition: stylesGlobal.animations.transitions.elegant,
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
       overflow: 'hidden'
     },
-    topBar: {
-      backgroundColor: colors.white,
-      borderBottom: `1px solid #eee`,
-      padding: '10px 0',
-      zIndex: 10,
-    },
-    userMenu: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    userAvatar: {
-      width: '36px',
-      height: '36px',
-      borderRadius: '50%',
-      backgroundColor: colors.primaryLight,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: colors.white,
-      marginRight: '10px',
-    },
-    notificationBadge: {
-      position: 'absolute',
-      top: '-5px',
-      right: '-5px',
-      backgroundColor: '#dc3545',
-      color: 'white',
-      borderRadius: '50%',
-      width: '18px',
-      height: '18px',
-      fontSize: '10px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    notificationButton: {
-      position: 'relative',
-      marginRight: '15px',
-    },
     pageContent: {
       flex: 1,
-      backgroundColor: '#f8f9fa',
+      backgroundColor: stylesGlobal.colors.surface.secondary,
       overflow: 'auto',
       padding: '0',
-      transition: 'all 0.3s ease-in-out'
+      transition: stylesGlobal.animations.transitions.elegant,
     },
-    breadcrumb: {
-      padding: '10px 0',
-      marginBottom: '20px',
-      borderBottom: '1px solid #eee',
-      fontSize: '14px',
-      color: colors.primaryMedium
-    }
   };
 
   return (

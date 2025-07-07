@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Navbar, Container, Nav } from 'react-bootstrap'; // Removido NavDropdown
+import { Navbar, Container, Nav } from 'react-bootstrap';
 import { FaBell, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { colors } from '../../styles/styles';
+import stylesGlobal from '../../styles/stylesGlobal';
 
 const NavbarAdmin = () => {
   const navigate = useNavigate();
@@ -12,19 +12,22 @@ const NavbarAdmin = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
+  // Estilos basados en stylesGlobal con variante dark
   const styles = {
     navbar: {
-      backgroundColor: colors.white,
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      borderBottom: '1px solid #e5e7eb',
+      ...stylesGlobal.components.navbar.base,
+      ...stylesGlobal.components.navbar.variants.dark,
+      position: "sticky",
+      top: 0,
+      borderBottom: `1px solid ${stylesGlobal.colors.neutral[700]}`,
     },
     brand: {
-      color: colors.primary,
-      fontWeight: 'bold',
-      fontSize: '1.5rem',
+      ...stylesGlobal.components.navbar.brand,
+      color: stylesGlobal.colors.text.inverse,
+      fontSize: "1.25rem",
     },
     icon: {
       fontSize: '1.2rem',
@@ -34,90 +37,133 @@ const NavbarAdmin = () => {
       position: 'absolute',
       top: '-5px',
       right: '-5px',
-      backgroundColor: '#dc3545',
+      backgroundColor: stylesGlobal.colors.semantic.error.main,
       borderRadius: '50%',
       padding: '0.25rem 0.5rem',
       fontSize: '0.75rem',
+      color: stylesGlobal.colors.text.inverse,
+      minWidth: '18px',
+      height: '18px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     notificationIcon: {
       position: 'relative',
-      marginRight: '1rem',
+      marginRight: '1.5rem',
+      padding: '8px',
+      borderRadius: stylesGlobal.borders.radius.md,
+      color: stylesGlobal.colors.text.inverse,
+      cursor: 'pointer',
+      transition: stylesGlobal.animations.transitions.base,
+      "&:hover": {
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+      }
     },
     profileContainer: {
       display: 'flex',
       alignItems: 'center',
-      gap: '0.5rem',
+      gap: '0.75rem',
+      cursor: 'pointer',
+      padding: '8px 12px',
+      borderRadius: stylesGlobal.borders.radius.lg,
+      transition: stylesGlobal.animations.transitions.base,
+      color: stylesGlobal.colors.text.inverse,
+      "&:hover": {
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+      }
     },
     avatar: {
-      width: '35px',
-      height: '35px',
+      width: '40px',
+      height: '40px',
       borderRadius: '50%',
-      backgroundColor: colors.primary,
+      backgroundColor: stylesGlobal.colors.primary[500],
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: colors.white,
+      color: stylesGlobal.colors.text.inverse,
+      fontSize: '1.1rem',
+      fontWeight: 700,
+      boxShadow: stylesGlobal.shadows.sm,
     },
     dropdown: {
       position: 'absolute',
       top: '100%',
       right: '0',
-      backgroundColor: colors.white,
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      borderRadius: stylesGlobal.borders.radius.xl,
+      boxShadow: stylesGlobal.shadows.xl,
       padding: '0.5rem',
-      minWidth: '200px',
-      zIndex: 1000,
-      border: '1px solid #e5e7eb',
+      minWidth: '240px',
+      zIndex: stylesGlobal.utils.zIndex.dropdown,
+      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
       display: showDropdown ? 'block' : 'none',
+      backdropFilter: "blur(12px)",
     },
     dropdownItem: {
       display: 'flex',
       alignItems: 'center',
-      padding: '0.75rem 1rem',
-      color: '#374151',
+      padding: '12px 16px',
+      color: stylesGlobal.colors.text.primary,
       textDecoration: 'none',
-      borderRadius: '6px',
-      transition: 'all 0.2s ease',
+      borderRadius: stylesGlobal.borders.radius.md,
+      transition: stylesGlobal.animations.transitions.elegant,
       cursor: 'pointer',
-      gap: '0.75rem',
-      fontSize: '0.9rem',
-    },
-    dropdownItemHover: {
-      backgroundColor: '#f3f4f6',
+      gap: '12px',
+      fontSize: '0.95rem',
+      fontWeight: 500,
+      "&:hover": {
+        backgroundColor: stylesGlobal.colors.primary[50],
+        color: stylesGlobal.colors.primary[600],
+        transform: "translateX(4px)",
+      }
     },
     divider: {
-      margin: '0.5rem 0',
-      borderTop: '1px solid #e5e7eb',
+      margin: '8px 0',
+      borderTop: `1px solid ${stylesGlobal.colors.neutral[200]}`,
     },
     userInfo: {
-      padding: '1rem',
-      borderBottom: '1px solid #e5e7eb',
-      marginBottom: '0.5rem',
+      padding: '16px',
+      borderBottom: `1px solid ${stylesGlobal.colors.neutral[200]}`,
+      marginBottom: '8px',
     },
     userName: {
-      fontWeight: '600',
-      color: '#111827',
-      fontSize: '0.95rem',
-      marginBottom: '0.25rem',
+      fontWeight: 600,
+      color: stylesGlobal.colors.text.primary,
+      fontSize: '1rem',
+      marginBottom: '4px',
     },
     userRole: {
-      color: '#6b7280',
-      fontSize: '0.85rem',
+      color: stylesGlobal.colors.text.tertiary,
+      fontSize: '0.875rem',
+      textTransform: 'capitalize',
+    },
+    logoutItem: {
+      color: stylesGlobal.colors.semantic.error.main,
+      "&:hover": {
+        backgroundColor: stylesGlobal.colors.semantic.error.light,
+        color: stylesGlobal.colors.semantic.error.dark,
+      }
     }
   };
 
   return (
     <Navbar style={styles.navbar} expand="lg">
-      <Container fluid>
-        <Navbar.Brand style={styles.brand}>Panel Administrativo</Navbar.Brand>
+      <Container fluid style={{ padding: "0 2rem" }}>
+        <Navbar.Brand style={styles.brand}>
+          Panel Administrativo
+        </Navbar.Brand>
         
         <Nav className="ms-auto d-flex align-items-center">
           {/* Notificaciones */}
-          <Nav.Link style={styles.notificationIcon}>
+          <div 
+            style={styles.notificationIcon}
+            onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)"}
+            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+          >
             <FaBell />
             <span style={styles.badge}>3</span>
-          </Nav.Link>
+          </div>
 
           <div style={{ position: 'relative' }}>
             <div 
@@ -128,23 +174,39 @@ const NavbarAdmin = () => {
               <div style={styles.avatar}>
                 {user?.name ? user.name[0].toUpperCase() : 'A'}
               </div>
-              <span>{user?.name || 'Admin'}</span>
+              <div className="d-none d-md-block">
+                <span style={{ fontSize: "0.95rem", fontWeight: 500 }}>
+                  {user?.name || 'Admin'}
+                </span>
+              </div>
             </div>
 
-            {/* Menú desplegable personalizado */}
+            {/* Menú desplegable elegante */}
             <div 
               style={styles.dropdown}
               onMouseLeave={() => setShowDropdown(false)}
             >
               <div style={styles.userInfo}>
-                <div style={styles.userName}>{user?.name || 'Admin'}</div>
-                <div style={styles.userRole}>{user?.role === 'admin' ? 'Administrador' : 'Usuario'}</div>
+                <div style={styles.userName}>
+                  {user?.name || 'Administrador'}
+                </div>
+                <div style={styles.userRole}>
+                  {user?.role === 'admin' ? 'Administrador' : 'Usuario'}
+                </div>
               </div>
 
               <div 
                 style={styles.dropdownItem}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = stylesGlobal.colors.primary[50];
+                  e.currentTarget.style.color = stylesGlobal.colors.primary[600];
+                  e.currentTarget.style.transform = "translateX(4px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = stylesGlobal.colors.text.primary;
+                  e.currentTarget.style.transform = "translateX(0)";
+                }}
                 onClick={() => navigate('/admin/perfil')}
               >
                 <FaUser />
@@ -153,8 +215,16 @@ const NavbarAdmin = () => {
 
               <div 
                 style={styles.dropdownItem}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = stylesGlobal.colors.primary[50];
+                  e.currentTarget.style.color = stylesGlobal.colors.primary[600];
+                  e.currentTarget.style.transform = "translateX(4px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = stylesGlobal.colors.text.primary;
+                  e.currentTarget.style.transform = "translateX(0)";
+                }}
                 onClick={() => navigate('/admin/configuracion')}
               >
                 <FaCog />
@@ -164,9 +234,17 @@ const NavbarAdmin = () => {
               <div style={styles.divider}></div>
 
               <div 
-                style={{...styles.dropdownItem, color: '#dc2626'}}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#fee2e2'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                style={{...styles.dropdownItem, ...styles.logoutItem}}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = stylesGlobal.colors.semantic.error.light;
+                  e.currentTarget.style.color = stylesGlobal.colors.semantic.error.dark;
+                  e.currentTarget.style.transform = "translateX(4px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = stylesGlobal.colors.semantic.error.main;
+                  e.currentTarget.style.transform = "translateX(0)";
+                }}
                 onClick={handleLogout}
               >
                 <FaSignOutAlt />

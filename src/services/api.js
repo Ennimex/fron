@@ -29,14 +29,6 @@ api.interceptors.response.use(
   (error) => {
     console.error('API Error:', error.response?.data || error.message);
     
-    // Verificar si la respuesta es HTML (error del servidor)
-    if (error.response?.headers?.['content-type']?.includes('text/html')) {
-      return Promise.reject({ 
-        error: `Endpoint no encontrado: ${error.config?.url || 'URL desconocida'}. Verifica que el endpoint exista en el backend.`,
-        originalError: error 
-      });
-    }
-    
     // Manejar diferentes tipos de errores del backend
     if (error.response?.data) {
       const errorData = error.response.data;
@@ -224,14 +216,6 @@ export const adminAPI = {
       const response = await api.get('/admin/activity');
       return response;
     } catch (error) {
-      // Si el endpoint no existe, devolver datos mock temporalmente
-      if (error.error?.includes('Endpoint no encontrado')) {
-        console.warn('⚠️ Endpoint /admin/activity no implementado en el backend. Usando datos mock.');
-        return {
-          recentActivities: [],
-          message: 'Endpoint de actividades no disponible'
-        };
-      }
       throw error;
     }
   },

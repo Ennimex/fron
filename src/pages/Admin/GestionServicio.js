@@ -1,71 +1,359 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Navigate } from 'react-router-dom';
+import { FaPlus, FaEdit, FaTrash, FaImage, FaSpinner, FaConciergeBell, FaTimes, FaLock } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
-import { adminAPI } from '../../services/api';
-import adminStyles from '../../styles/stylesAdmin';
+import adminService from '../../services/adminServices';
+import { useAdminNotifications } from '../../services/adminHooks';
+import NotificationContainer from '../../components/admin/NotificationContainer';
+import stylesGlobal from '../../styles/stylesGlobal';
+
+// Agregar estilos CSS para animaciones de modales
+const modalStyles = `
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .modal-overlay-servicios {
+    animation: overlayFadeIn 0.3s ease-out;
+  }
+
+  .modal-content-servicios {
+    animation: modalFadeIn 0.3s ease-out;
+  }
+
+  .modal-content-servicios:hover .modal-close-btn {
+    opacity: 1;
+  }
+
+  .modal-close-btn {
+    transition: all 0.2s ease;
+    opacity: 0.7;
+  }
+
+  .modal-close-btn:hover {
+    opacity: 1 !important;
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = modalStyles;
+  if (!document.head.querySelector('style[data-modal-servicios-styles]')) {
+    styleElement.setAttribute('data-modal-servicios-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
 
 const GestionServicio = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
-  // Mapeo de estilos globales
+  // Hook de notificaciones centralizado
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
+  
+  // Crear una referencia estable para addNotification
+  const addNotificationRef = useRef(addNotification);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+  }, [addNotification]);
+
+  // Suscribirse a las notificaciones de adminService
+  useEffect(() => {
+    const unsubscribe = adminService.onNotification((notification) => {
+      addNotification(notification.message, notification.type, notification.duration);
+    });
+
+    return unsubscribe;
+  }, [addNotification]);
+
+  // Mapeo de estilos usando el sistema de diseño global
   const styles = {
-    pageContainer: adminStyles.containers.page,
-    container: adminStyles.containers.content,
-    header: adminStyles.headerStyles.headerSimple,
-    headerContent: adminStyles.headerStyles.headerContent,
-    title: adminStyles.headerStyles.titleDark,
-    subtitle: adminStyles.headerStyles.subtitleDark,
-    addButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+    pageContainer: {
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      minHeight: '100vh',
+      padding: stylesGlobal.spacing.sections.md,
     },
-    content: { padding: adminStyles.spacing.xl },
-    error: adminStyles.messageStyles.error,
-    success: adminStyles.messageStyles.success,
-    controlsContainer: adminStyles.searchStyles.container,
-    searchContainer: adminStyles.searchStyles.searchContainer,
-    searchInput: adminStyles.searchStyles.searchInput,
-    tableContainer: adminStyles.tables.container,
-    table: adminStyles.tables.table,
-    tableHeader: adminStyles.tables.header,
-    tableHeaderCell: adminStyles.tables.headerCell,
-    tableRow: adminStyles.tables.row,
-    tableCell: adminStyles.tables.cell,
-    actionsContainer: adminStyles.tables.actionsContainer,
-    emptyState: adminStyles.containers.emptyState,
-    emptyStateText: adminStyles.containers.emptyStateText,
-    emptyStateSubtext: adminStyles.containers.emptyStateSubtext,
-    modalOverlay: adminStyles.modalStyles.overlay,
-    modalContent: adminStyles.modalStyles.content,
-    modalHeader: adminStyles.modalStyles.header,
-    modalTitle: adminStyles.modalStyles.title,
-    modalCloseButton: adminStyles.modalStyles.closeButton,
-    modalBody: adminStyles.modalStyles.body,
-    formGrid: adminStyles.forms.formGrid,
-    formGroup: adminStyles.forms.formGroup,
-    label: adminStyles.forms.label,
-    requiredField: adminStyles.forms.requiredField,
-    input: adminStyles.forms.input,
-    textarea: adminStyles.forms.textarea,
-    imageUploadArea: adminStyles.forms.uploadArea,
-    uploadText: adminStyles.forms.uploadText,
-    uploadSubtext: adminStyles.forms.uploadSubtext,
-    fileInput: adminStyles.forms.fileInput,
-    previewContainer: { marginTop: adminStyles.spacing.md },
-    previewImage: adminStyles.forms.imagePreview,
+    container: {
+      maxWidth: stylesGlobal.utils.container.maxWidth.xl,
+      margin: stylesGlobal.utils.container.margin,
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      borderRadius: stylesGlobal.borders.radius.xl,
+      boxShadow: stylesGlobal.shadows.md,
+      overflow: 'hidden',
+    },
+    header: {
+      backgroundColor: stylesGlobal.colors.primary[500],
+      color: stylesGlobal.colors.primary.contrast,
+      padding: `${stylesGlobal.spacing.scale[6]} ${stylesGlobal.spacing.scale[8]}`,
+    },
+    headerContent: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      maxWidth: stylesGlobal.utils.container.maxWidth.xl,
+      margin: '0 auto',
+    },
+    title: {
+      ...stylesGlobal.typography.headings.h2,
+      color: stylesGlobal.colors.primary.contrast,
+      marginBottom: stylesGlobal.spacing.scale[2],
+    },
+    subtitle: {
+      ...stylesGlobal.typography.body.small,
+      color: stylesGlobal.colors.primary[100],
+      opacity: 0.9,
+    },
+    button: {
+      ...stylesGlobal.components.button.sizes.base,
+      ...stylesGlobal.components.button.variants.primary,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.scale[2],
+    },
+    controlsContainer: {
+      padding: stylesGlobal.spacing.scale[6],
+      paddingBottom: 0,
+    },
+    searchContainer: {
+      width: '100%',
+      maxWidth: '400px',
+    },
+    searchInput: {
+      ...stylesGlobal.components.input.base,
+      width: '100%',
+    },
+    content: {
+      padding: stylesGlobal.spacing.scale[6],
+    },
+    tableContainer: {
+      overflowX: 'auto',
+      borderRadius: stylesGlobal.borders.radius.lg,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      minWidth: '800px',
+    },
+    tableHeader: {
+      backgroundColor: stylesGlobal.colors.surface.tertiary,
+    },
+    tableHeaderCell: {
+      padding: stylesGlobal.spacing.scale[4],
+      textAlign: 'left',
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.secondary,
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+    },
+    tableRow: {
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      transition: stylesGlobal.animations.transitions.base,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.surface.secondary,
+      },
+    },
+    tableCell: {
+      padding: stylesGlobal.spacing.scale[4],
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.primary,
+    },
+    actionsContainer: {
+      display: 'flex',
+      gap: stylesGlobal.spacing.scale[2],
+    },
+    actionButton: {
+      ...stylesGlobal.components.button.sizes.sm,
+      minWidth: 'auto',
+      padding: stylesGlobal.spacing.scale[2],
+    },
+    editAction: {
+      backgroundColor: stylesGlobal.colors.semantic.info.main,
+      color: stylesGlobal.colors.semantic.info.contrast,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.info.dark,
+      },
+    },
+    deleteAction: {
+      backgroundColor: stylesGlobal.colors.semantic.error.main,
+      color: stylesGlobal.colors.semantic.error.contrast,
+      '&:hover': {
+        backgroundColor: stylesGlobal.colors.semantic.error.dark,
+      },
+    },
+    emptyState: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: stylesGlobal.spacing.scale[20],
+      textAlign: 'center',
+    },
+    emptyStateText: {
+      ...stylesGlobal.typography.headings.h4,
+      color: stylesGlobal.colors.text.primary,
+      marginBottom: stylesGlobal.spacing.scale[2],
+    },
+    emptyStateSubtext: {
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.tertiary,
+      maxWidth: '400px',
+    },
+    modalOverlay: {
+      ...stylesGlobal.utils.overlay.elegant,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1300,
+      padding: stylesGlobal.spacing.scale[6],
+    },
+    modalContent: {
+      ...stylesGlobal.components.card.luxury,
+      width: '100%',
+      maxWidth: '800px',
+      maxHeight: '90vh',
+      overflow: 'auto',
+      position: 'relative',
+      margin: '20px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
+      transform: 'scale(1)',
+      transition: 'all 0.3s ease-in-out',
+    },
+    modalCloseButton: {
+      ...stylesGlobal.components.button.variants.ghost,
+      ...stylesGlobal.components.button.sizes.sm,
+      position: 'absolute',
+      top: stylesGlobal.spacing.scale[3],
+      right: stylesGlobal.spacing.scale[3],
+      width: '32px',
+      height: '32px',
+      borderRadius: stylesGlobal.borders.radius.full,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '18px',
+      fontWeight: 'bold',
+      zIndex: 10,
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+      cursor: 'pointer',
+    },
+    modalHeader: {
+      padding: stylesGlobal.spacing.scale[6],
+      paddingTop: stylesGlobal.spacing.scale[8], // Extra space for close button
+      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      position: 'relative',
+    },
+    modalTitle: {
+      ...stylesGlobal.typography.headings.h3,
+      color: stylesGlobal.colors.text.primary,
+    },
+    modalBody: {
+      padding: stylesGlobal.spacing.scale[6],
+      position: 'relative',
+    },
+    formGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gap: stylesGlobal.spacing.scale[6],
+      marginBottom: stylesGlobal.spacing.scale[6],
+    },
+    formGroup: {
+      marginBottom: stylesGlobal.spacing.scale[4],
+    },
+    label: {
+      ...stylesGlobal.typography.body.small,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      color: stylesGlobal.colors.text.secondary,
+      display: 'block',
+      marginBottom: stylesGlobal.spacing.scale[2],
+    },
+    requiredField: {
+      color: stylesGlobal.colors.semantic.error.main,
+    },
+    input: {
+      ...stylesGlobal.components.input.base,
+      width: '100%',
+    },
+    textarea: {
+      ...stylesGlobal.components.input.base,
+      width: '100%',
+      minHeight: '120px',
+      resize: 'vertical',
+    },
+    imageUploadArea: {
+      border: `2px dashed ${stylesGlobal.borders.colors.default}`,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: stylesGlobal.spacing.scale[8],
+      textAlign: 'center',
+      cursor: 'pointer',
+      transition: stylesGlobal.animations.transitions.base,
+      '&:hover': {
+        borderColor: stylesGlobal.colors.primary[400],
+      },
+    },
+    uploadText: {
+      ...stylesGlobal.typography.body.base,
+      fontWeight: stylesGlobal.typography.weights.medium,
+      color: stylesGlobal.colors.text.primary,
+      marginBottom: stylesGlobal.spacing.scale[1],
+    },
+    uploadSubtext: {
+      ...stylesGlobal.typography.body.small,
+      color: stylesGlobal.colors.text.tertiary,
+    },
+    fileInput: {
+      display: 'none',
+    },
+    previewContainer: {
+      marginTop: stylesGlobal.spacing.scale[4],
+    },
+    previewImage: {
+      maxWidth: '100%',
+      maxHeight: '200px',
+      borderRadius: stylesGlobal.borders.radius.base,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+    },
     submitButton: {
-      ...adminStyles.buttons.base,
-      ...adminStyles.buttons.primary,
+      ...stylesGlobal.components.button.sizes.base,
+      ...stylesGlobal.components.button.variants.primary,
       width: '100%',
       justifyContent: 'center',
-      marginTop: adminStyles.spacing.lg,
+      marginTop: stylesGlobal.spacing.scale[6],
     },
-    submitButtonDisabled: adminStyles.buttons.disabled,
-    actionButton: adminStyles.buttons.actionButton,
-    editAction: adminStyles.buttons.editAction,
-    deleteAction: adminStyles.buttons.deleteAction,
+    submitButtonDisabled: {
+      opacity: 0.7,
+      cursor: 'not-allowed',
+      '&:hover': {
+        transform: 'none',
+      },
+    },
   };
 
   // Estados
@@ -73,8 +361,7 @@ const GestionServicio = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
   const [selectedServicio, setSelectedServicio] = useState(null);
@@ -86,46 +373,53 @@ const GestionServicio = () => {
     imagen: null,
   });
 
-  // Verificar autenticación y rol
+  // Verificar autenticación y rol al cargar
   useEffect(() => {
-    if (!user) {
-      navigate('/login', { 
-        state: { from: location.pathname },
-        replace: true 
-      });
+    if (!isAuthenticated || user?.role !== 'admin') {
+      setLoading(false);
       return;
     }
-    
-    if (user.role !== 'admin') {
-      navigate('/unauthorized', { 
-        state: { from: location.pathname },
-        replace: true 
-      });
-      return;
-    }
-  }, [user, navigate, location.pathname]);
+  }, [isAuthenticated, user]);
 
-  // Cargar servicios
-  const fetchServicios = async () => {
+  // Cargar servicios usando adminService
+  const fetchServicios = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await adminAPI.getServicios();
-      setServicios(response || []);
-      setError(null);
-    } catch (error) {
-      console.error('Error al cargar servicios:', error);
-      setError('Error al cargar los servicios');
+      const data = await adminService.getServicios();
+      setServicios(data || []);
+    } catch (err) {
+      // adminService ya maneja las notificaciones de error
+      console.error('Error al cargar servicios:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Cerrar modal con cleanup - Definido antes para evitar advertencias de ESLint
+  const closeModal = useCallback(() => {
+    // Cleanup de blobs
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    
+    setShowModal(false);
+    setServicio({
+      nombre: '',
+      titulo: '',
+      descripcion: '',
+      imagen: null,
+    });
+    setImagePreview(null);
+    setSelectedServicio(null);
+    setIsEditMode(false);
+  }, [imagePreview]);
 
   // Cargar datos iniciales
   useEffect(() => {
-    if (user?.token && user?.role === 'admin') {
+    if (isAuthenticated && user?.role === 'admin') {
       fetchServicios();
     }
-  }, [user?.token, user?.role]);
+  }, [isAuthenticated, user, fetchServicios]);
 
   // Manejar tecla Escape para cerrar modal
   useEffect(() => {
@@ -137,7 +431,6 @@ const GestionServicio = () => {
 
     if (showModal) {
       document.addEventListener('keydown', handleEscapeKey);
-      // Prevenir scroll del body cuando el modal está abierto
       document.body.style.overflow = 'hidden';
     }
 
@@ -145,26 +438,16 @@ const GestionServicio = () => {
       document.removeEventListener('keydown', handleEscapeKey);
       document.body.style.overflow = 'unset';
     };
-  }, [showModal]);
+  }, [showModal, closeModal]);
 
-  // Auto-ocultar mensajes después de 5 segundos
+  // Cleanup de blobs al desmontar el componente
   useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        setSuccess(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
-
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
+    return () => {
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   // Manejar cambios en el formulario
   const handleChange = (e) => {
@@ -173,30 +456,37 @@ const GestionServicio = () => {
     if (name === 'imagen' && files && files[0]) {
       const file = files[0];
       
-      // Validar tamaño del archivo (10MB máximo)
-      const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+      // Validaciones mejoradas
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      
       if (file.size > maxSize) {
-        setError('La imagen no puede superar los 10MB');
+        addNotification('La imagen no puede superar los 10MB', 'error');
         return;
       }
 
-      // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        setError('Por favor, selecciona solo archivos de imagen');
+      if (!allowedTypes.includes(file.type)) {
+        addNotification('Solo se permiten archivos de imagen (JPG, PNG, GIF, WebP)', 'error');
         return;
+      }
+
+      // Cleanup del blob anterior si existe
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
       }
 
       setServicio(prev => ({ ...prev, imagen: file }));
       
-      // Crear preview de la imagen
+      // Crear nueva URL de blob para preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
+      reader.onerror = () => {
+        addNotification('Error al procesar la imagen', 'error');
+      };
       reader.readAsDataURL(file);
       
-      // Limpiar error si había uno
-      setError(null);
     } else {
       setServicio(prev => ({ ...prev, [name]: value }));
     }
@@ -204,6 +494,11 @@ const GestionServicio = () => {
 
   // Abrir modal para nuevo servicio
   const openModal = (editServicio = null) => {
+    // Cleanup del blob anterior si existe
+    if (imagePreview && imagePreview.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
     if (editServicio) {
       setIsEditMode(true);
       setSelectedServicio(editServicio);
@@ -226,22 +521,6 @@ const GestionServicio = () => {
       setImagePreview(null);
     }
     setShowModal(true);
-    setError(null);
-    setSuccess(null);
-  };
-
-  // Cerrar modal
-  const closeModal = () => {
-    setShowModal(false);
-    setServicio({
-      nombre: '',
-      titulo: '',
-      descripcion: '',
-      imagen: null,
-    });
-    setImagePreview(null);
-    setError(null);
-    setSuccess(null);
   };
 
   // Cerrar modal al hacer clic fuera
@@ -270,63 +549,61 @@ const GestionServicio = () => {
   //   }
   // };
 
-  // Guardar servicio
+  // Guardar servicio usando adminService
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!servicio.nombre || !servicio.titulo || !servicio.descripcion) {
-      setError('Todos los campos son obligatorios');
+      addNotification('Todos los campos son obligatorios', 'error');
       return;
     }
 
     try {
-      setLoading(true);
+      setFormLoading(true);
       
-      // Crear FormData para enviar la imagen junto con los otros datos
       const formData = new FormData();
-      formData.append('nombre', servicio.nombre);
-      formData.append('titulo', servicio.titulo);
-      formData.append('descripcion', servicio.descripcion);
+      formData.append('nombre', servicio.nombre.trim());
+      formData.append('titulo', servicio.titulo.trim());
+      formData.append('descripcion', servicio.descripcion.trim());
       
-      // Solo agregar imagen si hay una nueva
       if (servicio.imagen) {
         formData.append('imagen', servicio.imagen);
       }
 
       if (isEditMode) {
-        await adminAPI.updateServicio(selectedServicio._id, formData);
-        setSuccess('Servicio actualizado exitosamente');
+        const updated = await adminService.updateServicio(selectedServicio._id, formData);
+        setServicios(servicios.map(s => s._id === selectedServicio._id ? updated : s));
       } else {
-        await adminAPI.createServicio(formData);
-        setSuccess('Servicio creado exitosamente');
+        const created = await adminService.createServicio(formData);
+        setServicios([created, ...servicios]);
       }
 
-      await fetchServicios();
       closeModal();
-    } catch (error) {
-      console.error('Error al guardar servicio:', error);
-      setError(error.response?.data?.error || 'Error al guardar el servicio');
+      await fetchServicios(); // Refrescar lista
+    } catch (err) {
+      // adminService ya maneja las notificaciones de error
+      console.error('Error al guardar servicio:', err);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
-  // Eliminar servicio
+  // Eliminar servicio usando adminService
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
       return;
     }
 
     try {
-      setLoading(true);
-      await adminAPI.deleteServicio(id);
-      setSuccess('Servicio eliminado exitosamente');
-      await fetchServicios();
-    } catch (error) {
-      console.error('Error al eliminar servicio:', error);
-      setError(error.response?.data?.error || 'Error al eliminar el servicio');
+      setFormLoading(true);
+      await adminService.deleteServicio(id);
+      setServicios(servicios.filter(s => s._id !== id));
+      await fetchServicios(); // Refrescar lista
+    } catch (err) {
+      // adminService ya maneja las notificaciones de error
+      console.error('Error al eliminar servicio:', err);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -336,14 +613,50 @@ const GestionServicio = () => {
     servicio.titulo?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading && servicios.length === 0) {
+  // Guards de autenticación tempranos
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (user?.role !== 'admin') {
+    return (
+      <div style={{
+        ...styles.pageContainer,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '80vh',
+        textAlign: 'center',
+      }}>
+        <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main, marginBottom: stylesGlobal.spacing.scale[4] }} />
+        <h2 style={styles.title}>Acceso Denegado</h2>
+        <p style={styles.subtitle}>
+          No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
+        </p>
+      </div>
+    );
+  }
+
+  // Renderizado condicional para loading
+  if (loading) {
     return (
       <div style={styles.pageContainer}>
         <div style={styles.container}>
-          <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Cargando...</span>
-            </div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '200px'
+          }}>
+            <FaSpinner style={{ 
+              animation: 'spin 1s linear infinite', 
+              fontSize: '3rem', 
+              color: stylesGlobal.colors.primary[500],
+              marginBottom: stylesGlobal.spacing.scale[4]
+            }} />
+            <h3 style={stylesGlobal.typography.headings.h3}>Cargando servicios...</h3>
           </div>
         </div>
       </div>
@@ -351,202 +664,171 @@ const GestionServicio = () => {
   }
 
   return (
-    <>
-      <style>
-        {adminStyles.animations}
-      </style>
-      
-      <div style={styles.pageContainer}>
-        <div style={styles.container}>
-          {/* Header */}
-          <div style={styles.header}>
-            <div style={styles.headerContent}>
-              <div>
-                <h1 style={styles.title}>Gestión de Servicios</h1>
-                <p style={styles.subtitle}>
-                  Administra los servicios de tu negocio
-                </p>
-              </div>
-              <button
-                style={styles.addButton}
-                onClick={() => openModal()}
-                className="hover-lift"
-              >
-                <i className="fas fa-plus me-2"></i>
-                Nuevo Servicio
-              </button>
+    <div style={styles.pageContainer}>
+      <div style={styles.container}>
+        {/* Header */}
+        <div style={styles.header}>
+          <div style={styles.headerContent}>
+            <div>
+              <h1 style={styles.title}>Gestión de Servicios</h1>
+              <p style={styles.subtitle}>
+                Administra los servicios de tu negocio
+              </p>
             </div>
+            <button
+              style={{
+                ...styles.button,
+                ...(formLoading || loading ? styles.submitButtonDisabled : {}),
+              }}
+              onClick={() => openModal()}
+              disabled={formLoading || loading}
+              aria-label="Crear nuevo servicio"
+            >
+              <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+              Nuevo Servicio
+            </button>
           </div>
+        </div>
 
-          {/* Mensajes */}
-          {error && (
-            <div style={styles.error} className="fade-in">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span>
-                  <i className="fas fa-exclamation-circle me-2"></i>
-                  {error}
-                </span>
-                <button 
-                  onClick={() => setError(null)}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: 'inherit',
-                    cursor: 'pointer',
-                    padding: '4px'
-                  }}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {success && (
-            <div style={styles.success} className="fade-in">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span>
-                  <i className="fas fa-check-circle me-2"></i>
-                  {success}
-                </span>
-                <button 
-                  onClick={() => setSuccess(null)}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: 'inherit',
-                    cursor: 'pointer',
-                    padding: '4px'
-                  }}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Controles */}
-          <div style={styles.controlsContainer}>
-            <div style={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Buscar servicios..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={styles.searchInput}
-              />
-            </div>
+        {/* Controles */}
+        <div style={styles.controlsContainer}>
+          <div style={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Buscar servicios..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={styles.searchInput}
+            />
           </div>
+        </div>
 
-          {/* Tabla de servicios */}
-          <div style={styles.content}>
-            {filteredServicios.length === 0 ? (
-              <div style={styles.emptyState} className="fade-in">
-                <i className="fas fa-concierge-bell" style={{ fontSize: '4rem', color: adminStyles.colors.grayMedium, marginBottom: adminStyles.spacing.lg }}></i>
-                <h3 style={styles.emptyStateText}>No hay servicios</h3>
-                <p style={styles.emptyStateSubtext}>
-                  {searchTerm ? 'No se encontraron servicios con ese criterio de búsqueda' : 'Comienza creando tu primer servicio'}
-                </p>
-              </div>
-            ) : (
-              <div style={styles.tableContainer} className="fade-in">
-                <table style={styles.table}>
-                  <thead style={styles.tableHeader}>
-                    <tr>
-                      <th style={styles.tableHeaderCell}>Imagen</th>
-                      <th style={styles.tableHeaderCell}>Nombre</th>
-                      <th style={styles.tableHeaderCell}>Título</th>
-                      <th style={styles.tableHeaderCell}>Descripción</th>
-                      <th style={styles.tableHeaderCell}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredServicios.map((servicio) => (
-                      <tr key={servicio._id} style={styles.tableRow} className="hover-lift">
-                        <td style={styles.tableCell}>
-                          {servicio.imagen ? (
-                            <img
-                              src={servicio.imagen}
-                              alt={servicio.nombre}
-                              style={{
-                                width: '60px',
-                                height: '60px',
-                                objectFit: 'cover',
-                                borderRadius: adminStyles.borders.radius,
-                              }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                width: '60px',
-                                height: '60px',
-                                backgroundColor: adminStyles.colors.grayLight,
-                                borderRadius: adminStyles.borders.radius,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <i className="fas fa-image" style={{ color: adminStyles.colors.grayMedium }}></i>
-                            </div>
-                          )}
-                        </td>
-                        <td style={styles.tableCell}>{servicio.nombre}</td>
-                        <td style={styles.tableCell}>{servicio.titulo}</td>
-                        <td style={styles.tableCell}>
-                          {servicio.descripcion?.length > 100
-                            ? `${servicio.descripcion.substring(0, 100)}...`
-                            : servicio.descripcion}
-                        </td>
-                        <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer}>
-                            <button
-                              style={{...styles.actionButton, ...styles.editAction}}
-                              onClick={() => openModal(servicio)}
-                              className="hover-scale"
-                              title="Editar servicio"
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
-                            <button
-                              style={{...styles.actionButton, ...styles.deleteAction}}
-                              onClick={() => handleDelete(servicio._id)}
-                              className="hover-scale"
-                              title="Eliminar servicio"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
+        {/* Tabla de servicios */}
+        <div style={styles.content}>
+          {filteredServicios.length === 0 ? (
+            <div style={styles.emptyState}>
+              <FaConciergeBell style={{ 
+                fontSize: '4rem', 
+                color: stylesGlobal.colors.neutral[400], 
+                marginBottom: stylesGlobal.spacing.scale[6] 
+              }} />
+              <h3 style={styles.emptyStateText}>No hay servicios</h3>
+              <p style={styles.emptyStateSubtext}>
+                {searchTerm ? 'No se encontraron servicios con ese criterio de búsqueda' : 'Comienza creando tu primer servicio'}
+              </p>
+            </div>
+          ) : (
+            <div style={styles.tableContainer}>
+              <table style={styles.table}>
+                <thead style={styles.tableHeader}>
+                  <tr>
+                    <th style={styles.tableHeaderCell}>Imagen</th>
+                    <th style={styles.tableHeaderCell}>Nombre</th>
+                    <th style={styles.tableHeaderCell}>Título</th>
+                    <th style={styles.tableHeaderCell}>Descripción</th>
+                    <th style={styles.tableHeaderCell}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredServicios.map((servicio) => (
+                    <tr key={servicio._id} style={styles.tableRow}>
+                      <td style={styles.tableCell}>
+                        {servicio.imagen ? (
+                          <img
+                            src={servicio.imagen}
+                            alt={servicio.nombre}
+                            style={{
+                              width: '60px',
+                              height: '60px',
+                              objectFit: 'cover',
+                              borderRadius: stylesGlobal.borders.radius.base,
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: '60px',
+                              height: '60px',
+                              backgroundColor: stylesGlobal.colors.neutral[100],
+                              borderRadius: stylesGlobal.borders.radius.base,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <FaImage style={{ color: stylesGlobal.colors.neutral[400] }} />
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                        )}
+                      </td>
+                      <td style={styles.tableCell}>{servicio.nombre}</td>
+                      <td style={styles.tableCell}>{servicio.titulo}</td>
+                      <td style={styles.tableCell}>
+                        {servicio.descripcion?.length > 100
+                          ? `${servicio.descripcion.substring(0, 100)}...`
+                          : servicio.descripcion}
+                      </td>
+                      <td style={styles.tableCell}>
+                        <div style={styles.actionsContainer}>
+                          <button
+                            style={{
+                              ...styles.actionButton, 
+                              ...styles.editAction,
+                              ...(formLoading ? styles.submitButtonDisabled : {}),
+                            }}
+                            onClick={() => openModal(servicio)}
+                            disabled={formLoading}
+                            title="Editar servicio"
+                            aria-label={`Editar servicio ${servicio.nombre}`}
+                          >
+                            <FaEdit size={12} />
+                          </button>
+                          <button
+                            style={{
+                              ...styles.actionButton, 
+                              ...styles.deleteAction,
+                              ...(formLoading ? styles.submitButtonDisabled : {}),
+                            }}
+                            onClick={() => handleDelete(servicio._id)}
+                            disabled={formLoading}
+                            title="Eliminar servicio"
+                            aria-label={`Eliminar servicio ${servicio.nombre}`}
+                          >
+                            <FaTrash size={12} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Modal */}
       {showModal && (
         <div 
-          style={styles.modalOverlay} 
-          className="fade-in"
+          style={styles.modalOverlay}
+          className="modal-overlay-servicios"
           onClick={handleModalOverlayClick}
         >
-          <div style={styles.modalContent} className="slide-up">
+          <div style={styles.modalContent} className="modal-content-servicios" onClick={(e) => e.stopPropagation()}>
+            <button
+              style={styles.modalCloseButton}
+              className="modal-close-btn"
+              onClick={closeModal}
+              aria-label="Cerrar modal"
+              disabled={formLoading}
+              title="Cerrar"
+            >
+              <FaTimes />
+            </button>
+            
             <div style={styles.modalHeader}>
               <h2 style={styles.modalTitle}>
                 {isEditMode ? 'Editar Servicio' : 'Nuevo Servicio'}
               </h2>
-              <button
-                style={styles.modalCloseButton}
-                onClick={closeModal}
-                className="hover-scale"
-              >
-                <i className="fas fa-times"></i>
-              </button>
             </div>
 
             <form onSubmit={handleSubmit} style={styles.modalBody}>
@@ -608,8 +890,8 @@ const GestionServicio = () => {
                     style={styles.fileInput}
                     id="imagen-upload"
                   />
-                  <label htmlFor="imagen-upload" style={styles.uploadText}>
-                    <i className="fas fa-cloud-upload-alt me-2"></i>
+                  <label htmlFor="imagen-upload" style={{...styles.uploadText, cursor: 'pointer'}}>
+                    <FaPlus size={16} style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
                     Subir imagen
                   </label>
                   <p style={styles.uploadSubtext}>
@@ -632,19 +914,19 @@ const GestionServicio = () => {
                 type="submit"
                 style={{
                   ...styles.submitButton,
-                  ...(loading ? styles.submitButtonDisabled : {})
+                  ...(formLoading ? styles.submitButtonDisabled : {})
                 }}
-                disabled={loading}
-                className="hover-lift"
+                disabled={formLoading}
+                aria-label={isEditMode ? 'Actualizar servicio' : 'Crear servicio'}
               >
-                {loading ? (
+                {formLoading ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[2] }} />
                     Guardando...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-save me-2"></i>
+                    <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
                     {isEditMode ? 'Actualizar Servicio' : 'Crear Servicio'}
                   </>
                 )}
@@ -653,7 +935,14 @@ const GestionServicio = () => {
           </div>
         </div>
       )}
-    </>
+
+      {/* Sistema de notificaciones centralizado */}
+      <NotificationContainer
+        notifications={notifications}
+        onRemoveNotification={removeNotification}
+        onClearAll={clearAllNotifications}
+      />
+    </div>
   );
 };
 

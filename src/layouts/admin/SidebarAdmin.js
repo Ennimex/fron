@@ -22,7 +22,7 @@ import {
   FaInfoCircle,
   FaConciergeBell,
 } from "react-icons/fa"
-import { colors, typography } from "../../styles/styles"
+import stylesGlobal from "../../styles/stylesGlobal"
 
 const SidebarAdmin = ({ collapsed, onToggle }) => {
   const location = useLocation()
@@ -146,7 +146,7 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
 
   const handleLogout = useCallback(() => {
     logout()
-    navigate("/login")
+    navigate("/", { replace: true })
   }, [logout, navigate])
 
   // Toggle submenu
@@ -157,218 +157,248 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
     }))
   }
 
-  // Styles with improvements
+  // Styles con stylesGlobal - variante dark elegante
   const styles = {
     sidebar: {
+      ...stylesGlobal.components.sidebar.base,
+      ...stylesGlobal.components.sidebar.variants.dark,
+      ...(isCollapsed ? stylesGlobal.components.sidebar.collapsed : {}),
       width: isCollapsed ? "70px" : "280px",
-      height: "100vh",
-      backgroundColor: "#0D1B2A",
-      color: colors.white,
-      transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-      position: "fixed",
-      left: 0,
-      zIndex: 1000,
-      overflowX: "hidden",
-      overflowY: "auto",
-      boxShadow: "2px 0 10px rgba(0,0,0,0.2)",
-      WebkitOverflowScrolling: "touch",
       userSelect: isTransitioning ? "none" : "auto",
+      WebkitOverflowScrolling: "touch",
     },
     logo: {
-      height: "56px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "#0D1B2A",
-      borderBottom: `1px solid rgba(255,255,255,0.1)`,
+      ...stylesGlobal.components.sidebar.header,
+      height: "64px",
+      backgroundColor: stylesGlobal.colors.neutral[900],
+      borderBottom: `1px solid ${stylesGlobal.colors.neutral[700]}`,
       position: "sticky",
       top: 0,
       zIndex: 10,
     },
+    logoIcon: {
+      ...stylesGlobal.components.sidebar.logoIcon,
+      backgroundColor: stylesGlobal.colors.primary[500],
+    },
+    logoText: {
+      ...stylesGlobal.components.sidebar.logoText,
+      color: stylesGlobal.colors.text.inverse,
+      opacity: isCollapsed ? 0 : 1,
+      visibility: isCollapsed ? "hidden" : "visible",
+    },
     toggleButton: {
       background: "none",
       border: "none",
-      color: colors.white,
+      color: stylesGlobal.colors.text.inverse,
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       padding: "0",
       width: "100%",
-      height: "56px",
-      transition: "background-color 0.2s ease",
+      height: "64px",
+      transition: stylesGlobal.animations.transitions.base,
+      "&:hover": {
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+      }
+    },
+    content: {
+      ...stylesGlobal.components.sidebar.content,
+      padding: "1rem 0",
     },
     menuItems: {
-      padding: 0,
-      listStyle: "none",
-      margin: 0,
-      marginTop: "10px",
+      ...stylesGlobal.components.sidebar.nav,
+      marginTop: "0",
       flexGrow: 1,
     },
     menuItem: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      marginBottom: "4px",
+      ...stylesGlobal.components.sidebar.navItem,
+      marginBottom: "2px",
     },
     menuLink: {
-      display: "flex",
-      alignItems: "center",
+      ...stylesGlobal.components.sidebar.navLink,
       justifyContent: isCollapsed ? "center" : "flex-start",
-      color: colors.white,
-      textDecoration: "none",
-      fontFamily: typography.fontSecondary,
+      color: stylesGlobal.colors.text.inverse,
+      fontFamily: stylesGlobal.typography.families.body,
       position: "relative",
       width: "100%",
-      padding: isCollapsed ? "0" : "0 20px",
-      transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+      padding: isCollapsed ? "0" : "0 1.5rem",
       height: "48px",
       cursor: "pointer",
+      fontSize: "0.95rem",
+      gap: "12px",
     },
     menuLinkActive: {
-      backgroundColor: "rgba(255, 255, 255, 0.15)",
-      fontWeight: "bold",
-      borderRight: "3px solid #ffffff",
+      color: stylesGlobal.colors.primary[400],
+      backgroundColor: "rgba(214, 51, 132, 0.15)",
+      fontWeight: 600,
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        left: 0,
+        top: "50%",
+        transform: "translateY(-50%)",
+        width: "3px",
+        height: "24px",
+        backgroundColor: stylesGlobal.colors.primary[400],
+        borderRadius: "0 2px 2px 0",
+      },
     },
     menuLinkHover: {
       backgroundColor: "rgba(255, 255, 255, 0.08)",
+      transform: "translateX(4px)",
     },
     menuIcon: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      transition: "all 0.2s ease",
-      color: "white",
-      width: "70px",
-      minWidth: "70px",
-      height: "48px",
+      ...stylesGlobal.components.sidebar.navIcon,
+      color: "inherit",
+      width: isCollapsed ? "70px" : "20px",
+      minWidth: isCollapsed ? "70px" : "20px",
+      height: "20px",
+      fontSize: "1.1rem",
     },
     menuText: {
+      ...stylesGlobal.components.sidebar.navText,
       opacity: isCollapsed ? 0 : 1,
       visibility: isCollapsed ? "hidden" : "visible",
-      transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
       whiteSpace: "nowrap",
-      fontSize: "13px",
+      fontSize: "0.95rem",
       fontWeight: 500,
       width: isCollapsed ? 0 : "auto",
       overflow: "hidden",
     },
     submenuContainer: {
       width: "100%",
-      maxHeight: isCollapsed ? "0" : "auto",
-      transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
+      maxHeight: (isCollapsed || !expandedMenus) ? "0" : "auto",
+      transition: stylesGlobal.animations.transitions.elegant,
       opacity: isCollapsed ? 0 : 1,
       backgroundColor: "rgba(255, 255, 255, 0.05)",
       overflow: "hidden",
+      borderRadius: stylesGlobal.borders.radius.md,
+      margin: "4px 8px",
     },
     submenuItem: {
-      paddingLeft: "30px",
       margin: "2px 0",
       width: "100%",
     },
     submenuLink: {
       display: "flex",
       alignItems: "center",
-      padding: "10px 10px 10px 50px",
-      color: colors.white,
+      padding: "10px 16px 10px 3rem",
+      color: stylesGlobal.colors.neutral[300],
       textDecoration: "none",
-      fontFamily: typography.fontSecondary,
-      fontSize: "12px",
-      transition: "background-color 0.2s ease",
-      borderRadius: "4px",
-      margin: "2px 10px",
-      width: "calc(100% - 20px)",
+      fontFamily: stylesGlobal.typography.families.body,
+      fontSize: "0.875rem",
+      transition: stylesGlobal.animations.transitions.base,
+      borderRadius: stylesGlobal.borders.radius.md,
+      margin: "2px 8px",
+      width: "calc(100% - 16px)",
+      gap: "8px",
     },
     submenuLinkActive: {
-      backgroundColor: "rgba(255, 255, 255, 0.15)",
-      fontWeight: "bold",
+      color: stylesGlobal.colors.primary[400],
+      backgroundColor: "rgba(214, 51, 132, 0.1)",
+      fontWeight: 600,
     },
     submenuLinkHover: {
       backgroundColor: "rgba(255, 255, 255, 0.1)",
+      color: stylesGlobal.colors.text.inverse,
+      transform: "translateX(4px)",
     },
     submenuText: {
-      marginLeft: "8px",
       whiteSpace: "nowrap",
     },
     menuToggle: {
       position: "absolute",
-      right: "20px",
+      right: "1.5rem",
       visibility: isCollapsed ? "hidden" : "visible",
       opacity: isCollapsed ? 0 : 1,
-      transition: "opacity 0.2s ease, visibility 0.2s ease",
-      color: colors.white,
+      transition: stylesGlobal.animations.transitions.base,
+      color: stylesGlobal.colors.text.inverse,
+      fontSize: "0.875rem",
     },
     footer: {
-      padding: isCollapsed ? "10px 0" : "15px 20px",
-      borderTop: `1px solid rgba(255,255,255,0.1)`,
+      ...stylesGlobal.components.sidebar.footer,
+      padding: isCollapsed ? "1rem 0" : "1rem 1.5rem",
+      borderTop: `1px solid ${stylesGlobal.colors.neutral[700]}`,
       textAlign: isCollapsed ? "center" : "left",
       position: "sticky",
       bottom: 0,
       width: "100%",
-      backgroundColor: "#0D1B2A",
+      backgroundColor: stylesGlobal.colors.neutral[900],
       zIndex: 10,
     },
     logoutBtn: {
       display: "flex",
       alignItems: "center",
-      padding: isCollapsed ? "10px 0" : "10px",
-      color: colors.white,
+      padding: isCollapsed ? "12px 0" : "12px 16px",
+      color: stylesGlobal.colors.text.inverse,
       textDecoration: "none",
       width: "100%",
       border: "none",
       backgroundColor: "transparent",
       cursor: "pointer",
-      fontFamily: typography.fontSecondary,
-      fontSize: "13px",
+      fontFamily: stylesGlobal.typography.families.body,
+      fontSize: "0.95rem",
+      fontWeight: 500,
       justifyContent: isCollapsed ? "center" : "flex-start",
-      height: "40px",
-      transition: "background-color 0.2s ease",
+      height: "48px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      transition: stylesGlobal.animations.transitions.base,
+      gap: "12px",
+      "&:hover": {
+        backgroundColor: "rgba(225, 29, 72, 0.1)",
+        color: stylesGlobal.colors.semantic.error.main,
+      }
     },
     logoutText: {
-      marginLeft: "8px",
       opacity: isCollapsed ? 0 : 1,
       visibility: isCollapsed ? "hidden" : "visible",
-      transition: "opacity 0.2s ease, visibility 0.2s ease",
+      transition: stylesGlobal.animations.transitions.base,
       whiteSpace: "nowrap",
       width: isCollapsed ? 0 : "auto",
       overflow: "hidden",
     },
     userInfo: {
-      padding: isCollapsed ? "10px" : "10px 20px",
-      borderBottom: "1px solid rgba(255,255,255,0.1)",
+      padding: isCollapsed ? "1rem" : "1rem 1.5rem",
+      borderBottom: `1px solid ${stylesGlobal.colors.neutral[700]}`,
       display: "flex",
       alignItems: "center",
-      justifyContent: isCollapsed ? "center" : "space-between",
-      color: "white",
+      justifyContent: isCollapsed ? "center" : "flex-start",
+      color: stylesGlobal.colors.text.inverse,
       position: "sticky",
-      top: "56px",
-      backgroundColor: "#0D1B2A",
+      top: "64px",
+      backgroundColor: stylesGlobal.colors.neutral[900],
       zIndex: 9,
+      gap: "12px",
     },
     userName: {
-      fontSize: isCollapsed ? "0" : "0.85rem",
+      fontSize: isCollapsed ? "0" : "0.9rem",
       opacity: isCollapsed ? 0 : 0.9,
       visibility: isCollapsed ? "hidden" : "visible",
-      transition: "opacity 0.2s ease, visibility 0.2s ease",
+      transition: stylesGlobal.animations.transitions.base,
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
-      maxWidth: "140px",
+      maxWidth: "160px",
+      fontWeight: 500,
     },
     userAvatar: {
-      width: "32px",
-      height: "32px",
+      width: "36px",
+      height: "36px",
       borderRadius: "50%",
-      backgroundColor: "#3498db",
+      backgroundColor: stylesGlobal.colors.primary[500],
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "0.85rem",
-      fontWeight: "bold",
+      fontSize: "0.9rem",
+      fontWeight: 700,
       flexShrink: 0,
+      color: stylesGlobal.colors.text.inverse,
+      boxShadow: stylesGlobal.shadows.sm,
     },
     submenuIcon: {
-      transition: "transform 0.3s ease",
+      transition: stylesGlobal.animations.transitions.base,
+      fontSize: "0.75rem",
     },
   }
 
@@ -400,24 +430,63 @@ const SidebarAdmin = ({ collapsed, onToggle }) => {
 
   return (
     <div style={styles.sidebar}>
+      {/* Header con logo elegante */}
       <div style={styles.logo}>
-        <button
-          style={styles.toggleButton}
-          onClick={toggleSidebar}
-          aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
-          aria-expanded={!isCollapsed}
-        >
-          <FaBars size={20} color="white" />
-        </button>
+        {!isCollapsed ? (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "0 1.5rem",
+            width: "100%",
+          }}>
+            <div style={styles.logoIcon}>
+              LA
+            </div>
+            <span style={styles.logoText}>Panel Admin</span>
+            <button
+              style={{
+                ...styles.toggleButton,
+                marginLeft: "auto",
+                width: "auto",
+                height: "auto",
+                padding: "8px",
+                borderRadius: stylesGlobal.borders.radius.md,
+              }}
+              onClick={toggleSidebar}
+              aria-label="Colapsar menú"
+              aria-expanded={!isCollapsed}
+            >
+              <FaBars size={16} />
+            </button>
+          </div>
+        ) : (
+          <button
+            style={styles.toggleButton}
+            onClick={toggleSidebar}
+            aria-label="Expandir menú"
+            aria-expanded={!isCollapsed}
+          >
+            <div style={{
+              ...styles.logoIcon,
+              fontSize: "0.875rem",
+              width: "28px",
+              height: "28px",
+            }}>
+              LA
+            </div>
+          </button>
+        )}
       </div>
 
+      {/* Información del usuario */}
       <div style={styles.userInfo}>
-        {!isCollapsed && (
-          <span style={styles.userName}>{user?.name || "Admin"}</span>
-        )}
         <div style={styles.userAvatar}>
           {user?.name ? user.name[0].toUpperCase() : "A"}
         </div>
+        {!isCollapsed && (
+          <span style={styles.userName}>{user?.name || "Admin"}</span>
+        )}
       </div>
 
       <ul style={styles.menuItems}>

@@ -1,37 +1,88 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock } from "react-icons/fa";
-import eventoService from "../../services/eventoService";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
+import { Navigate } from "react-router-dom";
+import adminService from "../../services/adminServices";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesGlobal from "../../styles/stylesGlobal";
-import { useAuth } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
 
-// Reusable Modal component
-const Modal = ({ open, onClose, children, styles }) => {
-  if (!open) return null;
-  return (
-    <div 
-      style={styles?.modalOverlay || stylesGlobal.utils.overlay.base} 
-      className="modal-overlay"
-      onClick={(e) => e.target.className === 'modal-overlay' && onClose()}
-    >
-      <div style={styles?.modalContent || stylesGlobal.components.card.base}>
-        <button 
-          onClick={onClose} 
-          style={styles?.modalCloseButton || stylesGlobal.components.button.variants.secondary}
-          aria-label="Cerrar modal"
-        >
-          ✕
-        </button>
-        {children}
-      </div>
-    </div>
-  );
-};
+// Agregar estilos CSS para animaciones
+const modalStyles = `
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .modal-overlay {
+    animation: overlayFadeIn 0.3s ease-out;
+  }
+
+  .modal-content {
+    animation: modalFadeIn 0.3s ease-out;
+  }
+
+  .modal-content:hover .modal-close-btn {
+    opacity: 1;
+  }
+
+  .modal-close-btn {
+    transition: all 0.2s ease;
+    opacity: 0.7;
+  }
+
+  .modal-close-btn:hover {
+    opacity: 1 !important;
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = modalStyles;
+  if (!document.head.querySelector('style[data-modal-eventos-styles]')) {
+    styleElement.setAttribute('data-modal-eventos-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
 
 const GestionEventos = () => {
   const { user, isAuthenticated } = useAuth();
+
+  // Hook de notificaciones
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
+  
+  // Crear una referencia estable para addNotification
+  const addNotificationRef = useRef(addNotification);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+  }, [addNotification]);
+
+  // Suscribirse a las notificaciones de adminService
+  useEffect(() => {
+    const unsubscribe = adminService.onNotification((notification) => {
+      addNotification(notification.message, notification.type, notification.duration);
+    });
+
+    return unsubscribe;
+  }, [addNotification]);
 
   // Mapeo de estilos globales
   const styles = {
@@ -156,19 +207,64 @@ const GestionEventos = () => {
       gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
     },
-    modalOverlay: stylesGlobal.utils.overlay.elegant,
+    modalOverlay: {
+      ...stylesGlobal.utils.overlay.elegant,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1300,
+    },
     modalContent: {
       ...stylesGlobal.components.card.luxury,
       maxWidth: '700px',
+      width: '90%',
       maxHeight: '90vh',
       overflow: 'auto',
+      position: 'relative',
+      margin: '20px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
+      transform: 'scale(1)',
+      transition: 'all 0.3s ease-in-out',
+    },
+    deleteModalContent: {
+      ...stylesGlobal.components.card.luxury,
+      maxWidth: '500px',
+      width: '90%',
+      textAlign: 'center',
+      position: 'relative',
+      margin: '20px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
+      transform: 'scale(1)',
+      transition: 'all 0.3s ease-in-out',
     },
     modalCloseButton: {
       ...stylesGlobal.components.button.variants.ghost,
-      ...stylesGlobal.components.button.sizes.xs,
+      ...stylesGlobal.components.button.sizes.sm,
       position: 'absolute',
-      top: stylesGlobal.spacing.scale[2],
-      right: stylesGlobal.spacing.scale[2],
+      top: stylesGlobal.spacing.scale[3],
+      right: stylesGlobal.spacing.scale[3],
+      width: '32px',
+      height: '32px',
+      borderRadius: stylesGlobal.borders.radius.full,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '18px',
+      fontWeight: 'bold',
+      zIndex: 10,
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+      cursor: 'pointer',
+    },
+    modalBody: {
+      padding: stylesGlobal.spacing.scale[6],
+      position: 'relative',
+      paddingTop: stylesGlobal.spacing.scale[8], // Extra space for close button
     },
     modalTitle: stylesGlobal.typography.headings.h2,
     modalActions: {
@@ -277,7 +373,6 @@ const GestionEventos = () => {
   // Estados del componente
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({ 
     titulo: '', 
     descripcion: '', 
@@ -287,37 +382,25 @@ const GestionEventos = () => {
     horaFin: '' 
   });
   const [editId, setEditId] = useState(null);
-  const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
   const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'delete'
   const [eventoToDelete, setEventoToDelete] = useState(null);
-
-  // Usar el hook de notificaciones
-  const { notifications, removeNotification, clearAllNotifications } = useAdminNotifications();
 
   // Fetch eventos
   const fetchEventos = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
-      const eventos = await eventoService.getAll();
-      setEventos(eventos);
+      const data = await adminService.getEventos();
+      setEventos(data);
     } catch (err) {
-      setError(err.message || "Error al cargar eventos");
+      // adminService ya maneja las notificaciones de error
+      console.error('Error al cargar eventos:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Check authentication and admin permissions
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      setError('No tienes permisos para acceder a esta página');
-      setLoading(false);
-      return;
-    }
-  }, [isAuthenticated, user]);
-
+  // Fetch eventos on component mount
   useEffect(() => {
     if (isAuthenticated && user?.role === 'admin') {
       fetchEventos();
@@ -339,7 +422,6 @@ const GestionEventos = () => {
     });
     setEditId(null);
     setModalType('add');
-    setFormError('');
   };
 
   const handleEditClick = (evento) => {
@@ -353,7 +435,6 @@ const GestionEventos = () => {
     });
     setEditId(evento._id);
     setModalType('edit');
-    setFormError('');
   };
 
   const handleDeleteClick = (evento) => {
@@ -365,18 +446,18 @@ const GestionEventos = () => {
     e.preventDefault();
 
     setFormLoading(true);
-    setFormError('');
     try {
       if (editId) {
-        const updated = await eventoService.update(editId, formData);
+        const updated = await adminService.updateEvento(editId, formData);
         setEventos(eventos.map((e) => (e._id === editId ? updated : e)));
       } else {
-        const created = await eventoService.create(formData);
+        const created = await adminService.createEvento(formData);
         setEventos([created, ...eventos]);
       }
       setModalType(null);
+      await fetchEventos(); // Refrescar lista
     } catch (err) {
-      setFormError(err.message || 'Error al guardar el evento');
+      // adminService ya maneja las notificaciones de error
       console.error('Error saving evento:', err);
     } finally {
       setFormLoading(false);
@@ -386,14 +467,17 @@ const GestionEventos = () => {
   const confirmDelete = async () => {
     if (!eventoToDelete) return;
 
+    setFormLoading(true);
     try {
-      await eventoService.delete(eventoToDelete._id);
+      await adminService.deleteEvento(eventoToDelete._id);
       setEventos(eventos.filter((e) => e._id !== eventoToDelete._id));
       setModalType(null);
       setEventoToDelete(null);
     } catch (err) {
-      setFormError(err.message || 'Error al eliminar el evento');
+      // adminService ya maneja las notificaciones de error
       console.error('Error deleting evento:', err);
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -440,197 +524,260 @@ const GestionEventos = () => {
             Nuevo Evento
           </button>
         </div>
-        {/* Modal for add/edit */}
-        <Modal open={modalType === 'add' || modalType === 'edit'} onClose={() => setModalType(null)} styles={styles}>
-          <div style={styles.formContainer}>
-            <h2 style={styles.modalTitle}>
-              {modalType === 'edit' ? 'Editar Evento' : 'Nuevo Evento'}
-            </h2>
-            
-            <form onSubmit={handleFormSubmit}>
-              {/* Fila 1: Título y Ubicación */}
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    Título del Evento
-                    <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input 
-                    name="titulo" 
-                    value={formData.titulo} 
-                    onChange={handleInputChange} 
-                    placeholder="Ingresa el título del evento" 
-                    required 
-                    style={styles.input}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    Ubicación
-                    <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input 
-                    name="ubicacion" 
-                    value={formData.ubicacion} 
-                    onChange={handleInputChange} 
-                    placeholder="Lugar donde se realizará el evento" 
-                    required 
-                    style={styles.input}
-                  />
-                </div>
-              </div>
-              
-              {/* Fila 2: Fecha y Horarios */}
-              <div style={styles.formRowThree}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    Fecha
-                    <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input 
-                    name="fecha" 
-                    type="date" 
-                    value={formData.fecha} 
-                    onChange={handleInputChange} 
-                    required 
-                    style={styles.inputSmall}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    Hora de Inicio
-                    <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input 
-                    name="horaInicio" 
-                    type="time" 
-                    value={formData.horaInicio} 
-                    onChange={handleInputChange} 
-                    required 
-                    style={styles.inputSmall}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    Hora de Fin
-                    <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input 
-                    name="horaFin" 
-                    type="time" 
-                    value={formData.horaFin} 
-                    onChange={handleInputChange} 
-                    required 
-                    style={styles.inputSmall}
-                  />
-                </div>
-              </div>
-              
-              {/* Fila 3: Descripción */}
-              <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  Descripción
-                  <span style={styles.requiredField}>*</span>
-                </label>
-                <textarea 
-                  name="descripcion" 
-                  value={formData.descripcion} 
-                  onChange={handleInputChange} 
-                  placeholder="Describe el evento, actividades, público objetivo, etc." 
-                  required 
-                  rows={4} 
-                  style={styles.textarea}
-                />
-                <small style={styles.helpText}>
-                  Proporciona información detallada sobre el evento para ayudar a los asistentes.
-                </small>
-              </div>
-              
-              {formError && (
-                <div style={styles.error}>
-                  {formError}
-                </div>
-              )}
-              
-              <div style={styles.modalActions}>
-                <button 
-                  type="button" 
-                  style={styles.outlineButton}
-                  onClick={() => setModalType(null)} 
+        {/* Modal para agregar/editar evento */}
+        {(modalType === 'add' || modalType === 'edit') && (
+          <div
+            style={styles.modalOverlay}
+            className="modal-overlay"
+            onClick={(e) => e.target.classList.contains('modal-overlay') && setModalType(null)}
+          >
+            <div style={styles.modalContent} className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div style={styles.modalBody}>
+                <button
+                  style={styles.modalCloseButton}
+                  className="modal-close-btn"
+                  onClick={() => setModalType(null)}
+                  aria-label="Cerrar modal"
                   disabled={formLoading}
+                  title="Cerrar"
                 >
-                  Cancelar
+                  ×
                 </button>
-                <button 
-                  type="submit" 
-                  style={{
-                    ...styles.primaryButton,
-                    ...(formLoading ? styles.disabledButton : {}),
-                  }} 
-                  disabled={formLoading}
-                  aria-label={editId ? "Actualizar evento" : "Crear evento"}
-                >
-                  {formLoading 
-                    ? (editId ? 'Actualizando...' : 'Creando...') 
-                    : (editId ? 'Actualizar Evento' : 'Crear Evento')
-                  }
-                </button>
+                <h2 style={styles.modalTitle}>
+                  {modalType === 'edit' ? 'Editar Evento' : 'Nuevo Evento'}
+                </h2>
+                
+                <form onSubmit={handleFormSubmit}>
+                  <div style={styles.formContainer}>
+                    {/* Fila 1: Título y Ubicación */}
+                    <div style={styles.formRow}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          Título del Evento
+                          <span style={styles.requiredField}>*</span>
+                        </label>
+                        <input 
+                          name="titulo" 
+                          value={formData.titulo} 
+                          onChange={handleInputChange} 
+                          placeholder="Ingresa el título del evento" 
+                          required 
+                          style={styles.input}
+                          disabled={formLoading}
+                        />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          Ubicación
+                          <span style={styles.requiredField}>*</span>
+                        </label>
+                        <input 
+                          name="ubicacion" 
+                          value={formData.ubicacion} 
+                          onChange={handleInputChange} 
+                          placeholder="Lugar donde se realizará el evento" 
+                          required 
+                          style={styles.input}
+                          disabled={formLoading}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Fila 2: Fecha y Horarios */}
+                    <div style={styles.formRowThree}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          Fecha
+                          <span style={styles.requiredField}>*</span>
+                        </label>
+                        <input 
+                          name="fecha" 
+                          type="date" 
+                          value={formData.fecha} 
+                          onChange={handleInputChange} 
+                          required 
+                          style={styles.inputSmall}
+                          disabled={formLoading}
+                        />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          Hora de Inicio
+                          <span style={styles.requiredField}>*</span>
+                        </label>
+                        <input 
+                          name="horaInicio" 
+                          type="time" 
+                          value={formData.horaInicio} 
+                          onChange={handleInputChange} 
+                          required 
+                          style={styles.inputSmall}
+                          disabled={formLoading}
+                        />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>
+                          Hora de Fin
+                          <span style={styles.requiredField}>*</span>
+                        </label>
+                        <input 
+                          name="horaFin" 
+                          type="time" 
+                          value={formData.horaFin} 
+                          onChange={handleInputChange} 
+                          required 
+                          style={styles.inputSmall}
+                          disabled={formLoading}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Fila 3: Descripción */}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>
+                        Descripción
+                        <span style={styles.requiredField}>*</span>
+                      </label>
+                      <textarea 
+                        name="descripcion" 
+                        value={formData.descripcion} 
+                        onChange={handleInputChange} 
+                        placeholder="Describe el evento, actividades, público objetivo, etc." 
+                        required 
+                        rows={4} 
+                        style={styles.textarea}
+                        disabled={formLoading}
+                      />
+                      <small style={styles.helpText}>
+                        Proporciona información detallada sobre el evento para ayudar a los asistentes.
+                      </small>
+                    </div>
+                    
+                    <div style={styles.modalActions}>
+                      <button 
+                        type="button" 
+                        style={{
+                          ...styles.outlineButton,
+                          ...(formLoading ? styles.disabledButton : {}),
+                        }}
+                        onClick={() => setModalType(null)} 
+                        disabled={formLoading}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        type="submit" 
+                        style={{
+                          ...styles.primaryButton,
+                          ...(formLoading ? styles.disabledButton : {}),
+                        }} 
+                        disabled={formLoading}
+                        aria-label={editId ? "Actualizar evento" : "Crear evento"}
+                      >
+                        {formLoading ? (
+                          <>
+                            <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[1] }} />
+                            {editId ? 'Actualizando...' : 'Creando...'}
+                          </>
+                        ) : (
+                          <>
+                            <FaPlus size={12} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+                            {editId ? 'Actualizar Evento' : 'Crear Evento'}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </Modal>
-        {/* Modal for delete */}
-        <Modal open={modalType === 'delete'} onClose={() => setModalType(null)} styles={styles}>
-          <div style={styles.formContainer}>
-            <h2 style={styles.modalTitle}>Eliminar Evento</h2>
-            <p style={{ 
-              marginBottom: stylesGlobal.spacing.scale[6], 
-              ...stylesGlobal.typography.body.base,
-              color: stylesGlobal.colors.text.secondary,
-            }}>
-              ¿Estás seguro de que deseas eliminar el evento <strong>{eventoToDelete?.titulo}</strong>?
-            </p>
-            <p style={{ 
-              marginBottom: stylesGlobal.spacing.scale[6], 
-              ...stylesGlobal.typography.body.caption,
-              color: stylesGlobal.colors.text.muted,
-              fontStyle: 'italic',
-            }}>
-              Esta acción no se puede deshacer.
-            </p>
-            
-            {formError && (
-              <div style={styles.error}>
-                {formError}
-              </div>
-            )}
-            
-            <div style={styles.modalActions}>
-              <button 
-                style={styles.outlineButton}
-                onClick={() => setModalType(null)}
-              >
-                Cancelar
-              </button>
-              <button 
-                style={styles.deleteButton}
-                onClick={confirmDelete}
-                aria-label={`Eliminar evento ${eventoToDelete?.titulo}`}
-              >
-                Eliminar Evento
-              </button>
             </div>
           </div>
-        </Modal>
+        )}
+
+        {/* Modal para confirmar eliminación */}
+        {modalType === 'delete' && eventoToDelete && (
+          <div
+            style={styles.modalOverlay}
+            className="modal-overlay"
+            onClick={(e) => e.target.classList.contains('modal-overlay') && setModalType(null)}
+          >
+            <div style={styles.deleteModalContent} className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div style={styles.modalBody}>
+                <button
+                  style={styles.modalCloseButton}
+                  className="modal-close-btn"
+                  onClick={() => setModalType(null)}
+                  aria-label="Cerrar modal"
+                  disabled={formLoading}
+                  title="Cerrar"
+                >
+                  ×
+                </button>
+                <div style={{ textAlign: 'center' }}>
+                  <FaTrash size={48} style={{ color: stylesGlobal.colors.semantic.error.main, marginBottom: stylesGlobal.spacing.scale[4] }} />
+                  <h2 style={styles.modalTitle}>¿Eliminar Evento?</h2>
+                  <p style={{ 
+                    marginBottom: stylesGlobal.spacing.scale[6], 
+                    ...stylesGlobal.typography.body.base,
+                    color: stylesGlobal.colors.text.secondary,
+                  }}>
+                    ¿Estás seguro de que deseas eliminar el evento <strong>{eventoToDelete?.titulo}</strong>?
+                  </p>
+                  <p style={{ 
+                    marginBottom: stylesGlobal.spacing.scale[6], 
+                    ...stylesGlobal.typography.body.caption,
+                    color: stylesGlobal.colors.text.muted,
+                    fontStyle: 'italic',
+                  }}>
+                    Esta acción no se puede deshacer.
+                  </p>
+                  
+                  <div style={styles.modalActions}>
+                    <button 
+                      style={{
+                        ...styles.outlineButton,
+                        ...(formLoading ? styles.disabledButton : {}),
+                      }}
+                      onClick={() => setModalType(null)}
+                      disabled={formLoading}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      style={{
+                        ...styles.primaryButton,
+                        backgroundColor: stylesGlobal.colors.semantic.error.main,
+                        borderColor: stylesGlobal.colors.semantic.error.main,
+                        ...(formLoading ? styles.disabledButton : {}),
+                      }}
+                      onClick={confirmDelete}
+                      disabled={formLoading}
+                      aria-label={`Eliminar evento ${eventoToDelete?.titulo}`}
+                    >
+                      {formLoading ? (
+                        <>
+                          <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[1] }} />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <FaTrash size={12} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+                          Eliminar Evento
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {loading ? (
           <div style={styles.loadingContainer}>
             <div style={styles.textCenter}>
+              <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[2] }} />
               <h3 style={stylesGlobal.typography.headings.h3}>Cargando eventos...</h3>
             </div>
-          </div>
-        ) : error ? (
-          <div style={styles.emptyState}>
-            <h3 style={styles.emptyStateText}>{error}</h3>
           </div>
         ) : eventos.length === 0 ? (
           <div style={styles.emptyState}>
@@ -708,176 +855,7 @@ const GestionEventos = () => {
         )}
       </div>
 
-      {/* Modal for add/edit */}
-      <Modal open={modalType === 'add' || modalType === 'edit'} onClose={() => setModalType(null)} styles={styles}>
-        <div style={styles.modalContent}>
-          <h2 style={styles.modalTitle}>
-            {modalType === 'edit' ? 'Editar Evento' : 'Agregar Nuevo Evento'}
-          </h2>
-          
-          {formError && (
-            <div style={styles.error}>
-              {formError}
-            </div>
-          )}
-          
-          <form onSubmit={handleFormSubmit}>
-            <div style={styles.formContainer}>
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="titulo">
-                  Título <span style={styles.requiredField}>*</span>
-                </label>
-                <input
-                  id="titulo"
-                  type="text"
-                  name="titulo"
-                  value={formData.titulo}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Ingrese el título del evento"
-                  required
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="descripcion">
-                  Descripción <span style={styles.requiredField}>*</span>
-                </label>
-                <textarea
-                  id="descripcion"
-                  name="descripcion"
-                  value={formData.descripcion}
-                  onChange={handleInputChange}
-                  style={styles.textarea}
-                  placeholder="Descripción del evento"
-                  rows={4}
-                  required
-                />
-              </div>
-
-              <div style={styles.formRow}>
-                <div style={{ flex: 1 }}>
-                  <label style={styles.label} htmlFor="fecha">
-                    Fecha <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input
-                    id="fecha"
-                    type="date"
-                    name="fecha"
-                    value={formData.fecha}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={styles.label} htmlFor="ubicacion">
-                    Ubicación <span style={styles.requiredField}>*</span>
-                  </label>
-                  <input
-                    id="ubicacion"
-                    type="text"
-                    name="ubicacion"
-                    value={formData.ubicacion}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    placeholder="Ubicación del evento"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div style={styles.formRow}>
-                <div style={{ flex: 1 }}>
-                  <label style={styles.label} htmlFor="horaInicio">
-                    Hora de Inicio
-                  </label>
-                  <input
-                    id="horaInicio"
-                    type="time"
-                    name="horaInicio"
-                    value={formData.horaInicio}
-                    onChange={handleInputChange}
-                    style={styles.inputSmall}
-                  />
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={styles.label} htmlFor="horaFin">
-                    Hora de Fin
-                  </label>
-                  <input
-                    id="horaFin"
-                    type="time"
-                    name="horaFin"
-                    value={formData.horaFin}
-                    onChange={handleInputChange}
-                    style={styles.inputSmall}
-                  />
-                </div>
-              </div>
-
-              <div style={styles.modalActions}>
-                <button
-                  type="button"
-                  onClick={() => setModalType(null)}
-                  style={styles.outlineButton}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    ...styles.primaryButton,
-                    ...(formLoading ? styles.disabledButton : {})
-                  }}
-                  disabled={formLoading}
-                >
-                  {formLoading ? 'Guardando...' : (modalType === 'edit' ? 'Actualizar' : 'Crear')}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </Modal>
-
-      {/* Modal for delete confirmation */}
-      <Modal open={modalType === 'delete'} onClose={() => setModalType(null)} styles={styles}>
-        <div style={styles.modalContent}>
-          <h2 style={styles.modalTitle}>Confirmar Eliminación</h2>
-          
-          {formError && (
-            <div style={styles.error}>
-              {formError}
-            </div>
-          )}
-          
-          <p>
-            ¿Estás seguro de que quieres eliminar el evento "<strong>{eventoToDelete?.titulo}</strong>"?
-            Esta acción no se puede deshacer.
-          </p>
-          
-          <div style={styles.modalActions}>
-            <button
-              type="button"
-              onClick={() => setModalType(null)}
-              style={styles.outlineButton}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              onClick={confirmDelete}
-              style={styles.deleteButton}
-            >
-              Eliminar
-            </button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Contenedor de notificaciones */}
+      {/* Sistema de notificaciones centralizado */}
       <NotificationContainer
         notifications={notifications}
         onRemoveNotification={removeNotification}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   FaSearch,
   FaFilter,
@@ -17,11 +17,31 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
-import { adminAPI } from "../../services/api";
+import adminService from "../../services/adminServices";
+import { useAdminNotifications } from "../../services/adminHooks";
+import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesPublic from "../../styles/stylesGlobal"; // Import global styles
 
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const { user } = useAuth();
+
+  // Hook de notificaciones
+  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
+  
+  // Crear una referencia estable para addNotification
+  const addNotificationRef = useRef(addNotification);
+  useEffect(() => {
+    addNotificationRef.current = addNotification;
+  }, [addNotification]);
+
+  // Suscribirse a las notificaciones de adminService
+  useEffect(() => {
+    const unsubscribe = adminService.onNotification((notification) => {
+      addNotification(notification.message, notification.type, notification.duration);
+    });
+
+    return unsubscribe;
+  }, [addNotification]);
 
   // Updated styles object using stylesPublic
   const styles = {
@@ -154,19 +174,18 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     password: "",
     role: "user",
   });
-  const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState("");
   const [formLoading, setFormLoading] = useState(false);
 
   // Fetch users from backend
-  // TODO: Could extract API fetching logic to a custom hook (e.g., useUsers)
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await adminAPI.getUsers();
+        const data = await adminService.getUsers();
         setUsers(data);
         setFilteredUsers(data);
       } catch (error) {
+        // adminService ya maneja las notificaciones de error
+        // Solo actualizamos el estado local de error para el UI
         setError(error?.error || error?.message || "Error al cargar los usuarios");
       } finally {
         setLoading(false);
@@ -241,14 +260,15 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
       try {
-        const response = await adminAPI.deleteUser(userId);
+        await adminService.deleteUser(userId);
+        // adminService ya maneja las notificaciones de éxito automáticamente
+        // Solo actualizamos el estado local
         setUsers(users.filter((user) => user._id !== userId));
         setFilteredUsers(filteredUsers.filter((user) => user._id !== userId));
         setSelectedUsers(new Set([...selectedUsers].filter((id) => id !== userId)));
-        
-        // Opcional: mostrar mensaje de éxito
-        console.log(response.message || "Usuario eliminado exitosamente");
       } catch (error) {
+        // adminService ya maneja las notificaciones de error
+        // Solo actualizamos el estado local de error para el UI
         setError(error?.error || error?.message || "Error al eliminar el usuario");
       }
     }
@@ -271,51 +291,47 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   };
 
   // Handle edit form submission
-  // TODO: Could extract form submission logic to a reusable UserForm component
   const handleEditFormSubmit = async (e) => {
     e.preventDefault();
-    setFormError("");
-    setFormSuccess("");
     setFormLoading(true);
 
     const updateData = { ...formData };
     if (!updateData.password) delete updateData.password;
 
     try {
-      const response = await adminAPI.updateUser(editingUserId, updateData);
+      const response = await adminService.updateUser(editingUserId, updateData);
 
-      // El backend devuelve { success: true, data: user, message: '...' }
+      // adminService ya maneja las notificaciones de éxito automáticamente
+      // Solo actualizamos el estado local
       const updatedUser = response.data || response;
       const updatedUsers = users.map((user) =>
         user._id === editingUserId ? { ...user, ...updatedUser } : user
       );
       setUsers(updatedUsers);
 
-      setFormSuccess(response.message || "Usuario actualizado con éxito");
+      // Cerrar modal después de un breve delay
       setTimeout(() => {
         setShowEditForm(false);
         setEditingUserId(null);
-        setFormSuccess("");
-      }, 2000);
+      }, 1000);
     } catch (error) {
-      setFormError(error?.error || error?.message || "Error al actualizar el usuario");
+      // adminService ya maneja las notificaciones de error
+      // No necesitamos manejar errores adicionales aquí
     } finally {
       setFormLoading(false);
     }
   };
 
   // Handle new user form submission
-  // TODO: Could reuse the same UserForm component for both create and edit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setFormError("");
-    setFormSuccess("");
     setFormLoading(true);
 
     try {
-      const response = await adminAPI.createUser(formData);
+      const response = await adminService.createUser(formData);
 
-      // El backend devuelve { success: true, data: user, message: '...' }
+      // adminService ya maneja las notificaciones de éxito automáticamente
+      // Solo actualizamos el estado local
       const newUser = response.data || response;
       setUsers([...users, newUser]);
       setFormData({
@@ -326,13 +342,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         role: "user",
       });
 
-      setFormSuccess(response.message || "Usuario creado con éxito");
+      // Cerrar modal después de un breve delay
       setTimeout(() => {
         setShowUserForm(false);
-        setFormSuccess("");
-      }, 2000);
+      }, 1000);
     } catch (error) {
-      setFormError(error?.error || error?.message || "Error al crear el usuario");
+      // adminService ya maneja las notificaciones de error
+      // No necesitamos manejar errores adicionales aquí
     } finally {
       setFormLoading(false);
     }
@@ -474,6 +490,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         </div>
 
         <div style={styles.content}>
+          {/* Sistema de notificaciones centralizado */}
+          <NotificationContainer
+            notifications={notifications}
+            onRemoveNotification={removeNotification}
+            onClearAll={clearAllNotifications}
+          />
+
           {/* TODO: Could extract to a UserSearchFilter component */}
           <div
             style={{
@@ -984,37 +1007,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               <h2 style={{ ...stylesPublic.typography.headings.h2, padding: stylesPublic.spacing.scale[4] }}>
                 Agregar Nuevo Usuario
               </h2>
-              {formError && (
-                <div
-                  style={{
-                    backgroundColor: stylesPublic.colors.semantic.error.light,
-                    color: stylesPublic.colors.semantic.error.main,
-                    padding: stylesPublic.spacing.scale[4],
-                    borderRadius: stylesPublic.borders.radius.md,
-                    margin: stylesPublic.spacing.scale[4],
-                    textAlign: "center",
-                  }}
-                >
-                  {formError}
-                </div>
-              )}
-              {formSuccess && (
-                <div
-                  style={{
-                    backgroundColor: stylesPublic.colors.semantic.success.light,
-                    color: stylesPublic.colors.semantic.success.main,
-                    padding: stylesPublic.spacing.scale[4],
-                    borderRadius: stylesPublic.borders.radius.md,
-                    margin: stylesPublic.spacing.scale[4],
-                    display: "flex",
-                    alignItems: "center",
-                    gap: stylesPublic.spacing.scale[2],
-                    justifyContent: "center",
-                  }}
-                >
-                  {formSuccess}
-                </div>
-              )}
               <form
                 onSubmit={handleFormSubmit}
                 style={{
@@ -1233,37 +1225,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               <h2 style={{ ...stylesPublic.typography.headings.h2, padding: stylesPublic.spacing.scale[4] }}>
                 Editar Usuario
               </h2>
-              {formError && (
-                <div
-                  style={{
-                    backgroundColor: stylesPublic.colors.semantic.error.light,
-                    color: stylesPublic.colors.semantic.error.main,
-                    padding: stylesPublic.spacing.scale[4],
-                    borderRadius: stylesPublic.borders.radius.md,
-                    margin: stylesPublic.spacing.scale[4],
-                    textAlign: "center",
-                  }}
-                >
-                  {formError}
-                </div>
-              )}
-              {formSuccess && (
-                <div
-                  style={{
-                    backgroundColor: stylesPublic.colors.semantic.success.light,
-                    color: stylesPublic.colors.semantic.success.main,
-                    padding: stylesPublic.spacing.scale[4],
-                    borderRadius: stylesPublic.borders.radius.md,
-                    margin: stylesPublic.spacing.scale[4],
-                    display: "flex",
-                    alignItems: "center",
-                    gap: stylesPublic.spacing.scale[2],
-                    justifyContent: "center",
-                  }}
-                >
-                  {formSuccess}
-                </div>
-              )}
               <form
                 onSubmit={handleEditFormSubmit}
                 style={{

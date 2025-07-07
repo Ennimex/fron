@@ -479,6 +479,672 @@ const stylesGlobal = {
   // COMPONENTES BASE MEJORADOS
   // ===============================
   components: {
+    // ===============================
+    // COMPONENTES DE NAVEGACIÓN ELEGANTES
+    // ===============================
+    
+    // Sistema de Navbar/Header elegante
+    navbar: {
+      // Configuración base
+      base: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "72px",
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid #ede9e6",
+        boxShadow: "0 1px 3px 0 rgba(42, 36, 31, 0.1), 0 1px 2px -1px rgba(42, 36, 31, 0.1)",
+        zIndex: 1100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 2rem",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      },
+
+      // Variantes
+      variants: {
+        transparent: {
+          backgroundColor: "transparent",
+          backdropFilter: "none",
+          borderBottom: "1px solid transparent",
+          boxShadow: "none",
+        },
+        solid: {
+          backgroundColor: "#ffffff",
+          backdropFilter: "none",
+        },
+        luxury: {
+          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 252, 243, 0.95) 100%)",
+          borderBottom: "1px solid #e6a756",
+          boxShadow: "0 1px 3px 0 rgba(230, 167, 86, 0.1)",
+        },
+        dark: {
+          backgroundColor: "rgba(42, 36, 31, 0.95)",
+          borderBottom: "1px solid #524842",
+          color: "#ffffff",
+        },
+      },
+
+      // Estados de scroll
+      scrolled: {
+        height: "64px",
+        boxShadow: "0 4px 6px -1px rgba(42, 36, 31, 0.1), 0 2px 4px -2px rgba(42, 36, 31, 0.1)",
+        backgroundColor: "#ffffff",
+      },
+
+      // Elementos internos
+      brand: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "1.5rem",
+        fontWeight: 700,
+        color: "#d63384",
+        textDecoration: "none",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          color: "#c02a74",
+          transform: "translateY(-1px)",
+        },
+      },
+
+      nav: {
+        display: "flex",
+        alignItems: "center",
+        gap: "2rem",
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+      },
+
+      navItem: {
+        position: "relative",
+      },
+
+      navLink: {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "8px 16px",
+        fontSize: "1rem",
+        fontWeight: 500,
+        color: "#524842",
+        textDecoration: "none",
+        borderRadius: "10px",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          color: "#d63384",
+          backgroundColor: "#fdf2f4",
+          transform: "translateY(-1px)",
+        },
+        "&.active": {
+          color: "#d63384",
+          backgroundColor: "#fdf2f4",
+          fontWeight: 600,
+        },
+      },
+
+      actions: {
+        display: "flex",
+        alignItems: "center",
+        gap: "1rem",
+      },
+
+      // Responsive
+      mobile: {
+        padding: "0 1rem",
+        height: "60px",
+      },
+
+      mobileMenu: {
+        position: "fixed",
+        top: "72px",
+        left: 0,
+        right: 0,
+        backgroundColor: "rgba(255, 255, 255, 0.98)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid #ede9e6",
+        boxShadow: "0 10px 15px -3px rgba(42, 36, 31, 0.1)",
+        padding: "1rem",
+        transform: "translateY(-100%)",
+        opacity: 0,
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        zIndex: 1050,
+        "&.open": {
+          transform: "translateY(0)",
+          opacity: 1,
+        },
+      },
+
+      hamburger: {
+        display: "none",
+        flexDirection: "column",
+        gap: "4px",
+        width: "24px",
+        height: "18px",
+        cursor: "pointer",
+        "@media (max-width: 768px)": {
+          display: "flex",
+        },
+      },
+
+      hamburgerLine: {
+        width: "100%",
+        height: "2px",
+        backgroundColor: "#524842",
+        borderRadius: "2px",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      },
+    },
+
+    // Sistema de Sidebar elegante
+    sidebar: {
+      // Configuración base
+      base: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "280px",
+        height: "100vh",
+        backgroundColor: "#ffffff",
+        borderRight: "1px solid #ede9e6",
+        boxShadow: "4px 0 6px -1px rgba(42, 36, 31, 0.1)",
+        zIndex: 1000,
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        overflow: "hidden",
+      },
+
+      // Variantes
+      variants: {
+        luxury: {
+          background: "linear-gradient(180deg, #ffffff 0%, #fefcf3 100%)",
+          borderRight: "1px solid #e6a756",
+        },
+        dark: {
+          backgroundColor: "#2a241f",
+          borderRight: "1px solid #524842",
+          color: "#ffffff",
+        },
+        glass: {
+          background: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(12px)",
+        },
+        minimal: {
+          width: "64px",
+          borderRight: "1px solid #ede9e6",
+        },
+      },
+
+      // Estados
+      collapsed: {
+        width: "64px",
+        ".sidebar-text": {
+          opacity: 0,
+          transform: "translateX(-10px)",
+        },
+        ".sidebar-logo-text": {
+          display: "none",
+        },
+      },
+
+      // Elementos internos
+      header: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: "1.5rem 1.5rem 1rem 1.5rem",
+        borderBottom: "1px solid #ede9e6",
+        minHeight: "72px",
+      },
+
+      logo: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        textDecoration: "none",
+      },
+
+      logoIcon: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "8px",
+        backgroundColor: "#d63384",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#ffffff",
+        fontSize: "1.2rem",
+        fontWeight: 700,
+      },
+
+      logoText: {
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "1.25rem",
+        fontWeight: 700,
+        color: "#2a241f",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      },
+
+      content: {
+        flex: 1,
+        padding: "1rem",
+        overflow: "auto",
+      },
+
+      nav: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+      },
+
+      navItem: {
+        position: "relative",
+      },
+
+      navLink: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: "12px 16px",
+        fontSize: "0.95rem",
+        fontWeight: 500,
+        color: "#524842",
+        textDecoration: "none",
+        borderRadius: "10px",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          color: "#d63384",
+          backgroundColor: "#fdf2f4",
+          transform: "translateX(4px)",
+        },
+        "&.active": {
+          color: "#d63384",
+          backgroundColor: "#fdf2f4",
+          fontWeight: 600,
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            left: 0,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: "3px",
+            height: "24px",
+            backgroundColor: "#d63384",
+            borderRadius: "0 2px 2px 0",
+          },
+        },
+      },
+
+      navIcon: {
+        width: "20px",
+        height: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      },
+
+      navText: {
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      },
+
+      section: {
+        marginTop: "2rem",
+        "&:first-child": {
+          marginTop: 0,
+        },
+      },
+
+      sectionTitle: {
+        fontSize: "0.75rem",
+        fontWeight: 600,
+        color: "#8b7d74",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+        padding: "0 16px 8px 16px",
+        marginBottom: "8px",
+      },
+
+      footer: {
+        padding: "1rem 1.5rem",
+        borderTop: "1px solid #ede9e6",
+        marginTop: "auto",
+      },
+
+      // Toggle button
+      toggle: {
+        position: "absolute",
+        top: "50%",
+        right: "-12px",
+        transform: "translateY(-50%)",
+        width: "24px",
+        height: "24px",
+        backgroundColor: "#ffffff",
+        border: "1px solid #ede9e6",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        boxShadow: "0 2px 4px rgba(42, 36, 31, 0.1)",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          backgroundColor: "#fdf2f4",
+          borderColor: "#d63384",
+          transform: "translateY(-50%) scale(1.1)",
+        },
+      },
+
+      // Responsive
+      mobile: {
+        transform: "translateX(-100%)",
+        "&.open": {
+          transform: "translateX(0)",
+        },
+      },
+
+      overlay: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(42, 36, 31, 0.5)",
+        zIndex: 999,
+        opacity: 0,
+        visibility: "hidden",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&.active": {
+          opacity: 1,
+          visibility: "visible",
+        },
+      },
+    },
+
+    // Sistema de Footer elegante
+    footer: {
+      // Configuración base
+      base: {
+        backgroundColor: "#2a241f",
+        color: "#ffffff",
+        marginTop: "auto",
+      },
+
+      // Variantes
+      variants: {
+        simple: {
+          padding: "2rem 0",
+          textAlign: "center",
+          borderTop: "1px solid #524842",
+        },
+        complex: {
+          padding: "4rem 0 2rem 0",
+        },
+        luxury: {
+          background: "linear-gradient(135deg, #2a241f 0%, #3a332e 100%)",
+          borderTop: "1px solid #e6a756",
+        },
+        minimal: {
+          backgroundColor: "#fafaf9",
+          color: "#524842",
+          borderTop: "1px solid #ede9e6",
+          padding: "1.5rem 0",
+        },
+      },
+
+      // Secciones del footer
+      main: {
+        padding: "4rem 0 2rem 0",
+      },
+
+      grid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+        gap: "2rem",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "0 2rem",
+      },
+
+      section: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      },
+
+      brand: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        maxWidth: "300px",
+      },
+
+      logo: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        marginBottom: "1rem",
+      },
+
+      logoIcon: {
+        width: "40px",
+        height: "40px",
+        borderRadius: "10px",
+        backgroundColor: "#d63384",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#ffffff",
+        fontSize: "1.5rem",
+        fontWeight: 700,
+      },
+
+      logoText: {
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "1.5rem",
+        fontWeight: 700,
+        color: "#ffffff",
+      },
+
+      description: {
+        fontSize: "0.95rem",
+        lineHeight: 1.6,
+        color: "#b8aca4",
+      },
+
+      title: {
+        fontSize: "1.125rem",
+        fontWeight: 600,
+        color: "#ffffff",
+        marginBottom: "1rem",
+      },
+
+      nav: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+      },
+
+      navLink: {
+        color: "#b8aca4",
+        textDecoration: "none",
+        fontSize: "0.95rem",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          color: "#d63384",
+          transform: "translateX(4px)",
+        },
+      },
+
+      // Sección de contacto
+      contact: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+      },
+
+      contactItem: {
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        color: "#b8aca4",
+        fontSize: "0.95rem",
+      },
+
+      contactIcon: {
+        width: "20px",
+        height: "20px",
+        color: "#d63384",
+      },
+
+      // Redes sociales
+      social: {
+        display: "flex",
+        gap: "1rem",
+        marginTop: "1rem",
+      },
+
+      socialLink: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "40px",
+        height: "40px",
+        backgroundColor: "#524842",
+        color: "#ffffff",
+        borderRadius: "10px",
+        textDecoration: "none",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          backgroundColor: "#d63384",
+          transform: "translateY(-2px)",
+          boxShadow: "0 8px 16px rgba(214, 51, 132, 0.3)",
+        },
+      },
+
+      // Newsletter
+      newsletter: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        maxWidth: "300px",
+      },
+
+      newsletterForm: {
+        display: "flex",
+        gap: "8px",
+      },
+
+      newsletterInput: {
+        flex: 1,
+        padding: "10px 14px",
+        fontSize: "0.95rem",
+        backgroundColor: "#524842",
+        border: "1px solid #6b5d54",
+        borderRadius: "8px",
+        color: "#ffffff",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:focus": {
+          outline: "none",
+          borderColor: "#d63384",
+          boxShadow: "0 0 0 2px rgba(214, 51, 132, 0.2)",
+        },
+        "&::placeholder": {
+          color: "#b8aca4",
+        },
+      },
+
+      newsletterButton: {
+        padding: "10px 16px",
+        backgroundColor: "#d63384",
+        color: "#ffffff",
+        border: "none",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontSize: "0.95rem",
+        fontWeight: 500,
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          backgroundColor: "#c02a74",
+          transform: "translateY(-1px)",
+        },
+      },
+
+      // Sección inferior
+      bottom: {
+        borderTop: "1px solid #524842",
+        padding: "1.5rem 0",
+        marginTop: "2rem",
+      },
+
+      bottomContent: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "0 2rem",
+        gap: "1rem",
+        "@media (max-width: 768px)": {
+          flexDirection: "column",
+          textAlign: "center",
+        },
+      },
+
+      copyright: {
+        fontSize: "0.875rem",
+        color: "#8b7d74",
+      },
+
+      bottomNav: {
+        display: "flex",
+        gap: "2rem",
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+        "@media (max-width: 768px)": {
+          flexDirection: "column",
+          gap: "1rem",
+        },
+      },
+
+      bottomNavLink: {
+        color: "#8b7d74",
+        textDecoration: "none",
+        fontSize: "0.875rem",
+        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "&:hover": {
+          color: "#d63384",
+        },
+      },
+
+      // Responsive
+      mobile: {
+        padding: "2rem 0 1rem 0",
+        ".footer-grid": {
+          gridTemplateColumns: "1fr",
+          gap: "2rem",
+        },
+        ".footer-brand": {
+          maxWidth: "none",
+        },
+        ".footer-newsletter": {
+          maxWidth: "none",
+        },
+      },
+    },
+
     // Sistema de botones elegante
     button: {
       // Tamaños
@@ -677,21 +1343,86 @@ const stylesGlobal = {
       },
     },
 
-    // Screen reader utilities
-    sr: {
-      only: {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        padding: "0",
-        margin: "-1px",
-        overflow: "hidden",
-        clip: "rect(0, 0, 0, 0)",
-        whiteSpace: "nowrap",
-        border: "0",
+    // Sistema de migración desde estilos antiguos
+    migration: {
+      // Mapeo de colores antiguos a nuevos
+      colorMapping: {
+        // Colores del sistema antiguo (styles.js)
+        "#0D1B2A": "#2a241f", // primary -> neutral-900 (más elegante)
+        "#1B263B": "#524842", // secondary -> neutral-700
+        "#3498db": "#6b9b6b", // accent -> secondary-500 (verde salvia)
+        "#2c3e50": "#8b7d74", // primaryLight -> neutral-500
+        "#090E15": "#1a1612", // primaryDark -> neutral-950
+        "#233044": "#3a332e", // primaryMedium -> neutral-800
+        "#FFFFFF": "#ffffff", // white -> mantener
+        "#F8F9FA": "#fafaf9", // offWhite -> neutral-50
+        "#F5F6F8": "#f7f6f4", // background -> neutral-100
+        "#E2E8F0": "#ede9e6", // gray -> neutral-200
+        "#F1F5F9": "#ddd6d1", // grayLight -> neutral-300
+        "#64748B": "#b8aca4", // grayDark -> neutral-400
+      },
+
+      // Mapeo de componentes antiguos a nuevos
+      componentMapping: {
+        // Para NavbarAdmin
+        oldNavbarAdmin: "stylesGlobal.components.navbar.variants.dark",
+        oldNavbarColors: "stylesGlobal.colors.surface.elevated",
+        
+        // Para SidebarAdmin  
+        oldSidebarAdmin: "stylesGlobal.components.sidebar.variants.dark",
+        oldSidebarColors: "stylesGlobal.colors.neutral[900]",
+        
+        // Para Footer
+        oldFooter: "stylesGlobal.components.footer.variants.luxury",
+        oldFooterColors: "stylesGlobal.colors.neutral[900]",
+        
+        // Para NavbarBase/Public/Private
+        oldNavbarBase: "stylesGlobal.components.navbar.base",
+        oldNavbarPublic: "stylesGlobal.components.navbar.variants.solid",
+      },
+
+      // Guías de transición
+      transitionGuide: {
+        step1: "Reemplazar imports de colors antiguos con stylesGlobal",
+        step2: "Migrar estilos inline a sistema de componentes global",
+        step3: "Actualizar animaciones a cubic-bezier elegante",
+        step4: "Implementar variantes glass y luxury donde corresponda",
+        step5: "Unificar sistema de espaciado con spacing.scale",
+      },
+    },
+
+    // Helpers para componentes existentes
+    legacy: {
+      // Wrapper para mantener compatibilidad durante migración
+      getOldColor: (oldColor) => {
+        const mapping = {
+          "#0D1B2A": stylesGlobal.colors.neutral[900],
+          "#1B263B": stylesGlobal.colors.neutral[700],
+          "#3498db": stylesGlobal.colors.secondary[500],
+          // ... más mapeos según necesidad
+        }
+        return mapping[oldColor] || oldColor
+      },
+      
+      // Convertir estilos antiguos a nuevos
+      convertStyle: (oldStyleObject) => {
+        // Función helper para migración gradual
+        const newStyle = { ...oldStyleObject }
+        
+        // Reemplazar colores conocidos
+        Object.keys(newStyle).forEach(key => {
+          if (typeof newStyle[key] === 'string' && newStyle[key].startsWith('#')) {
+            const newColor = stylesGlobal.utils.legacy.getOldColor(newStyle[key])
+            if (newColor !== newStyle[key]) {
+              newStyle[key] = newColor
+            }
+          }
+        })
+        
+        return newStyle
       },
     },
   },
-}
+};
 
-export default stylesGlobal
+export default stylesGlobal;

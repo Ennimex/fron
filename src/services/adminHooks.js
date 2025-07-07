@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import adminService from '../services/adminServices.js';
+import adminService from './adminServices';
 
 // Hook personalizado para manejar notificaciones del admin
 export const useAdminNotifications = () => {
