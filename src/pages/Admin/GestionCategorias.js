@@ -16,6 +16,112 @@ import {
 } from "react-icons/fa";
 import stylesGlobal from "../../styles/stylesGlobal";
 
+// Inyectar estilos CSS responsivos
+if (!document.getElementById('gestion-categorias-responsive-styles')) {
+  const style = document.createElement('style');
+  style.id = 'gestion-categorias-responsive-styles';
+  style.textContent = `
+    /* Estilos responsivos para GestionCategorias */
+    @media (max-width: 768px) {
+      .categorias-container {
+        padding: 1rem !important;
+      }
+      
+      .categorias-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .categorias-header-text h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .categorias-add-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      
+      .categorias-search {
+        margin-bottom: 1rem !important;
+      }
+      
+      .categorias-table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      
+      .categorias-table {
+        min-width: 600px !important;
+      }
+      
+      .categorias-table th,
+      .categorias-table td {
+        padding: 0.5rem !important;
+        font-size: 0.875rem !important;
+      }
+      
+      .categorias-actions {
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+      }
+      
+      .categorias-action-btn {
+        width: 100% !important;
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.75rem !important;
+      }
+      
+      .categorias-modal-content {
+        margin: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+        max-height: calc(100vh - 2rem) !important;
+      }
+      
+      .categorias-modal-header h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .categorias-form-group {
+        margin-bottom: 1rem !important;
+      }
+      
+      .categorias-modal-actions {
+        flex-direction: column-reverse !important;
+        gap: 0.75rem !important;
+      }
+      
+      .categorias-modal-btn {
+        width: 100% !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .categorias-container {
+        padding: 0.5rem !important;
+      }
+      
+      .categorias-table th:not(:first-child):not(:last-child),
+      .categorias-table td:not(:first-child):not(:last-child) {
+        display: none !important;
+      }
+      
+      .categorias-image-preview {
+        width: 30px !important;
+        height: 30px !important;
+      }
+      
+      .categorias-image-placeholder {
+        width: 30px !important;
+        height: 30px !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 const GestionCategorias = () => {
   const { user, isAuthenticated } = useAuth();
 
@@ -512,11 +618,11 @@ const GestionCategorias = () => {
   }
 
   return (
-    <div style={styles.pageContainer}>
+    <div style={styles.pageContainer} className="categorias-container">
       <div style={styles.mainContainer}>
         {/* Header */}
-        <div style={styles.header}>
-          <div>
+        <div style={styles.header} className="categorias-header">
+          <div className="categorias-header-text">
             <h1 style={styles.title}>Gestión de Categorías</h1>
             <p style={styles.subtitle}>
               Administra y supervisa todas las categorías del sistema
@@ -524,6 +630,7 @@ const GestionCategorias = () => {
           </div>
           <button
             style={styles.addButton}
+            className="categorias-add-btn"
             onClick={() => openModal()}
             aria-label="Nueva categoría"
           >
@@ -540,7 +647,7 @@ const GestionCategorias = () => {
         )}
 
         {/* Search */}
-        <div style={styles.searchContainer}>
+        <div style={styles.searchContainer} className="categorias-search">
           <label style={styles.label}>Buscar categorías</label>
           <div style={{ position: 'relative' }}>
             <FaSearch style={styles.searchIcon} />
@@ -572,8 +679,8 @@ const GestionCategorias = () => {
             </p>
           </div>
         ) : (
-          <div style={styles.tableContainer}>
-            <table style={styles.table}>
+          <div style={styles.tableContainer} className="categorias-table-container">
+            <table style={styles.table} className="categorias-table">
               <thead>
                 <tr>
                   <th style={styles.tableHeader}>Imagen</th>
@@ -591,9 +698,10 @@ const GestionCategorias = () => {
                           src={categoria.imagenURL}
                           alt={categoria.nombre}
                           style={styles.imagePreview}
+                          className="categorias-image-preview"
                         />
                       ) : (
-                        <div style={styles.imagePlaceholder}>
+                        <div style={styles.imagePlaceholder} className="categorias-image-placeholder">
                           <FaImage size={18} />
                         </div>
                       )}
@@ -605,12 +713,13 @@ const GestionCategorias = () => {
                       {categoria.descripcion || '—'}
                     </td>
                     <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer}>
+                      <div style={styles.actionsContainer} className="categorias-actions">
                         <button
                           style={{
                             ...styles.actionButton,
                             ...styles.editAction,
                           }}
+                          className="categorias-action-btn"
                           onClick={() => openModal(categoria)}
                           title="Editar categoría"
                           disabled={loading}
@@ -624,6 +733,7 @@ const GestionCategorias = () => {
                             ...styles.actionButton,
                             ...styles.deleteAction,
                           }}
+                          className="categorias-action-btn"
                           onClick={() => handleDelete(categoria._id)}
                           title="Eliminar categoría"
                           disabled={loading}
@@ -660,7 +770,7 @@ const GestionCategorias = () => {
             className="modal"
             onClick={(e) => e.target.classList.contains('modal') && closeModal()}
           >
-            <div style={styles.modalContent}>
+            <div style={styles.modalContent} className="categorias-modal-content">
               <div style={styles.modalBody}>
                 <button
                   style={styles.modalCloseButton}
@@ -669,9 +779,11 @@ const GestionCategorias = () => {
                 >
                   ✗
                 </button>
-                <h2 style={styles.modalTitle}>
-                  {modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
-                </h2>
+                <div className="categorias-modal-header">
+                  <h2 style={styles.modalTitle}>
+                    {modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
+                  </h2>
+                </div>
 
                 {error && (
                   <div style={styles.error}>
@@ -680,7 +792,7 @@ const GestionCategorias = () => {
                 )}
 
                 <form style={styles.formContainer} onSubmit={handleSubmit}>
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="categorias-form-group">
                     <label style={styles.label} htmlFor="nombre">
                       Nombre de la Categoría
                       <span style={styles.requiredField}>*</span>
@@ -700,7 +812,7 @@ const GestionCategorias = () => {
                     />
                   </div>
 
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="categorias-form-group">
                     <label style={styles.label} htmlFor="descripcion">
                       Descripción
                       <span style={styles.charCount}>
@@ -721,7 +833,7 @@ const GestionCategorias = () => {
                     </small>
                   </div>
 
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="categorias-form-group">
                     <label style={styles.label} htmlFor="imagen">
                       Imagen de la Categoría
                     </label>
@@ -744,11 +856,12 @@ const GestionCategorias = () => {
                     )}
                   </div>
 
-                  <div style={styles.modalActions}>
+                  <div style={styles.modalActions} className="categorias-modal-actions">
                     <button
                       type="button"
                       onClick={closeModal}
                       style={styles.outlineButton}
+                      className="categorias-modal-btn"
                     >
                       Cancelar
                     </button>
@@ -758,6 +871,7 @@ const GestionCategorias = () => {
                         ...styles.primaryButton,
                         ...(loading ? styles.disabledButton : {}),
                       }}
+                      className="categorias-modal-btn"
                       disabled={loading}
                       aria-label={modoEdicion ? "Actualizar categoría" : "Crear categoría"}
                     >

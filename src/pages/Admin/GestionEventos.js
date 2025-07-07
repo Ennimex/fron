@@ -7,7 +7,7 @@ import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesGlobal from "../../styles/stylesGlobal";
 
-// Agregar estilos CSS para animaciones
+// Agregar estilos CSS para animaciones y responsividad
 const modalStyles = `
   @keyframes modalFadeIn {
     from {
@@ -51,6 +51,81 @@ const modalStyles = `
     background-color: #fee2e2 !important;
     color: #dc2626 !important;
   }
+
+  /* Estilos responsivos para la tabla de eventos */
+  @media (max-width: 768px) {
+    .eventos-table-container {
+      overflow-x: auto;
+      margin: 0 -16px;
+      padding: 0 16px;
+    }
+    
+    .eventos-table {
+      min-width: 800px;
+    }
+    
+    .eventos-table th,
+    .eventos-table td {
+      padding: 8px !important;
+      font-size: 14px !important;
+    }
+    
+    .eventos-actions {
+      flex-direction: column !important;
+      gap: 4px !important;
+      align-items: stretch !important;
+    }
+    
+    .eventos-action-btn {
+      justify-content: center !important;
+      font-size: 12px !important;
+      padding: 6px 12px !important;
+      min-width: auto !important;
+    }
+    
+    .eventos-header {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 16px !important;
+    }
+    
+    .eventos-add-btn {
+      align-self: flex-start !important;
+      width: fit-content !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .eventos-modal-content {
+      margin: 8px !important;
+      width: calc(100% - 16px) !important;
+      max-height: calc(100vh - 16px) !important;
+    }
+    
+    .eventos-form-row {
+      flex-direction: column !important;
+      gap: 16px !important;
+    }
+    
+    .eventos-form-three {
+      flex-direction: column !important;
+      gap: 16px !important;
+    }
+    
+    .eventos-modal-actions {
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+    
+    .eventos-modal-body {
+      padding: 16px !important;
+      padding-top: 48px !important;
+    }
+    
+    .eventos-main-container {
+      padding: 16px !important;
+    }
+  }
 `;
 
 // Inyectar estilos CSS
@@ -84,17 +159,25 @@ const GestionEventos = () => {
     return unsubscribe;
   }, [addNotification]);
 
-  // Mapeo de estilos globales
+  // Mapeo de estilos globales con mejoras responsivas
   const styles = {
     pageContainer: {
       ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
       backgroundColor: stylesGlobal.colors.surface.primary,
+      minHeight: '100vh',
     },
     mainContainer: {
       maxWidth: stylesGlobal.utils.container.maxWidth.lg,
       margin: stylesGlobal.spacing.margins.auto,
       padding: stylesGlobal.spacing.scale[4],
+      // Responsive padding
+      '@media (max-width: 768px)': {
+        padding: stylesGlobal.spacing.scale[3],
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesGlobal.spacing.scale[2],
+      },
     },
     header: {
       display: 'flex',
@@ -103,11 +186,37 @@ const GestionEventos = () => {
       marginBottom: stylesGlobal.spacing.scale[8],
       flexWrap: 'wrap',
       gap: stylesGlobal.spacing.gaps.md,
+      // Responsive layout
+      '@media (max-width: 768px)': {
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: stylesGlobal.spacing.gaps.lg,
+      },
     },
-    title: stylesGlobal.typography.headings.h1,
+    title: {
+      ...stylesGlobal.typography.headings.h1,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.scale[2],
+      // Responsive font size
+      '@media (max-width: 768px)': {
+        fontSize: '1.5rem',
+      },
+      '@media (max-width: 480px)': {
+        fontSize: '1.25rem',
+        flexDirection: 'column',
+        textAlign: 'center',
+        gap: stylesGlobal.spacing.scale[1],
+      },
+    },
     subtitle: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.secondary,
+      // Responsive text
+      '@media (max-width: 480px)': {
+        fontSize: '0.875rem',
+        textAlign: 'center',
+      },
     },
     addButton: {
       ...stylesGlobal.components.button.variants.primary,
@@ -115,6 +224,15 @@ const GestionEventos = () => {
       display: 'flex',
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.xs,
+      // Responsive button
+      '@media (max-width: 768px)': {
+        alignSelf: 'flex-start',
+        width: 'fit-content',
+      },
+      '@media (max-width: 480px)': {
+        fontSize: '0.875rem',
+        padding: `${stylesGlobal.spacing.scale[2]} ${stylesGlobal.spacing.scale[4]}`,
+      },
     },
     content: {
       padding: stylesGlobal.spacing.scale[4],
@@ -140,11 +258,24 @@ const GestionEventos = () => {
     tableContainer: {
       overflowX: 'auto',
       padding: stylesGlobal.spacing.scale[2],
+      // Responsive table container
+      '@media (max-width: 768px)': {
+        margin: `0 -${stylesGlobal.spacing.scale[3]}`,
+        padding: stylesGlobal.spacing.scale[3],
+      },
+      '@media (max-width: 480px)': {
+        margin: `0 -${stylesGlobal.spacing.scale[2]}`,
+        padding: stylesGlobal.spacing.scale[2],
+      },
     },
     table: {
       width: '100%',
       borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
       borderCollapse: 'separate',
+      // Responsive table
+      '@media (max-width: 768px)': {
+        minWidth: '800px',
+      },
     },
     tableHeader: {
       ...stylesGlobal.typography.body.small,
@@ -153,12 +284,22 @@ const GestionEventos = () => {
       padding: stylesGlobal.spacing.scale[3],
       textAlign: 'left',
       backgroundColor: stylesGlobal.colors.surface.tertiary,
+      // Responsive header
+      '@media (max-width: 768px)': {
+        padding: stylesGlobal.spacing.scale[2],
+        fontSize: '0.75rem',
+      },
     },
     tableCell: {
       ...stylesGlobal.typography.body.base,
       padding: stylesGlobal.spacing.scale[3],
       borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
       borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
+      // Responsive cell
+      '@media (max-width: 768px)': {
+        padding: stylesGlobal.spacing.scale[2],
+        fontSize: '0.875rem',
+      },
     },
     tableCellFirst: {
       ...stylesGlobal.typography.body.base,
@@ -168,6 +309,11 @@ const GestionEventos = () => {
       borderLeft: `1px solid ${stylesGlobal.borders.colors.default}`,
       borderTopLeftRadius: stylesGlobal.borders.radius.sm,
       borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
+      // Responsive cell
+      '@media (max-width: 768px)': {
+        padding: stylesGlobal.spacing.scale[2],
+        fontSize: '0.875rem',
+      },
     },
     tableCellLast: {
       ...stylesGlobal.typography.body.base,
@@ -177,6 +323,11 @@ const GestionEventos = () => {
       borderRight: `1px solid ${stylesGlobal.borders.colors.default}`,
       borderTopRightRadius: stylesGlobal.borders.radius.sm,
       borderBottomRightRadius: stylesGlobal.borders.radius.sm,
+      // Responsive cell
+      '@media (max-width: 768px)': {
+        padding: stylesGlobal.spacing.scale[2],
+        fontSize: '0.875rem',
+      },
     },
     actionButton: {
       ...stylesGlobal.components.button.variants.secondary,
@@ -184,6 +335,13 @@ const GestionEventos = () => {
       display: 'flex',
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.xs,
+      // Responsive button
+      '@media (max-width: 768px)': {
+        fontSize: '0.75rem',
+        padding: `${stylesGlobal.spacing.scale[1]} ${stylesGlobal.spacing.scale[3]}`,
+        justifyContent: 'center',
+        minWidth: 'auto',
+      },
     },
     editAction: {
       color: stylesGlobal.colors.semantic.info.main,
@@ -206,6 +364,12 @@ const GestionEventos = () => {
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
+      // Responsive actions
+      '@media (max-width: 768px)': {
+        flexDirection: 'column',
+        gap: stylesGlobal.spacing.scale[1],
+        alignItems: 'stretch',
+      },
     },
     modalOverlay: {
       ...stylesGlobal.utils.overlay.elegant,
@@ -230,6 +394,12 @@ const GestionEventos = () => {
       boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
       transform: 'scale(1)',
       transition: 'all 0.3s ease-in-out',
+      // Responsive modal
+      '@media (max-width: 480px)': {
+        margin: '8px',
+        width: 'calc(100% - 16px)',
+        maxHeight: 'calc(100vh - 16px)',
+      },
     },
     deleteModalContent: {
       ...stylesGlobal.components.card.luxury,
@@ -241,6 +411,12 @@ const GestionEventos = () => {
       boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
       transform: 'scale(1)',
       transition: 'all 0.3s ease-in-out',
+      // Responsive delete modal
+      '@media (max-width: 480px)': {
+        margin: '8px',
+        width: 'calc(100% - 16px)',
+        maxHeight: 'calc(100vh - 16px)',
+      },
     },
     modalCloseButton: {
       ...stylesGlobal.components.button.variants.ghost,
@@ -265,8 +441,19 @@ const GestionEventos = () => {
       padding: stylesGlobal.spacing.scale[6],
       position: 'relative',
       paddingTop: stylesGlobal.spacing.scale[8], // Extra space for close button
+      // Responsive modal body
+      '@media (max-width: 480px)': {
+        padding: stylesGlobal.spacing.scale[4],
+        paddingTop: stylesGlobal.spacing.scale[6],
+      },
     },
-    modalTitle: stylesGlobal.typography.headings.h2,
+    modalTitle: {
+      ...stylesGlobal.typography.headings.h2,
+      // Responsive title
+      '@media (max-width: 480px)': {
+        fontSize: '1.25rem',
+      },
+    },
     modalActions: {
       display: 'flex',
       justifyContent: 'flex-end',
@@ -274,26 +461,51 @@ const GestionEventos = () => {
       marginTop: stylesGlobal.spacing.scale[6],
       paddingTop: stylesGlobal.spacing.scale[4],
       borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      // Responsive actions
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+        gap: stylesGlobal.spacing.scale[3],
+      },
     },
     formContainer: {
       width: '100%',
       padding: stylesGlobal.spacing.scale[6],
+      // Responsive form container
+      '@media (max-width: 480px)': {
+        padding: stylesGlobal.spacing.scale[4],
+      },
     },
     formGroup: {
       marginBottom: stylesGlobal.spacing.scale[6],
       width: '100%',
+      // Responsive form group
+      '@media (max-width: 480px)': {
+        marginBottom: stylesGlobal.spacing.scale[4],
+      },
     },
     formRow: {
       display: 'flex',
       gap: stylesGlobal.spacing.gaps.lg,
       flexWrap: 'wrap',
       marginBottom: stylesGlobal.spacing.scale[6],
+      // Responsive form row
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+        gap: stylesGlobal.spacing.scale[4],
+        marginBottom: stylesGlobal.spacing.scale[4],
+      },
     },
     formRowThree: {
       display: 'flex',
       gap: stylesGlobal.spacing.gaps.lg,
       flexWrap: 'wrap',
       marginBottom: stylesGlobal.spacing.scale[6],
+      // Responsive form row three
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+        gap: stylesGlobal.spacing.scale[4],
+        marginBottom: stylesGlobal.spacing.scale[4],
+      },
     },
     label: {
       ...stylesGlobal.typography.body.base,
@@ -504,8 +716,8 @@ const GestionEventos = () => {
 
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.mainContainer}>
-        <div style={styles.header}>
+      <div style={styles.mainContainer} className="eventos-main-container">
+        <div style={styles.header} className="eventos-header">
           <div>
             <h1 style={styles.title}>
               <FaCalendarAlt style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
@@ -517,6 +729,7 @@ const GestionEventos = () => {
           </div>
           <button
             style={styles.addButton}
+            className="eventos-add-btn"
             onClick={handleAddClick}
             aria-label="Nuevo evento"
           >
@@ -531,8 +744,8 @@ const GestionEventos = () => {
             className="modal-overlay"
             onClick={(e) => e.target.classList.contains('modal-overlay') && setModalType(null)}
           >
-            <div style={styles.modalContent} className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div style={styles.modalBody}>
+            <div style={styles.modalContent} className="modal-content eventos-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div style={styles.modalBody} className="eventos-modal-body">
                 <button
                   style={styles.modalCloseButton}
                   className="modal-close-btn"
@@ -550,7 +763,7 @@ const GestionEventos = () => {
                 <form onSubmit={handleFormSubmit}>
                   <div style={styles.formContainer}>
                     {/* Fila 1: Título y Ubicación */}
-                    <div style={styles.formRow}>
+                    <div style={styles.formRow} className="eventos-form-row">
                       <div style={styles.formGroup}>
                         <label style={styles.label}>
                           Título del Evento
@@ -584,7 +797,7 @@ const GestionEventos = () => {
                     </div>
                     
                     {/* Fila 2: Fecha y Horarios */}
-                    <div style={styles.formRowThree}>
+                    <div style={styles.formRowThree} className="eventos-form-three">
                       <div style={styles.formGroup}>
                         <label style={styles.label}>
                           Fecha
@@ -653,7 +866,7 @@ const GestionEventos = () => {
                       </small>
                     </div>
                     
-                    <div style={styles.modalActions}>
+                    <div style={styles.modalActions} className="eventos-modal-actions">
                       <button 
                         type="button" 
                         style={{
@@ -787,8 +1000,8 @@ const GestionEventos = () => {
             </p>
           </div>
         ) : (
-          <div style={styles.tableContainer}>
-            <table style={styles.table}>
+          <div style={styles.tableContainer} className="eventos-table-container">
+            <table style={styles.table} className="eventos-table">
               <thead>
                 <tr>
                   <th style={styles.tableHeader}>Título</th>
@@ -820,12 +1033,13 @@ const GestionEventos = () => {
                     </td>
                     <td style={styles.tableCell}>{evento.ubicacion}</td>
                     <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer}>
+                      <div style={styles.actionsContainer} className="eventos-actions">
                         <button 
                           style={{
                             ...styles.actionButton,
                             ...styles.editAction,
                           }} 
+                          className="eventos-action-btn"
                           title="Editar evento"
                           onClick={() => handleEditClick(evento)}
                           aria-label={`Editar evento ${evento.titulo}`}
@@ -838,6 +1052,7 @@ const GestionEventos = () => {
                             ...styles.actionButton,
                             ...styles.deleteAction,
                           }} 
+                          className="eventos-action-btn"
                           title="Eliminar evento"
                           onClick={() => handleDeleteClick(evento)}
                           aria-label={`Eliminar evento ${evento.titulo}`}

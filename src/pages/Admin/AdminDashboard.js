@@ -14,37 +14,312 @@ import { Line } from 'react-chartjs-2';
 // Registrar componentes de ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+// Estilos CSS responsivos para AdminDashboard
+const responsiveStyles = `
+  @media (max-width: 1024px) {
+    .admin-dashboard-container {
+      padding: 1.5rem !important;
+    }
+    
+    .admin-dashboard-grid {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+      gap: 1.25rem !important;
+    }
+    
+    .admin-dashboard-columns {
+      grid-template-columns: 1fr !important;
+      gap: 1.25rem !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .admin-dashboard-container {
+      padding: 1rem !important;
+    }
+    
+    .admin-dashboard-grid {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+      gap: 1rem !important;
+      margin-bottom: 1.5rem !important;
+    }
+    
+    .admin-dashboard-header {
+      margin-bottom: 1.5rem !important;
+      text-align: center !important;
+    }
+    
+    .admin-dashboard-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .admin-stats-card {
+      padding: 1.25rem !important;
+    }
+    
+    .admin-dashboard-columns {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+    
+    .admin-section {
+      padding: 1.25rem !important;
+      margin-bottom: 1rem !important;
+    }
+    
+    .admin-users-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+      gap: 0.75rem !important;
+    }
+    
+    .admin-chart-container {
+      padding: 1.25rem !important;
+    }
+    
+    .admin-chart-header {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 1rem !important;
+    }
+    
+    .admin-chart-controls {
+      display: flex !important;
+      gap: 0.5rem !important;
+      flex-wrap: wrap !important;
+    }
+    
+    .admin-activity-content {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 0.75rem !important;
+    }
+    
+    .admin-activity-icon {
+      margin-bottom: 0.5rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .admin-dashboard-container {
+      padding: 0.5rem !important;
+    }
+    
+    .admin-dashboard-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important;
+      margin-bottom: 1rem !important;
+    }
+    
+    .admin-dashboard-header {
+      margin-bottom: 1rem !important;
+    }
+    
+    .admin-dashboard-title {
+      font-size: 1.25rem !important;
+    }
+    
+    .admin-dashboard-subtitle {
+      font-size: 0.875rem !important;
+    }
+    
+    .admin-stats-card {
+      padding: 1rem !important;
+    }
+    
+    .admin-stat-value {
+      font-size: 1.25rem !important;
+    }
+    
+    .admin-stat-label {
+      font-size: 0.8rem !important;
+    }
+    
+    .admin-section {
+      padding: 1rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+    
+    .admin-users-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0.5rem !important;
+    }
+    
+    .admin-chart-container {
+      padding: 1rem !important;
+    }
+    
+    .admin-chart-header {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 0.75rem !important;
+    }
+    
+    .admin-chart-title {
+      font-size: 1rem !important;
+    }
+    
+    .admin-chart-controls {
+      width: 100% !important;
+      justify-content: space-between !important;
+    }
+    
+    .admin-chart-control-button {
+      font-size: 0.75rem !important;
+      padding: 0.3rem 0.6rem !important;
+    }
+    
+    .admin-user-card {
+      padding: 0.75rem !important;
+    }
+    
+    .admin-user-avatar {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 1rem !important;
+      margin-right: 0.75rem !important;
+    }
+    
+    .admin-user-name {
+      font-size: 0.875rem !important;
+    }
+    
+    .admin-user-email {
+      font-size: 0.8rem !important;
+    }
+    
+    .admin-user-role {
+      font-size: 0.7rem !important;
+      padding: 0.15rem 0.4rem !important;
+    }
+    
+    .admin-activity-item {
+      padding: 0.75rem !important;
+    }
+    
+    .admin-activity-content {
+      gap: 0.5rem !important;
+    }
+    
+    .admin-activity-icon {
+      width: 28px !important;
+      height: 28px !important;
+      font-size: 0.875rem !important;
+    }
+    
+    .admin-activity-text {
+      font-size: 0.825rem !important;
+    }
+    
+    .admin-activity-time {
+      font-size: 0.75rem !important;
+    }
+  }
+  
+  @media (max-width: 320px) {
+    .admin-dashboard-container {
+      padding: 0.25rem !important;
+    }
+    
+    .admin-dashboard-grid {
+      gap: 0.5rem !important;
+    }
+    
+    .admin-stats-card {
+      padding: 0.75rem !important;
+    }
+    
+    .admin-section {
+      padding: 0.75rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+    
+    .admin-dashboard-title {
+      font-size: 1.125rem !important;
+    }
+    
+    .admin-stat-value {
+      font-size: 1.125rem !important;
+    }
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = responsiveStyles;
+  if (!document.head.querySelector('style[data-admin-dashboard-styles]')) {
+    styleElement.setAttribute('data-admin-dashboard-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
+
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Estilos mejorados - movidos arriba para resolver advertencia de "use-before-define"
+  // Estilos mejorados con responsividad
   const styles = {
     dashboardContainer: {
       backgroundColor: '#f5f7fa',
       minHeight: '100vh',
       padding: '2rem',
       fontFamily: "'Inter', sans-serif",
+      // Responsive padding
+      '@media (max-width: 768px)': {
+        padding: '1rem',
+      },
+      '@media (max-width: 480px)': {
+        padding: '0.5rem',
+      },
     },
     dashboardGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
       gap: '1.5rem',
       marginBottom: '2rem',
+      // Responsive grid
+      '@media (max-width: 768px)': {
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+      },
+      '@media (max-width: 480px)': {
+        gridTemplateColumns: '1fr',
+        gap: '0.75rem',
+        marginBottom: '1rem',
+      },
     },
     dashboardHeader: {
       marginBottom: '2rem',
+      // Responsive header
+      '@media (max-width: 768px)': {
+        marginBottom: '1.5rem',
+        textAlign: 'center',
+      },
+      '@media (max-width: 480px)': {
+        marginBottom: '1rem',
+      },
     },
     dashboardTitle: {
       fontSize: '1.8rem',
       fontWeight: '700',
       color: '#2d3748',
       margin: '0 0 0.5rem 0',
+      // Responsive title
+      '@media (max-width: 768px)': {
+        fontSize: '1.5rem',
+      },
+      '@media (max-width: 480px)': {
+        fontSize: '1.25rem',
+      },
     },
     dashboardSubtitle: {
       fontSize: '1rem',
       color: '#718096',
       margin: 0,
+      // Responsive subtitle
+      '@media (max-width: 480px)': {
+        fontSize: '0.875rem',
+      },
     },
     statsCard: {
       backgroundColor: 'white',
@@ -56,6 +331,13 @@ const AdminDashboard = () => {
       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       cursor: 'pointer',
       border: '1px solid #edf2f7',
+      // Responsive card
+      '@media (max-width: 768px)': {
+        padding: '1.25rem',
+      },
+      '@media (max-width: 480px)': {
+        padding: '1rem',
+      },
     },
     statHeader: {
       display: 'flex',
@@ -78,11 +360,22 @@ const AdminDashboard = () => {
       fontWeight: 'bold',
       margin: '0.5rem 0',
       color: '#2d3748',
+      // Responsive value
+      '@media (max-width: 768px)': {
+        fontSize: '1.5rem',
+      },
+      '@media (max-width: 480px)': {
+        fontSize: '1.25rem',
+      },
     },
     statLabel: {
       fontSize: '0.9rem',
       color: '#718096',
       margin: 0,
+      // Responsive label
+      '@media (max-width: 480px)': {
+        fontSize: '0.8rem',
+      },
     },
     statChange: {
       display: 'flex',
@@ -161,6 +454,15 @@ const AdminDashboard = () => {
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
       marginBottom: '1.5rem',
       border: '1px solid #edf2f7',
+      // Responsive section
+      '@media (max-width: 768px)': {
+        padding: '1.25rem',
+        marginBottom: '1rem',
+      },
+      '@media (max-width: 480px)': {
+        padding: '1rem',
+        marginBottom: '0.75rem',
+      },
     },
     sectionHeader: {
       display: 'flex',
@@ -194,6 +496,15 @@ const AdminDashboard = () => {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
       gap: '1rem',
+      // Responsive users grid
+      '@media (max-width: 768px)': {
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+        gap: '0.75rem',
+      },
+      '@media (max-width: 480px)': {
+        gridTemplateColumns: '1fr',
+        gap: '0.5rem',
+      },
     },
     userCard: {
       display: 'flex',
@@ -288,6 +599,11 @@ const AdminDashboard = () => {
       display: 'grid',
       gridTemplateColumns: '2fr 1fr',
       gap: '1.5rem',
+      // Responsive columns
+      '@media (max-width: 768px)': {
+        gridTemplateColumns: '1fr',
+        gap: '1rem',
+      },
     },
     loadingContainer: {
       display: 'flex',
@@ -442,25 +758,25 @@ const AdminDashboard = () => {
     switch (activity.type) {
       case 'product':
         return (
-          <div style={styles.activityContent}>
-            <div style={styles.activityIcon}><FaBoxOpen /></div>
+          <div style={styles.activityContent} className="admin-activity-content">
+            <div style={styles.activityIcon} className="admin-activity-icon"><FaBoxOpen /></div>
             <div style={styles.activityDetails}>
-              <p style={styles.activityText}>
+              <p style={styles.activityText} className="admin-activity-text">
                 Nuevo producto añadido: <span style={styles.activityHighlight}>{activity.productName}</span>
               </p>
-              <p style={styles.activityTime}>{formatActivityTime(activity.timestamp)}</p>
+              <p style={styles.activityTime} className="admin-activity-time">{formatActivityTime(activity.timestamp)}</p>
             </div>
           </div>
         );
       case 'user':
         return (
-          <div style={styles.activityContent}>
-            <div style={styles.activityIcon}><FaUserPlus /></div>
+          <div style={styles.activityContent} className="admin-activity-content">
+            <div style={styles.activityIcon} className="admin-activity-icon"><FaUserPlus /></div>
             <div style={styles.activityDetails}>
-              <p style={styles.activityText}>
+              <p style={styles.activityText} className="admin-activity-text">
                 Nuevo usuario registrado: <span style={styles.activityHighlight}>{activity.user}</span>
               </p>
-              <p style={styles.activityTime}>{formatActivityTime(activity.timestamp)}</p>
+              <p style={styles.activityTime} className="admin-activity-time">{formatActivityTime(activity.timestamp)}</p>
             </div>
           </div>
         );
@@ -492,36 +808,36 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div style={styles.dashboardContainer}>
-      <div style={styles.dashboardHeader}>
-        <h1 style={styles.dashboardTitle}>Panel de Administración</h1>
-        <p style={styles.dashboardSubtitle}>Resumen general de la plataforma</p>
+    <div style={styles.dashboardContainer} className="admin-dashboard-container">
+      <div style={styles.dashboardHeader} className="admin-dashboard-header">
+        <h1 style={styles.dashboardTitle} className="admin-dashboard-title">Panel de Administración</h1>
+        <p style={styles.dashboardSubtitle} className="admin-dashboard-subtitle">Resumen general de la plataforma</p>
       </div>
 
       {/* Estadísticas principales */}
-      <div style={styles.dashboardGrid}>
-        <div style={styles.statsCard}>
+      <div style={styles.dashboardGrid} className="admin-dashboard-grid">
+        <div style={styles.statsCard} className="admin-stats-card">
           <div style={styles.statHeader}>
             <div style={{...styles.statIcon, ...styles.iconUsers}}>
               <FaUsers />
             </div>
           </div>
-          <p style={styles.statLabel}>Usuarios Registrados</p>
-          <h3 style={styles.statValue}>{stats.users.toLocaleString()}</h3>
+          <p style={styles.statLabel} className="admin-stat-label">Usuarios Registrados</p>
+          <h3 style={styles.statValue} className="admin-stat-value">{stats.users.toLocaleString()}</h3>
           <div style={styles.statChange}>
             <FaArrowUp style={styles.positive} />
             <span style={styles.positive}> 12% este mes</span>
           </div>
         </div>
 
-        <div style={styles.statsCard}>
+        <div style={styles.statsCard} className="admin-stats-card">
           <div style={styles.statHeader}>
             <div style={{...styles.statIcon, ...styles.iconProducts}}>
               <FaBoxOpen />
             </div>
           </div>
-          <p style={styles.statLabel}>Productos</p>
-          <h3 style={styles.statValue}>{stats.products.toLocaleString()}</h3>
+          <p style={styles.statLabel} className="admin-stat-label">Productos</p>
+          <h3 style={styles.statValue} className="admin-stat-value">{stats.products.toLocaleString()}</h3>
           <div style={styles.statChange}>
             <FaArrowUp style={styles.positive} />
             <span style={styles.positive}> 5% este mes</span>
@@ -529,17 +845,17 @@ const AdminDashboard = () => {
         </div>
 
         {/* Categorías y Localidades */}
-        <div style={styles.statsCard}>
+        <div style={styles.statsCard} className="admin-stats-card">
           <div style={styles.statHeader}>
             <div style={{...styles.statIcon, ...styles.iconCategories}}>
               <FaTag />
             </div>
           </div>
-          <p style={styles.statLabel}>Categorías</p>
-          <h3 style={styles.statValue}>{stats.categories.toLocaleString()}</h3>
+          <p style={styles.statLabel} className="admin-stat-label">Categorías</p>
+          <h3 style={styles.statValue} className="admin-stat-value">{stats.categories.toLocaleString()}</h3>
         </div>
 
-        <div style={styles.statsCard}>
+        <div style={styles.statsCard} className="admin-stats-card">
           <div style={styles.statHeader}>
             <div style={{...styles.statIcon, ...styles.iconLocations}}>
               <FaMapMarkerAlt />
@@ -550,20 +866,21 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div style={styles.dashboardColumns}>
+      <div style={styles.dashboardColumns} className="admin-dashboard-columns">
         <div>
           {/* Gráfico de usuarios registrados */}
-          <div style={{...styles.chartContainer, marginBottom: '1.5rem'}}>
-            <div style={styles.chartHeader}>
-              <h3 style={styles.chartTitle}>
+          <div style={{...styles.chartContainer, marginBottom: '1.5rem'}} className="admin-chart-container">
+            <div style={styles.chartHeader} className="admin-chart-header">
+              <h3 style={styles.chartTitle} className="admin-chart-title">
                 <FaChartLine style={{marginRight: '0.5rem'}} /> Tendencia de Usuarios Registrados
               </h3>
-              <div style={styles.chartControls}>
+              <div style={styles.chartControls} className="admin-chart-controls">
                 <button 
                   style={{
                     ...styles.chartControlButton, 
                     ...(timeRange === 'week' ? styles.chartControlButtonActive : {})
                   }}
+                  className="admin-chart-control-button"
                   onClick={() => handleTimeRangeChange('week')}
                 >
                   Semana
@@ -573,6 +890,7 @@ const AdminDashboard = () => {
                     ...styles.chartControlButton, 
                     ...(timeRange === 'month' ? styles.chartControlButtonActive : {})
                   }}
+                  className="admin-chart-control-button"
                   onClick={() => handleTimeRangeChange('month')}
                 >
                   Mes
@@ -582,6 +900,7 @@ const AdminDashboard = () => {
                     ...styles.chartControlButton, 
                     ...(timeRange === 'year' ? styles.chartControlButtonActive : {})
                   }}
+                  className="admin-chart-control-button"
                   onClick={() => handleTimeRangeChange('year')}
                 >
                   Año
@@ -597,7 +916,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Actividad reciente */}
-          <div style={styles.section}>
+          <div style={styles.section} className="admin-section">
             <div style={styles.sectionHeader}>
               <h2 style={styles.sectionTitle}>
                 <FaCalendarAlt /> Actividad Reciente
@@ -607,12 +926,12 @@ const AdminDashboard = () => {
             <div style={styles.activityList}>
               {recentActivity && recentActivity.length > 0 ? (
                 recentActivity.map((activity, index) => (
-                  <div key={index} style={styles.activityItem}>
+                  <div key={index} style={styles.activityItem} className="admin-activity-item">
                     {getActivityContent(activity)}
                   </div>
                 ))
               ) : (
-                <div style={styles.activityItem}>
+                <div style={styles.activityItem} className="admin-activity-item">
                   <p style={{textAlign: 'center', color: '#718096'}}>No hay actividad reciente</p>
                 </div>
               )}
@@ -620,25 +939,25 @@ const AdminDashboard = () => {
               {/* Generar algunos ejemplos de actividad si no hay datos reales */}
               {(!recentActivity || recentActivity.length === 0) && (
                 <>
-                  <div style={styles.activityItem}>
-                    <div style={styles.activityContent}>
-                      <div style={styles.activityIcon}><FaUserPlus /></div>
+                  <div style={styles.activityItem} className="admin-activity-item">
+                    <div style={styles.activityContent} className="admin-activity-content">
+                      <div style={styles.activityIcon} className="admin-activity-icon"><FaUserPlus /></div>
                       <div style={styles.activityDetails}>
-                        <p style={styles.activityText}>
+                        <p style={styles.activityText} className="admin-activity-text">
                           Nuevo usuario registrado: <span style={styles.activityHighlight}>Carlos Mendoza</span>
                         </p>
-                        <p style={styles.activityTime}>Hace 2 horas</p>
+                        <p style={styles.activityTime} className="admin-activity-time">Hace 2 horas</p>
                       </div>
                     </div>
                   </div>
-                  <div style={styles.activityItem}>
-                    <div style={styles.activityContent}>
-                      <div style={styles.activityIcon}><FaBoxOpen /></div>
+                  <div style={styles.activityItem} className="admin-activity-item">
+                    <div style={styles.activityContent} className="admin-activity-content">
+                      <div style={styles.activityIcon} className="admin-activity-icon"><FaBoxOpen /></div>
                       <div style={styles.activityDetails}>
-                        <p style={styles.activityText}>
+                        <p style={styles.activityText} className="admin-activity-text">
                           Nuevo producto añadido: <span style={styles.activityHighlight}>Vestido de Verano</span>
                         </p>
-                        <p style={styles.activityTime}>Hace 1 día</p>
+                        <p style={styles.activityTime} className="admin-activity-time">Hace 1 día</p>
                       </div>
                     </div>
                   </div>
@@ -649,7 +968,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Usuarios recientes */}
-        <div style={styles.section}>
+        <div style={styles.section} className="admin-section">
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>
               <FaUsers /> Usuarios Recientes
@@ -662,16 +981,16 @@ const AdminDashboard = () => {
             </button>
           </div>
           
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem'}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem'}} className="admin-users-grid">
             {recentUsers.map((user) => (
-              <div key={user._id} style={styles.userCard}>
-                <div style={styles.userAvatar}>
+              <div key={user._id} style={styles.userCard} className="admin-user-card">
+                <div style={styles.userAvatar} className="admin-user-avatar">
                   {user.email[0].toUpperCase()}
                 </div>
                 <div style={styles.userInfo}>
-                  <p style={styles.userName}>{user.name || user.email.split('@')[0]}</p>
-                  <p style={styles.userEmail}>{user.email}</p>
-                  <span style={styles.userRole}>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
+                  <p style={styles.userName} className="admin-user-name">{user.name || user.email.split('@')[0]}</p>
+                  <p style={styles.userEmail} className="admin-user-email">{user.email}</p>
+                  <span style={styles.userRole} className="admin-user-role">{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
                 </div>
               </div>
             ))}

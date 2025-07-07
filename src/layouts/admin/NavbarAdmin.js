@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Navbar, Container, Nav } from 'react-bootstrap';
-import { FaBell, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaBell, FaUser, FaCog, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import stylesGlobal from '../../styles/stylesGlobal';
 
-const NavbarAdmin = () => {
+const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -13,6 +13,12 @@ const NavbarAdmin = () => {
   const handleLogout = () => {
     logout();
     navigate('/', { replace: true });
+  };
+
+  const handleMenuToggle = () => {
+    if (onMenuToggle) {
+      onMenuToggle();
+    }
   };
 
   // Estilos basados en stylesGlobal con variante dark
@@ -23,11 +29,29 @@ const NavbarAdmin = () => {
       position: "sticky",
       top: 0,
       borderBottom: `1px solid ${stylesGlobal.colors.neutral[700]}`,
+      zIndex: 10,
     },
     brand: {
       ...stylesGlobal.components.navbar.brand,
       color: stylesGlobal.colors.text.inverse,
       fontSize: "1.25rem",
+    },
+    menuToggleBtn: {
+      background: 'none',
+      border: 'none',
+      color: stylesGlobal.colors.text.inverse,
+      cursor: 'pointer',
+      padding: '0.5rem',
+      marginRight: '1rem',
+      borderRadius: stylesGlobal.borders.radius.sm,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '1.1rem',
+      transition: stylesGlobal.animations.transitions.base,
+      '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      },
     },
     icon: {
       fontSize: '1.2rem',
@@ -150,9 +174,25 @@ const NavbarAdmin = () => {
   return (
     <Navbar style={styles.navbar} expand="lg">
       <Container fluid style={{ padding: "0 2rem" }}>
-        <Navbar.Brand style={styles.brand}>
-          Panel Administrativo
-        </Navbar.Brand>
+        <div className="d-flex align-items-center">
+          {/* Botón de menú - Solo en móviles para controlar el overlay del sidebar */}
+          {isMobile && (
+            <button
+              style={styles.menuToggleBtn}
+              onClick={handleMenuToggle}
+              aria-label="Abrir/cerrar menú"
+              className="me-3"
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)"}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+            >
+              <FaBars />
+            </button>
+          )}
+          
+          <Navbar.Brand style={styles.brand}>
+            Panel Administrativo
+          </Navbar.Brand>
+        </div>
         
         <Nav className="ms-auto d-flex align-items-center">
           {/* Notificaciones */}

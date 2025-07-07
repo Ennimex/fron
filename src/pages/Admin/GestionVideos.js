@@ -7,60 +7,186 @@ import { useAdminNotifications } from '../../services/adminHooks';
 import NotificationContainer from '../../components/admin/NotificationContainer';
 import stylesGlobal from '../../styles/stylesGlobal';
 
-// Agregar estilos CSS para animaciones
-const modalStyles = `
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
+// Inyectar estilos CSS responsivos
+if (!document.getElementById('gestion-videos-responsive-styles')) {
+  const style = document.createElement('style');
+  style.id = 'gestion-videos-responsive-styles';
+  style.textContent = `
+    /* Estilos responsivos para GestionVideos */
+    @media (max-width: 768px) {
+      .videos-container {
+        padding: 1rem !important;
+      }
+      
+      .videos-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .videos-header-text h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .videos-add-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      
+      .videos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 1rem !important;
+      }
+      
+      .videos-card {
+        min-height: auto !important;
+      }
+      
+      .videos-card-content {
+        padding: 0.75rem !important;
+      }
+      
+      .videos-card-title {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .videos-card-description {
+        font-size: 0.875rem !important;
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .videos-card-actions {
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+      }
+      
+      .videos-action-btn {
+        width: 100% !important;
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.75rem !important;
+      }
+      
+      .videos-modal-content {
+        margin: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+        max-height: calc(100vh - 2rem) !important;
+      }
+      
+      .videos-modal-header h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .videos-modal-body {
+        padding: 1rem !important;
+        padding-top: 2.5rem !important;
+      }
+      
+      .videos-form-group {
+        margin-bottom: 1rem !important;
+      }
+      
+      .videos-modal-actions {
+        flex-direction: column-reverse !important;
+        gap: 0.75rem !important;
+      }
+      
+      .videos-modal-btn {
+        width: 100% !important;
+      }
+      
+      .videos-preview-container {
+        margin-top: 1rem !important;
+        padding: 0.75rem !important;
+      }
+      
+      .videos-preview-media {
+        max-height: 200px !important;
+      }
     }
-    to {
+    
+    @media (max-width: 480px) {
+      .videos-container {
+        padding: 0.5rem !important;
+      }
+      
+      .videos-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      
+      .videos-card-content {
+        padding: 0.5rem !important;
+      }
+      
+      .videos-card-title {
+        font-size: 0.875rem !important;
+      }
+      
+      .videos-card-description {
+        font-size: 0.75rem !important;
+      }
+      
+      .videos-modal-body {
+        padding: 0.75rem !important;
+        padding-top: 2rem !important;
+      }
+      
+      .videos-form-group {
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .videos-preview-media {
+        max-height: 150px !important;
+      }
+    }
+    
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes overlayFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-overlay {
+      animation: overlayFadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    .modal-content:hover .modal-close-btn {
       opacity: 1;
-      transform: scale(1);
     }
-  }
 
-  @keyframes overlayFadeIn {
-    from {
-      opacity: 0;
+    .modal-close-btn {
+      transition: all 0.2s ease;
+      opacity: 0.7;
     }
-    to {
-      opacity: 1;
+
+    .modal-close-btn:hover {
+      opacity: 1 !important;
+      background-color: #fee2e2 !important;
+      color: #dc2626 !important;
     }
-  }
-
-  .modal-overlay {
-    animation: overlayFadeIn 0.3s ease-out;
-  }
-
-  .modal-content {
-    animation: modalFadeIn 0.3s ease-out;
-  }
-
-  .modal-content:hover .modal-close-btn {
-    opacity: 1;
-  }
-
-  .modal-close-btn {
-    transition: all 0.2s ease;
-    opacity: 0.7;
-  }
-
-  .modal-close-btn:hover {
-    opacity: 1 !important;
-    background-color: #fee2e2 !important;
-    color: #dc2626 !important;
-  }
-`;
-
-// Inyectar estilos CSS
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = modalStyles;
-  if (!document.head.querySelector('style[data-modal-styles]')) {
-    styleElement.setAttribute('data-modal-styles', 'true');
-    document.head.appendChild(styleElement);
-  }
+  `;
+  document.head.appendChild(style);
 }
 
 const GestionVideos = () => {

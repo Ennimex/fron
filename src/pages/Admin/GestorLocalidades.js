@@ -7,6 +7,98 @@ import NotificationContainer from '../../components/admin/NotificationContainer'
 import { Navigate } from 'react-router-dom';
 import stylesGlobal from '../../styles/stylesGlobal';
 
+// Inyectar estilos CSS responsivos
+if (!document.getElementById('gestor-localidades-responsive-styles')) {
+  const style = document.createElement('style');
+  style.id = 'gestor-localidades-responsive-styles';
+  style.textContent = `
+    /* Estilos responsivos para GestorLocalidades */
+    @media (max-width: 768px) {
+      .localidades-container {
+        padding: 1rem !important;
+      }
+      
+      .localidades-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .localidades-header-text h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .localidades-add-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      
+      .localidades-table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      
+      .localidades-table {
+        min-width: 600px !important;
+      }
+      
+      .localidades-table th,
+      .localidades-table td {
+        padding: 0.5rem !important;
+        font-size: 0.875rem !important;
+      }
+      
+      .localidades-actions {
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+      }
+      
+      .localidades-action-btn {
+        width: 100% !important;
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.75rem !important;
+      }
+      
+      .localidades-modal-content {
+        margin: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+        max-height: calc(100vh - 2rem) !important;
+      }
+      
+      .localidades-modal-header h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .localidades-form-group {
+        margin-bottom: 1rem !important;
+      }
+      
+      .localidades-modal-actions {
+        flex-direction: column-reverse !important;
+        gap: 0.75rem !important;
+      }
+      
+      .localidades-modal-btn {
+        width: 100% !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .localidades-container {
+        padding: 0.5rem !important;
+      }
+      
+      .localidades-table th:nth-child(2),
+      .localidades-table td:nth-child(2) {
+        display: none !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 const GestorLocalidades = () => {
   const { user, isAuthenticated } = useAuth();
 
@@ -445,11 +537,11 @@ const GestorLocalidades = () => {
   }
 
   return (
-    <div style={styles.pageContainer}>
+    <div style={styles.pageContainer} className="localidades-container">
       <div style={styles.mainContainer}>
         {/* Header */}
-        <div style={styles.header}>
-          <div>
+        <div style={styles.header} className="localidades-header">
+          <div className="localidades-header-text">
             <h1 style={styles.title}>
               Gestión de Localidades
             </h1>
@@ -459,6 +551,7 @@ const GestorLocalidades = () => {
           </div>
           <button
             style={styles.addButton}
+            className="localidades-add-btn"
             onClick={handleOpenCreateModal}
             aria-label="Agregar nueva localidad"
             disabled={loading}
@@ -508,8 +601,8 @@ const GestorLocalidades = () => {
           </div>
         ) : (
           /* Table */
-          <div style={styles.tableContainer}>
-            <table style={styles.table}>
+          <div style={styles.tableContainer} className="localidades-table-container">
+            <table style={styles.table} className="localidades-table">
               <thead>
                 <tr>
                   <th style={styles.tableHeader}>Nombre</th>
@@ -529,12 +622,13 @@ const GestorLocalidades = () => {
                         : localidad.descripcion || '—'}
                     </td>
                     <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer}>
+                      <div style={styles.actionsContainer} className="localidades-actions">
                         <button
                           style={{
                             ...styles.actionButton,
                             ...styles.editAction,
                           }}
+                          className="localidades-action-btn"
                           onClick={() => handleOpenEditModal(localidad)}
                           title="Editar localidad"
                           aria-label={`Editar localidad ${localidad.nombre}`}
@@ -548,6 +642,7 @@ const GestorLocalidades = () => {
                             ...styles.actionButton,
                             ...styles.deleteAction,
                           }}
+                          className="localidades-action-btn"
                           onClick={() => handleDeleteLocalidad(localidad._id)}
                           title="Eliminar localidad"
                           aria-label={`Eliminar localidad ${localidad.nombre}`}
@@ -601,14 +696,14 @@ const GestorLocalidades = () => {
               overflow: 'auto',
               position: 'relative',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-            }}>
+            }} className="localidades-modal-content">
               <div style={styles.modalBody}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   marginBottom: stylesGlobal.spacing.scale[6],
-                }}>
+                }} className="localidades-modal-header">
                   <h2 id="modal-title" style={styles.modalTitle}>
                     {isEditing ? 'Editar Localidad' : 'Agregar Nueva Localidad'}
                   </h2>
@@ -633,7 +728,7 @@ const GestorLocalidades = () => {
                 )}
                 
                 <form style={styles.formContainer} onSubmit={handleSaveLocalidad}>
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="localidades-form-group">
                     <label style={styles.label} htmlFor="nombre">
                       Nombre de la Localidad
                       <span style={styles.requiredField}>*</span>
@@ -655,7 +750,7 @@ const GestorLocalidades = () => {
                     </small>
                   </div>
                   
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="localidades-form-group">
                     <label style={styles.label} htmlFor="descripcion">
                       Descripción
                     </label>
@@ -675,7 +770,7 @@ const GestorLocalidades = () => {
                     </small>
                   </div>
                   
-                  <div style={styles.modalActions}>
+                  <div style={styles.modalActions} className="localidades-modal-actions">
                     <button
                       type="button"
                       onClick={() => setModalOpen(false)}
@@ -683,6 +778,7 @@ const GestorLocalidades = () => {
                         ...styles.outlineButton,
                         ...(formLoading ? styles.disabledButton : {}),
                       }}
+                      className="localidades-modal-btn"
                       disabled={formLoading}
                     >
                       Cancelar
@@ -693,6 +789,7 @@ const GestorLocalidades = () => {
                         ...styles.primaryButton,
                         ...(formLoading ? styles.disabledButton : {}),
                       }}
+                      className="localidades-modal-btn"
                       disabled={formLoading}
                       aria-label={isEditing ? 'Actualizar localidad' : 'Crear localidad'}
                     >

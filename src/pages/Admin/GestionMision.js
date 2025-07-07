@@ -5,6 +5,109 @@ import { adminAPI } from '../../services/api';
 import { Navigate } from 'react-router-dom';
 import stylesGlobal from '../../styles/stylesGlobal';
 
+// Inyectar estilos CSS responsivos
+if (!document.getElementById('gestion-mision-responsive-styles')) {
+  const style = document.createElement('style');
+  style.id = 'gestion-mision-responsive-styles';
+  style.textContent = `
+    /* Estilos responsivos para GestionMision */
+    @media (max-width: 768px) {
+      .mision-container {
+        padding: 1rem !important;
+      }
+      
+      .mision-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .mision-header-text h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .mision-edit-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-bottom: 0 !important;
+      }
+      
+      .mision-section-card {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .mision-section-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        gap: 0.5rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .mision-section-title {
+        font-size: 1.25rem !important;
+      }
+      
+      .mision-form-group {
+        margin-bottom: 1rem !important;
+      }
+      
+      .mision-textarea {
+        min-height: 120px !important;
+        font-size: 0.875rem !important;
+      }
+      
+      .mision-actions {
+        flex-direction: column-reverse !important;
+        gap: 0.75rem !important;
+      }
+      
+      .mision-action-btn {
+        width: 100% !important;
+      }
+      
+      .mision-preview-container {
+        padding: 0.75rem !important;
+      }
+      
+      .mision-preview-text {
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .mision-container {
+        padding: 0.5rem !important;
+      }
+      
+      .mision-section-card {
+        padding: 0.75rem !important;
+      }
+      
+      .mision-section-header {
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .mision-section-title {
+        font-size: 1.125rem !important;
+      }
+      
+      .mision-textarea {
+        min-height: 100px !important;
+        font-size: 0.8rem !important;
+      }
+      
+      .mision-preview-text {
+        font-size: 0.8rem !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 const GestionMision = () => {
   const { user, isAuthenticated, checkTokenExpiration } = useAuth();
 
@@ -314,11 +417,11 @@ const GestionMision = () => {
   }
 
   return (
-    <div style={styles.pageContainer}>
+    <div style={styles.pageContainer} className="mision-container">
       <div style={styles.mainContainer}>
         {/* Header */}
-        <div style={styles.header}>
-          <div>
+        <div style={styles.header} className="mision-header">
+          <div className="mision-header-text">
             <h1 style={styles.title}>
               <FaLightbulb style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
               Gestión de Misión y Visión
@@ -330,6 +433,7 @@ const GestionMision = () => {
           {!editingMode && (
             <button
               style={styles.editButton}
+              className="mision-edit-btn"
               onClick={handleEditMode}
               aria-label="Editar información"
               disabled={saving}
@@ -357,13 +461,13 @@ const GestionMision = () => {
           /* Modo de edición */
           <form onSubmit={handleSave} style={styles.formContainer}>
             {/* Sección Misión */}
-            <div style={styles.sectionCard}>
-              <div style={styles.sectionHeader}>
+            <div style={styles.sectionCard} className="mision-section-card">
+              <div style={styles.sectionHeader} className="mision-section-header">
                 <FaLightbulb size={24} style={styles.sectionIcon} />
-                <h2 style={styles.sectionTitle}>Misión Empresarial</h2>
+                <h2 style={styles.sectionTitle} className="mision-section-title">Misión Empresarial</h2>
               </div>
               
-              <div style={styles.formGroup}>
+              <div style={styles.formGroup} className="mision-form-group">
                 <label style={styles.label} htmlFor="mision">
                   Misión de la Empresa
                   <span style={{ ...stylesGlobal.typography.body.caption, marginLeft: stylesGlobal.spacing.scale[2] }}>
@@ -376,6 +480,7 @@ const GestionMision = () => {
                   value={tempData.mision}
                   onChange={handleInputChange}
                   style={styles.textarea}
+                  className="mision-textarea"
                   placeholder="Describe la misión de la empresa, su propósito fundamental y razón de ser..."
                   rows={6}
                   maxLength={1000}
@@ -388,13 +493,13 @@ const GestionMision = () => {
             </div>
 
             {/* Sección Visión */}
-            <div style={styles.sectionCard}>
-              <div style={styles.sectionHeader}>
+            <div style={styles.sectionCard} className="mision-section-card">
+              <div style={styles.sectionHeader} className="mision-section-header">
                 <FaEye size={24} style={styles.sectionIcon} />
-                <h2 style={styles.sectionTitle}>Visión Empresarial</h2>
+                <h2 style={styles.sectionTitle} className="mision-section-title">Visión Empresarial</h2>
               </div>
               
-              <div style={styles.formGroup}>
+              <div style={styles.formGroup} className="mision-form-group">
                 <label style={styles.label} htmlFor="vision">
                   Visión de la Empresa
                   <span style={{ ...stylesGlobal.typography.body.caption, marginLeft: stylesGlobal.spacing.scale[2] }}>
@@ -407,6 +512,7 @@ const GestionMision = () => {
                   value={tempData.vision}
                   onChange={handleInputChange}
                   style={styles.textarea}
+                  className="mision-textarea"
                   placeholder="Describe la visión de la empresa, hacia dónde se dirige y qué aspira a lograr..."
                   rows={6}
                   maxLength={1000}
@@ -424,7 +530,7 @@ const GestionMision = () => {
               gap: stylesGlobal.spacing.gaps.md, 
               justifyContent: 'flex-end',
               marginTop: stylesGlobal.spacing.scale[6],
-            }}>
+            }} className="mision-actions">
               <button
                 type="button"
                 onClick={handleCancelEdit}
@@ -432,6 +538,7 @@ const GestionMision = () => {
                   ...styles.editButton,
                   ...(saving ? styles.disabledButton : {}),
                 }}
+                className="mision-action-btn"
                 disabled={saving}
                 aria-label="Cancelar edición"
               >
@@ -443,6 +550,7 @@ const GestionMision = () => {
                   ...styles.primaryButton,
                   ...(saving ? styles.disabledButton : {}),
                 }}
+                className="mision-action-btn"
                 disabled={saving}
                 aria-label="Guardar cambios"
               >
@@ -464,14 +572,14 @@ const GestionMision = () => {
           /* Modo de vista */
           <>
             {/* Sección Misión - Vista */}
-            <div style={styles.sectionCard}>
-              <div style={styles.sectionHeader}>
+            <div style={styles.sectionCard} className="mision-section-card">
+              <div style={styles.sectionHeader} className="mision-section-header">
                 <FaLightbulb size={24} style={styles.sectionIcon} />
-                <h2 style={styles.sectionTitle}>Misión Empresarial</h2>
+                <h2 style={styles.sectionTitle} className="mision-section-title">Misión Empresarial</h2>
               </div>
               
-              <div style={styles.previewContainer}>
-                <p style={styles.previewText}>
+              <div style={styles.previewContainer} className="mision-preview-container">
+                <p style={styles.previewText} className="mision-preview-text">
                   {nosotrosData.mision || (
                     <span style={styles.emptyText}>
                       No se ha definido la misión de la empresa. Haz clic en "Editar Información" para agregarla.
@@ -482,14 +590,14 @@ const GestionMision = () => {
             </div>
 
             {/* Sección Visión - Vista */}
-            <div style={styles.sectionCard}>
-              <div style={styles.sectionHeader}>
+            <div style={styles.sectionCard} className="mision-section-card">
+              <div style={styles.sectionHeader} className="mision-section-header">
                 <FaEye size={24} style={styles.sectionIcon} />
-                <h2 style={styles.sectionTitle}>Visión Empresarial</h2>
+                <h2 style={styles.sectionTitle} className="mision-section-title">Visión Empresarial</h2>
               </div>
               
-              <div style={styles.previewContainer}>
-                <p style={styles.previewText}>
+              <div style={styles.previewContainer} className="mision-preview-container">
+                <p style={styles.previewText} className="mision-preview-text">
                   {nosotrosData.vision || (
                     <span style={styles.emptyText}>
                       No se ha definido la visión de la empresa. Haz clic en "Editar Información" para agregarla.

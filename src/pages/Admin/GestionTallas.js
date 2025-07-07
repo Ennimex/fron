@@ -18,6 +18,118 @@ import { tallaService, categoriaService } from "../../services";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 
+// Estilos CSS responsivos para GestionTallas
+const responsiveStyles = `
+  @media (max-width: 768px) {
+    .tallas-container {
+      padding: 1rem !important;
+    }
+    
+    .tallas-header {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 1rem !important;
+    }
+    
+    .tallas-title {
+      font-size: 1.5rem !important;
+      text-align: center !important;
+    }
+    
+    .tallas-add-btn {
+      align-self: center !important;
+      width: fit-content !important;
+    }
+    
+    .tallas-controls {
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+    
+    .tallas-search {
+      width: 100% !important;
+    }
+    
+    .tallas-cards {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+    
+    .tallas-card {
+      margin: 0 !important;
+    }
+    
+    .tallas-card-header {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0.75rem !important;
+    }
+    
+    .tallas-card-title {
+      text-align: center !important;
+      font-size: 1.125rem !important;
+    }
+    
+    .tallas-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important;
+    }
+    
+    .tallas-item {
+      padding: 0.75rem !important;
+    }
+    
+    .tallas-item-content {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0.5rem !important;
+    }
+    
+    .tallas-item-actions {
+      justify-content: center !important;
+      gap: 0.5rem !important;
+    }
+    
+    .tallas-form {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tallas-container {
+      padding: 0.75rem !important;
+    }
+    
+    .tallas-title {
+      font-size: 1.25rem !important;
+    }
+    
+    .tallas-card {
+      border-radius: 0.5rem !important;
+    }
+    
+    .tallas-item {
+      padding: 0.5rem !important;
+    }
+    
+    .tallas-item-actions button {
+      padding: 0.375rem 0.75rem !important;
+      font-size: 0.75rem !important;
+    }
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = responsiveStyles;
+  if (!document.head.querySelector('style[data-tallas-styles]')) {
+    styleElement.setAttribute('data-tallas-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
+
 const GestionTallas = () => {
   const { user, isAuthenticated } = useAuth();
   const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();

@@ -7,6 +7,129 @@ import { useAdminNotifications } from '../../services/adminHooks';
 import NotificationContainer from '../../components/admin/NotificationContainer';
 import stylesGlobal from '../../styles/stylesGlobal';
 
+// Inyectar estilos CSS responsivos
+if (!document.getElementById('gestion-fotos-responsive-styles')) {
+  const style = document.createElement('style');
+  style.id = 'gestion-fotos-responsive-styles';
+  style.textContent = `
+    /* Estilos responsivos para GestionFotos */
+    @media (max-width: 768px) {
+      .fotos-container {
+        padding: 1rem !important;
+      }
+      
+      .fotos-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .fotos-header-text h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .fotos-add-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      
+      .fotos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+        gap: 1rem !important;
+      }
+      
+      .fotos-card {
+        min-height: auto !important;
+      }
+      
+      .fotos-card-image {
+        height: 120px !important;
+      }
+      
+      .fotos-card-content {
+        padding: 0.75rem !important;
+      }
+      
+      .fotos-card-title {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .fotos-card-actions {
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+      }
+      
+      .fotos-action-btn {
+        width: 100% !important;
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.75rem !important;
+      }
+      
+      .fotos-modal-content {
+        margin: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+        max-height: calc(100vh - 2rem) !important;
+      }
+      
+      .fotos-modal-header h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .fotos-form-group {
+        margin-bottom: 1rem !important;
+      }
+      
+      .fotos-modal-actions {
+        flex-direction: column-reverse !important;
+        gap: 0.75rem !important;
+      }
+      
+      .fotos-modal-btn {
+        width: 100% !important;
+      }
+      
+      .fotos-preview-container {
+        margin-top: 1rem !important;
+      }
+      
+      .fotos-preview-media {
+        max-height: 200px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .fotos-container {
+        padding: 0.5rem !important;
+      }
+      
+      .fotos-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      
+      .fotos-card-image {
+        height: 100px !important;
+      }
+      
+      .fotos-card-content {
+        padding: 0.5rem !important;
+      }
+      
+      .fotos-card-title {
+        font-size: 0.875rem !important;
+      }
+      
+      .fotos-card-description {
+        font-size: 0.75rem !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 const GestionFotos = () => {
   const { user, isAuthenticated } = useAuth();
 
@@ -563,11 +686,11 @@ const GestionFotos = () => {
   }
 
   return (
-    <div style={styles.pageContainer}>
+    <div style={styles.pageContainer} className="fotos-container">
       <div style={styles.mainContainer}>
         {/* Header */}
-        <div style={styles.header}>
-          <div>
+        <div style={styles.header} className="fotos-header">
+          <div className="fotos-header-text">
             <h1 style={styles.title}>
               <FaImage style={{ marginRight: stylesGlobal.spacing.scale[3] }} />
               Gestión de Fotos
@@ -581,6 +704,7 @@ const GestionFotos = () => {
               ...styles.addButton,
               ...(formLoading || loading ? styles.disabledButton : {}),
             }}
+            className="fotos-add-btn"
             onClick={handleOpenCreateModal}
             aria-label="Agregar nueva foto"
             disabled={formLoading || loading}
@@ -614,10 +738,10 @@ const GestionFotos = () => {
             </p>
           </div>
         ) : (
-          <div style={styles.content}>
+          <div style={styles.content} className="fotos-grid">
             {fotos.map((foto) => (
-              <div key={foto._id} style={styles.cardBase}>
-                <div style={styles.cardImageContainer}>
+              <div key={foto._id} style={styles.cardBase} className="fotos-card">
+                <div style={styles.cardImageContainer} className="fotos-card-image">
                   {foto.url ? (
                     <img
                       src={foto.url}
@@ -631,21 +755,22 @@ const GestionFotos = () => {
                     </div>
                   )}
                 </div>
-                <div style={styles.cardContent}>
-                  <h3 style={styles.cardTitle}>
+                <div style={styles.cardContent} className="fotos-card-content">
+                  <h3 style={styles.cardTitle} className="fotos-card-title">
                     {foto.titulo || 'Sin título'}
                   </h3>
-                  <p style={styles.cardDescription}>
+                  <p style={styles.cardDescription} className="fotos-card-description">
                     {foto.descripcion?.length > 100
                       ? `${foto.descripcion.substring(0, 100)}...`
                       : foto.descripcion || 'Sin descripción'}
                   </p>
-                  <div style={styles.cardActions}>
+                  <div style={styles.cardActions} className="fotos-card-actions">
                     <button
                       style={{
                         ...styles.actionButton,
                         ...styles.editAction,
                       }}
+                      className="fotos-action-btn"
                       onClick={() => handleOpenEditModal(foto)}
                       title="Editar foto"
                       aria-label={`Editar foto ${foto.titulo || 'Sin título'}`}
@@ -659,6 +784,7 @@ const GestionFotos = () => {
                         ...styles.actionButton,
                         ...styles.deleteAction,
                       }}
+                      className="fotos-action-btn"
                       onClick={() => handleDelete(foto)}
                       title="Eliminar foto"
                       aria-label={`Eliminar foto ${foto.titulo || 'Sin título'}`}
@@ -681,7 +807,7 @@ const GestionFotos = () => {
             className="modal-overlay"
             onClick={(e) => e.target.className === 'modal-overlay' && handleCloseModal()}
           >
-            <div style={styles.modalContent}>
+            <div style={styles.modalContent} className="fotos-modal-content">
               <div style={styles.modalBody}>
                 <button
                   style={styles.modalCloseButton}
@@ -691,12 +817,14 @@ const GestionFotos = () => {
                 >
                   ✕
                 </button>
-                <h2 style={styles.modalTitle}>
-                  {currentFoto ? 'Editar Foto' : 'Agregar Nueva Foto'}
-                </h2>
+                <div className="fotos-modal-header">
+                  <h2 style={styles.modalTitle}>
+                    {currentFoto ? 'Editar Foto' : 'Agregar Nueva Foto'}
+                  </h2>
+                </div>
                 <form onSubmit={handleSubmit} style={styles.formContainer}>
                   {/* Campo título */}
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="fotos-form-group">
                     <label style={styles.label} htmlFor="titulo">
                       Título de la Foto
                       <span style={styles.requiredField}>*</span>
@@ -722,7 +850,7 @@ const GestionFotos = () => {
                   </div>
 
                   {/* Campo descripción */}
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="fotos-form-group">
                     <label style={styles.label} htmlFor="descripcion">
                       Descripción
                       <span style={{ ...stylesGlobal.typography.body.caption, marginLeft: stylesGlobal.spacing.scale[2] }}>
@@ -746,7 +874,7 @@ const GestionFotos = () => {
                   </div>
 
                   {/* Campo archivo de imagen */}
-                  <div style={styles.formGroup}>
+                  <div style={styles.formGroup} className="fotos-form-group">
                     <label style={styles.label} htmlFor="imagen">
                       Archivo de Imagen
                       {!currentFoto && <span style={styles.requiredField}>*</span>}
@@ -769,19 +897,20 @@ const GestionFotos = () => {
                     </div>
 
                     {formData.imagenPreview && (
-                      <div style={styles.previewContainer}>
+                      <div style={styles.previewContainer} className="fotos-preview-container">
                         <span style={styles.previewLabel}>Vista previa de la imagen:</span>
                         <img
                           src={formData.imagenPreview}
                           alt="Vista previa de la foto"
                           style={styles.previewMedia}
+                          className="fotos-preview-media"
                         />
                       </div>
                     )}
                   </div>
 
                   {/* Acciones del modal */}
-                  <div style={styles.modalActions}>
+                  <div style={styles.modalActions} className="fotos-modal-actions">
                     <button
                       type="button"
                       onClick={handleCloseModal}
@@ -789,6 +918,7 @@ const GestionFotos = () => {
                         ...styles.outlineButton,
                         ...(formLoading ? styles.disabledButton : {}),
                       }}
+                      className="fotos-modal-btn"
                       disabled={formLoading}
                     >
                       Cancelar
@@ -799,6 +929,7 @@ const GestionFotos = () => {
                         ...styles.primaryButton,
                         ...(formLoading ? styles.disabledButton : {}),
                       }}
+                      className="fotos-modal-btn"
                       disabled={formLoading}
                       aria-label={currentFoto ? 'Actualizar foto' : 'Crear foto'}
                     >

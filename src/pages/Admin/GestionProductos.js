@@ -7,6 +7,145 @@ import NotificationContainer from "../../components/admin/NotificationContainer"
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import stylesPublic from "../../styles/stylesGlobal"; // Importamos los estilos globales
 
+// Estilos CSS responsivos para GestionProductos
+const responsiveStyles = `
+  @media (max-width: 768px) {
+    .productos-container {
+      border-radius: 0 !important;
+      margin: 0 !important;
+    }
+    
+    .productos-header {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 1rem !important;
+      padding: 1rem !important;
+    }
+    
+    .productos-header-content {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0.75rem !important;
+    }
+    
+    .productos-title {
+      font-size: 1.25rem !important;
+      text-align: center !important;
+    }
+    
+    .productos-add-btn {
+      align-self: center !important;
+      width: fit-content !important;
+    }
+    
+    .productos-content {
+      padding: 1rem !important;
+    }
+    
+    .productos-filters {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+    }
+    
+    .productos-table-container {
+      overflow-x: auto !important;
+      margin: 0 -1rem !important;
+      padding: 0 1rem !important;
+    }
+    
+    .productos-table {
+      min-width: 800px !important;
+    }
+    
+    .productos-table th,
+    .productos-table td {
+      padding: 0.5rem !important;
+      font-size: 0.875rem !important;
+    }
+    
+    .productos-actions {
+      flex-direction: column !important;
+      gap: 0.25rem !important;
+      align-items: stretch !important;
+    }
+    
+    .productos-action-btn {
+      justify-content: center !important;
+      font-size: 0.75rem !important;
+      padding: 0.375rem 0.75rem !important;
+    }
+    
+    .productos-search-filter {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .productos-header {
+      padding: 0.75rem !important;
+    }
+    
+    .productos-title {
+      font-size: 1.125rem !important;
+    }
+    
+    .productos-content {
+      padding: 0.75rem !important;
+    }
+    
+    .productos-modal-content {
+      margin: 0.5rem !important;
+      width: calc(100% - 1rem) !important;
+      max-height: calc(100vh - 1rem) !important;
+    }
+    
+    .productos-modal-body {
+      padding: 1rem !important;
+      padding-top: 3rem !important;
+    }
+    
+    .productos-form-row {
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+    
+    .productos-modal-actions {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+    }
+    
+    .productos-tallas-grid {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+    
+    .productos-talla-group {
+      margin-bottom: 1rem !important;
+    }
+    
+    .productos-talla-checkboxes {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.5rem !important;
+    }
+    
+    .productos-image-preview {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = responsiveStyles;
+  if (!document.head.querySelector('style[data-productos-styles]')) {
+    styleElement.setAttribute('data-productos-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
+
 const GestionProductos = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -384,12 +523,19 @@ const GestionProductos = () => {
     return indexA - indexB;
   });
 
-  // Estilos basados en stylesPublic
+  // Estilos basados en stylesPublic con mejoras responsivas
   const styles = {
     pageContainer: {
       minHeight: "100vh",
       backgroundColor: stylesPublic.colors.neutral[100],
       padding: stylesPublic.spacing.sections.sm,
+      // Responsive padding
+      '@media (max-width: 768px)': {
+        padding: stylesPublic.spacing.scale[2],
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.scale[1],
+      },
     },
     container: {
       maxWidth: stylesPublic.utils.container.maxWidth["2xl"],
@@ -397,6 +543,11 @@ const GestionProductos = () => {
       backgroundColor: stylesPublic.colors.surface.primary,
       borderRadius: stylesPublic.borders.radius.lg,
       boxShadow: stylesPublic.shadows.base,
+      // Responsive container
+      '@media (max-width: 768px)': {
+        borderRadius: 0,
+        margin: 0,
+      },
     },
     header: {
       display: "flex",
@@ -404,16 +555,41 @@ const GestionProductos = () => {
       alignItems: "center",
       padding: stylesPublic.spacing.scale[6],
       borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      // Responsive header
+      '@media (max-width: 768px)': {
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: stylesPublic.spacing.scale[4],
+        padding: stylesPublic.spacing.scale[4],
+      },
+      '@media (max-width: 480px)': {
+        padding: stylesPublic.spacing.scale[3],
+      },
     },
     headerContent: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
       width: "100%",
+      // Responsive header content
+      '@media (max-width: 768px)': {
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: stylesPublic.spacing.scale[3],
+      },
     },
     title: {
-      ...stylesPublic.typography.headings.h3,
+      ...stylesPublic.typography.headings.h1,
+      color: stylesPublic.colors.text.primary,
       margin: 0,
+      // Responsive title
+      '@media (max-width: 768px)': {
+        fontSize: '1.5rem',
+        textAlign: 'center',
+      },
+      '@media (max-width: 480px)': {
+        fontSize: '1.25rem',
+      },
     },
     subtitle: {
       ...stylesPublic.typography.body.small,
@@ -759,16 +935,17 @@ const GestionProductos = () => {
 
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.container}>
+      <div style={styles.container} className="productos-container">
         {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.headerContent}>
+        <div style={styles.header} className="productos-header">
+          <div style={styles.headerContent} className="productos-header-content">
             <div>
-              <h1 style={styles.title}>Gestión de Productos</h1>
+              <h1 style={styles.title} className="productos-title">Gestión de Productos</h1>
               <p style={styles.subtitle}>Administra tu catálogo de productos</p>
             </div>
             <button
               style={styles.addButton}
+              className="productos-add-btn"
               onClick={() => {
                 setIsEditMode(false);
                 setProducto({
@@ -790,7 +967,7 @@ const GestionProductos = () => {
         </div>
 
         {/* Content */}
-        <div style={styles.content}>
+        <div style={styles.content} className="productos-content">
           {/* Sistema de notificaciones centralizado */}
           <NotificationContainer
             notifications={notifications}
@@ -801,7 +978,7 @@ const GestionProductos = () => {
           {error && <div style={styles.error}>{error}</div>}
 
           {/* Controles */}
-          <div style={styles.controlsContainer}>
+          <div style={styles.controlsContainer} className="productos-filters">
             <div style={styles.searchContainer}>
               <FaSearch style={{ color: stylesPublic.colors.text.tertiary }} size={16} />
               <input
@@ -831,8 +1008,8 @@ const GestionProductos = () => {
 
           {/* Tabla de productos */}
           {filteredProducts.length > 0 ? (
-            <div style={styles.tableContainer}>
-              <table style={styles.table}>
+            <div style={styles.tableContainer} className="productos-table-container">
+              <table style={styles.table} className="productos-table">
                 <thead style={styles.tableHeader}>
                   <tr>
                     <th style={styles.tableHeaderCell}>Imagen</th>
@@ -883,9 +1060,10 @@ const GestionProductos = () => {
                           </div>
                         </td>
                         <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer}>
+                          <div style={styles.actionsContainer} className="productos-actions">
                             <button
                               style={{ ...styles.actionButton, ...styles.viewAction }}
+                              className="productos-action-btn"
                               onClick={() => setSelectedProduct(producto)}
                               title="Ver detalles"
                             >
@@ -893,6 +1071,7 @@ const GestionProductos = () => {
                             </button>
                             <button
                               style={{ ...styles.actionButton, ...styles.editAction }}
+                              className="productos-action-btn"
                               onClick={() => handleEditProduct(producto)}
                               title="Editar producto"
                             >
@@ -900,6 +1079,7 @@ const GestionProductos = () => {
                             </button>
                             <button
                               style={{ ...styles.actionButton, ...styles.deleteAction }}
+                              className="productos-action-btn"
                               onClick={() => handleDeleteProduct(producto._id)}
                               title="Eliminar producto"
                             >
@@ -931,14 +1111,14 @@ const GestionProductos = () => {
       {/* Modal para crear/editar producto */}
       {showModal && (
         <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div style={styles.modalContent} className="productos-modal-content" onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <h2 style={styles.modalTitle}>{isEditMode ? "Editar Producto" : "Agregar Nuevo Producto"}</h2>
               <button onClick={() => setShowModal(false)} style={styles.modalCloseButton}>
                 ×
               </button>
             </div>
-            <div style={styles.modalBody}>
+            <div style={styles.modalBody} className="productos-modal-body">
               {error && <div style={styles.error}>{error}</div>}
 
               <form onSubmit={handleSubmit}>
@@ -1055,11 +1235,11 @@ const GestionProductos = () => {
                     Tallas Disponibles<span style={styles.requiredField}>*</span>
                     <span style={styles.helpText}> (Seleccione al menos una)</span>
                   </label>
-                  <div style={styles.tallasContainer}>
+                  <div style={styles.tallasContainer} className="productos-tallas-grid">
                     {orderedGroupedTallas.map(([genero, sizes]) => (
-                      <div key={genero} style={styles.genderGroup}>
+                      <div key={genero} style={styles.genderGroup} className="productos-talla-group">
                         <h4 style={styles.genderTitle}>{genero}</h4>
-                        <div style={styles.sizesGrid}>
+                        <div style={styles.sizesGrid} className="productos-talla-checkboxes">
                           {sizes.map((talla) => {
                             const isSelected = producto.tallasDisponibles.some((t) => t._id === talla._id);
                             return (
@@ -1096,7 +1276,7 @@ const GestionProductos = () => {
                   </div>
                 )}
 
-                <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }} className="productos-modal-actions">
                   <button
                     type="button"
                     style={{

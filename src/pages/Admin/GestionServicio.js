@@ -7,60 +7,183 @@ import { useAdminNotifications } from '../../services/adminHooks';
 import NotificationContainer from '../../components/admin/NotificationContainer';
 import stylesGlobal from '../../styles/stylesGlobal';
 
-// Agregar estilos CSS para animaciones de modales
-const modalStyles = `
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
+// Inyectar estilos CSS responsivos
+if (!document.getElementById('gestion-servicios-responsive-styles')) {
+  const style = document.createElement('style');
+  style.id = 'gestion-servicios-responsive-styles';
+  style.textContent = `
+    /* Estilos responsivos para GestionServicio */
+    @media (max-width: 768px) {
+      .servicios-container {
+        padding: 1rem !important;
+        border-radius: 0 !important;
+      }
+      
+      .servicios-header {
+        padding: 1.5rem !important;
+      }
+      
+      .servicios-header-content {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .servicios-header-text h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .servicios-add-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      
+      .servicios-search-container {
+        max-width: 100% !important;
+      }
+      
+      .servicios-table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      
+      .servicios-table {
+        min-width: 700px !important;
+      }
+      
+      .servicios-table th,
+      .servicios-table td {
+        padding: 0.5rem !important;
+        font-size: 0.875rem !important;
+      }
+      
+      .servicios-actions {
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+      }
+      
+      .servicios-action-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.75rem !important;
+      }
+      
+      .servicios-modal-content {
+        margin: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+        max-height: calc(100vh - 2rem) !important;
+      }
+      
+      .servicios-modal-header {
+        padding: 1rem !important;
+        padding-top: 2.5rem !important;
+      }
+      
+      .servicios-modal-header h2 {
+        font-size: 1.25rem !important;
+      }
+      
+      .servicios-modal-body {
+        padding: 1rem !important;
+      }
+      
+      .servicios-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
+      
+      .servicios-form-group {
+        margin-bottom: 1rem !important;
+      }
+      
+      .servicios-image-preview {
+        max-height: 150px !important;
+      }
     }
-    to {
+    
+    @media (max-width: 480px) {
+      .servicios-container {
+        padding: 0.5rem !important;
+      }
+      
+      .servicios-header {
+        padding: 1rem !important;
+      }
+      
+      .servicios-table th:nth-child(3),
+      .servicios-table td:nth-child(3) {
+        display: none !important;
+      }
+      
+      .servicios-table th:nth-child(4),
+      .servicios-table td:nth-child(4) {
+        display: none !important;
+      }
+      
+      .servicios-modal-header {
+        padding: 0.75rem !important;
+        padding-top: 2rem !important;
+      }
+      
+      .servicios-modal-body {
+        padding: 0.75rem !important;
+      }
+      
+      .servicios-form-grid {
+        gap: 0.75rem !important;
+      }
+      
+      .servicios-form-group {
+        margin-bottom: 0.75rem !important;
+      }
+    }
+    
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes overlayFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-overlay-servicios {
+      animation: overlayFadeIn 0.3s ease-out;
+    }
+
+    .modal-content-servicios {
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    .modal-content-servicios:hover .modal-close-btn {
       opacity: 1;
-      transform: scale(1);
     }
-  }
 
-  @keyframes overlayFadeIn {
-    from {
-      opacity: 0;
+    .modal-close-btn {
+      transition: all 0.2s ease;
+      opacity: 0.7;
     }
-    to {
-      opacity: 1;
+
+    .modal-close-btn:hover {
+      opacity: 1 !important;
+      background-color: #fee2e2 !important;
+      color: #dc2626 !important;
     }
-  }
-
-  .modal-overlay-servicios {
-    animation: overlayFadeIn 0.3s ease-out;
-  }
-
-  .modal-content-servicios {
-    animation: modalFadeIn 0.3s ease-out;
-  }
-
-  .modal-content-servicios:hover .modal-close-btn {
-    opacity: 1;
-  }
-
-  .modal-close-btn {
-    transition: all 0.2s ease;
-    opacity: 0.7;
-  }
-
-  .modal-close-btn:hover {
-    opacity: 1 !important;
-    background-color: #fee2e2 !important;
-    color: #dc2626 !important;
-  }
-`;
-
-// Inyectar estilos CSS
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = modalStyles;
-  if (!document.head.querySelector('style[data-modal-servicios-styles]')) {
-    styleElement.setAttribute('data-modal-servicios-styles', 'true');
-    document.head.appendChild(styleElement);
-  }
+  `;
+  document.head.appendChild(style);
 }
 
 const GestionServicio = () => {
@@ -665,11 +788,11 @@ const GestionServicio = () => {
 
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.container}>
+      <div style={styles.container} className="servicios-container">
         {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.headerContent}>
-            <div>
+        <div style={styles.header} className="servicios-header">
+          <div style={styles.headerContent} className="servicios-header-content">
+            <div className="servicios-header-text">
               <h1 style={styles.title}>Gestión de Servicios</h1>
               <p style={styles.subtitle}>
                 Administra los servicios de tu negocio
@@ -680,6 +803,7 @@ const GestionServicio = () => {
                 ...styles.button,
                 ...(formLoading || loading ? styles.submitButtonDisabled : {}),
               }}
+              className="servicios-add-btn"
               onClick={() => openModal()}
               disabled={formLoading || loading}
               aria-label="Crear nuevo servicio"
@@ -692,7 +816,7 @@ const GestionServicio = () => {
 
         {/* Controles */}
         <div style={styles.controlsContainer}>
-          <div style={styles.searchContainer}>
+          <div style={styles.searchContainer} className="servicios-search-container">
             <input
               type="text"
               placeholder="Buscar servicios..."
@@ -718,8 +842,8 @@ const GestionServicio = () => {
               </p>
             </div>
           ) : (
-            <div style={styles.tableContainer}>
-              <table style={styles.table}>
+            <div style={styles.tableContainer} className="servicios-table-container">
+              <table style={styles.table} className="servicios-table">
                 <thead style={styles.tableHeader}>
                   <tr>
                     <th style={styles.tableHeaderCell}>Imagen</th>
@@ -768,13 +892,14 @@ const GestionServicio = () => {
                           : servicio.descripcion}
                       </td>
                       <td style={styles.tableCell}>
-                        <div style={styles.actionsContainer}>
+                        <div style={styles.actionsContainer} className="servicios-actions">
                           <button
                             style={{
                               ...styles.actionButton, 
                               ...styles.editAction,
                               ...(formLoading ? styles.submitButtonDisabled : {}),
                             }}
+                            className="servicios-action-btn"
                             onClick={() => openModal(servicio)}
                             disabled={formLoading}
                             title="Editar servicio"
@@ -788,6 +913,7 @@ const GestionServicio = () => {
                               ...styles.deleteAction,
                               ...(formLoading ? styles.submitButtonDisabled : {}),
                             }}
+                            className="servicios-action-btn"
                             onClick={() => handleDelete(servicio._id)}
                             disabled={formLoading}
                             title="Eliminar servicio"
@@ -813,7 +939,7 @@ const GestionServicio = () => {
           className="modal-overlay-servicios"
           onClick={handleModalOverlayClick}
         >
-          <div style={styles.modalContent} className="modal-content-servicios" onClick={(e) => e.stopPropagation()}>
+          <div style={styles.modalContent} className="modal-content-servicios servicios-modal-content" onClick={(e) => e.stopPropagation()}>
             <button
               style={styles.modalCloseButton}
               className="modal-close-btn"
@@ -825,15 +951,15 @@ const GestionServicio = () => {
               <FaTimes />
             </button>
             
-            <div style={styles.modalHeader}>
+            <div style={styles.modalHeader} className="servicios-modal-header">
               <h2 style={styles.modalTitle}>
                 {isEditMode ? 'Editar Servicio' : 'Nuevo Servicio'}
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} style={styles.modalBody}>
-              <div style={styles.formGrid}>
-                <div style={styles.formGroup}>
+            <form onSubmit={handleSubmit} style={styles.modalBody} className="servicios-modal-body">
+              <div style={styles.formGrid} className="servicios-form-grid">
+                <div style={styles.formGroup} className="servicios-form-group">
                   <label style={styles.label}>
                     Nombre <span style={styles.requiredField}>*</span>
                   </label>
@@ -848,7 +974,7 @@ const GestionServicio = () => {
                   />
                 </div>
 
-                <div style={styles.formGroup}>
+                <div style={styles.formGroup} className="servicios-form-group">
                   <label style={styles.label}>
                     Título <span style={styles.requiredField}>*</span>
                   </label>
@@ -864,7 +990,7 @@ const GestionServicio = () => {
                 </div>
               </div>
 
-              <div style={styles.formGroup}>
+              <div style={styles.formGroup} className="servicios-form-group">
                 <label style={styles.label}>
                   Descripción <span style={styles.requiredField}>*</span>
                 </label>
@@ -879,7 +1005,7 @@ const GestionServicio = () => {
                 />
               </div>
 
-              <div style={styles.formGroup}>
+              <div style={styles.formGroup} className="servicios-form-group">
                 <label style={styles.label}>Imagen del Servicio</label>
                 <div style={styles.imageUploadArea}>
                   <input
@@ -905,6 +1031,7 @@ const GestionServicio = () => {
                       src={imagePreview}
                       alt="Vista previa"
                       style={styles.previewImage}
+                      className="servicios-image-preview"
                     />
                   </div>
                 )}

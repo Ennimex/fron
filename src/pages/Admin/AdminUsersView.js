@@ -22,6 +22,108 @@ import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesPublic from "../../styles/stylesGlobal"; // Import global styles
 
+// Estilos CSS responsivos para AdminUsersView
+const responsiveStyles = `
+  @media (max-width: 768px) {
+    .users-container {
+      padding: 1rem !important;
+    }
+    
+    .users-header {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 1rem !important;
+    }
+    
+    .users-title {
+      font-size: 1.5rem !important;
+      text-align: center !important;
+    }
+    
+    .users-controls {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+    }
+    
+    .users-search-filter {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+    }
+    
+    .users-table-container {
+      overflow-x: auto !important;
+      margin: 0 -1rem !important;
+      padding: 0 1rem !important;
+    }
+    
+    .users-table {
+      min-width: 800px !important;
+    }
+    
+    .users-table th,
+    .users-table td {
+      padding: 0.5rem !important;
+      font-size: 0.875rem !important;
+    }
+    
+    .users-actions {
+      flex-direction: column !important;
+      gap: 0.25rem !important;
+      align-items: stretch !important;
+    }
+    
+    .users-action-btn {
+      justify-content: center !important;
+      font-size: 0.75rem !important;
+      padding: 0.375rem 0.75rem !important;
+    }
+    
+    .users-pagination {
+      flex-direction: column !important;
+      gap: 1rem !important;
+      align-items: center !important;
+    }
+    
+    .users-pagination-controls {
+      justify-content: center !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .users-container {
+      padding: 0.75rem !important;
+    }
+    
+    .users-title {
+      font-size: 1.25rem !important;
+    }
+    
+    .users-table-container {
+      margin: 0 -0.75rem !important;
+      padding: 0 0.75rem !important;
+    }
+    
+    .users-pagination-info {
+      font-size: 0.875rem !important;
+      text-align: center !important;
+    }
+    
+    .users-per-page-select {
+      width: 100% !important;
+    }
+  }
+`;
+
+// Inyectar estilos CSS
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = responsiveStyles;
+  if (!document.head.querySelector('style[data-users-styles]')) {
+    styleElement.setAttribute('data-users-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
+
 const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const { user } = useAuth();
 
@@ -478,10 +580,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.mainContainer}>
-        <div style={styles.header}>
+      <div style={styles.mainContainer} className="users-container">
+        <div style={styles.header} className="users-header">
           <div>
-            <h1 style={styles.title}>
+            <h1 style={styles.title} className="users-title">
               <FaUsers style={{ marginRight: stylesPublic.spacing.scale[2] }} />
               Gestión de Usuarios
             </h1>
@@ -507,6 +609,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               flexWrap: "wrap",
               gap: stylesPublic.spacing.gaps.md,
             }}
+            className="users-controls"
           >
             <div
               style={{
@@ -517,6 +620,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 minWidth: "200px",
                 maxWidth: "600px",
               }}
+              className="users-search-filter"
             >
               <FaSearch
                 style={{
@@ -630,7 +734,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             </div>
           )}
 
-          <div style={styles.tableContainer}>
+          <div style={styles.tableContainer} className="users-table-container">
             {/* TODO: Could extract to a BulkActions component */}
             {selectedUsers.size > 0 && (
               <div
@@ -708,7 +812,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   </p>
                 </div>
               ) : (
-                <table style={styles.table}>
+                <table style={styles.table} className="users-table">
                   <thead style={styles.tableHeader}>
                     <tr>
                       <th style={styles.tableHeaderCell}>
@@ -860,12 +964,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                         <td style={styles.tableCell}>{renderRoleBadge(user.role)}</td>
                         <td style={styles.tableCell}>{formatDate(user.createdAt)}</td>
                         <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer}>
+                          <div style={styles.actionsContainer} className="users-actions">
                             <button
                               style={{
                                 ...styles.actionButton,
                                 ...styles.editAction,
                               }}
+                              className="users-action-btn"
                               onClick={() => handleEditUser(user._id)}
                               title="Editar usuario"
                               aria-label={`Editar usuario ${user.name || "Sin nombre"}`}
@@ -877,6 +982,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                                 ...styles.actionButton,
                                 ...styles.deleteAction,
                               }}
+                              className="users-action-btn"
                               onClick={() => handleDeleteUser(user._id)}
                               title="Eliminar usuario"
                               aria-label={`Eliminar usuario ${user.name || "Sin nombre"}`}
@@ -902,12 +1008,14 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   flexWrap: "wrap",
                   gap: stylesPublic.spacing.gaps.md,
                 }}
+                className="users-pagination"
               >
                 <div
                   style={{
                     ...stylesPublic.typography.body.small,
                     color: stylesPublic.colors.text.secondary,
                   }}
+                  className="users-pagination-info"
                 >
                   Mostrando {startIndex + 1} a {Math.min(startIndex + usersPerPage, processedUsers.length)} de{" "}
                   {processedUsers.length} usuarios
@@ -917,6 +1025,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     display: "flex",
                     gap: stylesPublic.spacing.gaps.xs,
                   }}
+                  className="users-pagination-controls"
                 >
                   <button
                     style={{
