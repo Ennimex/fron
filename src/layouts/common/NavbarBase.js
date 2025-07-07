@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar, Container, Button, Dropdown } from "react-bootstrap";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
-import { PersonCircle, BoxArrowRight, Gear } from "react-bootstrap-icons";
+import { PersonCircle, BoxArrowRight, Gear, List, X } from "react-bootstrap-icons";
 
 const NavbarBase = ({ 
   isAuthenticated, 
@@ -27,10 +27,34 @@ const NavbarBase = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Cerrar menú móvil cuando se hace resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 992) { // lg breakpoint
+        setExpanded(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Prevenir scroll del body cuando el menú móvil está abierto
+  useEffect(() => {
+    if (expanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [expanded]);
+
   const handleLogout = () => {
     onLogout();
     setExpanded(false);
-    // Redirigir a la página principal en lugar de login
     navigate("/", { replace: true });
   };
 
@@ -67,16 +91,6 @@ const NavbarBase = ({
     },
     actions: {
       ...stylesGlobal.components.navbar.actions,
-    },
-    mobileMenu: {
-      ...stylesGlobal.components.navbar.mobileMenu,
-      ...(expanded ? { transform: "translateY(0)", opacity: 1 } : {}),
-    },
-    hamburger: {
-      ...stylesGlobal.components.navbar.hamburger,
-    },
-    hamburgerLine: {
-      ...stylesGlobal.components.navbar.hamburgerLine,
     },
     loginButton: {
       ...stylesGlobal.components.button.variants.primary,
@@ -209,26 +223,69 @@ const NavbarBase = ({
             <button
               className="d-lg-none ms-2"
               style={{
-                ...navbarStyles.hamburger,
                 background: "none",
                 border: "none",
                 padding: "8px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "6px",
+                transition: "all 0.3s ease",
+                color: "#524842",
               }}
               onClick={() => setExpanded(!expanded)}
               aria-label="Toggle navigation"
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "rgba(214, 51, 132, 0.1)";
+                e.target.style.color = "#d63384";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = "#524842";
+              }}
             >
-              <div style={navbarStyles.hamburgerLine}></div>
-              <div style={navbarStyles.hamburgerLine}></div>
-              <div style={navbarStyles.hamburgerLine}></div>
+              {expanded ? <X size={24} /> : <List size={24} />}
             </button>
           </div>
         </Container>
       </Navbar>
 
+      {/* Mobile Menu Overlay */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          zIndex: 1040,
+          display: expanded ? "block" : "none",
+          transition: "opacity 300ms ease-in-out",
+        }}
+        onClick={() => setExpanded(false)}
+      />
+
       {/* Mobile Menu */}
       <div
         className="d-lg-none"
-        style={navbarStyles.mobileMenu}
+        style={{
+          position: "fixed",
+          top: "72px",
+          left: 0,
+          right: 0,
+          backgroundColor: "rgba(255, 255, 255, 0.98)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid #ede9e6",
+          boxShadow: "0 10px 15px -3px rgba(42, 36, 31, 0.1)",
+          padding: "1rem",
+          transform: expanded ? "translateY(0)" : "translateY(-100%)",
+          opacity: expanded ? 1 : 0,
+          transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          zIndex: 1050,
+          visibility: expanded ? "visible" : "hidden",
+        }}
       >
         <Container>
           <div style={{
@@ -242,10 +299,23 @@ const NavbarBase = ({
                 key={link.to}
                 to={link.to}
                 style={({ isActive }) => ({
-                  ...navbarStyles.navLink,
-                  ...(isActive ? navbarStyles.navLinkActive : {}),
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
                   padding: "12px 16px",
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                  color: isActive ? "#d63384" : "#524842",
+                  backgroundColor: isActive ? "#fdf2f4" : "transparent",
+                  textDecoration: "none",
+                  borderRadius: "10px",
+                  transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                   width: "100%",
+                  "&:hover": {
+                    color: "#d63384",
+                    backgroundColor: "#fdf2f4",
+                    transform: "translateY(-1px)",
+                  },
                 })}
                 onClick={() => setExpanded(false)}
               >
