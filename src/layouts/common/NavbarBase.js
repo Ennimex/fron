@@ -91,6 +91,15 @@ const NavbarBase = ({
     },
     actions: {
       ...stylesGlobal.components.navbar.actions,
+      display: "flex",
+      alignItems: "center",
+      gap: "8px", // Reducir el gap entre elementos
+    },
+    mobileActions: {
+      display: "flex",
+      alignItems: "center",
+      gap: "4px", // Gap más pequeño en móviles
+      marginLeft: "auto", // Empujar hacia la derecha
     },
     loginButton: {
       ...stylesGlobal.components.button.variants.primary,
@@ -162,92 +171,111 @@ const NavbarBase = ({
           </div>
 
           {/* Actions */}
-          <div style={navbarStyles.actions}>
-            {isAuthenticated ? (
-              <Dropdown align="end">
-                <Dropdown.Toggle
-                  variant="light"
-                  id="dropdown-user"
-                  style={navbarStyles.dropdown}
-                >
-                  <PersonCircle size={20} />
-                  <span className="d-none d-sm-inline">
-                    {user?.name || user?.email || "Usuario"}
-                  </span>
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu style={navbarStyles.dropdownMenu}>
-                  <Dropdown.Item
-                    as={NavLink}
-                    to="/perfil"
-                    onClick={() => setExpanded(false)}
-                    style={navbarStyles.dropdownItem}
+          <div className="d-flex align-items-center">
+            {/* Desktop Actions */}
+            <div className="d-none d-lg-flex" style={navbarStyles.actions}>
+              {isAuthenticated ? (
+                <Dropdown align="end">
+                  <Dropdown.Toggle
+                    variant="light"
+                    id="dropdown-user"
+                    style={navbarStyles.dropdown}
                   >
-                    <PersonCircle size={16} className="me-2" />
-                    Mi perfil
-                  </Dropdown.Item>
-                  {user?.role === "admin" && (
+                    <PersonCircle size={20} />
+                    <span className="d-none d-sm-inline">
+                      {user?.name || user?.email || "Usuario"}
+                    </span>
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu style={navbarStyles.dropdownMenu}>
                     <Dropdown.Item
                       as={NavLink}
-                      to="/admin"
+                      to="/perfil"
                       onClick={() => setExpanded(false)}
                       style={navbarStyles.dropdownItem}
                     >
-                      <Gear size={16} className="me-2" />
-                      Panel de administración
+                      <PersonCircle size={16} className="me-2" />
+                      Mi perfil
                     </Dropdown.Item>
-                  )}
-                  <Dropdown.Divider />
-                  <Dropdown.Item
-                    onClick={handleLogout}
-                    style={{
-                      ...navbarStyles.dropdownItem,
-                      color: stylesGlobal.colors.semantic.error.main,
-                    }}
-                  >
-                    <BoxArrowRight size={16} className="me-2" />
-                    Cerrar sesión
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            ) : (
-              <Button
-                onClick={handleLoginClick}
-                style={navbarStyles.loginButton}
-              >
-                Iniciar Sesión
-              </Button>
-            )}
+                    {user?.role === "admin" && (
+                      <Dropdown.Item
+                        as={NavLink}
+                        to="/admin"
+                        onClick={() => setExpanded(false)}
+                        style={navbarStyles.dropdownItem}
+                      >
+                        <Gear size={16} className="me-2" />
+                        Panel de administración
+                      </Dropdown.Item>
+                    )}
+                    <Dropdown.Divider />
+                    <Dropdown.Item
+                      onClick={handleLogout}
+                      style={{
+                        ...navbarStyles.dropdownItem,
+                        color: stylesGlobal.colors.semantic.error.main,
+                      }}
+                    >
+                      <BoxArrowRight size={16} className="me-2" />
+                      Cerrar sesión
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              ) : (
+                <Button
+                  onClick={handleLoginClick}
+                  style={navbarStyles.loginButton}
+                >
+                  Iniciar Sesión
+                </Button>
+              )}
+            </div>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              className="d-lg-none"
-              style={{
-                background: "none",
-                border: "none",
-                padding: "8px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "6px",
-                transition: "all 0.3s ease",
-                color: "#524842",
-                marginLeft: "4px",
-              }}
-              onClick={() => setExpanded(!expanded)}
-              aria-label="Toggle navigation"
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "rgba(214, 51, 132, 0.1)";
-                e.target.style.color = "#d63384";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = "#524842";
-              }}
-            >
-              {expanded ? <X size={24} /> : <List size={24} />}
-            </button>
+            {/* Mobile Actions */}
+            <div className="d-lg-none" style={navbarStyles.mobileActions}>
+              {!isAuthenticated && (
+                <Button
+                  onClick={handleLoginClick}
+                  style={{
+                    ...navbarStyles.loginButton,
+                    fontSize: "0.875rem",
+                    padding: "6px 12px",
+                  }}
+                >
+                  Iniciar Sesión
+                </Button>
+              )}
+              
+              {/* Mobile Menu Toggle */}
+              <button
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "6px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "6px",
+                  transition: "all 0.3s ease",
+                  color: "#524842",
+                  minWidth: "40px",
+                  minHeight: "40px",
+                }}
+                onClick={() => setExpanded(!expanded)}
+                aria-label="Toggle navigation"
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "rgba(214, 51, 132, 0.1)";
+                  e.target.style.color = "#d63384";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "transparent";
+                  e.target.style.color = "#524842";
+                }}
+              >
+                {expanded ? <X size={22} /> : <List size={22} />}
+              </button>
+            </div>
           </div>
         </Container>
       </Navbar>
@@ -295,6 +323,7 @@ const NavbarBase = ({
             gap: "8px",
             padding: "1rem 0",
           }}>
+            {/* Navigation Links */}
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -323,6 +352,97 @@ const NavbarBase = ({
                 {link.label}
               </NavLink>
             ))}
+
+            {/* User Actions for Mobile (when authenticated) */}
+            {isAuthenticated && (
+              <>
+                <hr style={{ 
+                  margin: "1rem 0", 
+                  border: "none", 
+                  borderTop: "1px solid #ede9e6" 
+                }} />
+                
+                <div style={{ 
+                  padding: "8px 16px", 
+                  fontSize: "0.875rem", 
+                  fontWeight: 600, 
+                  color: "#6c757d",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px"
+                }}>
+                  {user?.name || user?.email || "Usuario"}
+                </div>
+
+                <NavLink
+                  to="/perfil"
+                  style={({ isActive }) => ({
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "12px 16px",
+                    fontSize: "1rem",
+                    fontWeight: 500,
+                    color: isActive ? "#d63384" : "#524842",
+                    backgroundColor: isActive ? "#fdf2f4" : "transparent",
+                    textDecoration: "none",
+                    borderRadius: "10px",
+                    transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                    width: "100%",
+                  })}
+                  onClick={() => setExpanded(false)}
+                >
+                  <PersonCircle size={16} />
+                  Mi perfil
+                </NavLink>
+
+                {user?.role === "admin" && (
+                  <NavLink
+                    to="/admin"
+                    style={({ isActive }) => ({
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "12px 16px",
+                      fontSize: "1rem",
+                      fontWeight: 500,
+                      color: isActive ? "#d63384" : "#524842",
+                      backgroundColor: isActive ? "#fdf2f4" : "transparent",
+                      textDecoration: "none",
+                      borderRadius: "10px",
+                      transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                      width: "100%",
+                    })}
+                    onClick={() => setExpanded(false)}
+                  >
+                    <Gear size={16} />
+                    Panel de administración
+                  </NavLink>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "12px 16px",
+                    fontSize: "1rem",
+                    fontWeight: 500,
+                    color: stylesGlobal.colors.semantic.error.main,
+                    backgroundColor: "transparent",
+                    border: "none",
+                    textDecoration: "none",
+                    borderRadius: "10px",
+                    transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                    width: "100%",
+                    cursor: "pointer",
+                  }}
+                >
+                  <BoxArrowRight size={16} />
+                  Cerrar sesión
+                </button>
+              </>
+            )}
           </div>
         </Container>
       </div>
