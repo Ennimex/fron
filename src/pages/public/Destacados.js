@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { Star, Calendar, MapPin, Play, X, ChevronLeft, ChevronRight, Image, Video } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
@@ -17,11 +17,25 @@ const Destacados = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [isTablet, setIsTablet] = useState(false)
   const [autoPlayTimeout, setAutoPlayTimeout] = useState(null)
+  const [touchDebounceTimeout, setTouchDebounceTimeout] = useState(null)
 
   const [fotos, setFotos] = useState([])
   const [videos, setVideos] = useState([])
   const [eventos, setEventos] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Refs para evitar problemas de dependencias en useEffect
+  const autoPlayTimeoutRef = useRef(null)
+  const isUserInteractingRef = useRef(false)
+
+  // Sincronizar refs con estado
+  useEffect(() => {
+    autoPlayTimeoutRef.current = autoPlayTimeout
+  }, [autoPlayTimeout])
+
+  useEffect(() => {
+    isUserInteractingRef.current = isUserInteracting
+  }, [isUserInteracting])
 
   // Detectar dispositivo móvil y breakpoints
   useEffect(() => {
@@ -96,8 +110,10 @@ const Destacados = () => {
     // Limpiar timeout anterior
     if (autoPlayTimeout) {
       clearTimeout(autoPlayTimeout)
+      setAutoPlayTimeout(null)
     }
     
+    // Detener auto-play temporalmente
     setIsAutoPlaying(false)
     setIsUserInteracting(true)
     
@@ -107,12 +123,12 @@ const Destacados = () => {
     
     setVideoCarouselIndex(newIndex)
     
-    // Reanudar auto-play después de 5 segundos
+    // Reanudar auto-play después de 4 segundos
     const timeout = setTimeout(() => {
       setIsUserInteracting(false)
       setIsAutoPlaying(true)
       setAutoPlayTimeout(null)
-    }, 5000)
+    }, 4000)
     
     setAutoPlayTimeout(timeout)
   }
@@ -121,6 +137,7 @@ const Destacados = () => {
     // Limpiar timeout anterior
     if (autoPlayTimeout) {
       clearTimeout(autoPlayTimeout)
+      setAutoPlayTimeout(null)
     }
     
     setVideoCarouselIndex(index)
@@ -137,14 +154,40 @@ const Destacados = () => {
     setAutoPlayTimeout(timeout)
   }
 
+  // Función helper para manejar eventos touch con debounce
+  const handleTouchStart = () => {
+    if (touchDebounceTimeout) {
+      clearTimeout(touchDebounceTimeout)
+    }
+    setIsUserInteracting(true)
+  }
+
+  const handleTouchEnd = () => {
+    // Limpiar timeout anterior
+    if (touchDebounceTimeout) {
+      clearTimeout(touchDebounceTimeout)
+    }
+    
+    // Reanudar después de un delay en touch
+    const timeout = setTimeout(() => {
+      setIsUserInteracting(false)
+      setTouchDebounceTimeout(null)
+    }, 2000)
+    
+    setTouchDebounceTimeout(timeout)
+  }
+
   // Auto-play del carrusel de videos
   useEffect(() => {
     let interval = null
     
     if (activeTab === "videos" && videos.length > 1 && isAutoPlaying && !isUserInteracting) {
       interval = setInterval(() => {
-        setVideoCarouselIndex(prev => (prev + 1) % videos.length)
-      }, 5000)
+        setVideoCarouselIndex(prev => {
+          const newIndex = (prev + 1) % videos.length
+          return newIndex
+        })
+      }, 4000) // Reducido a 4 segundos para mejor UX
     }
     
     return () => {
@@ -158,24 +201,60 @@ const Destacados = () => {
   useEffect(() => {
     if (activeTab === "videos") {
       setVideoCarouselIndex(0)
-      setIsAutoPlaying(true)
+      
+      // Solo activar auto-play si no hay interacción del usuario usando ref
+      if (!isUserInteractingRef.current) {
+        setIsAutoPlaying(true)
+      }
+      
+      // Limpiar timeout si existe usando ref
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current)
+        setAutoPlayTimeout(null)
+      }
+    } else {
+      // Si cambiamos de pestaña, limpiar el auto-play
+      setIsAutoPlaying(false)
       setIsUserInteracting(false)
-      // Limpiar timeout si existe
-      if (autoPlayTimeout) {
-        clearTimeout(autoPlayTimeout)
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current)
         setAutoPlayTimeout(null)
       }
     }
-  }, [activeTab, autoPlayTimeout])
+  }, [activeTab]) // Solo activeTab como dependencia
 
-  // Cleanup al desmontar el componente
+  // Cleanup al desmontar el componente y control de visibilidad
   useEffect(() => {
-    return () => {
-      if (autoPlayTimeout) {
-        clearTimeout(autoPlayTimeout)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Pausar auto-play cuando la pestaña no es visible
+        setIsAutoPlaying(false)
+        // Usar ref para acceder al estado actual sin dependencias
+        if (autoPlayTimeoutRef.current) {
+          clearTimeout(autoPlayTimeoutRef.current)
+          setAutoPlayTimeout(null)
+        }
+      } else if (activeTab === "videos") {
+        // Reanudar auto-play cuando la pestaña vuelve a ser visible
+        // Solo si no hay interacción activa del usuario usando ref
+        if (!isUserInteractingRef.current) {
+          setIsAutoPlaying(true)
+        }
       }
     }
-  }, [autoPlayTimeout])
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      // Limpiar timeouts al desmontar usando refs
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current)
+      }
+      // No necesitamos limpiar touchDebounceTimeout aquí ya que 
+      // se maneja en las funciones helper
+    }
+  }, [activeTab]) // Solo activeTab como dependencia
 
   const containerStyle = {
     maxWidth: "1280px",
@@ -1026,6 +1105,8 @@ const Destacados = () => {
                         onClick={() => navigateVideoCarousel("prev")}
                         onMouseEnter={(e) => {
                           if (!isMobile) {
+                            // Pausar auto-play al hacer hover
+                            setIsUserInteracting(true)
                             e.currentTarget.style.background = stylesPublic.colors.primary[500]
                             e.currentTarget.style.color = stylesPublic.colors.surface.primary
                             e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
@@ -1033,11 +1114,16 @@ const Destacados = () => {
                         }}
                         onMouseLeave={(e) => {
                           if (!isMobile) {
+                            // Reanudar auto-play al salir del hover
+                            setIsUserInteracting(false)
                             e.currentTarget.style.background = stylesPublic.colors.surface.primary
                             e.currentTarget.style.color = stylesPublic.colors.primary[500]
                             e.currentTarget.style.transform = "translateY(-50%) scale(1)"
                           }
-                        }}                        >
+                        }}
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                      >
                         <ChevronLeft size={isMobile ? 14 : isTablet ? 16 : 20} />
                       </button>
 
@@ -1070,6 +1156,8 @@ const Destacados = () => {
                         onClick={() => navigateVideoCarousel("next")}
                         onMouseEnter={(e) => {
                           if (!isMobile) {
+                            // Pausar auto-play al hacer hover
+                            setIsUserInteracting(true)
                             e.currentTarget.style.background = stylesPublic.colors.primary[500]
                             e.currentTarget.style.color = stylesPublic.colors.surface.primary
                             e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
@@ -1077,11 +1165,16 @@ const Destacados = () => {
                         }}
                         onMouseLeave={(e) => {
                           if (!isMobile) {
+                            // Reanudar auto-play al salir del hover
+                            setIsUserInteracting(false)
                             e.currentTarget.style.background = stylesPublic.colors.surface.primary
                             e.currentTarget.style.color = stylesPublic.colors.primary[500]
                             e.currentTarget.style.transform = "translateY(-50%) scale(1)"
                           }
-                        }}                        >
+                        }}
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                      >
                         <ChevronRight size={isMobile ? 14 : isTablet ? 16 : 20} />
                       </button>
                     </>
