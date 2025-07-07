@@ -221,7 +221,7 @@ const NavbarBase = ({
 
             {/* Mobile Menu Toggle */}
             <button
-              className="d-lg-none ms-2"
+              className="d-lg-none"
               style={{
                 background: "none",
                 border: "none",
@@ -233,6 +233,7 @@ const NavbarBase = ({
                 borderRadius: "6px",
                 transition: "all 0.3s ease",
                 color: "#524842",
+                marginLeft: "4px",
               }}
               onClick={() => setExpanded(!expanded)}
               aria-label="Toggle navigation"
