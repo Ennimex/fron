@@ -451,26 +451,21 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
 
   return (
     <div style={styles.sidebar} className="sidebar-admin">
-      {/* Header con logo elegante */}
+      {/* Header con botón toggle para desktop */}
       <div style={styles.logo}>
         {!effectiveCollapsed ? (
           <div style={{
             display: "flex",
             alignItems: "center",
-            gap: "12px",
+            justifyContent: "flex-end",
             padding: "0 1.5rem",
             width: "100%",
           }}>
-            <div style={styles.logoIcon}>
-              LA
-            </div>
-            <span style={styles.logoText}>Panel Admin</span>
             {/* Botón toggle solo en desktop */}
             {!isMobile && (
               <button
                 style={{
                   ...styles.toggleButton,
-                  marginLeft: "auto",
                   width: "auto",
                   height: "auto",
                   padding: "8px",
@@ -493,14 +488,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
               aria-label="Expandir menú"
               aria-expanded={!effectiveCollapsed}
             >
-              <div style={{
-                ...styles.logoIcon,
-                fontSize: "0.875rem",
-                width: "28px",
-                height: "28px",
-              }}>
-                LA
-              </div>
+              <FaBars size={16} />
             </button>
           )
         )}
