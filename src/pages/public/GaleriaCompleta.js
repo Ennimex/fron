@@ -6,6 +6,7 @@ import stylesPublic from "../../styles/stylesGlobal"
 import { publicAPI } from "../../services/api"
 
 const GaleriaCompleta = () => {
+  console.log("GaleriaCompleta component loaded")
   const [fotos, setFotos] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)

@@ -1287,6 +1287,140 @@ const stylesGlobal = {
         },
       },
     },
+
+    // ===============================
+    // CSS GLOBALES PARA COMPONENTES
+    // ===============================
+    cssGlobals: {
+      // Animaciones para fadeIn
+      fadeInUp: `
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `,
+          // Estilos para el carrusel de videos
+    videoCarousel: `
+      .video-carousel {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 16px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      
+      .video-carousel-inner {
+        display: flex;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+      }
+      
+      .video-carousel-item {
+        flex: 0 0 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 600px;
+        padding: 0 2rem;
+      }
+      
+      /* Media queries para móvil */
+      @media (max-width: 768px) {
+        .video-carousel {
+          max-width: 100%;
+          margin: 0 auto;
+        }
+        
+        .video-carousel-item {
+          min-height: 500px;
+          padding: 0 1rem;
+        }
+      }
+      
+      /* Media queries para tablets */
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .video-carousel {
+          max-width: 500px;
+        }
+        
+        .video-carousel-item {
+          min-height: 550px;
+        }
+      }
+      
+      /* Media queries para desktop */
+      @media (min-width: 1025px) {
+        .video-carousel {
+          max-width: 600px;
+        }
+        
+        .video-carousel-item {
+          min-height: 600px;
+        }
+      }
+    `,
+      
+      // Estilos para el overlay del botón play
+      playOverlay: `
+        .play-overlay {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(0, 0, 0, 0.7);
+          border-radius: 50%;
+          width: 80px;
+          height: 80px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0.8;
+          transition: opacity 0.3s ease;
+          z-index: 5;
+        }
+        
+        .play-overlay:hover {
+          opacity: 1;
+          background: rgba(0, 0, 0, 0.8);
+        }
+        
+        @media (max-width: 768px) {
+          .play-overlay {
+            width: 60px;
+            height: 60px;
+          }
+        }
+      `,
+      
+      // Estilos para lightbox
+      lightbox: `
+        .lightbox-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.95);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `,
+    },
   },
 
   // ===============================

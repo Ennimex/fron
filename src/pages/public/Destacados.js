@@ -1,24 +1,36 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Star, Calendar, MapPin, Play, X, ChevronLeft, ChevronRight, Image, Video } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
 import { publicAPI } from "../../services/api"
 
 const Destacados = () => {
-  const navigate = useNavigate()
   const [selectedImage, setSelectedImage] = useState(null)
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [activeTab, setActiveTab] = useState("fotos")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [videoCarouselIndex, setVideoCarouselIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
 
   const [fotos, setFotos] = useState([])
   const [videos, setVideos] = useState([])
   const [eventos, setEventos] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Detectar dispositivo móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -209,26 +221,6 @@ const Destacados = () => {
               backdrop-filter: blur(20px);
             }
           }
-
-          .video-carousel {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-          }
-
-          .video-carousel-inner {
-            display: flex;
-            transition: transform 0.5s ease;
-            width: 100%;
-          }
-
-          .video-carousel-item {
-            flex: 0 0 100%;
-            width: 100%;
-            padding: 0 10px;
-            box-sizing: border-box;
-          }
         `}
       </style>
 
@@ -280,9 +272,12 @@ const Destacados = () => {
             </div>
             <h1
               style={{
-                ...stylesPublic.typography.headings.h1,
+                fontSize: isMobile ? stylesPublic.typography.scale["2xl"] : stylesPublic.typography.scale["3xl"],
+                fontWeight: stylesPublic.typography.weights.bold,
+                lineHeight: stylesPublic.typography.leading.tight,
                 margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
                 color: stylesPublic.colors.text.primary,
+                textAlign: "center",
               }}
             >
               Lo Mejor de
@@ -293,6 +288,7 @@ const Destacados = () => {
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
+                  marginTop: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[2],
                 }}
               >
                 La Aterciopelada
@@ -300,10 +296,12 @@ const Destacados = () => {
             </h1>
             <p
               style={{
-                ...stylesPublic.typography.body.large,
+                fontSize: isMobile ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.lg,
                 maxWidth: "600px",
                 margin: "0 auto",
                 color: stylesPublic.colors.text.secondary,
+                lineHeight: stylesPublic.typography.leading.relaxed,
+                padding: isMobile ? `0 ${stylesPublic.spacing.scale[4]}` : "0",
               }}
             >
               Explora nuestra galería de momentos especiales, eventos únicos y las creaciones que nos definen como
@@ -324,7 +322,7 @@ const Destacados = () => {
           <div style={{ textAlign: "center", marginBottom: stylesPublic.spacing.scale[12] }}>
             <h2
               style={{
-                fontSize: stylesPublic.typography.scale["2xl"],
+                fontSize: isMobile ? stylesPublic.typography.scale.xl : stylesPublic.typography.scale["2xl"],
                 fontWeight: stylesPublic.typography.weights.light,
                 color: stylesPublic.colors.text.primary,
                 margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
@@ -334,10 +332,11 @@ const Destacados = () => {
             </h2>
             <p
               style={{
-                fontSize: stylesPublic.typography.scale.base,
+                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
                 color: stylesPublic.colors.text.secondary,
                 maxWidth: "500px",
                 margin: "0 auto",
+                padding: isMobile ? `0 ${stylesPublic.spacing.scale[4]}` : "0",
               }}
             >
               Únete a nosotros en estos eventos especiales donde celebramos la artesanía huasteca
@@ -498,7 +497,7 @@ const Destacados = () => {
           <div style={{ textAlign: "center", marginBottom: stylesPublic.spacing.scale[12] }}>
             <h2
               style={{
-                fontSize: stylesPublic.typography.scale["2xl"],
+                fontSize: isMobile ? stylesPublic.typography.scale.xl : stylesPublic.typography.scale["2xl"],
                 fontWeight: stylesPublic.typography.weights.light,
                 color: stylesPublic.colors.text.primary,
                 margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
@@ -508,10 +507,11 @@ const Destacados = () => {
             </h2>
             <p
               style={{
-                fontSize: stylesPublic.typography.scale.base,
+                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
                 color: stylesPublic.colors.text.secondary,
                 maxWidth: "500px",
                 margin: "0 auto",
+                padding: isMobile ? `0 ${stylesPublic.spacing.scale[4]}` : "0",
               }}
             >
               Descubre nuestras mejores fotos y videos destacados
@@ -525,14 +525,18 @@ const Destacados = () => {
               justifyContent: "center",
               marginBottom: stylesPublic.spacing.scale[10],
               borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
+              flexWrap: "wrap",
+              gap: isMobile ? stylesPublic.spacing.scale[2] : 0,
             }}
           >
             <button
               style={{
                 background: "transparent",
                 border: "none",
-                padding: `${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]}`,
-                fontSize: stylesPublic.typography.scale.base,
+                padding: isMobile 
+                  ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[6]}`
+                  : `${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]}`,
+                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
                 fontWeight: stylesPublic.typography.weights.medium,
                 color: activeTab === "fotos" ? stylesPublic.colors.primary[500] : stylesPublic.colors.text.secondary,
                 cursor: "pointer",
@@ -545,15 +549,17 @@ const Destacados = () => {
               }}
               onClick={() => setActiveTab("fotos")}
             >
-              <Image size={16} />
-              Fotos Destacadas
+              <Image size={isMobile ? 14 : 16} />
+              {isMobile ? "Fotos" : "Fotos Destacadas"}
             </button>
             <button
               style={{
                 background: "transparent",
                 border: "none",
-                padding: `${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]}`,
-                fontSize: stylesPublic.typography.scale.base,
+                padding: isMobile 
+                  ? `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[6]}`
+                  : `${stylesPublic.spacing.scale[4]} ${stylesPublic.spacing.scale[8]}`,
+                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
                 fontWeight: stylesPublic.typography.weights.medium,
                 color: activeTab === "videos" ? stylesPublic.colors.primary[500] : stylesPublic.colors.text.secondary,
                 cursor: "pointer",
@@ -566,8 +572,8 @@ const Destacados = () => {
               }}
               onClick={() => setActiveTab("videos")}
             >
-              <Video size={16} />
-              Videos Destacados
+              <Video size={isMobile ? 14 : 16} />
+              {isMobile ? "Videos" : "Videos Destacados"}
             </button>
           </div>
 
@@ -580,11 +586,15 @@ const Destacados = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   marginBottom: stylesPublic.spacing.scale[8],
+                  flexWrap: "wrap",
+                  gap: isMobile ? stylesPublic.spacing.scale[4] : 0,
+                  position: "relative",
+                  zIndex: 1,
                 }}
               >
                 <h3
                   style={{
-                    fontSize: stylesPublic.typography.scale.lg,
+                    fontSize: isMobile ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.lg,
                     fontWeight: stylesPublic.typography.weights.medium,
                     color: stylesPublic.colors.text.primary,
                     margin: 0,
@@ -592,19 +602,33 @@ const Destacados = () => {
                 >
                   Nuestras Mejores Fotos
                 </h3>
-                <button
+                <Link
+                  to="/catalogofotos"
                   style={{
                     background: "transparent",
                     color: stylesPublic.colors.primary[500],
                     border: `1px solid ${stylesPublic.colors.primary[500]}`,
-                    padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
+                    padding: isMobile
+                      ? `${stylesPublic.spacing.scale[1]} ${stylesPublic.spacing.scale[3]}`
+                      : `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[4]}`,
                     borderRadius: stylesPublic.borders.radius.full,
-                    fontSize: stylesPublic.typography.scale.sm,
+                    fontSize: isMobile ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.sm,
                     fontWeight: stylesPublic.typography.weights.medium,
                     cursor: "pointer",
                     transition: stylesPublic.animations.transitions.elegant,
+                    pointerEvents: "auto",
+                    position: "relative",
+                    zIndex: 1,
+                    minWidth: "fit-content",
+                    whiteSpace: "nowrap",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                  onClick={() => navigate("/galeria")}
+                  onClick={(e) => {
+                    console.log("Clic en Link Ver Todas")
+                  }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = stylesPublic.colors.primary[500]
                     e.currentTarget.style.color = stylesPublic.colors.surface.primary
@@ -617,15 +641,17 @@ const Destacados = () => {
                   }}
                 >
                   Ver Todas
-                </button>
+                </Link>
               </div>
 
               {fotos.length > 0 ? (
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-                    gap: stylesPublic.spacing.scale[6],
+                    gridTemplateColumns: isMobile 
+                      ? "repeat(auto-fill, minmax(280px, 1fr))"
+                      : "repeat(auto-fill, minmax(300px, 1fr))",
+                    gap: isMobile ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[6],
                   }}
                 >
                   {fotos.map((foto, index) => (
@@ -712,11 +738,13 @@ const Destacados = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   marginBottom: stylesPublic.spacing.scale[8],
+                  flexWrap: "wrap",
+                  gap: isMobile ? stylesPublic.spacing.scale[4] : 0,
                 }}
               >
                 <h3
                   style={{
-                    fontSize: stylesPublic.typography.scale.lg,
+                    fontSize: isMobile ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.lg,
                     fontWeight: stylesPublic.typography.weights.medium,
                     color: stylesPublic.colors.text.primary,
                     margin: 0,
@@ -729,43 +757,61 @@ const Destacados = () => {
               {videos.length > 0 ? (
                 <div 
                   className="video-carousel"
+                  style={{
+                    position: "relative",
+                    maxWidth: isMobile ? "100%" : "600px",
+                    margin: "0 auto",
+                  }}
                   onMouseEnter={() => setIsAutoPlaying(false)}
                   onMouseLeave={() => setIsAutoPlaying(true)}
                 >
                   <div 
                     className="video-carousel-inner"
                     style={{
-                      transform: `translateX(-${videoCarouselIndex * 100}%)`
+                      display: "flex",
+                      transition: "transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: `translateX(-${videoCarouselIndex * 100}%)`,
                     }}
                   >
                     {videos.map((video, index) => (
                       <div 
                         key={video._id || index}
                         className="video-carousel-item"
+                        style={{
+                          flex: "0 0 100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: isMobile ? "0 1rem" : "0 2rem",
+                        }}
                       >
                         <div
                           style={{
                             ...cardStyle,
                             cursor: "pointer",
-                            height: "600px",
+                            height: isMobile ? "500px" : "600px",
                             position: "relative",
                             overflow: "hidden",
-                            aspectRatio: "9/16", // Proporción de TikTok/Instagram Reels
-                            maxWidth: "400px",
-                            margin: "0 auto",
+                            aspectRatio: "9/16",
+                            maxWidth: isMobile ? "320px" : "400px",
+                            width: "100%",
                           }}
                           onClick={() => openLightbox(video, index, "video")}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "translateY(-4px)"
-                            e.currentTarget.style.boxShadow = stylesPublic.shadows.xl
-                            e.currentTarget.style.borderColor = stylesPublic.colors.primary[200]
+                            if (!isMobile) {
+                              e.currentTarget.style.transform = "translateY(-4px)"
+                              e.currentTarget.style.boxShadow = stylesPublic.shadows.xl
+                              e.currentTarget.style.borderColor = stylesPublic.colors.primary[200]
+                            }
                             const overlay = e.currentTarget.querySelector(".play-overlay")
                             if (overlay) overlay.style.opacity = "1"
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "translateY(0)"
-                            e.currentTarget.style.boxShadow = stylesPublic.shadows.base
-                            e.currentTarget.style.borderColor = stylesPublic.colors.neutral[200]
+                            if (!isMobile) {
+                              e.currentTarget.style.transform = "translateY(0)"
+                              e.currentTarget.style.boxShadow = stylesPublic.shadows.base
+                              e.currentTarget.style.borderColor = stylesPublic.colors.neutral[200]
+                            }
                             const overlay = e.currentTarget.querySelector(".play-overlay")
                             if (overlay) overlay.style.opacity = "0.8"
                           }}
@@ -803,8 +849,8 @@ const Destacados = () => {
                           >
                             <Play
                               style={{
-                                width: stylesPublic.spacing.scale[12],
-                                height: stylesPublic.spacing.scale[12],
+                                width: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
+                                height: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
                                 color: stylesPublic.colors.surface.primary,
                                 filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
                               }}
@@ -814,7 +860,7 @@ const Destacados = () => {
                           {/* Video Info */}
                           <div
                             style={{
-                              padding: stylesPublic.spacing.scale[4],
+                              padding: isMobile ? stylesPublic.spacing.scale[3] : stylesPublic.spacing.scale[4],
                               height: "20%",
                               display: "flex",
                               flexDirection: "column",
@@ -823,7 +869,7 @@ const Destacados = () => {
                           >
                             <h4
                               style={{
-                                fontSize: stylesPublic.typography.scale.base,
+                                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
                                 fontWeight: stylesPublic.typography.weights.medium,
                                 color: stylesPublic.colors.text.primary,
                                 margin: 0,
@@ -838,7 +884,7 @@ const Destacados = () => {
                             {video.descripcion && (
                               <p
                                 style={{
-                                  fontSize: stylesPublic.typography.scale.sm,
+                                  fontSize: isMobile ? stylesPublic.typography.scale.xs : stylesPublic.typography.scale.sm,
                                   color: stylesPublic.colors.text.secondary,
                                   margin: `${stylesPublic.spacing.scale[1]} 0 0 0`,
                                   lineHeight: stylesPublic.typography.leading.relaxed,
@@ -864,14 +910,14 @@ const Destacados = () => {
                       <button
                         style={{
                           position: "absolute",
-                          left: stylesPublic.spacing.scale[4],
+                          left: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[4],
                           top: "50%",
                           transform: "translateY(-50%)",
                           background: stylesPublic.colors.surface.primary,
                           border: `2px solid ${stylesPublic.colors.primary[500]}`,
                           borderRadius: stylesPublic.borders.radius.full,
-                          width: stylesPublic.spacing.scale[12],
-                          height: stylesPublic.spacing.scale[12],
+                          width: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
+                          height: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -891,22 +937,21 @@ const Destacados = () => {
                           e.currentTarget.style.background = stylesPublic.colors.surface.primary
                           e.currentTarget.style.color = stylesPublic.colors.primary[500]
                           e.currentTarget.style.transform = "translateY(-50%) scale(1)"
-                        }}
-                      >
-                        <ChevronLeft size={20} />
+                        }}                        >
+                        <ChevronLeft size={isMobile ? 16 : 20} />
                       </button>
 
                       <button
                         style={{
                           position: "absolute",
-                          right: stylesPublic.spacing.scale[4],
+                          right: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[4],
                           top: "50%",
                           transform: "translateY(-50%)",
                           background: stylesPublic.colors.surface.primary,
                           border: `2px solid ${stylesPublic.colors.primary[500]}`,
                           borderRadius: stylesPublic.borders.radius.full,
-                          width: stylesPublic.spacing.scale[12],
-                          height: stylesPublic.spacing.scale[12],
+                          width: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
+                          height: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -926,9 +971,8 @@ const Destacados = () => {
                           e.currentTarget.style.background = stylesPublic.colors.surface.primary
                           e.currentTarget.style.color = stylesPublic.colors.primary[500]
                           e.currentTarget.style.transform = "translateY(-50%) scale(1)"
-                        }}
-                      >
-                        <ChevronRight size={20} />
+                        }}                        >
+                        <ChevronRight size={isMobile ? 16 : 20} />
                       </button>
                     </>
                   )}
