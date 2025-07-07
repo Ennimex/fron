@@ -13,23 +13,28 @@ const Destacados = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [videoCarouselIndex, setVideoCarouselIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [isUserInteracting, setIsUserInteracting] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
+  const [autoPlayTimeout, setAutoPlayTimeout] = useState(null)
 
   const [fotos, setFotos] = useState([])
   const [videos, setVideos] = useState([])
   const [eventos, setEventos] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Detectar dispositivo móvil
+  // Detectar dispositivo móvil y breakpoints
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
+    const checkDeviceType = () => {
+      const width = window.innerWidth
+      setIsMobile(width <= 768)
+      setIsTablet(width > 768 && width <= 1024)
     }
     
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
+    checkDeviceType()
+    window.addEventListener('resize', checkDeviceType)
     
-    return () => window.removeEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkDeviceType)
   }, [])
 
   useEffect(() => {
@@ -88,7 +93,13 @@ const Destacados = () => {
   const navigateVideoCarousel = (direction) => {
     if (videos.length === 0) return
     
+    // Limpiar timeout anterior
+    if (autoPlayTimeout) {
+      clearTimeout(autoPlayTimeout)
+    }
+    
     setIsAutoPlaying(false)
+    setIsUserInteracting(true)
     
     let newIndex = direction === "next" ? videoCarouselIndex + 1 : videoCarouselIndex - 1
     if (newIndex < 0) newIndex = videos.length - 1
@@ -96,16 +107,41 @@ const Destacados = () => {
     
     setVideoCarouselIndex(newIndex)
     
-    setTimeout(() => {
+    // Reanudar auto-play después de 5 segundos
+    const timeout = setTimeout(() => {
+      setIsUserInteracting(false)
       setIsAutoPlaying(true)
+      setAutoPlayTimeout(null)
     }, 5000)
+    
+    setAutoPlayTimeout(timeout)
+  }
+
+  const handleIndicatorClick = (index) => {
+    // Limpiar timeout anterior
+    if (autoPlayTimeout) {
+      clearTimeout(autoPlayTimeout)
+    }
+    
+    setVideoCarouselIndex(index)
+    setIsAutoPlaying(false)
+    setIsUserInteracting(true)
+    
+    // Reanudar auto-play después de 3 segundos
+    const timeout = setTimeout(() => {
+      setIsUserInteracting(false)
+      setIsAutoPlaying(true)
+      setAutoPlayTimeout(null)
+    }, 3000)
+    
+    setAutoPlayTimeout(timeout)
   }
 
   // Auto-play del carrusel de videos
   useEffect(() => {
     let interval = null
     
-    if (activeTab === "videos" && videos.length > 1 && isAutoPlaying) {
+    if (activeTab === "videos" && videos.length > 1 && isAutoPlaying && !isUserInteracting) {
       interval = setInterval(() => {
         setVideoCarouselIndex(prev => (prev + 1) % videos.length)
       }, 5000)
@@ -116,20 +152,37 @@ const Destacados = () => {
         clearInterval(interval)
       }
     }
-  }, [activeTab, videos.length, isAutoPlaying])
+  }, [activeTab, videos.length, isAutoPlaying, isUserInteracting])
 
   // Reset del carrusel cuando cambia la pestaña
   useEffect(() => {
     if (activeTab === "videos") {
       setVideoCarouselIndex(0)
       setIsAutoPlaying(true)
+      setIsUserInteracting(false)
+      // Limpiar timeout si existe
+      if (autoPlayTimeout) {
+        clearTimeout(autoPlayTimeout)
+        setAutoPlayTimeout(null)
+      }
     }
-  }, [activeTab])
+  }, [activeTab, autoPlayTimeout])
+
+  // Cleanup al desmontar el componente
+  useEffect(() => {
+    return () => {
+      if (autoPlayTimeout) {
+        clearTimeout(autoPlayTimeout)
+      }
+    }
+  }, [autoPlayTimeout])
 
   const containerStyle = {
     maxWidth: "1280px",
     margin: "0 auto",
-    padding: `0 ${stylesPublic.spacing.scale[4]}`,
+    padding: `0 ${isMobile ? stylesPublic.spacing.scale[3] : 
+              isTablet ? stylesPublic.spacing.scale[4] : 
+              stylesPublic.spacing.scale[6]}`,
   }
 
   const cardStyle = {
@@ -272,7 +325,9 @@ const Destacados = () => {
             </div>
             <h1
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale["2xl"] : stylesPublic.typography.scale["3xl"],
+                fontSize: isMobile ? stylesPublic.typography.scale.xl : 
+                         isTablet ? stylesPublic.typography.scale["2xl"] : 
+                         stylesPublic.typography.scale["3xl"],
                 fontWeight: stylesPublic.typography.weights.bold,
                 lineHeight: stylesPublic.typography.leading.tight,
                 margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
@@ -296,12 +351,14 @@ const Destacados = () => {
             </h1>
             <p
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.lg,
-                maxWidth: "600px",
+                fontSize: isMobile ? stylesPublic.typography.scale.sm : 
+                         isTablet ? stylesPublic.typography.scale.base : 
+                         stylesPublic.typography.scale.lg,
+                maxWidth: isMobile ? "90%" : isTablet ? "80%" : "600px",
                 margin: "0 auto",
                 color: stylesPublic.colors.text.secondary,
                 lineHeight: stylesPublic.typography.leading.relaxed,
-                padding: isMobile ? `0 ${stylesPublic.spacing.scale[4]}` : "0",
+                padding: isMobile ? `0 ${stylesPublic.spacing.scale[2]}` : "0",
               }}
             >
               Explora nuestra galería de momentos especiales, eventos únicos y las creaciones que nos definen como
@@ -347,8 +404,14 @@ const Destacados = () => {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                gap: stylesPublic.spacing.scale[6],
+                gridTemplateColumns: isMobile 
+                  ? "1fr"
+                  : isTablet 
+                  ? "repeat(auto-fit, minmax(300px, 1fr))"
+                  : "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: isMobile ? stylesPublic.spacing.scale[4] : 
+                     isTablet ? stylesPublic.spacing.scale[5] : 
+                     stylesPublic.spacing.scale[6],
               }}
             >
               {eventos.map((evento, index) => (
@@ -649,9 +712,14 @@ const Destacados = () => {
                   style={{
                     display: "grid",
                     gridTemplateColumns: isMobile 
+                      ? "1fr"
+                      : isTablet 
                       ? "repeat(auto-fill, minmax(280px, 1fr))"
                       : "repeat(auto-fill, minmax(300px, 1fr))",
-                    gap: isMobile ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[6],
+                    gap: isMobile ? stylesPublic.spacing.scale[3] : 
+                         isTablet ? stylesPublic.spacing.scale[4] : 
+                         stylesPublic.spacing.scale[6],
+                    padding: isMobile ? `0 ${stylesPublic.spacing.scale[2]}` : "0",
                   }}
                 >
                   {fotos.map((foto, index) => (
@@ -660,25 +728,29 @@ const Destacados = () => {
                       style={{
                         ...cardStyle,
                         cursor: "pointer",
-                        height: "250px",
+                        height: isMobile ? "200px" : isTablet ? "220px" : "250px",
                         animation: "fadeInUp 0.5s ease-out forwards",
                         animationDelay: `${index * 0.1}s`,
                         opacity: 0,
                       }}
                       onClick={() => openLightbox(foto, index, "image")}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-4px)"
-                        e.currentTarget.style.boxShadow = stylesPublic.shadows.xl
-                        e.currentTarget.style.borderColor = stylesPublic.colors.primary[200]
-                        const img = e.currentTarget.querySelector("img")
-                        if (img) img.style.transform = "scale(1.05)"
+                        if (!isMobile) {
+                          e.currentTarget.style.transform = "translateY(-4px)"
+                          e.currentTarget.style.boxShadow = stylesPublic.shadows.xl
+                          e.currentTarget.style.borderColor = stylesPublic.colors.primary[200]
+                          const img = e.currentTarget.querySelector("img")
+                          if (img) img.style.transform = "scale(1.05)"
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)"
-                        e.currentTarget.style.boxShadow = stylesPublic.shadows.base
-                        e.currentTarget.style.borderColor = stylesPublic.colors.neutral[200]
-                        const img = e.currentTarget.querySelector("img")
-                        if (img) img.style.transform = "scale(1)"
+                        if (!isMobile) {
+                          e.currentTarget.style.transform = "translateY(0)"
+                          e.currentTarget.style.boxShadow = stylesPublic.shadows.base
+                          e.currentTarget.style.borderColor = stylesPublic.colors.neutral[200]
+                          const img = e.currentTarget.querySelector("img")
+                          if (img) img.style.transform = "scale(1)"
+                        }
                       }}
                     >
                       <img
@@ -759,11 +831,23 @@ const Destacados = () => {
                   className="video-carousel"
                   style={{
                     position: "relative",
-                    maxWidth: isMobile ? "100%" : "600px",
+                    maxWidth: isMobile ? "100%" : isTablet ? "500px" : "600px",
                     margin: "0 auto",
+                    padding: isMobile ? `0 ${stylesPublic.spacing.scale[3]}` : "0",
+                    overflow: "hidden",
                   }}
-                  onMouseEnter={() => setIsAutoPlaying(false)}
-                  onMouseLeave={() => setIsAutoPlaying(true)}
+                  onMouseEnter={() => {
+                    if (!isMobile) {
+                      setIsAutoPlaying(false)
+                      setIsUserInteracting(true)
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (!isMobile) {
+                      setIsUserInteracting(false)
+                      setIsAutoPlaying(true)
+                    }
+                  }}
                 >
                   <div 
                     className="video-carousel-inner"
@@ -782,19 +866,20 @@ const Destacados = () => {
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
-                          padding: isMobile ? "0 1rem" : "0 2rem",
+                          padding: isMobile ? "0" : isTablet ? "0 1rem" : "0 2rem",
                         }}
                       >
                         <div
                           style={{
                             ...cardStyle,
                             cursor: "pointer",
-                            height: isMobile ? "500px" : "600px",
+                            height: isMobile ? "400px" : isTablet ? "500px" : "600px",
                             position: "relative",
                             overflow: "hidden",
-                            aspectRatio: "9/16",
-                            maxWidth: isMobile ? "320px" : "400px",
-                            width: "100%",
+                            width: isMobile ? "280px" : isTablet ? "320px" : "400px",
+                            maxWidth: "100%",
+                            margin: "0 auto",
+                            flexShrink: 0,
                           }}
                           onClick={() => openLightbox(video, index, "video")}
                           onMouseEnter={(e) => {
@@ -849,8 +934,12 @@ const Destacados = () => {
                           >
                             <Play
                               style={{
-                                width: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
-                                height: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
+                                width: isMobile ? stylesPublic.spacing.scale[8] : 
+                                       isTablet ? stylesPublic.spacing.scale[10] : 
+                                       stylesPublic.spacing.scale[12],
+                                height: isMobile ? stylesPublic.spacing.scale[8] : 
+                                        isTablet ? stylesPublic.spacing.scale[10] : 
+                                        stylesPublic.spacing.scale[12],
                                 color: stylesPublic.colors.surface.primary,
                                 filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
                               }}
@@ -858,14 +947,15 @@ const Destacados = () => {
                           </div>
 
                           {/* Video Info */}
-                          <div
-                            style={{
-                              padding: isMobile ? stylesPublic.spacing.scale[3] : stylesPublic.spacing.scale[4],
-                              height: "20%",
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                            }}
+                          <div                          style={{
+                            padding: isMobile ? stylesPublic.spacing.scale[2] : 
+                                     isTablet ? stylesPublic.spacing.scale[3] : 
+                                     stylesPublic.spacing.scale[4],
+                            height: "20%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                          }}
                           >
                             <h4
                               style={{
@@ -910,14 +1000,20 @@ const Destacados = () => {
                       <button
                         style={{
                           position: "absolute",
-                          left: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[4],
+                          left: isMobile ? stylesPublic.spacing.scale[1] : 
+                                isTablet ? stylesPublic.spacing.scale[2] : 
+                                stylesPublic.spacing.scale[4],
                           top: "50%",
                           transform: "translateY(-50%)",
                           background: stylesPublic.colors.surface.primary,
                           border: `2px solid ${stylesPublic.colors.primary[500]}`,
                           borderRadius: stylesPublic.borders.radius.full,
-                          width: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
-                          height: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
+                          width: isMobile ? stylesPublic.spacing.scale[8] : 
+                                 isTablet ? stylesPublic.spacing.scale[10] : 
+                                 stylesPublic.spacing.scale[12],
+                          height: isMobile ? stylesPublic.spacing.scale[8] : 
+                                  isTablet ? stylesPublic.spacing.scale[10] : 
+                                  stylesPublic.spacing.scale[12],
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -929,29 +1025,39 @@ const Destacados = () => {
                         }}
                         onClick={() => navigateVideoCarousel("prev")}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = stylesPublic.colors.primary[500]
-                          e.currentTarget.style.color = stylesPublic.colors.surface.primary
-                          e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
+                          if (!isMobile) {
+                            e.currentTarget.style.background = stylesPublic.colors.primary[500]
+                            e.currentTarget.style.color = stylesPublic.colors.surface.primary
+                            e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
+                          }
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = stylesPublic.colors.surface.primary
-                          e.currentTarget.style.color = stylesPublic.colors.primary[500]
-                          e.currentTarget.style.transform = "translateY(-50%) scale(1)"
+                          if (!isMobile) {
+                            e.currentTarget.style.background = stylesPublic.colors.surface.primary
+                            e.currentTarget.style.color = stylesPublic.colors.primary[500]
+                            e.currentTarget.style.transform = "translateY(-50%) scale(1)"
+                          }
                         }}                        >
-                        <ChevronLeft size={isMobile ? 16 : 20} />
+                        <ChevronLeft size={isMobile ? 14 : isTablet ? 16 : 20} />
                       </button>
 
                       <button
                         style={{
                           position: "absolute",
-                          right: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[4],
+                          right: isMobile ? stylesPublic.spacing.scale[1] : 
+                                 isTablet ? stylesPublic.spacing.scale[2] : 
+                                 stylesPublic.spacing.scale[4],
                           top: "50%",
                           transform: "translateY(-50%)",
                           background: stylesPublic.colors.surface.primary,
                           border: `2px solid ${stylesPublic.colors.primary[500]}`,
                           borderRadius: stylesPublic.borders.radius.full,
-                          width: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
-                          height: isMobile ? stylesPublic.spacing.scale[10] : stylesPublic.spacing.scale[12],
+                          width: isMobile ? stylesPublic.spacing.scale[8] : 
+                                 isTablet ? stylesPublic.spacing.scale[10] : 
+                                 stylesPublic.spacing.scale[12],
+                          height: isMobile ? stylesPublic.spacing.scale[8] : 
+                                  isTablet ? stylesPublic.spacing.scale[10] : 
+                                  stylesPublic.spacing.scale[12],
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -963,16 +1069,20 @@ const Destacados = () => {
                         }}
                         onClick={() => navigateVideoCarousel("next")}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = stylesPublic.colors.primary[500]
-                          e.currentTarget.style.color = stylesPublic.colors.surface.primary
-                          e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
+                          if (!isMobile) {
+                            e.currentTarget.style.background = stylesPublic.colors.primary[500]
+                            e.currentTarget.style.color = stylesPublic.colors.surface.primary
+                            e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
+                          }
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = stylesPublic.colors.surface.primary
-                          e.currentTarget.style.color = stylesPublic.colors.primary[500]
-                          e.currentTarget.style.transform = "translateY(-50%) scale(1)"
+                          if (!isMobile) {
+                            e.currentTarget.style.background = stylesPublic.colors.surface.primary
+                            e.currentTarget.style.color = stylesPublic.colors.primary[500]
+                            e.currentTarget.style.transform = "translateY(-50%) scale(1)"
+                          }
                         }}                        >
-                        <ChevronRight size={isMobile ? 16 : 20} />
+                        <ChevronRight size={isMobile ? 14 : isTablet ? 16 : 20} />
                       </button>
                     </>
                   )}
@@ -983,16 +1093,17 @@ const Destacados = () => {
                       style={{
                         display: "flex",
                         justifyContent: "center",
-                        gap: stylesPublic.spacing.scale[2],
-                        marginTop: stylesPublic.spacing.scale[6],
+                        gap: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[2],
+                        marginTop: isMobile ? stylesPublic.spacing.scale[4] : stylesPublic.spacing.scale[6],
+                        padding: isMobile ? stylesPublic.spacing.scale[2] : 0,
                       }}
                     >
                       {videos.map((_, index) => (
                         <button
                           key={index}
                           style={{
-                            width: stylesPublic.spacing.scale[3],
-                            height: stylesPublic.spacing.scale[3],
+                            width: isMobile ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[3],
+                            height: isMobile ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[3],
                             borderRadius: stylesPublic.borders.radius.full,
                             border: "none",
                             background: index === videoCarouselIndex 
@@ -1000,15 +1111,17 @@ const Destacados = () => {
                               : stylesPublic.colors.neutral[300],
                             cursor: "pointer",
                             transition: stylesPublic.animations.transitions.elegant,
+                            minWidth: isMobile ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[3],
+                            minHeight: isMobile ? stylesPublic.spacing.scale[2] : stylesPublic.spacing.scale[3],
                           }}
-                          onClick={() => setVideoCarouselIndex(index)}
+                          onClick={() => handleIndicatorClick(index)}
                           onMouseEnter={(e) => {
-                            if (index !== videoCarouselIndex) {
+                            if (!isMobile && index !== videoCarouselIndex) {
                               e.currentTarget.style.background = stylesPublic.colors.primary[300]
                             }
                           }}
                           onMouseLeave={(e) => {
-                            if (index !== videoCarouselIndex) {
+                            if (!isMobile && index !== videoCarouselIndex) {
                               e.currentTarget.style.background = stylesPublic.colors.neutral[300]
                             }
                           }}
