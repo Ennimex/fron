@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/fron/static/css/main.2f0dde6a.css",
-    "main.js": "/fron/static/js/main.e4a56c2e.js",
+    "main.css": "/fron/static/css/main.7a34b42d.css",
+    "main.js": "/fron/static/js/main.739ccca8.js",
     "static/js/738.4c2c056d.chunk.js": "/fron/static/js/738.4c2c056d.chunk.js",
     "static/js/653.aa15ee29.chunk.js": "/fron/static/js/653.aa15ee29.chunk.js",
     "static/js/923.8052dd9e.chunk.js": "/fron/static/js/923.8052dd9e.chunk.js",
@@ -12,11 +12,9 @@
     "static/js/768.136aca7d.chunk.js": "/fron/static/js/768.136aca7d.chunk.js",
     "static/js/834.8efa10ee.chunk.js": "/fron/static/js/834.8efa10ee.chunk.js",
     "static/js/453.757d9adc.chunk.js": "/fron/static/js/453.757d9adc.chunk.js",
-    "static/media/bootstrap-icons.woff?": "/fron/static/media/bootstrap-icons.ff25a7ff93ea67f144c5.woff",
-    "static/media/bootstrap-icons.woff2?": "/fron/static/media/bootstrap-icons.ca961065e092080ca3f5.woff2",
     "index.html": "/fron/index.html",
-    "main.2f0dde6a.css.map": "/fron/static/css/main.2f0dde6a.css.map",
-    "main.e4a56c2e.js.map": "/fron/static/js/main.e4a56c2e.js.map",
+    "main.7a34b42d.css.map": "/fron/static/css/main.7a34b42d.css.map",
+    "main.739ccca8.js.map": "/fron/static/js/main.739ccca8.js.map",
     "738.4c2c056d.chunk.js.map": "/fron/static/js/738.4c2c056d.chunk.js.map",
     "653.aa15ee29.chunk.js.map": "/fron/static/js/653.aa15ee29.chunk.js.map",
     "923.8052dd9e.chunk.js.map": "/fron/static/js/923.8052dd9e.chunk.js.map",
@@ -29,7 +27,7 @@
     "453.757d9adc.chunk.js.map": "/fron/static/js/453.757d9adc.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.2f0dde6a.css",
-    "static/js/main.e4a56c2e.js"
+    "static/css/main.7a34b42d.css",
+    "static/js/main.739ccca8.js"
   ]
 }
