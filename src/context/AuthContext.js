@@ -10,17 +10,30 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Definir logout con useCallback - redirige al login automáticamente
+  // Definir logout con useCallback - redirige al home apropiadamente
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setUser(null);
-    // Para GitHub Pages, manejar la redirección apropiadamente
-    if (window.location.hostname.includes('github.io')) {
-      const basePath = window.location.pathname.split('/')[1];
-      const redirectPath = basePath ? `/${basePath}/login` : '/login';
-      window.location.href = window.location.origin + redirectPath;
-    } else {
-      window.location.href = '/login';
+    try {
+      localStorage.removeItem('token');
+      setUser(null);
+      
+      // Usar función global si está disponible (GitHub Pages)
+      if (window.handleGitHubPagesLogout) {
+        window.handleGitHubPagesLogout();
+        return;
+      }
+      
+      // Fallback para desarrollo local o si la función global no está disponible
+      if (window.location.hostname.includes('github.io')) {
+        const basePath = window.location.pathname.split('/')[1];
+        const redirectPath = basePath ? `/${basePath}/` : '/';
+        window.location.replace(window.location.origin + redirectPath);
+      } else {
+        window.location.replace('/');
+      }
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      // Último recurso: recargar la página
+      window.location.reload();
     }
   }, []);
 

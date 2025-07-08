@@ -38,17 +38,50 @@ export const useGitHubPagesNavigation = () => {
   }, [navigate, isGitHubPages, getBasePath]);
 
   const redirectToHome = useCallback(() => {
-    navigateWithGitHubPages('/', { replace: true, external: true });
-  }, [navigateWithGitHubPages]);
+    if (isGitHubPages()) {
+      const basePath = getBasePath();
+      const homePath = basePath || '/';
+      // Para GitHub Pages, usar window.location.href para asegurar redirección completa
+      window.location.href = window.location.origin + homePath;
+    } else {
+      // En desarrollo local, usar navigate
+      navigate('/', { replace: true });
+    }
+  }, [navigate, isGitHubPages, getBasePath]);
 
   const redirectToLogin = useCallback(() => {
-    navigateWithGitHubPages('/login', { replace: true, external: true });
-  }, [navigateWithGitHubPages]);
+    if (isGitHubPages()) {
+      const basePath = getBasePath();
+      const loginPath = basePath ? `${basePath}/login` : '/login';
+      window.location.href = window.location.origin + loginPath;
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate, isGitHubPages, getBasePath]);
+
+  const handleLogoutRedirect = useCallback(() => {
+    if (isGitHubPages()) {
+      const basePath = getBasePath();
+      const homePath = basePath || '/';
+      // Limpiar el localStorage antes de redirigir
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } catch (error) {
+        console.warn('Error limpiando localStorage:', error);
+      }
+      // Forzar redirección completa para evitar 404
+      window.location.replace(window.location.origin + homePath);
+    } else {
+      navigate('/', { replace: true });
+    }
+  }, [navigate, isGitHubPages, getBasePath]);
 
   return {
     navigateWithGitHubPages,
     redirectToHome,
     redirectToLogin,
+    handleLogoutRedirect,
     isGitHubPages: isGitHubPages(),
     basePath: getBasePath()
   };

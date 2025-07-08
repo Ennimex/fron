@@ -26,7 +26,25 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>La Aterciopelada</title>
+    
+    <!-- GitHub Pages SPA Support -->
+    <script type="text/javascript">
+      // Manejar rutas de GitHub Pages para SPAs
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
+    
+    <!-- GitHub Pages fix para routing -->
+    <script src="%PUBLIC_URL%/github-pages-fix.js"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -1,9 +1,10 @@
 // components/common/NavbarBase.js
 import React, { useState, useEffect } from "react";
 import { Navbar, Container, Button, Dropdown } from "react-bootstrap";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
 import { PersonCircle, BoxArrowRight, Gear, List, X } from "react-bootstrap-icons";
+import { useGitHubPagesNavigation } from "../../hooks/useGitHubPagesNavigation";
 
 const NavbarBase = ({ 
   isAuthenticated, 
@@ -12,7 +13,7 @@ const NavbarBase = ({
   brandName = "App",
   navLinks = [] 
 }) => {
-  const navigate = useNavigate();
+  const { navigateWithGitHubPages, handleLogoutRedirect } = useGitHubPagesNavigation();
   const [expanded, setExpanded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 375);
@@ -57,13 +58,25 @@ const NavbarBase = ({
   }, [expanded]);
 
   const handleLogout = () => {
-    onLogout();
-    setExpanded(false);
-    navigate("/", { replace: true });
+    try {
+      // Primero ejecutar la función de logout del contexto
+      onLogout();
+      setExpanded(false);
+      
+      // Luego manejar la redirección específica para GitHub Pages
+      setTimeout(() => {
+        handleLogoutRedirect();
+      }, 50); // Pequeño delay para asegurar que el logout se procese
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      setExpanded(false);
+      // Fallback: redirigir de todas formas
+      handleLogoutRedirect();
+    }
   };
 
   const handleLoginClick = () => {
-    navigate("/login", { state: { showLogin: true } });
+    navigateWithGitHubPages("/login", { state: { showLogin: true } });
     setExpanded(false);
   };
 
