@@ -1,43 +1,331 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeft, MapPin, Palette, Ruler, Tag, MessageCircle } from "lucide-react"
 import { publicAPI } from "../../services/api"
 import stylesPublic from "../../styles/stylesGlobal"
 
+// Estilos CSS responsivos y animaciones
+const responsiveStyles = `
+  /* Animaciones mejoradas */
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  @keyframes slideInLeft {
+    from { 
+      opacity: 0; 
+      transform: translateX(-40px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateX(0); 
+    }
+  }
+  
+  @keyframes slideInRight {
+    from { 
+      opacity: 0; 
+      transform: translateX(40px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateX(0); 
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Clases de animación */
+  .animate-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .animate-in-left {
+    animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .animate-in-right {
+    animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .loading-shimmer {
+    background: linear-gradient(90deg, 
+      #f0f0f0 25%, 
+      #e0e0e0 50%, 
+      #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  .pulse-animation {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Responsividad */
+  @media (max-width: 1200px) {
+    .producto-grid {
+      grid-template-columns: 1fr !important;
+      gap: 3rem !important;
+    }
+    
+    .producto-container {
+      padding: 2rem !important;
+    }
+    
+    .producto-image {
+      height: 500px !important;
+    }
+    
+    .producto-specs-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .producto-grid {
+      grid-template-columns: 1fr !important;
+      gap: 2rem !important;
+    }
+    
+    .producto-container {
+      padding: 1.5rem !important;
+    }
+    
+    .producto-image {
+      height: 450px !important;
+    }
+    
+    .producto-specs-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 1.5rem !important;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    /* Ajustar padding top para móviles */
+    .producto-main-container {
+      padding-top: 70px !important;
+    }
+    
+    .producto-hero {
+      padding: 3rem 0 2rem !important;
+    }
+    
+    .producto-hero h1 {
+      font-size: 2rem !important;
+      line-height: 1.2 !important;
+    }
+    
+    .producto-hero p {
+      font-size: 1rem !important;
+    }
+    
+    .producto-container {
+      padding: 1rem !important;
+      margin: 0 1rem !important;
+    }
+    
+    .producto-image {
+      height: 300px !important;
+    }
+    
+    .producto-specs-grid {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+    
+    .producto-actions {
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+    
+    .producto-button {
+      width: 100% !important;
+      justify-content: center !important;
+      margin: 0 0 0.75rem 0 !important;
+    }
+    
+    .producto-card {
+      padding: 1rem !important;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    /* Ajustar padding top para pantallas muy pequeñas */
+    .producto-main-container {
+      padding-top: 60px !important;
+    }
+    
+    .producto-hero {
+      padding: 2rem 0 1.5rem !important;
+    }
+    
+    .producto-hero h1 {
+      font-size: 1.75rem !important;
+    }
+    
+    .producto-hero .badge {
+      font-size: 0.8rem !important;
+      padding: 0.375rem 0.75rem !important;
+    }
+    
+    .producto-container {
+      padding: 0.75rem !important;
+      margin: 0 0.5rem !important;
+    }
+    
+    .producto-image {
+      height: 250px !important;
+    }
+    
+    .producto-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .producto-description {
+      font-size: 0.95rem !important;
+    }
+    
+    .producto-card {
+      padding: 0.75rem !important;
+    }
+    
+    .producto-button {
+      font-size: 0.9rem !important;
+      padding: 0.75rem 1rem !important;
+    }
+  }
+  
+  /* Mejoras de accesibilidad */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-in-up,
+    .animate-in-left,
+    .animate-in-right,
+    .pulse-animation {
+      animation: none !important;
+    }
+    
+    * {
+      transition: none !important;
+    }
+  }
+  
+  /* Hover effects solo en dispositivos no táctiles */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-lift:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .hover-scale:hover {
+      transform: scale(1.02) !important;
+    }
+    
+    .spec-card:hover {
+      border-color: rgba(59, 130, 246, 0.3) !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    .producto-image:hover {
+      transform: translateY(-4px) scale(1.02) !important;
+      box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.35) !important;
+    }
+    
+    .producto-image:hover img {
+      transform: scale(1.05) !important;
+    }
+    
+    .producto-button:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3) !important;
+    }
+  }
+  
+  /* Estados de focus para accesibilidad */
+  .producto-button:focus,
+  .spec-card:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+  }
+`;
+
+// Inyectar estilos CSS mejorados
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = responsiveStyles;
+  if (!document.head.querySelector('style[data-producto-detalle-styles]')) {
+    styleElement.setAttribute('data-producto-detalle-styles', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
+
 const ProductoDetalleEnhanced = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [producto, setProducto] = useState(null)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [isVisible, setIsVisible] = useState({
     hero: false,
     image: false,
     details: false,
     specs: false,
-    actions: false,
+    actions: false
   })
 
   useEffect(() => {
     const cargarProducto = async () => {
       try {
+        setLoading(true)
         const data = await publicAPI.getProductoById(id)
         setProducto(data)
+        setLoading(false)
 
-        // Animaciones escalonadas
-        setTimeout(() => setIsVisible((prev) => ({ ...prev, hero: true })), 100)
-        setTimeout(() => setIsVisible((prev) => ({ ...prev, image: true })), 300)
-        setTimeout(() => setIsVisible((prev) => ({ ...prev, details: true })), 500)
-        setTimeout(() => setIsVisible((prev) => ({ ...prev, specs: true })), 700)
-        setTimeout(() => setIsVisible((prev) => ({ ...prev, actions: true })), 900)
+        // Activar animaciones de forma escalonada después de que el producto esté cargado
+        const timeouts = []
+        
+        requestAnimationFrame(() => {
+          timeouts.push(setTimeout(() => setIsVisible(prev => ({ ...prev, hero: true })), 100))
+          timeouts.push(setTimeout(() => setIsVisible(prev => ({ ...prev, image: true })), 300))
+          timeouts.push(setTimeout(() => setIsVisible(prev => ({ ...prev, details: true })), 500))
+          timeouts.push(setTimeout(() => setIsVisible(prev => ({ ...prev, specs: true })), 700))
+          timeouts.push(setTimeout(() => setIsVisible(prev => ({ ...prev, actions: true })), 900))
+        })
+
+        // Cleanup function
+        return () => {
+          timeouts.forEach(timeout => clearTimeout(timeout))
+        }
       } catch (error) {
         console.error("Error al cargar producto:", error)
         navigate("/productos")
       }
     }
 
-    cargarProducto()
+    const cleanup = cargarProducto()
+    
+    // Cleanup en el unmount del componente
+    return () => {
+      if (cleanup && typeof cleanup === 'function') {
+        cleanup()
+      }
+    }
   }, [id, navigate])
 
   const handleWhatsAppContact = () => {
@@ -61,6 +349,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
     window.open(whatsappURL, "_blank")
   }
 
+  // Estilos responsivos mejorados
   const buttonStyle = {
     fontFamily: stylesPublic.typography.families.body,
     fontSize: stylesPublic.typography.scale.base,
@@ -75,6 +364,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
     alignItems: "center",
     justifyContent: "center",
     gap: stylesPublic.spacing.scale[2],
+    minHeight: "44px", // Accesibilidad táctil
   }
 
   const primaryButtonStyle = {
@@ -89,7 +379,6 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
     background: "linear-gradient(135deg, #25D366, #128C7E)",
     color: "#ffffff",
     boxShadow: "0 8px 32px -8px rgba(37, 211, 102, 0.4)",
-    marginLeft: stylesPublic.spacing.scale[4],
   }
 
   const cardStyle = {
@@ -103,13 +392,15 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
     overflow: "hidden",
   }
 
-  if (!producto) {
+  if (loading || !producto) {
     return (
       <div
+        className="producto-main-container"
         style={{
           minHeight: "100vh",
           background: stylesPublic.colors.gradients.hero,
           fontFamily: stylesPublic.typography.families.body,
+          paddingTop: "80px", // Espacio para el navbar fijo
         }}
       >
         <div
@@ -118,11 +409,13 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh",
+            height: "calc(100vh - 80px)",
             gap: stylesPublic.spacing.scale[4],
+            padding: stylesPublic.spacing.scale[4],
           }}
         >
           <div
+            className="pulse-animation"
             style={{
               width: stylesPublic.spacing.scale[16],
               height: stylesPublic.spacing.scale[16],
@@ -131,7 +424,6 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
             }}
           >
             <div
@@ -146,8 +438,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
           <div style={{ textAlign: "center", maxWidth: "300px" }}>
             <h3
               style={{
-                fontSize: stylesPublic.typography.scale.xl,
-                fontWeight: stylesPublic.typography.weights.light,
+                ...stylesPublic.typography.headings.h3,
                 color: stylesPublic.colors.text.primary,
                 marginBottom: stylesPublic.spacing.scale[2],
               }}
@@ -165,91 +456,21 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
             </p>
           </div>
         </div>
-        <style>
-          {`
-            @keyframes pulse {
-              0%, 100% { opacity: 0.4; transform: scale(1); }
-              50% { opacity: 0.8; transform: scale(1.02); }
-            }
-          `}
-        </style>
       </div>
     )
   }
 
   return (
     <div
+      className="producto-main-container"
       style={{
         minHeight: "100vh",
         background: stylesPublic.colors.gradients.hero,
         fontFamily: stylesPublic.typography.families.body,
         position: "relative",
+        paddingTop: "80px", // Espacio para el navbar fijo
       }}
     >
-      <style>
-        {`
-          @keyframes fadeInUp {
-            from { 
-              opacity: 0; 
-              transform: translateY(${stylesPublic.spacing.scale[12]}) scale(0.95); 
-            }
-            to { 
-              opacity: 1; 
-              transform: translateY(0) scale(1); 
-            }
-          }
-          
-          @keyframes slideInLeft {
-            from { 
-              opacity: 0; 
-              transform: translateX(-${stylesPublic.spacing.scale[16]}) scale(0.9); 
-            }
-            to { 
-              opacity: 1; 
-              transform: translateX(0) scale(1); 
-            }
-          }
-          
-          @keyframes slideInRight {
-            from { 
-              opacity: 0; 
-              transform: translateX(${stylesPublic.spacing.scale[16]}) scale(0.9); 
-            }
-            to { 
-              opacity: 1; 
-              transform: translateX(0) scale(1); 
-            }
-          }
-          
-          @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-          }
-          
-          .animate-in-up {
-            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
-          
-          .animate-in-left {
-            animation: slideInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
-          
-          .animate-in-right {
-            animation: slideInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
-          
-          .loading-shimmer {
-            background: linear-gradient(90deg, 
-              ${stylesPublic.colors.neutral[200]} 25%, 
-              ${stylesPublic.colors.neutral[100]} 50%, 
-              ${stylesPublic.colors.neutral[200]} 75%
-            );
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-          }
-        `}
-      </style>
-
       {/* Background Overlay */}
       <div
         style={{
@@ -266,12 +487,13 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
 
       {/* Hero Section */}
       <section
+        className={`producto-hero ${isVisible.hero ? 'animate-in-up' : ''}`}
         style={{
           padding: `${stylesPublic.spacing.scale[25]} 0 ${stylesPublic.spacing.scale[15]}`,
           position: "relative",
           opacity: isVisible.hero ? 1 : 0,
-          transform: isVisible.hero ? "translateY(0)" : `translateY(${stylesPublic.spacing.scale[12]})`,
-          transition: "all 1.2s cubic-bezier(0.16, 1, 0.3, 1)",
+          transform: isVisible.hero ? "translateY(0)" : "translateY(30px)",
+          transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       >
         <div
@@ -285,6 +507,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
           }}
         >
           <div
+            className="badge"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -316,7 +539,6 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
           </div>
 
           <h1
-            className="animate-in-up"
             style={{
               ...stylesPublic.typography.headings.h1,
               fontWeight: stylesPublic.typography.weights.light,
@@ -340,7 +562,6 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
           </h1>
 
           <div
-            className="animate-in-up"
             style={{
               display: "block",
               width: stylesPublic.spacing.scale[24],
@@ -348,19 +569,16 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
               background: stylesPublic.colors.gradients.luxury,
               borderRadius: stylesPublic.borders.radius.sm,
               margin: `${stylesPublic.spacing.scale[6]} auto`,
-              animationDelay: "0.2s",
             }}
           />
 
           <p
-            className="animate-in-up"
             style={{
               ...stylesPublic.typography.body.large,
               color: stylesPublic.colors.text.secondary,
               maxWidth: "600px",
               margin: "0 auto",
               lineHeight: 1.6,
-              animationDelay: "0.4s",
             }}
           >
             Descubre cada detalle de esta pieza artesanal única, creada con técnicas tradicionales huastecas
@@ -370,6 +588,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
 
       {/* Product Details */}
       <section
+        className="producto-container"
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
@@ -377,6 +596,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
         }}
       >
         <div
+          className="producto-card"
           style={{
             background: "rgba(255, 255, 255, 0.9)",
             backdropFilter: "blur(20px)",
@@ -389,6 +609,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
           }}
         >
           <div
+            className="producto-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
@@ -398,31 +619,23 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
           >
             {/* Product Image */}
             <div
-              className={isVisible.image ? "animate-in-left" : ""}
+              className={`producto-image-container ${isVisible.image ? "animate-in-left" : ""}`}
               style={{
                 opacity: isVisible.image ? 1 : 0,
-                animationDelay: "0.2s",
+                transform: isVisible.image ? "translateX(0)" : "translateX(-40px)",
+                transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               <div
+                className="producto-image hover-lift"
                 style={{
                   position: "relative",
                   overflow: "hidden",
                   borderRadius: stylesPublic.borders.radius.xl,
                   boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                   transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]}) scale(1.02)`
-                  e.currentTarget.style.boxShadow = "0 32px 64px -12px rgba(0, 0, 0, 0.35)"
-                  const img = e.currentTarget.querySelector("img")
-                  if (img) img.style.transform = "scale(1.05)"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0) scale(1)"
-                  e.currentTarget.style.boxShadow = "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-                  const img = e.currentTarget.querySelector("img")
-                  if (img) img.style.transform = "scale(1)"
+                  height: "600px",
+                  background: stylesPublic.colors.neutral[100],
                 }}
               >
                 {!imageLoaded && (
@@ -435,17 +648,25 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                       right: 0,
                       bottom: 0,
                       zIndex: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: stylesPublic.typography.scale["4xl"],
+                      color: stylesPublic.colors.neutral[400],
                     }}
-                  />
+                  >
+                    🖼️
+                  </div>
                 )}
                 <img
                   src={producto.imagenURL || "/placeholder.svg?height=600&width=600"}
                   alt={producto.nombre}
                   style={{
                     width: "100%",
-                    height: "600px",
+                    height: "100%",
                     objectFit: "cover",
                     transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+                    opacity: imageLoaded ? 1 : 0,
                   }}
                   onLoad={() => setImageLoaded(true)}
                   onError={(e) => {
@@ -458,13 +679,15 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
 
             {/* Product Info */}
             <div
-              className={isVisible.details ? "animate-in-right" : ""}
+              className={`producto-details ${isVisible.details ? "animate-in-right" : ""}`}
               style={{
                 opacity: isVisible.details ? 1 : 0,
-                animationDelay: "0.4s",
+                transform: isVisible.details ? "translateX(0)" : "translateX(40px)",
+                transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
               <h1
+                className="producto-title"
                 style={{
                   ...stylesPublic.typography.headings.h2,
                   fontWeight: stylesPublic.typography.weights.light,
@@ -478,6 +701,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
               </h1>
 
               <p
+                className="producto-description"
                 style={{
                   ...stylesPublic.typography.body.large,
                   color: stylesPublic.colors.text.secondary,
@@ -491,30 +715,20 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
 
               {/* Specs Grid */}
               <div
-                className={isVisible.specs ? "animate-in-up" : ""}
+                className={`producto-specs-grid ${isVisible.specs ? "animate-in-up" : ""}`}
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                   gap: stylesPublic.spacing.scale[6],
                   marginBottom: stylesPublic.spacing.scale[10],
                   opacity: isVisible.specs ? 1 : 0,
-                  animationDelay: "0.6s",
+                  transform: isVisible.specs ? "translateY(0)" : "translateY(30px)",
+                  transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
                 <div
+                  className="spec-card hover-lift"
                   style={cardStyle}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]})`
-                    e.currentTarget.style.boxShadow = "0 20px 40px -12px rgba(0, 0, 0, 0.15)"
-                    e.currentTarget.style.borderColor = stylesPublic.colors.primary[300]
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.95)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "none"
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)"
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)"
-                  }}
                 >
                   <div
                     style={{
@@ -544,19 +758,8 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                 </div>
 
                 <div
+                  className="spec-card hover-lift"
                   style={cardStyle}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]})`
-                    e.currentTarget.style.boxShadow = "0 20px 40px -12px rgba(0, 0, 0, 0.15)"
-                    e.currentTarget.style.borderColor = stylesPublic.colors.primary[300]
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.95)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "none"
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)"
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)"
-                  }}
                 >
                   <div
                     style={{
@@ -586,19 +789,8 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                 </div>
 
                 <div
+                  className="spec-card hover-lift"
                   style={cardStyle}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]})`
-                    e.currentTarget.style.boxShadow = "0 20px 40px -12px rgba(0, 0, 0, 0.15)"
-                    e.currentTarget.style.borderColor = stylesPublic.colors.primary[300]
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.95)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "none"
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)"
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)"
-                  }}
                 >
                   <div
                     style={{
@@ -628,19 +820,8 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                 </div>
 
                 <div
+                  className="spec-card hover-lift"
                   style={cardStyle}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[2]})`
-                    e.currentTarget.style.boxShadow = "0 20px 40px -12px rgba(0, 0, 0, 0.15)"
-                    e.currentTarget.style.borderColor = stylesPublic.colors.primary[300]
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.95)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "none"
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)"
-                    e.currentTarget.style.background = "rgba(255, 255, 255, 0.8)"
-                  }}
                 >
                   <div
                     style={{
@@ -675,46 +856,29 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
 
               {/* Action Buttons */}
               <div
-                className={isVisible.actions ? "animate-in-up" : ""}
+                className={`producto-actions ${isVisible.actions ? "animate-in-up" : ""}`}
                 style={{
                   opacity: isVisible.actions ? 1 : 0,
-                  animationDelay: "0.8s",
+                  transform: isVisible.actions ? "translateY(0)" : "translateY(30px)",
+                  transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
                   display: "flex",
                   flexWrap: "wrap",
                   gap: stylesPublic.spacing.scale[4],
                 }}
               >
                 <button
+                  className="producto-button hover-lift"
                   style={primaryButtonStyle}
                   onClick={() => navigate("/productos")}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[1]})`
-                    e.currentTarget.style.boxShadow = "0 12px 24px -8px rgba(0, 0, 0, 0.3)"
-                    e.currentTarget.style.background = stylesPublic.colors.gradients.secondary
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = stylesPublic.shadows.brand.primary
-                    e.currentTarget.style.background = stylesPublic.colors.primary[500]
-                  }}
                 >
                   <ArrowLeft size={16} />
                   Volver a Productos
                 </button>
 
                 <button
+                  className="producto-button hover-lift"
                   style={whatsappButtonStyle}
                   onClick={handleWhatsAppContact}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = `translateY(-${stylesPublic.spacing.scale[1]})`
-                    e.currentTarget.style.boxShadow = "0 12px 24px -8px rgba(37, 211, 102, 0.4)"
-                    e.currentTarget.style.background = "linear-gradient(135deg, #128C7E, #25D366)"
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "0 8px 32px -8px rgba(37, 211, 102, 0.4)"
-                    e.currentTarget.style.background = "linear-gradient(135deg, #25D366, #128C7E)"
-                  }}
                 >
                   <MessageCircle size={16} />
                   Contactar por WhatsApp

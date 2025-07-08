@@ -404,11 +404,7 @@ const Destacados = () => {
             </div>
             <h1
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.xl : 
-                         isTablet ? stylesPublic.typography.scale["2xl"] : 
-                         stylesPublic.typography.scale["3xl"],
-                fontWeight: stylesPublic.typography.weights.bold,
-                lineHeight: stylesPublic.typography.leading.tight,
+                ...stylesPublic.typography.headings.h1,
                 margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
                 color: stylesPublic.colors.text.primary,
                 textAlign: "center",
@@ -422,7 +418,6 @@ const Destacados = () => {
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
-                  marginTop: isMobile ? stylesPublic.spacing.scale[1] : stylesPublic.spacing.scale[2],
                 }}
               >
                 La Aterciopelada
@@ -430,14 +425,10 @@ const Destacados = () => {
             </h1>
             <p
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.sm : 
-                         isTablet ? stylesPublic.typography.scale.base : 
-                         stylesPublic.typography.scale.lg,
-                maxWidth: isMobile ? "90%" : isTablet ? "80%" : "600px",
+                ...stylesPublic.typography.body.large,
+                maxWidth: "600px",
                 margin: "0 auto",
                 color: stylesPublic.colors.text.secondary,
-                lineHeight: stylesPublic.typography.leading.relaxed,
-                padding: isMobile ? `0 ${stylesPublic.spacing.scale[2]}` : "0",
               }}
             >
               Explora nuestra galería de momentos especiales, eventos únicos y las creaciones que nos definen como
@@ -458,8 +449,7 @@ const Destacados = () => {
           <div style={{ textAlign: "center", marginBottom: stylesPublic.spacing.scale[12] }}>
             <h2
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.xl : stylesPublic.typography.scale["2xl"],
-                fontWeight: stylesPublic.typography.weights.light,
+                ...stylesPublic.typography.headings.h2,
                 color: stylesPublic.colors.text.primary,
                 margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
               }}
@@ -468,11 +458,10 @@ const Destacados = () => {
             </h2>
             <p
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
+                ...stylesPublic.typography.body.base,
                 color: stylesPublic.colors.text.secondary,
                 maxWidth: "500px",
                 margin: "0 auto",
-                padding: isMobile ? `0 ${stylesPublic.spacing.scale[4]}` : "0",
               }}
             >
               Únete a nosotros en estos eventos especiales donde celebramos la artesanía huasteca
@@ -617,8 +606,7 @@ const Destacados = () => {
               />
               <h3
                 style={{
-                  fontSize: stylesPublic.typography.scale.xl,
-                  fontWeight: stylesPublic.typography.weights.medium,
+                  ...stylesPublic.typography.headings.h3,
                   color: stylesPublic.colors.text.primary,
                   margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
                 }}
@@ -639,8 +627,7 @@ const Destacados = () => {
           <div style={{ textAlign: "center", marginBottom: stylesPublic.spacing.scale[12] }}>
             <h2
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.xl : stylesPublic.typography.scale["2xl"],
-                fontWeight: stylesPublic.typography.weights.light,
+                ...stylesPublic.typography.headings.h2,
                 color: stylesPublic.colors.text.primary,
                 margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
               }}
@@ -649,11 +636,10 @@ const Destacados = () => {
             </h2>
             <p
               style={{
-                fontSize: isMobile ? stylesPublic.typography.scale.sm : stylesPublic.typography.scale.base,
+                ...stylesPublic.typography.body.base,
                 color: stylesPublic.colors.text.secondary,
                 maxWidth: "500px",
                 margin: "0 auto",
-                padding: isMobile ? `0 ${stylesPublic.spacing.scale[4]}` : "0",
               }}
             >
               Descubre nuestras mejores fotos y videos destacados
@@ -736,8 +722,7 @@ const Destacados = () => {
               >
                 <h3
                   style={{
-                    fontSize: isMobile ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.lg,
-                    fontWeight: stylesPublic.typography.weights.medium,
+                    ...stylesPublic.typography.headings.h3,
                     color: stylesPublic.colors.text.primary,
                     margin: 0,
                   }}
@@ -867,8 +852,7 @@ const Destacados = () => {
                   />
                   <h3
                     style={{
-                      fontSize: stylesPublic.typography.scale.xl,
-                      fontWeight: stylesPublic.typography.weights.medium,
+                      ...stylesPublic.typography.headings.h3,
                       color: stylesPublic.colors.text.primary,
                       margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
                     }}
@@ -895,8 +879,7 @@ const Destacados = () => {
               >
                 <h3
                   style={{
-                    fontSize: isMobile ? stylesPublic.typography.scale.base : stylesPublic.typography.scale.lg,
-                    fontWeight: stylesPublic.typography.weights.medium,
+                    ...stylesPublic.typography.headings.h3,
                     color: stylesPublic.colors.text.primary,
                     margin: 0,
                   }}
@@ -1241,8 +1224,7 @@ const Destacados = () => {
                   />
                   <h3
                     style={{
-                      fontSize: stylesPublic.typography.scale.xl,
-                      fontWeight: stylesPublic.typography.weights.medium,
+                      ...stylesPublic.typography.headings.h3,
                       color: stylesPublic.colors.text.primary,
                       margin: `0 0 ${stylesPublic.spacing.scale[2]} 0`,
                     }}
