@@ -110,6 +110,12 @@ const AdminLayout = () => {
   
   // Verificar autenticación y rol de admin
   if (!isAuthenticated || !user || user.role !== 'admin') {
+    // Para GitHub Pages, manejar la redirección apropiadamente
+    if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+      const basePath = window.location.pathname.split('/')[1];
+      const redirectPath = basePath ? `/${basePath}/` : '/';
+      return <Navigate to={redirectPath} replace />;
+    }
     return <Navigate to="/" replace />;
   }
   

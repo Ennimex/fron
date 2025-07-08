@@ -14,8 +14,14 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setUser(null);
-    // Redirigir al login y recargar automáticamente
-    window.location.href = '/login';
+    // Para GitHub Pages, manejar la redirección apropiadamente
+    if (window.location.hostname.includes('github.io')) {
+      const basePath = window.location.pathname.split('/')[1];
+      const redirectPath = basePath ? `/${basePath}/login` : '/login';
+      window.location.href = window.location.origin + redirectPath;
+    } else {
+      window.location.href = '/login';
+    }
   }, []);
 
   useEffect(() => {

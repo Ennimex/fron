@@ -47,7 +47,12 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/', { replace: true });
+    // Para GitHub Pages, usar window.location en lugar de navigate
+    if (window.location.hostname.includes('github.io')) {
+      window.location.href = window.location.origin + window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '/';
+    } else {
+      navigate('/', { replace: true });
+    }
   };
 
   const handleMenuToggle = () => {
