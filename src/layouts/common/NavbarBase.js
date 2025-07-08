@@ -542,30 +542,6 @@ const NavbarBase = ({
                 {link.label}
               </NavLink>
             ))}
-
-            {/* Login button for mobile when not authenticated */}
-            {!isAuthenticated && (
-              <>
-                <hr style={{ 
-                  margin: "1rem 0", 
-                  border: "none", 
-                  borderTop: "1px solid #ede9e6" 
-                }} />
-                
-                <Button
-                  onClick={handleLoginClick}
-                  style={{
-                    ...navbarStyles.loginButton,
-                    width: "100%",
-                    justifyContent: "center",
-                    padding: "12px 16px",
-                    fontSize: "1rem",
-                  }}
-                >
-                  Iniciar Sesión
-                </Button>
-              </>
-            )}
           </div>
         </Container>
       </div>
