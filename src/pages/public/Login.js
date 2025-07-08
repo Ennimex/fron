@@ -290,10 +290,14 @@ const Login = () => {
                   url(${backgroundImages[currentImageIndex]});
       background-size: cover;
       background-position: center;
-      background-attachment: fixed;
+      background-attachment: scroll; /* Cambiar de fixed a scroll para evitar conflictos */
       padding: ${stylesPublic.spacing.scale[4]};
+      padding-top: 88px; /* Espacio para navbar fijo (72px + 16px margen) */
       font-family: ${stylesPublic.typography.families.body};
       position: relative;
+      z-index: 1; /* Z-index bajo para que navbar (1100) esté por encima */
+      /* Asegurar que no se cree contexto de apilamiento conflictivo */
+      isolation: isolate;
     }
 
     .login-container::before {
@@ -306,6 +310,7 @@ const Login = () => {
       background: radial-gradient(circle at 30% 20%, rgba(214, 51, 132, 0.12) 0%, transparent 50%),
                   radial-gradient(circle at 70% 80%, rgba(107, 155, 107, 0.10) 0%, transparent 50%);
       pointer-events: none;
+      z-index: -1; /* Enviar atrás para que no interfiera */
     }
 
     .login-inner-container {
@@ -313,7 +318,7 @@ const Login = () => {
       max-width: ${stylesPublic.utils.container.maxWidth.xl};
       width: 100%;
       position: relative;
-      z-index: 1;
+      z-index: 2; /* Por encima del background pero por debajo del navbar (1100) */
       gap: ${stylesPublic.spacing.scale[8]};
       align-items: center;
     }
@@ -733,7 +738,7 @@ const Login = () => {
       .login-container {
         padding: ${stylesPublic.spacing.scale[2]};
         align-items: flex-start;
-        padding-top: ${stylesPublic.spacing.scale[4]};
+        padding-top: 88px; /* Espacio para navbar fijo en móviles */
       }
       
       .login-inner-container {

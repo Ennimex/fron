@@ -102,7 +102,7 @@ const NavbarBase = ({
     mobileActions: {
       display: "flex",
       alignItems: "center",
-      gap: "2px", // Gap mínimo en móviles
+      gap: "4px", // Incrementar ligeramente el gap
       marginLeft: "auto", // Empujar hacia la derecha
       flexShrink: 0, // Evitar que se comprima
       height: "40px", // Altura fija para alineación
@@ -148,6 +148,86 @@ const NavbarBase = ({
 
   return (
     <>
+      {/* Estilos CSS responsivos para el navbar */}
+      <style>
+        {`
+          /* Mejoras responsivas para el navbar */
+          @media (max-width: 575.98px) {
+            .dropdown-toggle::after {
+              display: none !important;
+            }
+            
+            .dropdown-menu {
+              min-width: 180px !important;
+              font-size: 0.875rem !important;
+              transform: translateX(-10px) !important;
+            }
+            
+            .dropdown-item {
+              padding: 8px 12px !important;
+              font-size: 0.875rem !important;
+            }
+            
+            .dropdown-item:hover,
+            .dropdown-item:focus {
+              background-color: #fdf2f4 !important;
+              color: #d63384 !important;
+            }
+            
+            .navbar-nav .dropdown-menu {
+              position: absolute !important;
+              top: 100% !important;
+              right: 0 !important;
+              left: auto !important;
+            }
+          }
+          
+          @media (max-width: 375px) {
+            .dropdown-menu {
+              min-width: 160px !important;
+              font-size: 0.8rem !important;
+              transform: translateX(-20px) !important;
+            }
+            
+            .dropdown-item {
+              padding: 6px 10px !important;
+              font-size: 0.8rem !important;
+            }
+          }
+          
+          /* Evitar scroll horizontal en navbar móvil */
+          .navbar-collapse {
+            overflow-x: hidden !important;
+          }
+          
+          /* Mejorar el z-index del dropdown móvil */
+          .dropdown-menu.show {
+            z-index: 1055 !important;
+          }
+          
+          /* Ocultar la flecha del dropdown en móviles */
+          @media (max-width: 991.98px) {
+            .dropdown-toggle::after {
+              display: none !important;
+            }
+          }
+          
+          /* Mejorar spacing en móviles pequeños */
+          @media (max-width: 320px) {
+            .dropdown-menu {
+              min-width: 140px !important;
+              font-size: 0.75rem !important;
+              transform: translateX(-30px) !important;
+            }
+            
+            .dropdown-item {
+              padding: 4px 8px !important;
+              font-size: 0.75rem !important;
+            }
+          }
+        `}
+      </style>
+
       <Navbar
         expanded={expanded}
         style={navbarStyles.navbar}
@@ -244,7 +324,89 @@ const NavbarBase = ({
 
             {/* Mobile Actions */}
             <div className="d-lg-none" style={navbarStyles.mobileActions}>
-              {!isAuthenticated && (
+              {/* User Profile Dropdown for Mobile (when authenticated) */}
+              {isAuthenticated ? (
+                <Dropdown align="end" className="me-2">
+                  <Dropdown.Toggle
+                    variant="light"
+                    id="dropdown-mobile-user"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: isMobile ? "4px" : "6px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "6px",
+                      transition: "all 0.3s ease",
+                      color: "#524842",
+                      minWidth: isMobile ? "32px" : "36px",
+                      minHeight: isMobile ? "32px" : "36px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <PersonCircle size={isMobile ? 18 : 20} />
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu 
+                    style={{
+                      ...navbarStyles.dropdownMenu,
+                      minWidth: "200px",
+                      right: 0,
+                      left: "auto",
+                    }}
+                  >
+                    <div style={{
+                      padding: "8px 12px",
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      color: "#6c757d",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      borderBottom: "1px solid #ede9e6",
+                      marginBottom: "4px"
+                    }}>
+                      {user?.name || user?.email || "Usuario"}
+                    </div>
+                    
+                    <Dropdown.Item
+                      as={NavLink}
+                      to="/perfil"
+                      onClick={() => setExpanded(false)}
+                      style={navbarStyles.dropdownItem}
+                    >
+                      <PersonCircle size={14} className="me-2" />
+                      Mi perfil
+                    </Dropdown.Item>
+                    
+                    {user?.role === "admin" && (
+                      <Dropdown.Item
+                        as={NavLink}
+                        to="/admin"
+                        onClick={() => setExpanded(false)}
+                        style={navbarStyles.dropdownItem}
+                      >
+                        <Gear size={14} className="me-2" />
+                        Panel de administración
+                      </Dropdown.Item>
+                    )}
+                    
+                    <Dropdown.Divider />
+                    
+                    <Dropdown.Item
+                      onClick={handleLogout}
+                      style={{
+                        ...navbarStyles.dropdownItem,
+                        color: stylesGlobal.colors.semantic.error.main,
+                      }}
+                    >
+                      <BoxArrowRight size={14} className="me-2" />
+                      Cerrar sesión
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              ) : (
                 <Button
                   onClick={handleLoginClick}
                   style={{
@@ -253,6 +415,7 @@ const NavbarBase = ({
                     padding: isMobile ? "3px 6px" : "4px 8px",
                     flexShrink: 0,
                     whiteSpace: "nowrap",
+                    marginRight: "8px",
                   }}
                 >
                   {isMobile ? "Login" : "Iniciar Sesión"}
@@ -367,8 +530,8 @@ const NavbarBase = ({
               </NavLink>
             ))}
 
-            {/* User Actions for Mobile (when authenticated) */}
-            {isAuthenticated && (
+            {/* Login button for mobile when not authenticated */}
+            {!isAuthenticated && (
               <>
                 <hr style={{ 
                   margin: "1rem 0", 
@@ -376,85 +539,18 @@ const NavbarBase = ({
                   borderTop: "1px solid #ede9e6" 
                 }} />
                 
-                <div style={{ 
-                  padding: "8px 16px", 
-                  fontSize: "0.875rem", 
-                  fontWeight: 600, 
-                  color: "#6c757d",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px"
-                }}>
-                  {user?.name || user?.email || "Usuario"}
-                </div>
-
-                <NavLink
-                  to="/perfil"
-                  style={({ isActive }) => ({
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "12px 16px",
-                    fontSize: "1rem",
-                    fontWeight: 500,
-                    color: isActive ? "#d63384" : "#524842",
-                    backgroundColor: isActive ? "#fdf2f4" : "transparent",
-                    textDecoration: "none",
-                    borderRadius: "10px",
-                    transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                    width: "100%",
-                  })}
-                  onClick={() => setExpanded(false)}
-                >
-                  <PersonCircle size={16} />
-                  Mi perfil
-                </NavLink>
-
-                {user?.role === "admin" && (
-                  <NavLink
-                    to="/admin"
-                    style={({ isActive }) => ({
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "12px 16px",
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                      color: isActive ? "#d63384" : "#524842",
-                      backgroundColor: isActive ? "#fdf2f4" : "transparent",
-                      textDecoration: "none",
-                      borderRadius: "10px",
-                      transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                      width: "100%",
-                    })}
-                    onClick={() => setExpanded(false)}
-                  >
-                    <Gear size={16} />
-                    Panel de administración
-                  </NavLink>
-                )}
-
-                <button
-                  onClick={handleLogout}
+                <Button
+                  onClick={handleLoginClick}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
+                    ...navbarStyles.loginButton,
+                    width: "100%",
+                    justifyContent: "center",
                     padding: "12px 16px",
                     fontSize: "1rem",
-                    fontWeight: 500,
-                    color: stylesGlobal.colors.semantic.error.main,
-                    backgroundColor: "transparent",
-                    border: "none",
-                    textDecoration: "none",
-                    borderRadius: "10px",
-                    transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                    width: "100%",
-                    cursor: "pointer",
                   }}
                 >
-                  <BoxArrowRight size={16} />
-                  Cerrar sesión
-                </button>
+                  Iniciar Sesión
+                </Button>
               </>
             )}
           </div>

@@ -20,7 +20,7 @@ import ProductoDetalle from "./pages/public/ProductoDetalle";
 import GaleriaCompleta from "./pages/public/GaleriaCompleta";
 
 // Importación de componentes privados
-import Perfil from "./pages/Private/Perfil";
+import Perfil from "./pages/Private/PerfilNuevo";
 // import MisProductos from "./pages/Private/MisProductos";
 // import Mensajes from "./pages/Private/Mensajes";
 // import HistorialCompras from "./pages/Private/HistorialCompras";
@@ -29,6 +29,7 @@ import Perfil from "./pages/Private/Perfil";
 // Importación de componentes de administración
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminUsersView from "./pages/Admin/AdminUsersView";
+import AdminPerfil from "./pages/Admin/AdminPerfil";
 import AdminNuevoProducto from "./pages/Admin/GestionProductos";
 import GestionTallas from "./pages/Admin/GestionTallas";
 import GestionCategorias from "./pages/Admin/GestionCategorias";
@@ -73,6 +74,7 @@ function App() {
             {/* Rutas de administración usando AdminLayout */}
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<PrivateRoute allowedRoles={["admin"]}><AdminDashboard /></PrivateRoute>} />
+              <Route path="/admin/perfil" element={<PrivateRoute allowedRoles={["admin"]}><AdminPerfil /></PrivateRoute>} />
               <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={["admin"]}><AdminUsersView /></PrivateRoute>} />
               <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={["admin"]}><AdminNuevoProducto /></PrivateRoute>} />
               <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={["admin"]}><GestionTallas /></PrivateRoute>} />
