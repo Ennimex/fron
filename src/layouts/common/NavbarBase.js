@@ -1,7 +1,7 @@
 // components/common/NavbarBase.js
 import React, { useState, useEffect } from "react";
 import { Navbar, Container, Button, Dropdown } from "react-bootstrap";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
 import { PersonCircle, BoxArrowRight, Gear, List, X } from "react-bootstrap-icons";
 import { useGitHubPagesNavigation } from "../../hooks/useGitHubPagesNavigation";
@@ -13,7 +13,8 @@ const NavbarBase = ({
   brandName = "App",
   navLinks = [] 
 }) => {
-  const { navigateWithGitHubPages, handleLogoutRedirect } = useGitHubPagesNavigation();
+  const navigate = useNavigate();
+  const { handleLogoutRedirect, redirectToLogin } = useGitHubPagesNavigation();
   const [expanded, setExpanded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 375);
@@ -76,8 +77,39 @@ const NavbarBase = ({
   };
 
   const handleLoginClick = () => {
-    navigateWithGitHubPages("/login", { state: { showLogin: true } });
+    console.log('Login button clicked - using GitHub Pages navigation'); // Debug log
+    console.log('Current location:', window.location.href); // Debug log
+    console.log('Is mobile:', isMobile); // Debug log
     setExpanded(false);
+    
+    // Prevenir cualquier comportamiento predeterminado que pueda interferir
+    if (expanded) {
+      // Asegurar que el menú se cierre completamente antes de navegar
+      setTimeout(() => {
+        performNavigation();
+      }, 100);
+    } else {
+      performNavigation();
+    }
+  };
+
+  const performNavigation = () => {
+    try {
+      console.log('Performing navigation to login...'); // Debug log
+      redirectToLogin();
+    } catch (error) {
+      console.error('Error navigating to login with GitHub Pages hook:', error);
+      // Fallback: usar navigate estándar
+      try {
+        console.log('Using standard navigation fallback...'); // Debug log
+        navigate("/login", { state: { showLogin: true } });
+      } catch (navError) {
+        console.error('Error with standard navigation:', navError);
+        // Último fallback: usar window.location
+        console.log('Using window.location fallback...'); // Debug log
+        window.location.href = "/login";
+      }
+    }
   };
 
   // Estilos basados en stylesGlobal
@@ -328,7 +360,11 @@ const NavbarBase = ({
               ) : (
                 <Button
                   onClick={handleLoginClick}
-                  style={navbarStyles.loginButton}
+                  style={{
+                    ...navbarStyles.loginButton,
+                    touchAction: "manipulation", // Evitar zoom en doble tap
+                    userSelect: "none", // Evitar selección de texto
+                  }}
                 >
                   Iniciar Sesión
                 </Button>
@@ -422,6 +458,11 @@ const NavbarBase = ({
               ) : (
                 <Button
                   onClick={handleLoginClick}
+                  onTouchEnd={(e) => {
+                    // Prevenir doble tap en móvil
+                    e.preventDefault();
+                    handleLoginClick();
+                  }}
                   style={{
                     ...navbarStyles.loginButton,
                     fontSize: isMobile ? "0.75rem" : "0.8rem",
@@ -429,6 +470,8 @@ const NavbarBase = ({
                     flexShrink: 0,
                     whiteSpace: "nowrap",
                     marginRight: "8px",
+                    touchAction: "manipulation", // Evitar zoom en doble tap
+                    userSelect: "none", // Evitar selección de texto
                   }}
                 >
                   {isMobile ? "Login" : "Iniciar Sesión"}

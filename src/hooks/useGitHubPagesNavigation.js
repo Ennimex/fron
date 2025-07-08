@@ -40,7 +40,8 @@ export const useGitHubPagesNavigation = () => {
   const redirectToHome = useCallback(() => {
     if (isGitHubPages()) {
       const basePath = getBasePath();
-      const homePath = basePath || '/';
+      // Para GitHub Pages con HashRouter, usar el hash correcto
+      const homePath = basePath ? `${basePath}/#/` : '/#/';
       // Para GitHub Pages, usar window.location.href para asegurar redirección completa
       window.location.href = window.location.origin + homePath;
     } else {
@@ -50,11 +51,17 @@ export const useGitHubPagesNavigation = () => {
   }, [navigate, isGitHubPages, getBasePath]);
 
   const redirectToLogin = useCallback(() => {
+    console.log('Redirecting to login - GitHub Pages mode:', isGitHubPages()); // Debug log
+    console.log('Current location:', window.location.href); // Debug log
+    
     if (isGitHubPages()) {
       const basePath = getBasePath();
-      const loginPath = basePath ? `${basePath}/login` : '/login';
+      // Para GitHub Pages con HashRouter, usar el hash correcto
+      const loginPath = basePath ? `${basePath}/#/login` : '/#/login';
+      console.log('GitHub Pages login path:', loginPath); // Debug log
       window.location.href = window.location.origin + loginPath;
     } else {
+      console.log('Local development - using navigate to /login'); // Debug log
       navigate('/login', { replace: true });
     }
   }, [navigate, isGitHubPages, getBasePath]);
@@ -62,7 +69,8 @@ export const useGitHubPagesNavigation = () => {
   const handleLogoutRedirect = useCallback(() => {
     if (isGitHubPages()) {
       const basePath = getBasePath();
-      const homePath = basePath || '/';
+      // Para GitHub Pages con HashRouter, usar el hash correcto
+      const homePath = basePath ? `${basePath}/#/` : '/#/';
       // Limpiar el localStorage antes de redirigir
       try {
         localStorage.removeItem('token');
