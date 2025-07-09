@@ -7,6 +7,31 @@ import stylesGlobal from '../../styles/stylesGlobal';
 
 // Estilos CSS responsivos para NavbarAdmin
 const responsiveStyles = `
+  .navbar-admin-menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .navbar-admin-menu-toggle:focus {
+    outline: 2px solid ${stylesGlobal.colors.primary[400]} !important;
+    outline-offset: 2px !important;
+  }
+  
+  .navbar-admin-profile:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .navbar-admin-dropdown-item:hover {
+    background-color: ${stylesGlobal.colors.primary[50]} !important;
+    color: ${stylesGlobal.colors.primary[600]} !important;
+    transform: translateX(4px) !important;
+  }
+  
+  .navbar-admin-logout-item:hover {
+    background-color: ${stylesGlobal.colors.semantic.error.light} !important;
+    color: ${stylesGlobal.colors.semantic.error.dark} !important;
+    transform: translateX(4px) !important;
+  }
+
   @media (max-width: 576px) {
     .navbar-admin-container {
       padding: 0 0.75rem !important;
@@ -21,11 +46,23 @@ const responsiveStyles = `
       min-width: 200px !important;
       max-width: 220px !important;
     }
+    
+    .navbar-admin-brand-responsive {
+      font-size: 1rem !important;
+    }
   }
   
   @media (max-width: 768px) {
     .navbar-admin-profile-text {
       display: none !important;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .navbar-admin-dropdown-responsive {
+      right: -1rem !important;
+      min-width: 200px !important;
+      max-width: 220px !important;
     }
   }
 `;
@@ -78,10 +115,6 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
       fontSize: "1.25rem",
       fontWeight: 600,
       margin: 0,
-      // Responsivo para el título
-      "@media (max-width: 576px)": {
-        fontSize: "1rem",
-      }
     },
     menuToggleBtn: {
       background: 'none',
@@ -98,13 +131,6 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
       transition: stylesGlobal.animations.transitions.base,
       minWidth: '44px',
       minHeight: '44px',
-      '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      },
-      '&:focus': {
-        outline: `2px solid ${stylesGlobal.colors.primary[400]}`,
-        outlineOffset: '2px',
-      }
     },
     profileContainer: {
       display: 'flex',
@@ -116,9 +142,6 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
       transition: stylesGlobal.animations.transitions.base,
       color: stylesGlobal.colors.text.inverse,
       minHeight: '48px',
-      "&:hover": {
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-      }
     },
     avatar: {
       width: '40px',
@@ -149,12 +172,6 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
       border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
       display: showDropdown ? 'block' : 'none',
       backdropFilter: "blur(12px)",
-      // Responsivo para móviles
-      '@media (max-width: 576px)': {
-        right: '-1rem',
-        minWidth: '200px',
-        maxWidth: '220px',
-      }
     },
     dropdownItem: {
       display: 'flex',
@@ -168,11 +185,6 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
       gap: '12px',
       fontSize: '0.95rem',
       fontWeight: 500,
-      "&:hover": {
-        backgroundColor: stylesGlobal.colors.primary[50],
-        color: stylesGlobal.colors.primary[600],
-        transform: "translateX(4px)",
-      }
     },
     divider: {
       margin: '8px 0',
@@ -196,10 +208,6 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
     },
     logoutItem: {
       color: stylesGlobal.colors.semantic.error.main,
-      "&:hover": {
-        backgroundColor: stylesGlobal.colors.semantic.error.light,
-        color: stylesGlobal.colors.semantic.error.dark,
-      }
     }
   };
 
@@ -213,15 +221,13 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
               style={styles.menuToggleBtn}
               onClick={handleMenuToggle}
               aria-label="Abrir/cerrar menú"
-              className="me-2"
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)"}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+              className="me-2 navbar-admin-menu-toggle"
             >
               <FaBars />
             </button>
           )}
           
-          <Navbar.Brand style={styles.brand} className="navbar-admin-brand">
+          <Navbar.Brand style={styles.brand} className="navbar-admin-brand navbar-admin-brand-responsive">
             <span className="d-none d-sm-inline">Panel Administrativo</span>
             <span className="d-inline d-sm-none">Admin</span>
           </Navbar.Brand>
@@ -233,6 +239,7 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
               style={styles.profileContainer} 
               onClick={() => setShowDropdown(!showDropdown)}
               onMouseEnter={() => setShowDropdown(true)}
+              className="navbar-admin-profile"
             >
               <div style={styles.avatar}>
                 {user?.name ? user.name[0].toUpperCase() : 'A'}
@@ -247,7 +254,7 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
             {/* Menú desplegable elegante */}
             <div 
               style={styles.dropdown}
-              className="navbar-admin-dropdown"
+              className="navbar-admin-dropdown navbar-admin-dropdown-responsive"
               onMouseLeave={() => setShowDropdown(false)}
             >
               <div style={styles.userInfo}>
@@ -261,16 +268,7 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
 
               <div 
                 style={styles.dropdownItem}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = stylesGlobal.colors.primary[50];
-                  e.currentTarget.style.color = stylesGlobal.colors.primary[600];
-                  e.currentTarget.style.transform = "translateX(4px)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = stylesGlobal.colors.text.primary;
-                  e.currentTarget.style.transform = "translateX(0)";
-                }}
+                className="navbar-admin-dropdown-item"
                 onClick={() => navigate('/admin/perfil')}
               >
                 <FaUser />
@@ -279,16 +277,7 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
 
               <div 
                 style={styles.dropdownItem}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = stylesGlobal.colors.primary[50];
-                  e.currentTarget.style.color = stylesGlobal.colors.primary[600];
-                  e.currentTarget.style.transform = "translateX(4px)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = stylesGlobal.colors.text.primary;
-                  e.currentTarget.style.transform = "translateX(0)";
-                }}
+                className="navbar-admin-dropdown-item"
                 onClick={() => navigate('/admin/configuracion')}
               >
                 <FaCog />
@@ -299,16 +288,7 @@ const NavbarAdmin = ({ onMenuToggle, isMobile, sidebarCollapsed }) => {
 
               <div 
                 style={{...styles.dropdownItem, ...styles.logoutItem}}
-                onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = stylesGlobal.colors.semantic.error.light;
-                  e.currentTarget.style.color = stylesGlobal.colors.semantic.error.dark;
-                  e.currentTarget.style.transform = "translateX(4px)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = stylesGlobal.colors.semantic.error.main;
-                  e.currentTarget.style.transform = "translateX(0)";
-                }}
+                className="navbar-admin-logout-item"
                 onClick={handleLogout}
               >
                 <FaSignOutAlt />

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   FaSearch,
   FaFilter,
@@ -15,6 +15,8 @@ import {
   FaUserShield,
   FaUser,
   FaUsers,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import adminService from "../../services/adminServices";
@@ -110,6 +112,21 @@ const responsiveStyles = `
     
     .users-per-page-select {
       width: 100% !important;
+    }
+    
+    .users-form-modal {
+      margin: 0.5rem !important;
+      max-width: calc(100% - 1rem) !important;
+    }
+    
+    .users-form-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important;
+    }
+    
+    .users-form-input {
+      font-size: 0.875rem !important;
+      padding: 0.5rem 0.75rem !important;
     }
   }
 `;
@@ -277,6 +294,14 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     role: "user",
   });
   const [formLoading, setFormLoading] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState({
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  });
+  const [showPassword, setShowPassword] = useState(false);
 
   // Fetch users from backend
   useEffect(() => {
@@ -427,6 +452,18 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   // Handle new user form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validar que la contraseña cumpla con todos los requisitos
+    const isPasswordValid = Object.values(passwordValidation).every(valid => valid);
+    if (!isPasswordValid) {
+      addNotificationRef.current(
+        'La contraseña no cumple con todos los requisitos de seguridad',
+        'error',
+        5000
+      );
+      return;
+    }
+
     setFormLoading(true);
 
     try {
@@ -442,6 +479,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
         phone: "",
         password: "",
         role: "user",
+      });
+      setPasswordValidation({
+        minLength: false,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasNumber: false,
+        hasSpecialChar: false
       });
 
       // Cerrar modal después de un breve delay
@@ -460,36 +504,77 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Validar contraseña en tiempo real
+    if (name === 'password') {
+      setPasswordValidation({
+        minLength: value.length >= 8,
+        hasUppercase: /[A-Z]/.test(value),
+        hasLowercase: /[a-z]/.test(value),
+        hasNumber: /\d/.test(value),
+        hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value)
+      });
+    }
   }, []);
 
-  // Handle user selection
-  // TODO: Could extract selection logic to a BulkActions component
-  const handleSelectUser = useCallback(
-    (userId) => {
-      const newSelected = new Set(selectedUsers);
-      if (newSelected.has(userId)) {
-        newSelected.delete(userId);
-      } else {
-        newSelected.add(userId);
-      }
-      setSelectedUsers(newSelected);
-    },
-    [selectedUsers]
-  );
-
-  const handleSelectAll = useCallback(() => {
-    if (selectedUsers.size === paginatedUsers.length) {
-      setSelectedUsers(new Set());
-    } else {
-      setSelectedUsers(new Set(paginatedUsers.map((user) => user._id)));
-    }
-  }, [selectedUsers.size, paginatedUsers]);
+  // ...eliminado handleSelectUser y handleSelectAll por no usarse...
 
   // Render sort icon
   // TODO: Could move to a utilities file
   const renderSortIcon = (field) => {
     if (sortField !== field) return <FaSort size={12} style={{ opacity: 0.5 }} />;
     return sortDirection === "asc" ? <FaSortUp size={12} /> : <FaSortDown size={12} />;
+  };
+
+  // Render password validation component
+  const renderPasswordValidation = () => {
+    const validationItems = [
+      { key: 'minLength', label: 'Al menos 8 caracteres', valid: passwordValidation.minLength },
+      { key: 'hasUppercase', label: 'Una mayúscula (A-Z)', valid: passwordValidation.hasUppercase },
+      { key: 'hasLowercase', label: 'Una minúscula (a-z)', valid: passwordValidation.hasLowercase },
+      { key: 'hasNumber', label: 'Un número (0-9)', valid: passwordValidation.hasNumber },
+      { key: 'hasSpecialChar', label: 'Un carácter especial (!@#$%)', valid: passwordValidation.hasSpecialChar }
+    ];
+
+    return (
+      <div style={{
+        marginTop: stylesPublic.spacing.scale[2],
+        padding: stylesPublic.spacing.scale[3],
+        backgroundColor: stylesPublic.colors.surface.secondary,
+        borderRadius: stylesPublic.borders.radius.sm,
+        border: `1px solid ${stylesPublic.borders.colors.muted}`
+      }}>
+        <div style={{
+          fontSize: stylesPublic.typography.scale.xs,
+          fontWeight: stylesPublic.typography.weights.semibold,
+          marginBottom: stylesPublic.spacing.scale[2],
+          color: stylesPublic.colors.text.secondary
+        }}>
+          La contraseña debe contener:
+        </div>
+        {validationItems.map(item => (
+          <div key={item.key} style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: stylesPublic.spacing.scale[2],
+            marginBottom: stylesPublic.spacing.scale[1],
+            fontSize: stylesPublic.typography.scale.xs
+          }}>
+            <span style={{
+              color: item.valid ? stylesPublic.colors.semantic.success.main : stylesPublic.colors.text.muted,
+              fontWeight: stylesPublic.typography.weights.semibold
+            }}>
+              {item.valid ? '✓' : '○'}
+            </span>
+            <span style={{
+              color: item.valid ? stylesPublic.colors.semantic.success.main : stylesPublic.colors.text.secondary
+            }}>
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   // Render role badge
@@ -651,7 +736,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 style={{
                   ...stylesPublic.components.button.variants.ghost,
                   ...stylesPublic.components.button.sizes.sm,
-                  ...(showFilters ? { border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.borders.accent}` } : {}),
+                  ...(showFilters ? { border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.accent}` } : {}),
                 }}
                 onClick={() => setShowFilters(!showFilters)}
               >
@@ -666,7 +751,16 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   alignItems: "center",
                   gap: stylesPublic.spacing.scale[2],
                 }}
-                onClick={() => setShowUserForm(true)}
+                onClick={() => {
+                  setShowUserForm(true);
+                  setPasswordValidation({
+                    minLength: false,
+                    hasUppercase: false,
+                    hasLowercase: false,
+                    hasNumber: false,
+                    hasSpecialChar: false
+                  });
+                }}
               >
                 <FaPlus size={14} />
                 Nuevo Usuario
@@ -744,7 +838,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   alignItems: "center",
                   padding: stylesPublic.spacing.scale[4],
                   backgroundColor: stylesPublic.colors.neutral[50],
-                  borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.borders.default}`,
+                  borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
                 }}
               >
                 <span
@@ -815,19 +909,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 <table style={styles.table} className="users-table">
                   <thead style={styles.tableHeader}>
                     <tr>
-                      <th style={styles.tableHeaderCell}>
-                        <input
-                          type="checkbox"
-                          style={{
-                            width: stylesPublic.spacing.scale[4],
-                            height: stylesPublic.spacing.scale[4],
-                            accentColor: stylesPublic.colors.primary[500],
-                          }}
-                          checked={selectedUsers.size === paginatedUsers.length && paginatedUsers.length > 0}
-                          onChange={handleSelectAll}
-                          aria-label="Seleccionar todos los usuarios"
-                        />
-                      </th>
+                      {/* Columna de selección eliminada */}
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("name")}>
                         <div
                           style={{
@@ -902,19 +984,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                         onMouseEnter={() => setHoveredRow(index)}
                         onMouseLeave={() => setHoveredRow(null)}
                       >
-                        <td style={styles.tableCell}>
-                          <input
-                            type="checkbox"
-                            style={{
-                              width: stylesPublic.spacing.scale[4],
-                              height: stylesPublic.spacing.scale[4],
-                              accentColor: stylesPublic.colors.primary[500],
-                            }}
-                            checked={selectedUsers.has(user._id)}
-                            onChange={() => handleSelectUser(user._id)}
-                            aria-label={`Seleccionar usuario ${user.name || "Sin nombre"}`}
-                          />
-                        </td>
+                        {/* Celda de selección eliminada */}
                         <td style={styles.tableCell}>
                           <div
                             style={{
@@ -1084,12 +1154,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             <div
               style={{
                 ...stylesPublic.components.card.base,
-                maxWidth: "600px",
+                maxWidth: "480px",
                 width: "90%",
                 margin: stylesPublic.spacing.margins.auto,
                 maxHeight: "90vh",
                 overflowY: "auto",
               }}
+              className="users-form-modal"
             >
               <button
                 onClick={() => setShowUserForm(false)}
@@ -1113,54 +1184,75 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               >
                 ✕
               </button>
-              <h2 style={{ ...stylesPublic.typography.headings.h2, padding: stylesPublic.spacing.scale[4] }}>
-                Agregar Nuevo Usuario
-              </h2>
+              <div style={{ padding: stylesPublic.spacing.scale[4], paddingBottom: stylesPublic.spacing.scale[2] }}>
+                <h2 style={{ ...stylesPublic.typography.headings.h2, margin: 0, fontSize: "1.4rem" }}>
+                  Agregar Nuevo Usuario
+                </h2>
+              </div>
               <form
                 onSubmit={handleFormSubmit}
                 style={{
-                  display: "grid",
-                  gap: stylesPublic.spacing.gaps.lg,
-                  padding: stylesPublic.spacing.scale[6],
+                  padding: stylesPublic.spacing.scale[4],
+                  paddingTop: stylesPublic.spacing.scale[2],
                 }}
+                className="users-create-form"
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.base,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                    }}
-                    htmlFor="name"
-                  >
-                    Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleFormChange}
-                    required
-                    style={stylesPublic.components.input.base}
-                  />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: stylesPublic.spacing.scale[3], marginBottom: stylesPublic.spacing.scale[4] }} className="users-form-grid">
+                  <div>
+                    <label
+                      style={{
+                        ...stylesPublic.typography.body.small,
+                        fontWeight: stylesPublic.typography.weights.semibold,
+                        display: "block",
+                        marginBottom: stylesPublic.spacing.scale[1],
+                      }}
+                      htmlFor="name"
+                    >
+                      Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      required
+                      placeholder="Ej: María González"
+                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style={{
+                        ...stylesPublic.typography.body.small,
+                        fontWeight: stylesPublic.typography.weights.semibold,
+                        display: "block",
+                        marginBottom: stylesPublic.spacing.scale[1],
+                      }}
+                      htmlFor="role"
+                    >
+                      Rol
+                    </label>
+                    <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleFormChange}
+                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
+                    >
+                      <option value="user">Usuario</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
+                
+                <div style={{ marginBottom: stylesPublic.spacing.scale[4] }}>
                   <label
                     style={{
-                      ...stylesPublic.typography.body.base,
+                      ...stylesPublic.typography.body.small,
                       fontWeight: stylesPublic.typography.weights.semibold,
+                      display: "block",
+                      marginBottom: stylesPublic.spacing.scale[1],
                     }}
                     htmlFor="email"
                   >
@@ -1173,92 +1265,97 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.email}
                     onChange={handleFormChange}
                     required
-                    style={stylesPublic.components.input.base}
+                    placeholder="ejemplo@gmail.com"
+                    style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
                   />
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.base,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                    }}
-                    htmlFor="phone"
-                  >
-                    Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleFormChange}
-                    style={stylesPublic.components.input.base}
-                  />
+                
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: stylesPublic.spacing.scale[3], marginBottom: stylesPublic.spacing.scale[5] }}>
+                  <div>
+                    <label
+                      style={{
+                        ...stylesPublic.typography.body.small,
+                        fontWeight: stylesPublic.typography.weights.semibold,
+                        display: "block",
+                        marginBottom: stylesPublic.spacing.scale[1],
+                      }}
+                      htmlFor="phone"
+                    >
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleFormChange}
+                      placeholder="Ej: 55 1234 5678"
+                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style={{
+                        ...stylesPublic.typography.body.small,
+                        fontWeight: stylesPublic.typography.weights.semibold,
+                        display: "block",
+                        marginBottom: stylesPublic.spacing.scale[1],
+                      }}
+                      htmlFor="password"
+                    >
+                      Contraseña <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
+                    </label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleFormChange}
+                        required
+                        placeholder="Ingrese una contraseña segura"
+                        style={{
+                          ...stylesPublic.components.input.base,
+                          fontSize: "0.9rem",
+                          padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}`,
+                          paddingRight: 36
+                        }}
+                      />
+                      <button
+                        type="button"
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        onClick={() => setShowPassword((v) => !v)}
+                        style={{
+                          position: "absolute",
+                          top: "50%",
+                          right: 8,
+                          transform: "translateY(-50%)",
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          margin: 0,
+                          cursor: "pointer",
+                          color: stylesPublic.colors.text.secondary,
+                          fontSize: 18,
+                          display: "flex",
+                          alignItems: "center"
+                        }}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                    {formData.password && renderPasswordValidation()}
+                  </div>
                 </div>
+                
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.base,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                    }}
-                    htmlFor="password"
-                  >
-                    Contraseña <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleFormChange}
-                    required
-                    style={stylesPublic.components.input.base}
-                  />
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.base,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                    }}
-                    htmlFor="role"
-                  >
-                    Rol
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleFormChange}
-                    style={stylesPublic.components.input.base}
-                  >
-                    <option value="user">Usuario</option>
-                    <option value="admin">Administrador</option>
-                  </select>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: stylesPublic.spacing.gaps.md,
+                    gap: stylesPublic.spacing.scale[3],
                     justifyContent: "flex-end",
+                    paddingTop: stylesPublic.spacing.scale[3],
+                    borderTop: `1px solid ${stylesPublic.borders.colors.default}`,
                   }}
                 >
                   <button
@@ -1266,18 +1363,18 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     onClick={() => setShowUserForm(false)}
                     style={{
                       ...stylesPublic.components.button.variants.ghost,
-                      ...stylesPublic.components.button.sizes.base,
+                      ...stylesPublic.components.button.sizes.sm,
                     }}
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    disabled={formLoading}
+                    disabled={formLoading || (formData.password && !Object.values(passwordValidation).every(valid => valid))}
                     style={{
                       ...stylesPublic.components.button.variants.primary,
-                      ...stylesPublic.components.button.sizes.base,
-                      ...(formLoading
+                      ...stylesPublic.components.button.sizes.sm,
+                      ...(formLoading || (formData.password && !Object.values(passwordValidation).every(valid => valid))
                         ? {
                             backgroundColor: stylesPublic.colors.neutral[300],
                             color: stylesPublic.colors.text.muted,
@@ -1287,7 +1384,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                         : {}),
                     }}
                   >
-                    {formLoading ? "Guardando..." : "Guardar Usuario"}
+                    {formLoading ? "Guardando..." : "Guardar"}
                   </button>
                 </div>
               </form>
@@ -1302,12 +1399,13 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             <div
               style={{
                 ...stylesPublic.components.card.base,
-                maxWidth: "600px",
+                maxWidth: "480px",
                 width: "90%",
                 margin: stylesPublic.spacing.margins.auto,
                 maxHeight: "90vh",
                 overflowY: "auto",
               }}
+              className="users-form-modal"
             >
               <button
                 onClick={() => setShowEditForm(false)}
@@ -1331,54 +1429,75 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               >
                 ✕
               </button>
-              <h2 style={{ ...stylesPublic.typography.headings.h2, padding: stylesPublic.spacing.scale[4] }}>
-                Editar Usuario
-              </h2>
+              <div style={{ padding: stylesPublic.spacing.scale[4], paddingBottom: stylesPublic.spacing.scale[2] }}>
+                <h2 style={{ ...stylesPublic.typography.headings.h2, margin: 0, fontSize: "1.4rem" }}>
+                  Editar Usuario
+                </h2>
+              </div>
               <form
                 onSubmit={handleEditFormSubmit}
                 style={{
-                  display: "grid",
-                  gap: stylesPublic.spacing.gaps.lg,
-                  padding: stylesPublic.spacing.scale[6],
+                  padding: stylesPublic.spacing.scale[4],
+                  paddingTop: stylesPublic.spacing.scale[2],
                 }}
+                className="users-edit-form"
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.base,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                    }}
-                    htmlFor="name"
-                  >
-                    Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleFormChange}
-                    required
-                    style={stylesPublic.components.input.base}
-                  />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: stylesPublic.spacing.scale[3], marginBottom: stylesPublic.spacing.scale[4] }} className="users-form-grid">
+                  <div>
+                    <label
+                      style={{
+                        ...stylesPublic.typography.body.small,
+                        fontWeight: stylesPublic.typography.weights.semibold,
+                        display: "block",
+                        marginBottom: stylesPublic.spacing.scale[1],
+                      }}
+                      htmlFor="name"
+                    >
+                      Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      required
+                      placeholder="Ej: María González"
+                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style={{
+                        ...stylesPublic.typography.body.small,
+                        fontWeight: stylesPublic.typography.weights.semibold,
+                        display: "block",
+                        marginBottom: stylesPublic.spacing.scale[1],
+                      }}
+                      htmlFor="role"
+                    >
+                      Rol
+                    </label>
+                    <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleFormChange}
+                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
+                    >
+                      <option value="user">Usuario</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
+                
+                <div style={{ marginBottom: stylesPublic.spacing.scale[4] }}>
                   <label
                     style={{
-                      ...stylesPublic.typography.body.base,
+                      ...stylesPublic.typography.body.small,
                       fontWeight: stylesPublic.typography.weights.semibold,
+                      display: "block",
+                      marginBottom: stylesPublic.spacing.scale[1],
                     }}
                     htmlFor="email"
                   >
@@ -1391,20 +1510,18 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     value={formData.email}
                     onChange={handleFormChange}
                     required
-                    style={stylesPublic.components.input.base}
+                    placeholder="ejemplo@gmail.com"
+                    style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
                   />
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
+                
+                <div style={{ marginBottom: stylesPublic.spacing.scale[5] }}>
                   <label
                     style={{
-                      ...stylesPublic.typography.body.base,
+                      ...stylesPublic.typography.body.small,
                       fontWeight: stylesPublic.typography.weights.semibold,
+                      display: "block",
+                      marginBottom: stylesPublic.spacing.scale[1],
                     }}
                     htmlFor="phone"
                   >
@@ -1416,41 +1533,71 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleFormChange}
-                    style={stylesPublic.components.input.base}
+                    placeholder="Ej: 55 1234 5678"
+                    style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
                   />
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: stylesPublic.spacing.scale[2],
-                  }}
-                >
+
+                <div style={{ marginBottom: stylesPublic.spacing.scale[5] }}>
                   <label
                     style={{
-                      ...stylesPublic.typography.body.base,
+                      ...stylesPublic.typography.body.small,
                       fontWeight: stylesPublic.typography.weights.semibold,
+                      display: "block",
+                      marginBottom: stylesPublic.spacing.scale[1],
                     }}
-                    htmlFor="role"
+                    htmlFor="password"
                   >
-                    Rol
+                    Contraseña
                   </label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleFormChange}
-                    style={stylesPublic.components.input.base}
-                  >
-                    <option value="user">Usuario</option>
-                    <option value="admin">Administrador</option>
-                  </select>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleFormChange}
+                      placeholder="Ingrese una nueva contraseña (opcional)"
+                      style={{
+                        ...stylesPublic.components.input.base,
+                        fontSize: "0.9rem",
+                        padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}`,
+                        paddingRight: 36
+                      }}
+                    />
+                    <button
+                      type="button"
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      onClick={() => setShowPassword((v) => !v)}
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        right: 8,
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        margin: 0,
+                        cursor: "pointer",
+                        color: stylesPublic.colors.text.secondary,
+                        fontSize: 18,
+                        display: "flex",
+                        alignItems: "center"
+                      }}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
                 </div>
+
                 <div
                   style={{
                     display: "flex",
-                    gap: stylesPublic.spacing.gaps.md,
+                    gap: stylesPublic.spacing.scale[3],
                     justifyContent: "flex-end",
+                    paddingTop: stylesPublic.spacing.scale[3],
+                    borderTop: `1px solid ${stylesPublic.borders.colors.default}`,
                   }}
                 >
                   <button
@@ -1458,7 +1605,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     onClick={() => setShowEditForm(false)}
                     style={{
                       ...stylesPublic.components.button.variants.ghost,
-                      ...stylesPublic.components.button.sizes.base,
+                      ...stylesPublic.components.button.sizes.sm,
                     }}
                   >
                     Cancelar
@@ -1468,7 +1615,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     disabled={formLoading}
                     style={{
                       ...stylesPublic.components.button.variants.primary,
-                      ...stylesPublic.components.button.sizes.base,
+                      ...stylesPublic.components.button.sizes.sm,
                       ...(formLoading
                         ? {
                             backgroundColor: stylesPublic.colors.neutral[300],
