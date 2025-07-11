@@ -370,6 +370,21 @@ const ServiciosEnhanced = () => {
                 e.currentTarget.style.borderColor = stylesPublic.colors.neutral[200]
               }}
             >
+              {servicio.imagen && (
+                <img
+                  src={servicio.imagen}
+                  alt={servicio.titulo || servicio.nombre}
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                    margin: "0 auto 16px auto",
+                    boxShadow: stylesPublic.shadows.lg,
+                    background: stylesPublic.colors.surface.primary,
+                  }}
+                />
+              )}
               <div
                 style={{
                   fontSize: stylesPublic.typography.scale["4xl"],
