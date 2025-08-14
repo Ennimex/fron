@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI } from '../../services/api';
-import adminService from '../../services/adminServices';
+import { localidadService } from '../../services/localidadService';
+import { categoriaService } from '../../services/categoriaService';
+import { productService } from '../../services/productService';
 import { 
   FaUsers, FaBoxOpen, FaChartLine, 
   FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus, 
@@ -639,27 +641,63 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Obtener datos del dashboard usando adminAPI
-        const dashboardData = await adminAPI.getDashboard();
-        
         // Obtener lista de usuarios recientes usando adminAPI
         const usersData = await adminAPI.getUsers();
 
-        // Obtener actividad reciente usando adminService
+        // Obtener productos
+        const productsData = await productService.getAll();
+
+        // Obtener categorías
+        const categoriasData = await categoriaService.getAll();
+
+        // Obtener localidades
+        const localidadesData = await localidadService.getAll();
+
+        // Crear array de actividades recientes combinando datos de diferentes servicios
         let activityData = [];
-        try {
-          activityData = await adminService.getActivity();
-        } catch (err) {
-          console.log('Activity endpoint not available, using fallback');
-          activityData = [];
-        }
+
+        // Agregar productos recientes
+        const productosRecientes = Array.isArray(productsData) ? 
+          productsData
+            .slice(0, 3)
+            .map(p => ({
+              tipo: 'producto',
+              accion: 'Nuevo',
+              fecha: p.createdAt || new Date(),
+              detalles: { nombre: p.nombre }
+            })) : [];
+
+        // Agregar usuarios recientes
+        const usuariosRecientes = usersData
+          .slice(0, 3)
+          .map(u => ({
+            tipo: 'usuario',
+            accion: 'Nuevo',
+            fecha: u.createdAt || new Date(),
+            detalles: { email: u.email }
+          }));
+
+        // Agregar categorías recientes
+        const categoriasRecientes = Array.isArray(categoriasData) ?
+          categoriasData
+            .slice(0, 2)
+            .map(c => ({
+              tipo: 'categoria',
+              accion: 'Nueva',
+              fecha: c.createdAt || new Date(),
+              detalles: { nombre: c.nombre }
+            })) : [];
+
+        // Combinar todas las actividades y ordenar por fecha
+        activityData = [...productosRecientes, ...usuariosRecientes, ...categoriasRecientes]
+          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
         // Procesar datos del dashboard
         setStats({
-          users: dashboardData.stats?.users || usersData.length || 0,
-          products: dashboardData.stats?.products || 0,
-          categories: dashboardData.stats?.categories || 0,
-          locations: dashboardData.stats?.locations || 0
+          users: usersData.length || 0,
+          products: Array.isArray(productsData) ? productsData.length : 0,
+          categories: Array.isArray(categoriasData) ? categoriasData.length : 0,
+          locations: Array.isArray(localidadesData) ? localidadesData.length : 0
         });
 
         // Procesar usuarios recientes (tomar los últimos 5)
@@ -670,7 +708,7 @@ const AdminDashboard = () => {
         setRecentActivity(activityData.slice(0, 5));
 
         // Datos para el gráfico de usuarios registrados
-        const usersChartData = dashboardData.usersChart || generateMockUserChartData(timeRange);
+        const usersChartData = generateMockUserChartData(timeRange);
 
         // Configurar datos del gráfico
         setChartData({
@@ -753,36 +791,53 @@ const AdminDashboard = () => {
 
   // Generar contenido de actividad reciente
   const getActivityContent = (activity) => {
-    if (!activity || !activity.type) return null;
+    if (!activity) return null;
     
-    switch (activity.type) {
-      case 'product':
-        return (
-          <div style={styles.activityContent} className="admin-activity-content">
-            <div style={styles.activityIcon} className="admin-activity-icon"><FaBoxOpen /></div>
-            <div style={styles.activityDetails}>
-              <p style={styles.activityText} className="admin-activity-text">
-                Nuevo producto añadido: <span style={styles.activityHighlight}>{activity.productName}</span>
-              </p>
-              <p style={styles.activityTime} className="admin-activity-time">{formatActivityTime(activity.timestamp)}</p>
-            </div>
-          </div>
-        );
-      case 'user':
-        return (
-          <div style={styles.activityContent} className="admin-activity-content">
-            <div style={styles.activityIcon} className="admin-activity-icon"><FaUserPlus /></div>
-            <div style={styles.activityDetails}>
-              <p style={styles.activityText} className="admin-activity-text">
-                Nuevo usuario registrado: <span style={styles.activityHighlight}>{activity.user}</span>
-              </p>
-              <p style={styles.activityTime} className="admin-activity-time">{formatActivityTime(activity.timestamp)}</p>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
+    const getIconForActivity = (activity) => {
+      switch (activity.tipo) {
+        case 'producto':
+          return <FaBoxOpen />;
+        case 'usuario':
+          return <FaUserPlus />;
+        case 'categoria':
+          return <FaTag />;
+        case 'localidad':
+          return <FaMapMarkerAlt />;
+        default:
+          return <FaCalendarAlt />;
+      }
+    };
+
+    const getMessageForActivity = (activity) => {
+      switch (activity.tipo) {
+        case 'producto':
+          return `${activity.accion} producto: ${activity.detalles?.nombre || 'Sin nombre'}`;
+        case 'usuario':
+          return `${activity.accion} usuario: ${activity.detalles?.email || 'Usuario'}`;
+        case 'categoria':
+          return `${activity.accion} categoría: ${activity.detalles?.nombre || 'Sin nombre'}`;
+        case 'localidad':
+          return `${activity.accion} localidad: ${activity.detalles?.nombre || 'Sin nombre'}`;
+        default:
+          return activity.descripcion || 'Actividad realizada';
+      }
+    };
+
+    return (
+      <div style={styles.activityContent} className="admin-activity-content">
+        <div style={styles.activityIcon} className="admin-activity-icon">
+          {getIconForActivity(activity)}
+        </div>
+        <div style={styles.activityDetails}>
+          <p style={styles.activityText} className="admin-activity-text">
+            <span style={styles.activityHighlight}>{getMessageForActivity(activity)}</span>
+          </p>
+          <p style={styles.activityTime} className="admin-activity-time">
+            {formatActivityTime(activity.fecha)}
+          </p>
+        </div>
+      </div>
+    );
   };
 
   // Formatear tiempo para actividad
@@ -934,34 +989,6 @@ const AdminDashboard = () => {
                 <div style={styles.activityItem} className="admin-activity-item">
                   <p style={{textAlign: 'center', color: '#718096'}}>No hay actividad reciente</p>
                 </div>
-              )}
-              
-              {/* Generar algunos ejemplos de actividad si no hay datos reales */}
-              {(!recentActivity || recentActivity.length === 0) && (
-                <>
-                  <div style={styles.activityItem} className="admin-activity-item">
-                    <div style={styles.activityContent} className="admin-activity-content">
-                      <div style={styles.activityIcon} className="admin-activity-icon"><FaUserPlus /></div>
-                      <div style={styles.activityDetails}>
-                        <p style={styles.activityText} className="admin-activity-text">
-                          Nuevo usuario registrado: <span style={styles.activityHighlight}>Carlos Mendoza</span>
-                        </p>
-                        <p style={styles.activityTime} className="admin-activity-time">Hace 2 horas</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div style={styles.activityItem} className="admin-activity-item">
-                    <div style={styles.activityContent} className="admin-activity-content">
-                      <div style={styles.activityIcon} className="admin-activity-icon"><FaBoxOpen /></div>
-                      <div style={styles.activityDetails}>
-                        <p style={styles.activityText} className="admin-activity-text">
-                          Nuevo producto añadido: <span style={styles.activityHighlight}>Vestido de Verano</span>
-                        </p>
-                        <p style={styles.activityTime} className="admin-activity-time">Hace 1 día</p>
-                      </div>
-                    </div>
-                  </div>
-                </>
               )}
             </div>
           </div>
