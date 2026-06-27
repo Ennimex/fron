@@ -85,6 +85,26 @@ export const authAPI = {
       throw error;
     }
   },
+
+  // Solicitar correo de recuperación de contraseña
+  forgotPassword: async (email) => {
+    try {
+      const response = await api.post('/auth/forgot-password', { email });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Restablecer la contraseña con el token recibido por correo
+  resetPassword: async (token, password) => {
+    try {
+      const response = await api.post(`/auth/reset-password/${token}`, { password });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // Funciones para páginas públicas

@@ -19,6 +19,7 @@ import Destacados from "./pages/public/Destacados";
 import ProductoDetalle from "./pages/public/ProductoDetalle";
 import GaleriaCompleta from "./pages/public/GaleriaCompleta";
 import RecuperarContrasena from "./pages/public/RecuperarContrasena";
+import ResetPassword from "./pages/public/ResetPassword";
 
 // Importación de componentes privados
 import Perfil from "./pages/Private/PerfilNuevo";
@@ -66,6 +67,7 @@ function App() {
               <Route path="/destacados" element={<Destacados />} />
               <Route path="/catalogofotos" element={<GaleriaCompleta />} />
               <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
             {/* Rutas Privadas usando PrivateLayout */}

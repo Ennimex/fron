@@ -3,6 +3,7 @@ import { IonIcon } from "@ionic/react";
 import { mailOutline, arrowBackOutline, checkmarkCircleOutline, keyOutline } from "ionicons/icons";
 import { Link } from "react-router-dom";
 import stylesPublic from "../../styles/stylesGlobal";
+import { authAPI } from "../../services/api";
 
 // Paso 1: Ingresa tu email
 // Paso 2: Correo enviado (confirmación)
@@ -27,7 +28,7 @@ const RecuperarContrasena = () => {
     Math.floor(Math.random() * backgroundImages.length)
   );
 
-  // Simula el envío — aquí conectarías tu endpoint real
+  // Envío real al backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -41,12 +42,15 @@ const RecuperarContrasena = () => {
     setLoading(true);
     setAnimating(true);
 
-    // Simula llamada al backend (reemplaza con tu lógica real)
-    await new Promise((r) => setTimeout(r, 1500));
-
-    setLoading(false);
-    setAnimating(false);
-    setStep(2);
+    try {
+      await authAPI.forgotPassword(email);
+      setStep(2);
+    } catch (err) {
+      setError(err.error || "Ocurrió un error. Intenta de nuevo más tarde.");
+    } finally {
+      setLoading(false);
+      setAnimating(false);
+    }
   };
 
   const handleEmailChange = (e) => {
