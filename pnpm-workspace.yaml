@@ -1,0 +1,6 @@
+# Decisión sobre scripts de instalación (build) de dependencias.
+# core-js/core-js-pure solo imprimen un banner de financiación en postinstall;
+# no compilan nada, así que es seguro NO ejecutarlos (false).
+allowBuilds:
+  core-js: false
+  core-js-pure: false

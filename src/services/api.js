@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuración global de Axios
 const api = axios.create({
-  baseURL: 'https://back-three-gamma.vercel.app/api', // URL de tu API en Vercel
+  baseURL: process.env.REACT_APP_API_URL || 'https://back-yvy1.onrender.com/api', // URL de la API (Render); configurable con REACT_APP_API_URL
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

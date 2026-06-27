@@ -2,6 +2,10 @@
   "name": "fron",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@ionic/core": "^8.5.7",
     "@ionic/react": "^8.5.7",
