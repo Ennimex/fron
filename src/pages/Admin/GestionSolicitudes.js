@@ -13,6 +13,7 @@ import adminService from "../../services/adminServices";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesPublic from "../../styles/stylesGlobal";
+import adminTheme from "../../styles/adminTheme";
 
 // Estilos CSS responsivos para GestionSolicitudes
 const responsiveStyles = `
@@ -137,14 +138,12 @@ const GestionSolicitudes = () => {
   const styles = {
     pageContainer: {
       minHeight: "100vh",
-      backgroundColor: stylesPublic.colors.surface.secondary,
+      backgroundColor: adminTheme.bg,
       padding: stylesPublic.spacing.scale[8],
     },
     mainContainer: {
-      ...stylesPublic.components.card.base,
       maxWidth: stylesPublic.utils.container.maxWidth.xl,
       margin: stylesPublic.spacing.margins.auto,
-      padding: stylesPublic.spacing.scale[8],
     },
     header: {
       marginBottom: stylesPublic.spacing.scale[6],
@@ -152,7 +151,10 @@ const GestionSolicitudes = () => {
       paddingBottom: stylesPublic.spacing.scale[4],
     },
     title: {
-      ...stylesPublic.typography.headings.h1,
+      fontFamily: adminTheme.serif,
+      fontSize: "1.9rem",
+      fontWeight: stylesPublic.typography.weights.bold,
+      color: stylesPublic.colors.text.primary,
       display: "flex",
       alignItems: "center",
       gap: stylesPublic.spacing.scale[3],
@@ -354,7 +356,7 @@ const GestionSolicitudes = () => {
             </p>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: stylesPublic.spacing.scale[5] }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: stylesPublic.spacing.scale[5], alignItems: "start" }}>
             {filtradas.map((s) => {
               const estado = ESTADOS[s.estado] || ESTADOS.pendiente;
               const wa = numeroWhatsApp(s.telefono);

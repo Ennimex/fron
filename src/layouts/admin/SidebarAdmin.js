@@ -215,6 +215,9 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       gap: "10px",
       textDecoration: "none",
       overflow: "hidden",
+      flex: 1,
+      minWidth: 0,
+      marginRight: "8px",
     },
     logoIcon: {
       width: "36px",
@@ -232,10 +235,12 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
     },
     logoText: {
       fontFamily: adminTheme.serif,
-      fontSize: "17px",
+      fontSize: "15px",
       fontWeight: 800,
       color: adminTheme.text,
       whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     },
     toggleButton: {
       background: "none",
@@ -270,18 +275,18 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       display: "flex",
       alignItems: "center",
       justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      gap: "12px",
+      gap: "11px",
       color: adminTheme.text2,
       textDecoration: "none",
       fontFamily: adminTheme.body,
       position: "relative",
       width: "100%",
-      padding: effectiveCollapsed ? "0" : "0 14px",
-      height: "46px",
+      padding: effectiveCollapsed ? "0" : "0 12px",
+      height: "44px",
       cursor: "pointer",
-      fontSize: "0.93rem",
+      fontSize: "0.85rem",
       fontWeight: 500,
-      borderRadius: "13px",
+      borderRadius: "12px",
       transition: stylesGlobal.animations.transitions.base,
     },
     menuLinkActive: {
@@ -300,16 +305,17 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       width: effectiveCollapsed ? "76px" : "20px",
       minWidth: effectiveCollapsed ? "76px" : "20px",
       height: "20px",
-      fontSize: "1.05rem",
+      fontSize: "1rem",
     },
     menuText: {
       opacity: effectiveCollapsed ? 0 : 1,
       visibility: effectiveCollapsed ? "hidden" : "visible",
       whiteSpace: "nowrap",
-      fontSize: "0.93rem",
+      fontSize: "0.85rem",
       fontWeight: 500,
       width: effectiveCollapsed ? 0 : "auto",
       overflow: "hidden",
+      textOverflow: "ellipsis",
     },
     submenuContainer: {
       width: "100%",
@@ -329,11 +335,11 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
     submenuLink: {
       display: "flex",
       alignItems: "center",
-      padding: "10px 16px 10px 44px",
+      padding: "9px 12px 9px 40px",
       color: adminTheme.text3,
       textDecoration: "none",
       fontFamily: adminTheme.body,
-      fontSize: "0.85rem",
+      fontSize: "0.8rem",
       transition: stylesGlobal.animations.transitions.base,
       borderRadius: stylesGlobal.borders.radius.md,
       margin: "2px 8px",
@@ -351,6 +357,10 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
     },
     submenuText: {
       whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      flex: 1,
+      minWidth: 0,
     },
     menuToggle: {
       position: "absolute",
@@ -384,13 +394,13 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       backgroundColor: "transparent",
       cursor: "pointer",
       fontFamily: adminTheme.body,
-      fontSize: "0.93rem",
+      fontSize: "0.85rem",
       fontWeight: 500,
       justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      height: "46px",
-      borderRadius: "13px",
+      height: "44px",
+      borderRadius: "12px",
       transition: stylesGlobal.animations.transitions.base,
-      gap: "12px",
+      gap: "11px",
     },
     logoutText: {
       opacity: effectiveCollapsed ? 0 : 1,
@@ -628,7 +638,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                     activeStyle={styles.submenuLinkActive}
                   >
                     <FaRuler size={14} />
-                    <span style={styles.submenuText}>Gestión de Tallas</span>
+                    <span style={styles.submenuText}>Tallas</span>
                   </MenuLink>
                 </div>
                 <div style={styles.submenuItem}>
@@ -638,9 +648,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                     activeStyle={styles.submenuLinkActive}
                   >
                     <FaMapMarkerAlt size={14} />
-                    <span style={styles.submenuText}>
-                      Gestion de Localidades
-                    </span>
+                    <span style={styles.submenuText}>Localidades</span>
                   </MenuLink>
                 </div>
               </div>
@@ -695,7 +703,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                     activeStyle={styles.submenuLinkActive}
                   >
                     <FaImage size={14} />
-                    <span style={styles.submenuText}>Gestión de Fotos</span>
+                    <span style={styles.submenuText}>Fotos</span>
                   </MenuLink>
                 </div>
                 <div style={styles.submenuItem}>
@@ -705,7 +713,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                     activeStyle={styles.submenuLinkActive}
                   >
                     <FaVideo size={14} />
-                    <span style={styles.submenuText}>Gestión de Videos</span>
+                    <span style={styles.submenuText}>Videos</span>
                   </MenuLink>
                 </div>
               </div>
@@ -814,7 +822,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                     activeStyle={styles.submenuLinkActive}
                   >
                     <FaCog size={14} />
-                    <span style={styles.submenuText}>Configuración del Sitio</span>
+                    <span style={styles.submenuText}>Configuración</span>
                   </MenuLink>
                 </div>
               </div>
