@@ -1069,14 +1069,14 @@ const GestionProductos = () => {
   if (error && !user) {
     return (
       <div style={{ ...styles.pageContainer, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div style={{ textAlign: "center", padding: "2rem", backgroundColor: "#fee2e2", borderRadius: "8px", color: "#991b1b" }}>
+        <div style={{ textAlign: "center", padding: "2rem", backgroundColor: stylesPublic.colors.semantic.error.light, borderRadius: "8px", color: stylesPublic.colors.semantic.error.dark }}>
           <h3>Error</h3>
           <p>{error}</p>
           <button
             onClick={() => navigate("/login")}
             style={{
               padding: "8px 16px",
-              backgroundColor: "#991b1b",
+              backgroundColor: stylesPublic.colors.semantic.error.dark,
               color: "white",
               border: "none",
               borderRadius: "4px",
@@ -1442,14 +1442,8 @@ const GestionProductos = () => {
                   <button
                     type="button"
                     style={{
-                      padding: "0.6rem 1.25rem",
-                      borderRadius: "4px",
-                      border: "1px solid #e2e8f0",
-                      backgroundColor: "#f8fafc",
-                      color: "#64748b",
-                      fontSize: "0.9rem",
-                      fontWeight: "500",
-                      cursor: "pointer",
+                      ...stylesPublic.components.button.variants.ghost,
+                      ...stylesPublic.components.button.sizes.base,
                       flex: "1",
                     }}
                     onClick={() => setShowModal(false)}
@@ -1488,7 +1482,7 @@ const GestionProductos = () => {
 
             <div style={styles.modalBody}>
               <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
-                <div style={{ height: "200px", backgroundColor: "#f8f9fa", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+                <div style={{ height: "200px", backgroundColor: stylesPublic.colors.surface.secondary, borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${stylesPublic.colors.neutral[200]}` }}>
                   <img
                     src={selectedProduct.imagenURL || "/placeholder.svg"}
                     alt={selectedProduct.nombre || "Producto"}
@@ -1497,7 +1491,7 @@ const GestionProductos = () => {
                 </div>
 
                 <div>
-                  <h3 style={{ color: "#1e293b", marginBottom: "0.75rem", fontSize: "1.5rem", fontWeight: "700", lineHeight: "1.3" }}>
+                  <h3 style={{ color: stylesPublic.colors.text.primary, marginBottom: "0.75rem", fontSize: "1.5rem", fontWeight: "700", lineHeight: "1.3" }}>
                     {selectedProduct.nombre || "Sin nombre"}
                   </h3>
 
@@ -1510,19 +1504,19 @@ const GestionProductos = () => {
                     </span>
                   </div>
 
-                  <div style={{ backgroundColor: "#f8fafc", padding: "1rem", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                    <h4 style={{ color: "#64748b", marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <div style={{ backgroundColor: stylesPublic.colors.surface.secondary, padding: "1rem", borderRadius: "8px", border: `1px solid ${stylesPublic.colors.neutral[200]}` }}>
+                    <h4 style={{ color: stylesPublic.colors.text.tertiary, marginBottom: "0.5rem", fontSize: "0.85rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                       Descripción
                     </h4>
-                    <p style={{ color: "#475569", fontSize: "0.95rem", lineHeight: "1.6", margin: 0 }}>
+                    <p style={{ color: stylesPublic.colors.text.secondary, fontSize: "0.95rem", lineHeight: "1.6", margin: 0 }}>
                       {selectedProduct.descripcion || "Sin descripción"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div style={{ backgroundColor: "#f8fafc", borderRadius: "8px", padding: "1.5rem", border: "1px solid #e2e8f0" }}>
-                <h4 style={{ color: "#1e293b", marginBottom: "1.25rem", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <div style={{ backgroundColor: stylesPublic.colors.surface.secondary, borderRadius: "8px", padding: "1.5rem", border: `1px solid ${stylesPublic.colors.neutral[200]}` }}>
+                <h4 style={{ color: stylesPublic.colors.text.primary, marginBottom: "1.25rem", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.75rem" }}>
                   📏 Tallas Disponibles
                 </h4>
 
@@ -1535,8 +1529,8 @@ const GestionProductos = () => {
 
                   return (
                     <div key={genero} style={{ marginBottom: "1.5rem" }}>
-                      <h5 style={{ color: "#64748b", marginBottom: "0.75rem", fontSize: "0.9rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <span style={{ width: "8px", height: "8px", backgroundColor: "#0D1B2A", borderRadius: "50%" }}></span>
+                      <h5 style={{ color: stylesPublic.colors.text.tertiary, marginBottom: "0.75rem", fontSize: "0.9rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span style={{ width: "8px", height: "8px", backgroundColor: stylesPublic.colors.primary[500], borderRadius: "50%" }}></span>
                         {genero}
                       </h5>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -1551,7 +1545,7 @@ const GestionProductos = () => {
                               fontSize: "0.9rem",
                               fontWeight: "600",
                               boxShadow: "0 2px 4px rgba(13, 27, 42, 0.2)",
-                              border: "1px solid #1a2a44",
+                              border: `1px solid ${stylesPublic.colors.primary[600]}`,
                             }}
                           >
                             {talla.talla}
@@ -1573,7 +1567,7 @@ const GestionProductos = () => {
                 })}
 
                 {selectedProduct.tallasDisponibles?.length === 0 && (
-                  <div style={{ textAlign: "center", color: "#94a3b8", fontSize: "0.95rem", fontStyle: "italic", padding: "2rem" }}>
+                  <div style={{ textAlign: "center", color: stylesPublic.colors.text.muted, fontSize: "0.95rem", fontStyle: "italic", padding: "2rem" }}>
                     No hay tallas disponibles para este producto
                   </div>
                 )}
