@@ -161,6 +161,7 @@ const GestionProductos = () => {
   // Estados para datos
   const [localidades, setLocalidades] = useState([]);
   const [tallas, setTallas] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [productos, setProductos] = useState([]);
 
   // Estados para UI
@@ -198,6 +199,7 @@ const GestionProductos = () => {
     nombre: "",
     descripcion: "",
     localidadId: "",
+    categoriaId: "",
     tipoTela: "",
     tallasDisponibles: [],
   });
@@ -239,14 +241,16 @@ const GestionProductos = () => {
         setLoading(true);
         setError(null);
 
-        const [locResponse, tallasResponse, productosResponse] = await Promise.all([
+        const [locResponse, tallasResponse, categoriasResponse, productosResponse] = await Promise.all([
           adminService.getLocalidades(),
           adminService.getTallas(),
+          adminService.getCategorias(),
           adminService.getProductos(),
         ]);
 
         setLocalidades(locResponse);
         setTallas(tallasResponse);
+        setCategorias(categoriasResponse);
         setProductos(productosResponse);
       } catch (err) {
         // adminService ya maneja las notificaciones de error
@@ -404,6 +408,7 @@ const GestionProductos = () => {
       formData.append("nombre", producto.nombre);
       formData.append("descripcion", producto.descripcion);
       formData.append("localidadId", producto.localidadId);
+      formData.append("categoriaId", producto.categoriaId || "");
       formData.append("tipoTela", producto.tipoTela);
       
       producto.tallasDisponibles.forEach((t) => {
@@ -438,6 +443,7 @@ const GestionProductos = () => {
           nombre: "",
           descripcion: "",
           localidadId: "",
+          categoriaId: "",
           tipoTela: "",
           tallasDisponibles: [],
         });
@@ -462,6 +468,7 @@ const GestionProductos = () => {
       nombre: product.nombre || "",
       descripcion: product.descripcion || "",
       localidadId: product.localidadId?._id || product.localidadId || "",
+      categoriaId: product.categoriaId?._id || product.categoriaId || "",
       tipoTela: product.tipoTela || "",
       tallasDisponibles: product.tallasDisponibles || [],
     });
@@ -517,6 +524,13 @@ const GestionProductos = () => {
     if (typeof localidadId === "object") return localidadId.nombre || "Sin localidad";
     const localidad = localidades.find((l) => l._id === localidadId);
     return localidad?.nombre || "Sin localidad";
+  };
+
+  const getCategoriaNombre = (categoriaId) => {
+    if (!categoriaId) return "";
+    if (typeof categoriaId === "object") return categoriaId.nombre || "";
+    const categoria = categorias.find((c) => c._id === categoriaId);
+    return categoria?.nombre || "";
   };
 
   const getProductSizes = (tallasDisponibles) => {
@@ -1110,6 +1124,7 @@ const GestionProductos = () => {
                   nombre: "",
                   descripcion: "",
                   localidadId: "",
+                  categoriaId: "",
                   tipoTela: "",
                   tallasDisponibles: [],
                 });
@@ -1327,6 +1342,27 @@ const GestionProductos = () => {
                   </div>
 
                   <div style={styles.formGroup}>
+                    <label style={styles.label} htmlFor="categoriaId">
+                      Categoría
+                    </label>
+                    <select
+                      style={styles.select}
+                      id="categoriaId"
+                      name="categoriaId"
+                      value={producto.categoriaId}
+                      onChange={handleChange}
+                      disabled={loading}
+                    >
+                      <option value="">Sin categoría</option>
+                      {categorias.map((categoria) => (
+                        <option key={categoria._id} value={categoria._id}>
+                          {categoria.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="tipoTela">
                       Tipo de Tela<span style={styles.requiredField}>*</span>
                     </label>
@@ -1499,6 +1535,11 @@ const GestionProductos = () => {
                     <span style={{ ...styles.badge, backgroundColor: stylesPublic.colors.secondary[100], color: stylesPublic.colors.secondary[600] }}>
                       📍 {getLocalidadNombre(selectedProduct.localidadId)}
                     </span>
+                    {getCategoriaNombre(selectedProduct.categoriaId) && (
+                      <span style={{ ...styles.badge, backgroundColor: stylesPublic.colors.primary[100], color: stylesPublic.colors.primary[600] }}>
+                        🏷️ {getCategoriaNombre(selectedProduct.categoriaId)}
+                      </span>
+                    )}
                     <span style={{ ...styles.badge, backgroundColor: stylesPublic.colors.accent[100], color: stylesPublic.colors.accent[600] }}>
                       🧵 {selectedProduct.tipoTela || "-"}
                     </span>

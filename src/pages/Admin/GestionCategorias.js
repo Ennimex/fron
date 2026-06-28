@@ -285,6 +285,11 @@ const GestionCategorias = () => {
       overflow: "hidden",
       minHeight: "2.6em",
     },
+    mediaCount: {
+      color: stylesGlobal.colors.primary[600],
+      fontSize: stylesGlobal.typography.scale.sm,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+    },
     mediaFooter: {
       display: "flex",
       justifyContent: "flex-end",
@@ -924,6 +929,10 @@ const GestionCategorias = () => {
                 </div>
                 <div style={styles.mediaBody}>
                   <h3 style={styles.mediaTitle}>{categoria.nombre}</h3>
+                  <div style={styles.mediaCount}>
+                    {categoria.productosCount ?? 0}{" "}
+                    {(categoria.productosCount ?? 0) === 1 ? "producto" : "productos"}
+                  </div>
                   <p style={styles.mediaDesc}>
                     {categoria.descripcion || "Sin descripción"}
                   </p>
