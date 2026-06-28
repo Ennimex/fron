@@ -24,6 +24,7 @@ import {
   FaCog,
   FaBook,
   FaUserFriends,
+  FaClipboardList,
 } from "react-icons/fa"
 import stylesGlobal from "../../styles/stylesGlobal"
 
@@ -539,6 +540,19 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                   <FaUsers size={20} />
                 </span>
                 <span style={styles.menuText}>Usuarios</span>
+              </MenuLink>
+            </li>
+
+            <li style={styles.menuItem}>
+              <MenuLink
+                to="/admin/solicitudes"
+                style={styles.menuLink}
+                activeStyle={styles.menuLinkActive}
+              >
+                <span style={styles.menuIcon}>
+                  <FaClipboardList size={20} />
+                </span>
+                <span style={styles.menuText}>Solicitudes</span>
               </MenuLink>
             </li>
 

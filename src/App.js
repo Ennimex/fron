@@ -46,6 +46,7 @@ import GestionServicio from "./pages/Admin/GestionServicio";
 import GestionConfiguracion from "./pages/Admin/GestionConfiguracion";
 import GestionNosotros from "./pages/Admin/GestionNosotros";
 import GestionColaboradores from "./pages/Admin/GestionColaboradores";
+import GestionSolicitudes from "./pages/Admin/GestionSolicitudes";
 
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
@@ -92,6 +93,7 @@ function App() {
               <Route path="/admin" element={<PrivateRoute allowedRoles={["admin"]}><AdminDashboard /></PrivateRoute>} />
               <Route path="/admin/perfil" element={<PrivateRoute allowedRoles={["admin"]}><AdminPerfil /></PrivateRoute>} />
               <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={["admin"]}><AdminUsersView /></PrivateRoute>} />
+              <Route path="/admin/solicitudes" element={<PrivateRoute allowedRoles={["admin"]}><GestionSolicitudes /></PrivateRoute>} />
               <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={["admin"]}><AdminNuevoProducto /></PrivateRoute>} />
               <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={["admin"]}><GestionTallas /></PrivateRoute>} />
               <Route path="/admin/productos/categorias" element={<PrivateRoute allowedRoles={["admin"]}><GestionCategorias /></PrivateRoute>} />

@@ -566,6 +566,23 @@ class AdminService {
       'Error al eliminar usuario'
     );
   }
+
+  // ============== SOLICITUDES DE COTIZACIÓN ==============
+  async getSolicitudes() {
+    return this.handleApiResponse(
+      () => api.get('/admin/solicitudes'),
+      null, // No mostrar notificación al cargar la lista
+      'Error al cargar las solicitudes'
+    );
+  }
+
+  async updateSolicitudEstado(solicitudId, estado) {
+    return this.handleApiResponse(
+      () => api.patch(`/admin/solicitudes/${solicitudId}`, { estado }),
+      'Estado de la solicitud actualizado',
+      'Error al actualizar la solicitud'
+    );
+  }
 }
 
 // Crear instancia singleton

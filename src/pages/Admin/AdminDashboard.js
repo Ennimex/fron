@@ -5,12 +5,13 @@ import { adminAPI } from '../../services/api';
 import { localidadService } from '../../services/localidadService';
 import { categoriaService } from '../../services/categoriaService';
 import { productService } from '../../services/productService';
-import { 
+import {
   FaUsers, FaBoxOpen, FaChartLine,
-  FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus
+  FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus, FaClipboardList
 } from 'react-icons/fa';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import stylesGlobal from '../../styles/stylesGlobal';
 
 // Registrar componentes de ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -18,228 +19,39 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 // Estilos CSS responsivos para AdminDashboard
 const responsiveStyles = `
   @media (max-width: 1024px) {
-    .admin-dashboard-container {
-      padding: 1.5rem !important;
-    }
-    
-    .admin-dashboard-grid {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
-      gap: 1.25rem !important;
-    }
-    
-    .admin-dashboard-columns {
-      grid-template-columns: 1fr !important;
-      gap: 1.25rem !important;
-    }
+    .admin-dashboard-container { padding: 1.5rem !important; }
+    .admin-dashboard-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; gap: 1.25rem !important; }
+    .admin-dashboard-columns { grid-template-columns: 1fr !important; gap: 1.25rem !important; }
   }
 
   @media (max-width: 768px) {
-    .admin-dashboard-container {
-      padding: 1rem !important;
-    }
-    
-    .admin-dashboard-grid {
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
-      gap: 1rem !important;
-      margin-bottom: 1.5rem !important;
-    }
-    
-    .admin-dashboard-header {
-      margin-bottom: 1.5rem !important;
-      text-align: center !important;
-    }
-    
-    .admin-dashboard-title {
-      font-size: 1.5rem !important;
-    }
-    
-    .admin-stats-card {
-      padding: 1.25rem !important;
-    }
-    
-    .admin-dashboard-columns {
-      grid-template-columns: 1fr !important;
-      gap: 1rem !important;
-    }
-    
-    .admin-section {
-      padding: 1.25rem !important;
-      margin-bottom: 1rem !important;
-    }
-    
-    .admin-users-grid {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
-      gap: 0.75rem !important;
-    }
-    
-    .admin-chart-container {
-      padding: 1.25rem !important;
-    }
-    
-    .admin-chart-header {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 1rem !important;
-    }
-    
-    .admin-chart-controls {
-      display: flex !important;
-      gap: 0.5rem !important;
-      flex-wrap: wrap !important;
-    }
-    
-    .admin-activity-content {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 0.75rem !important;
-    }
-    
-    .admin-activity-icon {
-      margin-bottom: 0.5rem !important;
-    }
+    .admin-dashboard-container { padding: 1rem !important; }
+    .admin-dashboard-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important; gap: 1rem !important; margin-bottom: 1.5rem !important; }
+    .admin-dashboard-header { margin-bottom: 1.5rem !important; }
+    .admin-dashboard-title { font-size: 1.5rem !important; }
+    .admin-stats-card { padding: 1.25rem !important; }
+    .admin-dashboard-columns { grid-template-columns: 1fr !important; gap: 1rem !important; }
+    .admin-section { padding: 1.25rem !important; margin-bottom: 1rem !important; }
+    .admin-chart-container { padding: 1.25rem !important; }
+    .admin-chart-header { flex-direction: column !important; align-items: flex-start !important; gap: 1rem !important; }
+    .admin-chart-controls { display: flex !important; gap: 0.5rem !important; flex-wrap: wrap !important; }
   }
 
   @media (max-width: 480px) {
-    .admin-dashboard-container {
-      padding: 0.5rem !important;
-    }
-    
-    .admin-dashboard-grid {
-      grid-template-columns: 1fr !important;
-      gap: 0.75rem !important;
-      margin-bottom: 1rem !important;
-    }
-    
-    .admin-dashboard-header {
-      margin-bottom: 1rem !important;
-    }
-    
-    .admin-dashboard-title {
-      font-size: 1.25rem !important;
-    }
-    
-    .admin-dashboard-subtitle {
-      font-size: 0.875rem !important;
-    }
-    
-    .admin-stats-card {
-      padding: 1rem !important;
-    }
-    
-    .admin-stat-value {
-      font-size: 1.25rem !important;
-    }
-    
-    .admin-stat-label {
-      font-size: 0.8rem !important;
-    }
-    
-    .admin-section {
-      padding: 1rem !important;
-      margin-bottom: 0.75rem !important;
-    }
-    
-    .admin-users-grid {
-      grid-template-columns: 1fr !important;
-      gap: 0.5rem !important;
-    }
-    
-    .admin-chart-container {
-      padding: 1rem !important;
-    }
-    
-    .admin-chart-header {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 0.75rem !important;
-    }
-    
-    .admin-chart-title {
-      font-size: 1rem !important;
-    }
-    
-    .admin-chart-controls {
-      width: 100% !important;
-      justify-content: space-between !important;
-    }
-    
-    .admin-chart-control-button {
-      font-size: 0.75rem !important;
-      padding: 0.3rem 0.6rem !important;
-    }
-    
-    .admin-user-card {
-      padding: 0.75rem !important;
-    }
-    
-    .admin-user-avatar {
-      width: 32px !important;
-      height: 32px !important;
-      font-size: 1rem !important;
-      margin-right: 0.75rem !important;
-    }
-    
-    .admin-user-name {
-      font-size: 0.875rem !important;
-    }
-    
-    .admin-user-email {
-      font-size: 0.8rem !important;
-    }
-    
-    .admin-user-role {
-      font-size: 0.7rem !important;
-      padding: 0.15rem 0.4rem !important;
-    }
-    
-    .admin-activity-item {
-      padding: 0.75rem !important;
-    }
-    
-    .admin-activity-content {
-      gap: 0.5rem !important;
-    }
-    
-    .admin-activity-icon {
-      width: 28px !important;
-      height: 28px !important;
-      font-size: 0.875rem !important;
-    }
-    
-    .admin-activity-text {
-      font-size: 0.825rem !important;
-    }
-    
-    .admin-activity-time {
-      font-size: 0.75rem !important;
-    }
+    .admin-dashboard-container { padding: 0.5rem !important; }
+    .admin-dashboard-grid { grid-template-columns: 1fr !important; gap: 0.75rem !important; margin-bottom: 1rem !important; }
+    .admin-dashboard-title { font-size: 1.25rem !important; }
+    .admin-dashboard-subtitle { font-size: 0.875rem !important; }
+    .admin-stats-card { padding: 1rem !important; }
+    .admin-stat-value { font-size: 1.25rem !important; }
+    .admin-stat-label { font-size: 0.8rem !important; }
+    .admin-section { padding: 1rem !important; margin-bottom: 0.75rem !important; }
+    .admin-chart-container { padding: 1rem !important; }
   }
-  
-  @media (max-width: 320px) {
-    .admin-dashboard-container {
-      padding: 0.25rem !important;
-    }
-    
-    .admin-dashboard-grid {
-      gap: 0.5rem !important;
-    }
-    
-    .admin-stats-card {
-      padding: 0.75rem !important;
-    }
-    
-    .admin-section {
-      padding: 0.75rem !important;
-      margin-bottom: 0.5rem !important;
-    }
-    
-    .admin-dashboard-title {
-      font-size: 1.125rem !important;
-    }
-    
-    .admin-stat-value {
-      font-size: 1.125rem !important;
-    }
+
+  .admin-stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: ${stylesGlobal.shadows.md};
   }
 `;
 
@@ -256,355 +68,229 @@ if (typeof document !== 'undefined') {
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
-  // Estilos mejorados con responsividad
+
+  // Estilos alineados con la paleta de marca (stylesGlobal)
   const styles = {
     dashboardContainer: {
-      backgroundColor: '#f5f7fa',
+      backgroundColor: stylesGlobal.colors.surface.secondary,
       minHeight: '100vh',
-      padding: '2rem',
-      fontFamily: "'Inter', sans-serif",
-      // Responsive padding
-      '@media (max-width: 768px)': {
-        padding: '1rem',
-      },
-      '@media (max-width: 480px)': {
-        padding: '0.5rem',
-      },
+      padding: stylesGlobal.spacing.scale[8],
+      fontFamily: stylesGlobal.typography.families.body,
     },
     dashboardGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-      gap: '1.5rem',
-      marginBottom: '2rem',
-      // Responsive grid
-      '@media (max-width: 768px)': {
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1.5rem',
-      },
-      '@media (max-width: 480px)': {
-        gridTemplateColumns: '1fr',
-        gap: '0.75rem',
-        marginBottom: '1rem',
-      },
+      gap: stylesGlobal.spacing.scale[6],
+      marginBottom: stylesGlobal.spacing.scale[8],
     },
     dashboardHeader: {
-      marginBottom: '2rem',
-      // Responsive header
-      '@media (max-width: 768px)': {
-        marginBottom: '1.5rem',
-        textAlign: 'center',
-      },
-      '@media (max-width: 480px)': {
-        marginBottom: '1rem',
-      },
+      marginBottom: stylesGlobal.spacing.scale[8],
     },
     dashboardTitle: {
-      fontSize: '1.8rem',
-      fontWeight: '700',
-      color: '#2d3748',
-      margin: '0 0 0.5rem 0',
-      // Responsive title
-      '@media (max-width: 768px)': {
-        fontSize: '1.5rem',
-      },
-      '@media (max-width: 480px)': {
-        fontSize: '1.25rem',
-      },
+      ...stylesGlobal.typography.headings.h2,
+      margin: `0 0 ${stylesGlobal.spacing.scale[2]} 0`,
     },
     dashboardSubtitle: {
-      fontSize: '1rem',
-      color: '#718096',
+      ...stylesGlobal.typography.body.base,
+      color: stylesGlobal.colors.text.secondary,
       margin: 0,
-      // Responsive subtitle
-      '@media (max-width: 480px)': {
-        fontSize: '0.875rem',
-      },
     },
     statsCard: {
-      backgroundColor: 'white',
-      borderRadius: '10px',
-      padding: '1.5rem',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+      ...stylesGlobal.components.card.base,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: stylesGlobal.spacing.scale[6],
       display: 'flex',
       flexDirection: 'column',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       cursor: 'pointer',
-      border: '1px solid #edf2f7',
-      // Responsive card
-      '@media (max-width: 768px)': {
-        padding: '1.25rem',
-      },
-      '@media (max-width: 480px)': {
-        padding: '1rem',
-      },
     },
     statHeader: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '1rem',
+      marginBottom: stylesGlobal.spacing.scale[4],
     },
     statIcon: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '10px',
+      width: '44px',
+      height: '44px',
+      borderRadius: stylesGlobal.borders.radius.lg,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontSize: '1.2rem',
-      color: 'white',
+      color: stylesGlobal.colors.text.inverse,
     },
     statValue: {
       fontSize: '1.8rem',
-      fontWeight: 'bold',
-      margin: '0.5rem 0',
-      color: '#2d3748',
-      // Responsive value
-      '@media (max-width: 768px)': {
-        fontSize: '1.5rem',
-      },
-      '@media (max-width: 480px)': {
-        fontSize: '1.25rem',
-      },
+      fontWeight: stylesGlobal.typography.weights.bold,
+      margin: `${stylesGlobal.spacing.scale[1]} 0 0 0`,
+      color: stylesGlobal.colors.text.primary,
     },
     statLabel: {
-      fontSize: '0.9rem',
-      color: '#718096',
+      fontSize: stylesGlobal.typography.scale.sm,
+      color: stylesGlobal.colors.text.secondary,
       margin: 0,
-      // Responsive label
-      '@media (max-width: 480px)': {
-        fontSize: '0.8rem',
-      },
     },
-    statChange: {
-      display: 'flex',
-      alignItems: 'center',
-      fontSize: '0.8rem',
-      marginTop: '0.5rem',
-    },
-    iconUsers: {
-      backgroundColor: '#4299e1',
-    },
-    iconOrders: {
-      backgroundColor: '#9f7aea',
-    },
-    iconProducts: {
-      backgroundColor: '#48bb78',
-    },
-    iconSales: {
-      backgroundColor: '#ed8936',
-    },
-    iconCategories: {
-      backgroundColor: '#667eea',
-    },
-    iconLocations: {
-      backgroundColor: '#f687b3',
-    },
-    positive: {
-      color: '#48bb78',
-    },
-    negative: {
-      color: '#f56565',
-    },
-    gridLayoutFull: {
-      gridColumn: '1 / -1',
+    statBadge: {
+      fontSize: stylesGlobal.typography.scale.xs,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      padding: `${stylesGlobal.spacing.scale[1]} ${stylesGlobal.spacing.scale[2]}`,
+      borderRadius: stylesGlobal.borders.radius.full,
+      backgroundColor: stylesGlobal.colors.semantic.warning.light,
+      color: stylesGlobal.colors.semantic.warning.dark,
     },
     chartContainer: {
-      backgroundColor: 'white',
-      borderRadius: '10px',
-      padding: '1.5rem',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-      border: '1px solid #edf2f7',
+      ...stylesGlobal.components.card.base,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: stylesGlobal.spacing.scale[6],
     },
     chartHeader: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '1.5rem',
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     chartTitle: {
-      fontSize: '1.2rem',
-      fontWeight: '600',
-      color: '#2d3748',
+      ...stylesGlobal.typography.headings.h5,
       margin: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: stylesGlobal.spacing.scale[2],
     },
     chartControls: {
       display: 'flex',
-      gap: '0.5rem',
+      gap: stylesGlobal.spacing.scale[2],
     },
     chartControlButton: {
-      padding: '0.4rem 0.8rem',
-      backgroundColor: '#f7fafc',
-      border: '1px solid #e2e8f0',
-      borderRadius: '6px',
-      fontSize: '0.8rem',
+      padding: `${stylesGlobal.spacing.scale[2]} ${stylesGlobal.spacing.scale[3]}`,
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
+      borderRadius: stylesGlobal.borders.radius.base,
+      fontSize: stylesGlobal.typography.scale.sm,
+      color: stylesGlobal.colors.text.secondary,
       cursor: 'pointer',
-      transition: 'all 0.2s ease',
+      transition: stylesGlobal.animations.transitions.base,
     },
     chartControlButtonActive: {
-      backgroundColor: '#ebf4ff',
-      borderColor: '#4299e1',
-      color: '#3182ce',
+      backgroundColor: stylesGlobal.colors.primary[50],
+      borderColor: stylesGlobal.colors.primary[500],
+      color: stylesGlobal.colors.primary[600],
+      fontWeight: stylesGlobal.typography.weights.semibold,
     },
     section: {
-      backgroundColor: 'white',
-      borderRadius: '10px',
-      padding: '1.5rem',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-      marginBottom: '1.5rem',
-      border: '1px solid #edf2f7',
-      // Responsive section
-      '@media (max-width: 768px)': {
-        padding: '1.25rem',
-        marginBottom: '1rem',
-      },
-      '@media (max-width: 480px)': {
-        padding: '1rem',
-        marginBottom: '0.75rem',
-      },
+      ...stylesGlobal.components.card.base,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: stylesGlobal.spacing.scale[6],
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
     sectionHeader: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '1.2rem',
+      marginBottom: stylesGlobal.spacing.scale[5],
     },
     sectionTitle: {
-      fontSize: '1.2rem',
-      fontWeight: '600',
-      color: '#2d3748',
+      ...stylesGlobal.typography.headings.h5,
       margin: 0,
       display: 'flex',
       alignItems: 'center',
-      gap: '0.5rem',
+      gap: stylesGlobal.spacing.scale[2],
     },
     viewAllButton: {
       display: 'flex',
       alignItems: 'center',
-      color: '#4299e1',
-      fontSize: '0.9rem',
-      textDecoration: 'none',
+      gap: stylesGlobal.spacing.scale[1],
+      color: stylesGlobal.colors.primary[500],
+      fontSize: stylesGlobal.typography.scale.sm,
+      fontWeight: stylesGlobal.typography.weights.medium,
       border: 'none',
       background: 'none',
       cursor: 'pointer',
-      padding: '0.3rem 0.6rem',
-      borderRadius: '4px',
-      transition: 'background-color 0.2s ease',
-    },
-    usersGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-      gap: '1rem',
-      // Responsive users grid
-      '@media (max-width: 768px)': {
-        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-        gap: '0.75rem',
-      },
-      '@media (max-width: 480px)': {
-        gridTemplateColumns: '1fr',
-        gap: '0.5rem',
-      },
     },
     userCard: {
       display: 'flex',
       alignItems: 'center',
-      padding: '1rem',
-      backgroundColor: '#f8fafc',
-      borderRadius: '8px',
-      border: '1px solid #e2e8f0',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      padding: stylesGlobal.spacing.scale[3],
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     userAvatar: {
       width: '40px',
       height: '40px',
-      borderRadius: '50%',
-      backgroundColor: '#4299e1',
-      color: 'white',
+      borderRadius: stylesGlobal.borders.radius.full,
+      backgroundColor: stylesGlobal.colors.primary[50],
+      color: stylesGlobal.colors.primary[500],
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      marginRight: '1rem',
-      fontSize: '1.2rem',
-      fontWeight: 'bold',
-    },
-    userInfo: {
-      flex: 1,
+      marginRight: stylesGlobal.spacing.scale[3],
+      fontSize: '1.1rem',
+      fontWeight: stylesGlobal.typography.weights.bold,
+      flexShrink: 0,
     },
     userName: {
       margin: 0,
-      fontWeight: 'bold',
-      color: '#2d3748',
-      fontSize: '0.95rem',
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.primary,
+      fontSize: stylesGlobal.typography.scale.sm,
     },
     userEmail: {
-      margin: '0.2rem 0 0 0',
-      fontSize: '0.85rem',
-      color: '#718096',
+      margin: `${stylesGlobal.spacing.scale[1]} 0 0 0`,
+      fontSize: stylesGlobal.typography.scale.xs,
+      color: stylesGlobal.colors.text.secondary,
     },
     userRole: {
-      fontSize: '0.75rem',
-      padding: '0.2rem 0.5rem',
-      borderRadius: '4px',
-      backgroundColor: '#ebf8ff',
-      color: '#3182ce',
+      fontSize: stylesGlobal.typography.scale.xs,
+      padding: `${stylesGlobal.spacing.scale[1]} ${stylesGlobal.spacing.scale[2]}`,
+      borderRadius: stylesGlobal.borders.radius.sm,
+      backgroundColor: stylesGlobal.colors.secondary[50],
+      color: stylesGlobal.colors.secondary[600],
       display: 'inline-block',
-      marginTop: '0.3rem',
+      marginTop: stylesGlobal.spacing.scale[1],
     },
     activityList: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '1rem',
+      gap: stylesGlobal.spacing.scale[3],
     },
     activityItem: {
-      padding: '1rem',
-      backgroundColor: '#f8fafc',
-      borderRadius: '8px',
-      border: '1px solid #e2e8f0',
+      padding: stylesGlobal.spacing.scale[3],
+      backgroundColor: stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.md,
+      border: `1px solid ${stylesGlobal.borders.colors.default}`,
     },
     activityContent: {
       display: 'flex',
       alignItems: 'flex-start',
-      gap: '1rem',
+      gap: stylesGlobal.spacing.scale[3],
     },
     activityIcon: {
       width: '36px',
       height: '36px',
-      borderRadius: '50%',
-      backgroundColor: '#ebf8ff',
-      color: '#3182ce',
+      borderRadius: stylesGlobal.borders.radius.full,
+      backgroundColor: stylesGlobal.colors.primary[50],
+      color: stylesGlobal.colors.primary[500],
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontSize: '1rem',
+      flexShrink: 0,
     },
-    activityDetails: {
-      flex: 1,
-    },
+    activityDetails: { flex: 1 },
     activityText: {
       margin: 0,
-      fontSize: '0.9rem',
-      color: '#4a5568',
-    },
-    activityHighlight: {
-      fontWeight: '600',
-      color: '#2d3748',
+      fontSize: stylesGlobal.typography.scale.sm,
+      color: stylesGlobal.colors.text.primary,
     },
     activityTime: {
-      margin: '0.3rem 0 0 0',
-      fontSize: '0.8rem',
-      color: '#a0aec0',
+      margin: `${stylesGlobal.spacing.scale[1]} 0 0 0`,
+      fontSize: stylesGlobal.typography.scale.xs,
+      color: stylesGlobal.colors.text.tertiary,
     },
     dashboardColumns: {
       display: 'grid',
       gridTemplateColumns: '2fr 1fr',
-      gap: '1.5rem',
-      // Responsive columns
-      '@media (max-width: 768px)': {
-        gridTemplateColumns: '1fr',
-        gap: '1rem',
-      },
+      gap: stylesGlobal.spacing.scale[6],
     },
     loadingContainer: {
       display: 'flex',
@@ -612,14 +298,14 @@ const AdminDashboard = () => {
       alignItems: 'center',
       height: '100vh',
       fontSize: '1.2rem',
-      color: '#718096',
+      color: stylesGlobal.colors.text.secondary,
     },
     errorContainer: {
-      backgroundColor: '#fff5f5',
-      color: '#c53030',
-      padding: '1.5rem',
-      borderRadius: '10px',
-      margin: '2rem',
+      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      color: stylesGlobal.colors.semantic.error.dark,
+      padding: stylesGlobal.spacing.scale[6],
+      borderRadius: stylesGlobal.borders.radius.lg,
+      margin: stylesGlobal.spacing.scale[8],
       textAlign: 'center',
     },
   };
@@ -630,7 +316,8 @@ const AdminDashboard = () => {
     categories: 0,
     locations: 0,
     eventos: 0,
-    fotos: 0
+    fotos: 0,
+    solicitudesPendientes: 0,
   });
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
@@ -658,10 +345,7 @@ const AdminDashboard = () => {
         const localidadesData = await localidadService.getAll();
 
         // Crear array de actividades recientes combinando datos de diferentes servicios
-        let activityData = [];
-
-        // Agregar productos recientes
-        const productosRecientes = Array.isArray(productsData) ? 
+        const productosRecientes = Array.isArray(productsData) ?
           productsData
             .slice(0, 3)
             .map(p => ({
@@ -671,7 +355,6 @@ const AdminDashboard = () => {
               detalles: { nombre: p.nombre }
             })) : [];
 
-        // Agregar usuarios recientes
         const usuariosRecientes = usersData
           .slice(0, 3)
           .map(u => ({
@@ -681,7 +364,6 @@ const AdminDashboard = () => {
             detalles: { email: u.email }
           }));
 
-        // Agregar categorías recientes
         const categoriasRecientes = Array.isArray(categoriasData) ?
           categoriasData
             .slice(0, 2)
@@ -692,8 +374,7 @@ const AdminDashboard = () => {
               detalles: { nombre: c.nombre }
             })) : [];
 
-        // Combinar todas las actividades y ordenar por fecha
-        activityData = [...productosRecientes, ...usuariosRecientes, ...categoriasRecientes]
+        const activityData = [...productosRecientes, ...usuariosRecientes, ...categoriasRecientes]
           .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
         // Conteos reales (del endpoint del dashboard, con respaldo a los servicios)
@@ -705,27 +386,27 @@ const AdminDashboard = () => {
           locations: counts.localidades ?? (Array.isArray(localidadesData) ? localidadesData.length : 0),
           eventos: counts.eventos ?? 0,
           fotos: counts.fotos ?? 0,
+          solicitudesPendientes: counts.solicitudesPendientes ?? 0,
         });
 
         // Procesar usuarios recientes (tomar los últimos 5)
         const sortedUsers = usersData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setRecentUsers(sortedUsers.slice(0, 5));
-        
+
         // Procesar actividad reciente
         setRecentActivity(activityData.slice(0, 5));
 
         // Datos reales para el gráfico de usuarios registrados
         const usersChartData = dashboard?.usersTrend?.[timeRange] || { labels: [], data: [] };
 
-        // Configurar datos del gráfico
         setChartData({
           labels: usersChartData.labels,
           datasets: [
             {
               label: 'Usuarios Registrados',
               data: usersChartData.data,
-              borderColor: '#3498db',
-              backgroundColor: 'rgba(52, 152, 219, 0.2)',
+              borderColor: stylesGlobal.colors.primary[500],
+              backgroundColor: 'rgba(214, 51, 132, 0.15)',
               tension: 0.4,
               fill: true,
             },
@@ -742,10 +423,6 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, [user.token, timeRange]);
 
-  const handleViewAllUsers = () => {
-    navigate('/admin/usuarios');
-  };
-
   const handleTimeRangeChange = (range) => {
     setTimeRange(range);
   };
@@ -758,71 +435,67 @@ const AdminDashboard = () => {
     return <div style={styles.errorContainer}>Error: {error}</div>;
   }
 
+  // Tarjetas de estadística (clicables → navegan a la sección correspondiente)
+  const statCards = [
+    { label: 'Usuarios Registrados', value: stats.users, icon: <FaUsers />, color: stylesGlobal.colors.primary[500], to: '/admin/usuarios' },
+    { label: 'Productos', value: stats.products, icon: <FaBoxOpen />, color: stylesGlobal.colors.secondary[500], to: '/admin/productos/nuevo' },
+    { label: 'Categorías', value: stats.categories, icon: <FaTag />, color: stylesGlobal.colors.accent[500], to: '/admin/productos/categorias' },
+    { label: 'Localidades', value: stats.locations, icon: <FaMapMarkerAlt />, color: stylesGlobal.colors.semantic.info.main, to: '/admin/localidades' },
+    { label: 'Eventos', value: stats.eventos, icon: <FaCalendarAlt />, color: stylesGlobal.colors.secondary[600], to: '/admin/eventos' },
+    { label: 'Fotos en galería', value: stats.fotos, icon: <FaEye />, color: stylesGlobal.colors.primary[400], to: '/admin/galeria/fotos' },
+    {
+      label: 'Solicitudes pendientes',
+      value: stats.solicitudesPendientes,
+      icon: <FaClipboardList />,
+      color: stylesGlobal.colors.semantic.warning.main,
+      to: '/admin/solicitudes',
+      badge: stats.solicitudesPendientes > 0 ? 'Por atender' : null,
+    },
+  ];
+
   // Opciones para el gráfico
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Tendencia de Usuarios Registrados',
-      },
+      legend: { position: 'top' },
+      title: { display: true, text: 'Tendencia de Usuarios Registrados' },
     },
-    scales: {
-      y: {
-        beginAtZero: true
-      }
-    }
+    scales: { y: { beginAtZero: true } },
   };
 
   // Generar contenido de actividad reciente
   const getActivityContent = (activity) => {
     if (!activity) return null;
-    
-    const getIconForActivity = (activity) => {
-      switch (activity.tipo) {
-        case 'producto':
-          return <FaBoxOpen />;
-        case 'usuario':
-          return <FaUserPlus />;
-        case 'categoria':
-          return <FaTag />;
-        case 'localidad':
-          return <FaMapMarkerAlt />;
-        default:
-          return <FaCalendarAlt />;
+
+    const getIconForActivity = (a) => {
+      switch (a.tipo) {
+        case 'producto': return <FaBoxOpen />;
+        case 'usuario': return <FaUserPlus />;
+        case 'categoria': return <FaTag />;
+        case 'localidad': return <FaMapMarkerAlt />;
+        default: return <FaCalendarAlt />;
       }
     };
 
-    const getMessageForActivity = (activity) => {
-      switch (activity.tipo) {
-        case 'producto':
-          return `${activity.accion} producto: ${activity.detalles?.nombre || 'Sin nombre'}`;
-        case 'usuario':
-          return `${activity.accion} usuario: ${activity.detalles?.email || 'Usuario'}`;
-        case 'categoria':
-          return `${activity.accion} categoría: ${activity.detalles?.nombre || 'Sin nombre'}`;
-        case 'localidad':
-          return `${activity.accion} localidad: ${activity.detalles?.nombre || 'Sin nombre'}`;
-        default:
-          return activity.descripcion || 'Actividad realizada';
+    const getMessageForActivity = (a) => {
+      switch (a.tipo) {
+        case 'producto': return `${a.accion} producto: ${a.detalles?.nombre || 'Sin nombre'}`;
+        case 'usuario': return `${a.accion} usuario: ${a.detalles?.email || 'Usuario'}`;
+        case 'categoria': return `${a.accion} categoría: ${a.detalles?.nombre || 'Sin nombre'}`;
+        case 'localidad': return `${a.accion} localidad: ${a.detalles?.nombre || 'Sin nombre'}`;
+        default: return a.descripcion || 'Actividad realizada';
       }
     };
 
     return (
-      <div style={styles.activityContent} className="admin-activity-content">
-        <div style={styles.activityIcon} className="admin-activity-icon">
+      <div style={styles.activityContent}>
+        <div style={styles.activityIcon}>
           {getIconForActivity(activity)}
         </div>
         <div style={styles.activityDetails}>
-          <p style={styles.activityText} className="admin-activity-text">
-            <span style={styles.activityHighlight}>{getMessageForActivity(activity)}</span>
-          </p>
-          <p style={styles.activityTime} className="admin-activity-time">
-            {formatActivityTime(activity.fecha)}
-          </p>
+          <p style={styles.activityText}>{getMessageForActivity(activity)}</p>
+          <p style={styles.activityTime}>{formatActivityTime(activity.fecha)}</p>
         </div>
       </div>
     );
@@ -831,23 +504,18 @@ const AdminDashboard = () => {
   // Formatear tiempo para actividad
   const formatActivityTime = (timestamp) => {
     if (!timestamp) return 'Fecha desconocida';
-    
+
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now - date;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
-    
-    if (diffMins < 60) {
-      return `Hace ${diffMins} minutos`;
-    } else if (diffHours < 24) {
-      return `Hace ${diffHours} horas`;
-    } else if (diffDays < 7) {
-      return `Hace ${diffDays} días`;
-    } else {
-      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
+
+    if (diffMins < 60) return `Hace ${diffMins} minutos`;
+    if (diffHours < 24) return `Hace ${diffHours} horas`;
+    if (diffDays < 7) return `Hace ${diffDays} días`;
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   return (
@@ -859,112 +527,58 @@ const AdminDashboard = () => {
 
       {/* Estadísticas principales */}
       <div style={styles.dashboardGrid} className="admin-dashboard-grid">
-        <div style={styles.statsCard} className="admin-stats-card">
-          <div style={styles.statHeader}>
-            <div style={{...styles.statIcon, ...styles.iconUsers}}>
-              <FaUsers />
+        {statCards.map((card) => (
+          <div
+            key={card.label}
+            style={styles.statsCard}
+            className="admin-stats-card"
+            onClick={() => navigate(card.to)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && navigate(card.to)}
+          >
+            <div style={styles.statHeader}>
+              <div style={{ ...styles.statIcon, backgroundColor: card.color }}>
+                {card.icon}
+              </div>
+              {card.badge && <span style={styles.statBadge}>{card.badge}</span>}
             </div>
+            <p style={styles.statLabel} className="admin-stat-label">{card.label}</p>
+            <h3 style={styles.statValue} className="admin-stat-value">{Number(card.value).toLocaleString()}</h3>
           </div>
-          <p style={styles.statLabel} className="admin-stat-label">Usuarios Registrados</p>
-          <h3 style={styles.statValue} className="admin-stat-value">{stats.users.toLocaleString()}</h3>
-        </div>
-
-        <div style={styles.statsCard} className="admin-stats-card">
-          <div style={styles.statHeader}>
-            <div style={{...styles.statIcon, ...styles.iconProducts}}>
-              <FaBoxOpen />
-            </div>
-          </div>
-          <p style={styles.statLabel} className="admin-stat-label">Productos</p>
-          <h3 style={styles.statValue} className="admin-stat-value">{stats.products.toLocaleString()}</h3>
-        </div>
-
-        {/* Categorías y Localidades */}
-        <div style={styles.statsCard} className="admin-stats-card">
-          <div style={styles.statHeader}>
-            <div style={{...styles.statIcon, ...styles.iconCategories}}>
-              <FaTag />
-            </div>
-          </div>
-          <p style={styles.statLabel} className="admin-stat-label">Categorías</p>
-          <h3 style={styles.statValue} className="admin-stat-value">{stats.categories.toLocaleString()}</h3>
-        </div>
-
-        <div style={styles.statsCard} className="admin-stats-card">
-          <div style={styles.statHeader}>
-            <div style={{...styles.statIcon, ...styles.iconLocations}}>
-              <FaMapMarkerAlt />
-            </div>
-          </div>
-          <p style={styles.statLabel}>Localidades</p>
-          <h3 style={styles.statValue}>{stats.locations.toLocaleString()}</h3>
-        </div>
-
-        <div style={styles.statsCard} className="admin-stats-card">
-          <div style={styles.statHeader}>
-            <div style={{...styles.statIcon, ...styles.iconOrders}}>
-              <FaCalendarAlt />
-            </div>
-          </div>
-          <p style={styles.statLabel}>Eventos</p>
-          <h3 style={styles.statValue}>{stats.eventos.toLocaleString()}</h3>
-        </div>
-
-        <div style={styles.statsCard} className="admin-stats-card">
-          <div style={styles.statHeader}>
-            <div style={{...styles.statIcon, ...styles.iconSales}}>
-              <FaEye />
-            </div>
-          </div>
-          <p style={styles.statLabel}>Fotos en galería</p>
-          <h3 style={styles.statValue}>{stats.fotos.toLocaleString()}</h3>
-        </div>
+        ))}
       </div>
 
       <div style={styles.dashboardColumns} className="admin-dashboard-columns">
         <div>
           {/* Gráfico de usuarios registrados */}
-          <div style={{...styles.chartContainer, marginBottom: '1.5rem'}} className="admin-chart-container">
+          <div style={{ ...styles.chartContainer, marginBottom: stylesGlobal.spacing.scale[6] }} className="admin-chart-container">
             <div style={styles.chartHeader} className="admin-chart-header">
               <h3 style={styles.chartTitle} className="admin-chart-title">
-                <FaChartLine style={{marginRight: '0.5rem'}} /> Tendencia de Usuarios Registrados
+                <FaChartLine style={{ color: stylesGlobal.colors.primary[500] }} /> Tendencia de Usuarios Registrados
               </h3>
               <div style={styles.chartControls} className="admin-chart-controls">
-                <button 
-                  style={{
-                    ...styles.chartControlButton, 
-                    ...(timeRange === 'week' ? styles.chartControlButtonActive : {})
-                  }}
-                  className="admin-chart-control-button"
-                  onClick={() => handleTimeRangeChange('week')}
-                >
-                  Semana
-                </button>
-                <button 
-                  style={{
-                    ...styles.chartControlButton, 
-                    ...(timeRange === 'month' ? styles.chartControlButtonActive : {})
-                  }}
-                  className="admin-chart-control-button"
-                  onClick={() => handleTimeRangeChange('month')}
-                >
-                  Mes
-                </button>
-                <button 
-                  style={{
-                    ...styles.chartControlButton, 
-                    ...(timeRange === 'year' ? styles.chartControlButtonActive : {})
-                  }}
-                  className="admin-chart-control-button"
-                  onClick={() => handleTimeRangeChange('year')}
-                >
-                  Año
-                </button>
+                {[
+                  { key: 'week', label: 'Semana' },
+                  { key: 'month', label: 'Mes' },
+                  { key: 'year', label: 'Año' },
+                ].map((rango) => (
+                  <button
+                    key={rango.key}
+                    style={{
+                      ...styles.chartControlButton,
+                      ...(timeRange === rango.key ? styles.chartControlButtonActive : {}),
+                    }}
+                    onClick={() => handleTimeRangeChange(rango.key)}
+                  >
+                    {rango.label}
+                  </button>
+                ))}
               </div>
             </div>
-            
+
             {chartData && (
-              <div style={{height: '250px'}}>
+              <div style={{ height: '250px' }}>
                 <Line options={chartOptions} data={chartData} />
               </div>
             )}
@@ -974,20 +588,20 @@ const AdminDashboard = () => {
           <div style={styles.section} className="admin-section">
             <div style={styles.sectionHeader}>
               <h2 style={styles.sectionTitle}>
-                <FaCalendarAlt /> Actividad Reciente
+                <FaCalendarAlt style={{ color: stylesGlobal.colors.secondary[500] }} /> Actividad Reciente
               </h2>
             </div>
-            
+
             <div style={styles.activityList}>
               {recentActivity && recentActivity.length > 0 ? (
                 recentActivity.map((activity, index) => (
-                  <div key={index} style={styles.activityItem} className="admin-activity-item">
+                  <div key={index} style={styles.activityItem}>
                     {getActivityContent(activity)}
                   </div>
                 ))
               ) : (
-                <div style={styles.activityItem} className="admin-activity-item">
-                  <p style={{textAlign: 'center', color: '#718096'}}>No hay actividad reciente</p>
+                <div style={styles.activityItem}>
+                  <p style={{ textAlign: 'center', color: stylesGlobal.colors.text.secondary, margin: 0 }}>No hay actividad reciente</p>
                 </div>
               )}
             </div>
@@ -998,26 +612,23 @@ const AdminDashboard = () => {
         <div style={styles.section} className="admin-section">
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>
-              <FaUsers /> Usuarios Recientes
+              <FaUsers style={{ color: stylesGlobal.colors.primary[500] }} /> Usuarios Recientes
             </h2>
-            <button 
-              onClick={handleViewAllUsers}
-              style={styles.viewAllButton}
-            >
-              Ver todos <FaEye style={{marginLeft: '5px'}} />
+            <button onClick={() => navigate('/admin/usuarios')} style={styles.viewAllButton}>
+              Ver todos <FaEye />
             </button>
           </div>
-          
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem'}} className="admin-users-grid">
-            {recentUsers.map((user) => (
-              <div key={user._id} style={styles.userCard} className="admin-user-card">
-                <div style={styles.userAvatar} className="admin-user-avatar">
-                  {user.email[0].toUpperCase()}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: stylesGlobal.spacing.scale[3] }}>
+            {recentUsers.map((u) => (
+              <div key={u._id} style={styles.userCard}>
+                <div style={styles.userAvatar}>
+                  {u.email[0].toUpperCase()}
                 </div>
-                <div style={styles.userInfo}>
-                  <p style={styles.userName} className="admin-user-name">{user.name || user.email.split('@')[0]}</p>
-                  <p style={styles.userEmail} className="admin-user-email">{user.email}</p>
-                  <span style={styles.userRole} className="admin-user-role">{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={styles.userName}>{u.name || u.email.split('@')[0]}</p>
+                  <p style={styles.userEmail}>{u.email}</p>
+                  <span style={styles.userRole}>{u.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
                 </div>
               </div>
             ))}
