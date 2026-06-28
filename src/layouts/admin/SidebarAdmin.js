@@ -31,25 +31,25 @@ import adminTheme from "../../styles/adminTheme"
 
 // Estilos CSS responsivos adicionales (tema claro / crema)
 const additionalStyles = `
-  .sidebar-admin {
+  .sidebar-admin-nav {
     scrollbar-width: thin;
     scrollbar-color: ${stylesGlobal.colors.neutral[300]} transparent;
   }
 
-  .sidebar-admin::-webkit-scrollbar {
+  .sidebar-admin-nav::-webkit-scrollbar {
     width: 6px;
   }
 
-  .sidebar-admin::-webkit-scrollbar-track {
+  .sidebar-admin-nav::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .sidebar-admin::-webkit-scrollbar-thumb {
+  .sidebar-admin-nav::-webkit-scrollbar-thumb {
     background-color: ${stylesGlobal.colors.neutral[300]};
     border-radius: 3px;
   }
 
-  .sidebar-admin::-webkit-scrollbar-thumb:hover {
+  .sidebar-admin-nav::-webkit-scrollbar-thumb:hover {
     background-color: ${stylesGlobal.colors.neutral[400]};
   }
 
@@ -164,9 +164,24 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
 
   // Toggle submenu
   const toggleSubmenu = (menu) => {
-    // No permitir expandir submenús si está colapsado y no es móvil
-    if (isCollapsed && !isMobile) return
-    
+    // Si está colapsado en desktop, expandir el sidebar y abrir ese grupo
+    // (de lo contrario los submenús quedarían inaccesibles al estar colapsado)
+    if (isCollapsed && !isMobile) {
+      setIsCollapsed(false)
+      onToggle?.(false)
+      localStorage.setItem("sidebar-collapsed", JSON.stringify(false))
+      setExpandedMenus({
+        usuarios: false,
+        productos: false,
+        informacion: false,
+        politicas: false,
+        preguntas: false,
+        galeria: false,
+        [menu]: true,
+      })
+      return
+    }
+
     setExpandedMenus((prev) => ({
       ...prev,
       [menu]: !prev[menu],
@@ -205,9 +220,7 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       padding: effectiveCollapsed ? "0" : "0 18px",
       backgroundColor: adminTheme.surface,
       borderBottom: `1px solid ${adminTheme.border}`,
-      position: "sticky",
-      top: 0,
-      zIndex: 10,
+      flexShrink: 0,
     },
     brandLink: {
       display: "flex",
@@ -254,9 +267,11 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       borderRadius: "10px",
       transition: stylesGlobal.animations.transitions.base,
     },
-    content: {
-      ...stylesGlobal.components.sidebar.content,
-      padding: "1rem 0",
+    scrollArea: {
+      flex: 1,
+      minHeight: 0,
+      overflowY: "auto",
+      overflowX: "hidden",
     },
     menuItems: {
       listStyle: "none",
@@ -265,7 +280,6 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       display: "flex",
       flexDirection: "column",
       gap: "2px",
-      flexGrow: 1,
     },
     menuItem: {
       listStyle: "none",
@@ -302,8 +316,8 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       alignItems: "center",
       justifyContent: "center",
       color: "inherit",
-      width: effectiveCollapsed ? "76px" : "20px",
-      minWidth: effectiveCollapsed ? "76px" : "20px",
+      width: "20px",
+      minWidth: "20px",
       height: "20px",
       fontSize: "1rem",
     },
@@ -318,10 +332,10 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       textOverflow: "ellipsis",
     },
     submenuContainer: {
-      width: "100%",
-      maxHeight: (effectiveCollapsed || !expandedMenus) ? "0" : "auto",
+      width: "auto",
+      maxHeight: "0",
       transition: stylesGlobal.animations.transitions.elegant,
-      opacity: effectiveCollapsed ? 0 : 1,
+      opacity: 0,
       backgroundColor: stylesGlobal.colors.neutral[50],
       overflow: "hidden",
       borderRadius: stylesGlobal.borders.radius.lg,
@@ -375,13 +389,9 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       padding: effectiveCollapsed ? "12px 8px" : "12px 14px",
       borderTop: `1px solid ${adminTheme.border}`,
       textAlign: effectiveCollapsed ? "center" : "left",
-      position: "sticky",
-      bottom: 0,
       width: "100%",
       backgroundColor: adminTheme.surface,
-      marginTop: "auto",
-      listStyle: "none",
-      zIndex: 10,
+      flexShrink: 0,
     },
     logoutBtn: {
       display: "flex",
@@ -416,11 +426,9 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       display: "flex",
       alignItems: "center",
       justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      position: "sticky",
-      top: "78px",
       backgroundColor: adminTheme.surface,
-      zIndex: 9,
       gap: "12px",
+      flexShrink: 0,
     },
     userName: {
       fontSize: effectiveCollapsed ? "0" : "0.9rem",
@@ -525,6 +533,8 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
         )}
       </div>
 
+      {/* Zona con scroll: solo el menú navega, el header y el footer quedan fijos */}
+      <nav style={styles.scrollArea} className="sidebar-admin-nav">
       <ul style={styles.menuItems}>
         {user?.role === "admin" && (
           <>
@@ -843,19 +853,22 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
           </MenuLink>
         </li>
 
-        <li style={styles.footer}>
-          <button
-            onClick={handleLogout}
-            style={styles.logoutBtn}
-            aria-label="Cerrar sesión"
-          >
-            <span style={styles.menuIcon}>
-              <FaSignOutAlt size={20} />
-            </span>
-            <span style={styles.logoutText}>Cerrar Sesión</span>
-          </button>
-        </li>
       </ul>
+      </nav>
+
+      {/* Footer fijo: cerrar sesión */}
+      <div style={styles.footer}>
+        <button
+          onClick={handleLogout}
+          style={styles.logoutBtn}
+          aria-label="Cerrar sesión"
+        >
+          <span style={styles.menuIcon}>
+            <FaSignOutAlt size={20} />
+          </span>
+          <span style={styles.logoutText}>Cerrar Sesión</span>
+        </button>
+      </div>
     </div>
   );
 }
