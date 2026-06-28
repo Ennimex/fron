@@ -3,12 +3,18 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
+import { useFavoritos } from "../../context/FavoritosContext"
 import { publicAPI } from "../../services/api"
 import { Search, Grid, List, Sliders, Heart, Info } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
 
 const ProductCard = React.memo(
   ({ producto, vistaGrilla, handleProductClick, animationDelay }) => {
+    const { esFavorito, toggleFavorito } = useFavoritos()
+    const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+    const fav = esFavorito(producto._id)
+
     const cardStyle = {
       backgroundColor: stylesPublic.colors.surface.primary,
       borderRadius: stylesPublic.borders.radius.xl,
@@ -40,22 +46,6 @@ const ProductCard = React.memo(
       height: "100%",
       objectFit: "cover",
       transition: "transform 0.4s ease",
-    }
-
-    const badgeStyle = {
-      position: "absolute",
-      top: stylesPublic.spacing.scale[3],
-      right: stylesPublic.spacing.scale[3],
-      width: stylesPublic.spacing.scale[8],
-      height: stylesPublic.spacing.scale[8],
-      background: stylesPublic.colors.surface.primary,
-      borderRadius: stylesPublic.borders.radius.full,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: stylesPublic.colors.text.tertiary,
-      opacity: 0,
-      transition: "opacity 0.3s ease",
     }
 
     const contentStyle = {
@@ -99,9 +89,39 @@ const ProductCard = React.memo(
               e.target.src = "/placeholder.svg?height=220&width=280"
             }}
           />
-          <div className="product-badge" style={badgeStyle}>
-            <Heart size={16} />
-          </div>
+          <button
+            type="button"
+            aria-label={fav ? "Quitar de favoritos" : "Agregar a favoritos"}
+            title={fav ? "Quitar de favoritos" : "Agregar a favoritos"}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              if (!isAuthenticated) {
+                navigate("/login")
+                return
+              }
+              toggleFavorito(producto)
+            }}
+            style={{
+              position: "absolute",
+              top: stylesPublic.spacing.scale[3],
+              right: stylesPublic.spacing.scale[3],
+              width: stylesPublic.spacing.scale[8],
+              height: stylesPublic.spacing.scale[8],
+              background: stylesPublic.colors.surface.primary,
+              borderRadius: stylesPublic.borders.radius.full,
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: fav ? "#e0245e" : stylesPublic.colors.text.tertiary,
+              boxShadow: stylesPublic.shadows.base,
+              transition: "transform 0.2s ease, color 0.2s ease",
+            }}
+          >
+            <Heart size={16} fill={fav ? "currentColor" : "none"} />
+          </button>
         </div>
         <div style={contentStyle}>
           <div style={{ marginBottom: stylesPublic.spacing.scale[3] }}>

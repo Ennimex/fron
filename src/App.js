@@ -23,6 +23,7 @@ import ResetPassword from "./pages/public/ResetPassword";
 
 // Importación de componentes privados
 import Perfil from "./pages/Private/PerfilNuevo";
+import MisFavoritos from "./pages/Private/MisFavoritos";
 // import MisProductos from "./pages/Private/MisProductos";
 // import Mensajes from "./pages/Private/Mensajes";
 // import HistorialCompras from "./pages/Private/HistorialCompras";
@@ -51,12 +52,14 @@ import GestionColaboradores from "./pages/Admin/GestionColaboradores";
 
 import { AuthProvider } from "./context/AuthContext";
 import { ConfigProvider } from "./context/ConfigContext";
+import { FavoritosProvider } from "./context/FavoritosContext";
 import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (
     <AuthProvider>
       <ConfigProvider>
+      <FavoritosProvider>
       <Router>
         <div className="App">
           <Routes>
@@ -79,6 +82,7 @@ function App() {
             <Route element={<PrivateLayout />}>
               <Route path="/Inicio" element={<PrivateRoute><Inicio /></PrivateRoute>} />
               <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+              <Route path="/favoritos" element={<PrivateRoute><MisFavoritos /></PrivateRoute>} />
             </Route>
 
             {/* Rutas de administración usando AdminLayout */}
@@ -104,6 +108,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+      </FavoritosProvider>
       </ConfigProvider>
     </AuthProvider>
   );
