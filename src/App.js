@@ -42,6 +42,7 @@ import GestionEventos from "./pages/Admin/GestionEventos";
 import GestionMision from "./pages/Admin/GestionMision";
 import GestionServicio from "./pages/Admin/GestionServicio";
 import GestionConfiguracion from "./pages/Admin/GestionConfiguracion";
+import GestionNosotros from "./pages/Admin/GestionNosotros";
 
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
@@ -94,6 +95,7 @@ function App() {
               <Route path="/admin/informacion/mision" element={<PrivateRoute allowedRoles={["admin"]}><GestionMision /></PrivateRoute>} />
               <Route path="/admin/informacion/servicios" element={<PrivateRoute allowedRoles={["admin"]}><GestionServicio /></PrivateRoute>} />
               <Route path="/admin/configuracion" element={<PrivateRoute allowedRoles={["admin"]}><GestionConfiguracion /></PrivateRoute>} />
+              <Route path="/admin/informacion/nosotros" element={<PrivateRoute allowedRoles={["admin"]}><GestionNosotros /></PrivateRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />

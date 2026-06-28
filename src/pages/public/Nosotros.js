@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import { Users, Heart, Leaf, Palette, Star } from "lucide-react"
+import { Users, Heart, Leaf, Palette, Star, Award, Shield, Sparkles, Gem, Sun } from "lucide-react"
 import { publicAPI } from "../../services/api"
 import stylesPublic from "../../styles/stylesGlobal"
+
+// Mapa de iconos (los valores guardan el nombre del icono como texto)
+const ICON_MAP = { Heart, Leaf, Palette, Star, Users, Award, Shield, Sparkles, Gem, Sun }
 
 const Nosotros = () => {
   const navigate = useNavigate()
   const [colaboradores, setColaboradores] = useState([])
+  const [valoresData, setValoresData] = useState([])
   const [nosotrosData, setNosotrosData] = useState({
     mision: "",
     vision: "",
+    historia: "",
   })
   const [loading, setLoading] = useState(true)
   const [loadingNosotros, setLoadingNosotros] = useState(true)
@@ -20,17 +25,20 @@ const Nosotros = () => {
         setLoadingNosotros(true)
         setLoading(true)
 
-        const [nosotrosResponse, colaboradoresResponse] = await Promise.all([
+        const [nosotrosResponse, colaboradoresResponse, valoresResponse] = await Promise.all([
           publicAPI.getNosotros(),
           publicAPI.getColaboradores(),
+          publicAPI.getValores(),
         ])
 
         setNosotrosData({
           mision: nosotrosResponse.mision || "",
           vision: nosotrosResponse.vision || "",
+          historia: nosotrosResponse.historia || "",
         })
 
         setColaboradores(colaboradoresResponse)
+        setValoresData(Array.isArray(valoresResponse) ? valoresResponse : [])
 
         setTimeout(() => {
           setLoadingNosotros(false)
@@ -46,36 +54,45 @@ const Nosotros = () => {
     cargarDatos()
   }, [])
 
-  // Valores de la empresa
-  const valores = useMemo(
+  // Colores que se alternan para las tarjetas de valores
+  const coloresValores = useMemo(
     () => [
-      {
-        icon: Heart,
-        titulo: "Comercio Justo",
-        descripcion:
-          "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas, construyendo relaciones duraderas basadas en el respeto mutuo.",
-        color: stylesPublic.colors.gradients.primary,
-      },
-      {
-        icon: Leaf,
-        titulo: "Sostenibilidad",
-        descripcion:
-          "Utilizamos materiales naturales y procesos eco-amigables, preservando el medio ambiente para las futuras generaciones.",
-        color: stylesPublic.colors.gradients.secondary,
-      },
-      {
-        icon: Palette,
-        titulo: "Autenticidad",
-        descripcion:
-          "Cada pieza conserva las técnicas tradicionales de la cultura huasteca, manteniendo viva nuestra herencia ancestral.",
-        color: stylesPublic.colors.gradients.luxury,
-      },
+      stylesPublic.colors.gradients.primary,
+      stylesPublic.colors.gradients.secondary,
+      stylesPublic.colors.gradients.luxury,
     ],
     []
   )
 
-  const historiaTexto =
+  // Valores por defecto (respaldo si aún no hay ninguno en la base de datos)
+  const valoresDefault = useMemo(
+    () => [
+      { icon: Heart, titulo: "Comercio Justo", descripcion: "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas, construyendo relaciones duraderas basadas en el respeto mutuo.", color: stylesPublic.colors.gradients.primary },
+      { icon: Leaf, titulo: "Sostenibilidad", descripcion: "Utilizamos materiales naturales y procesos eco-amigables, preservando el medio ambiente para las futuras generaciones.", color: stylesPublic.colors.gradients.secondary },
+      { icon: Palette, titulo: "Autenticidad", descripcion: "Cada pieza conserva las técnicas tradicionales de la cultura huasteca, manteniendo viva nuestra herencia ancestral.", color: stylesPublic.colors.gradients.luxury },
+    ],
+    []
+  )
+
+  // Valores desde la API (icono por nombre -> componente, color alternado).
+  // Si no hay ninguno aún, se usan los valores por defecto.
+  const valores = useMemo(
+    () =>
+      valoresData.length > 0
+        ? valoresData.map((v, idx) => ({
+            icon: ICON_MAP[v.icon] || Star,
+            titulo: v.titulo,
+            descripcion: v.descripcion,
+            color: coloresValores[idx % coloresValores.length],
+          }))
+        : valoresDefault,
+    [valoresData, coloresValores, valoresDefault]
+  )
+
+  const historiaTextoDefault =
     "La Aterciopelada nació como un sueño de preservar y celebrar las tradiciones artesanales de la región Huasteca. A lo largo de los años, hemos crecido desde nuestras humildes raíces hasta convertirnos en una boutique reconocida por la calidad excepcional de nuestras creaciones. Cada pieza cuenta una historia, cada bordado lleva consigo la sabiduría ancestral de nuestras maestras artesanas. Nuestro compromiso trasciende la simple comercialización: somos guardianes de una herencia cultural que se transmite de generación en generación, adaptándose a los tiempos modernos sin perder su esencia tradicional."
+
+  const historiaTexto = nosotrosData.historia || historiaTextoDefault
 
   const containerStyle = {
     maxWidth: stylesPublic.utils.container.maxWidth.xl,

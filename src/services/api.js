@@ -237,6 +237,16 @@ export const publicAPI = {
       throw error;
     }
   },
+
+  // Valores de la empresa
+  getValores: async () => {
+    try {
+      const response = await api.get('/valores');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // Funciones para área administrativa
@@ -659,6 +669,43 @@ export const adminAPI = {
       const response = await api.put('/configuracion', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Valores de la empresa (CRUD)
+  getValores: async () => {
+    try {
+      const response = await api.get('/valores');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  createValor: async (data) => {
+    try {
+      const response = await api.post('/valores', data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateValor: async (id, data) => {
+    try {
+      const response = await api.put(`/valores/${id}`, data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteValor: async (id) => {
+    try {
+      const response = await api.delete(`/valores/${id}`);
       return response;
     } catch (error) {
       throw error;
