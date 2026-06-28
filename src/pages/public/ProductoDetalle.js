@@ -821,7 +821,7 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                       fontWeight: stylesPublic.typography.weights.medium,
                     }}
                   >
-                    {producto.tallasDisponibles?.map((td) => td.talla).join(", ") || "Talla Única"}
+                    {[...new Set((producto.tallasDisponibles || []).map((td) => td.talla).filter(Boolean))].join(", ") || "Talla Única"}
                   </div>
                 </div>
 
@@ -852,10 +852,11 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                       fontWeight: stylesPublic.typography.weights.medium,
                     }}
                   >
-                    {producto.tallasDisponibles
-                      ?.map((td) => td.categoriaId?.nombre)
-                      .filter(Boolean)
-                      .join(", ") || "Artesanía Tradicional"}
+                    {[...new Set(
+                      (producto.tallasDisponibles || [])
+                        .map((td) => td.categoriaId?.nombre)
+                        .filter(Boolean)
+                    )].join(", ") || "Artesanía Tradicional"}
                   </div>
                 </div>
               </div>
