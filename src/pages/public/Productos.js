@@ -199,6 +199,8 @@ const Productos = () => {
   const [localidades, setLocalidades] = useState([])
   const [tallasUnicas, setTallasUnicas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [paginaActual, setPaginaActual] = useState(1)
+  const PRODUCTOS_POR_PAGINA = 12
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -349,6 +351,11 @@ const Productos = () => {
     setFiltrosActivos(contadorFiltros)
   }, [location.search, filtrarProductos, productosApi])
 
+  // Al cambiar los resultados filtrados, volver a la primera página
+  useEffect(() => {
+    setPaginaActual(1)
+  }, [productosFiltrados])
+
   const buttonStyle = {
     fontFamily: stylesPublic.typography.families.body,
     fontSize: stylesPublic.typography.scale.sm,
@@ -371,6 +378,17 @@ const Productos = () => {
     color: stylesPublic.colors.primary.contrast,
     border: `1px solid ${stylesPublic.colors.primary[500]}`,
     boxShadow: stylesPublic.shadows.brand.primary,
+  }
+
+  // Paginación (en cliente) sobre los resultados ya filtrados
+  const totalPaginas = Math.max(1, Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA))
+  const productosPagina = productosFiltrados.slice(
+    (paginaActual - 1) * PRODUCTOS_POR_PAGINA,
+    paginaActual * PRODUCTOS_POR_PAGINA,
+  )
+  const irAPagina = (n) => {
+    setPaginaActual(Math.min(Math.max(1, n), totalPaginas))
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   const inputStyle = {
@@ -836,24 +854,73 @@ const Productos = () => {
         </div>
 
         {productosFiltrados.length > 0 ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: vistaGrilla ? "repeat(auto-fill, minmax(280px, 1fr))" : "1fr",
-              gap: vistaGrilla ? stylesPublic.spacing.scale[8] : stylesPublic.spacing.scale[4],
-              marginBottom: stylesPublic.spacing.scale[20],
-            }}
-          >
-            {productosFiltrados.map((producto, idx) => (
-              <ProductCard
-                key={`${producto._id}-${vistaGrilla ? "grid" : "list"}-${idx}`}
-                producto={producto}
-                vistaGrilla={vistaGrilla}
-                handleProductClick={handleProductClick}
-                animationDelay={0.05 * (idx % 20)}
-              />
-            ))}
-          </div>
+          <>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: vistaGrilla ? "repeat(auto-fill, minmax(280px, 1fr))" : "1fr",
+                gap: vistaGrilla ? stylesPublic.spacing.scale[8] : stylesPublic.spacing.scale[4],
+                marginBottom: stylesPublic.spacing.scale[8],
+              }}
+            >
+              {productosPagina.map((producto, idx) => (
+                <ProductCard
+                  key={`${producto._id}-${vistaGrilla ? "grid" : "list"}-${idx}`}
+                  producto={producto}
+                  vistaGrilla={vistaGrilla}
+                  handleProductClick={handleProductClick}
+                  animationDelay={0.05 * (idx % 20)}
+                />
+              ))}
+            </div>
+
+            {totalPaginas > 1 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: stylesPublic.spacing.scale[4],
+                  marginBottom: stylesPublic.spacing.scale[20],
+                }}
+              >
+                <button
+                  style={{
+                    ...buttonStyle,
+                    opacity: paginaActual === 1 ? 0.5 : 1,
+                    cursor: paginaActual === 1 ? "not-allowed" : "pointer",
+                  }}
+                  onClick={() => irAPagina(paginaActual - 1)}
+                  disabled={paginaActual === 1}
+                >
+                  ← Anterior
+                </button>
+                <span
+                  style={{
+                    fontFamily: stylesPublic.typography.families.body,
+                    fontSize: stylesPublic.typography.scale.sm,
+                    color: stylesPublic.colors.text.secondary,
+                    minWidth: "120px",
+                    textAlign: "center",
+                  }}
+                >
+                  Página {paginaActual} de {totalPaginas}
+                </span>
+                <button
+                  style={{
+                    ...buttonStyle,
+                    opacity: paginaActual === totalPaginas ? 0.5 : 1,
+                    cursor: paginaActual === totalPaginas ? "not-allowed" : "pointer",
+                  }}
+                  onClick={() => irAPagina(paginaActual + 1)}
+                  disabled={paginaActual === totalPaginas}
+                >
+                  Siguiente →
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div
             style={{

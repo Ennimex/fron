@@ -166,6 +166,8 @@ const GestionProductos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLocalidad, setFilterLocalidad] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const PRODUCTOS_POR_PAGINA = 10;
 
   // Hook de notificaciones del componente
   const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
@@ -203,6 +205,11 @@ const GestionProductos = () => {
       navigate("/no-autorizado");
     }
   }, [user, navigate, location]);
+
+  // Al cambiar la búsqueda o el filtro, volver a la primera página
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [searchTerm, filterLocalidad]);
 
   // Función para cargar productos
   const fetchProductos = async () => {
@@ -488,6 +495,16 @@ const GestionProductos = () => {
 
     return matchesSearch && matchesLocalidad;
   });
+
+  // Paginación (en cliente) sobre los productos ya filtrados
+  const totalPaginas = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTOS_POR_PAGINA));
+  const productosPagina = filteredProducts.slice(
+    (paginaActual - 1) * PRODUCTOS_POR_PAGINA,
+    paginaActual * PRODUCTOS_POR_PAGINA
+  );
+  const irAPagina = (n) => {
+    setPaginaActual(Math.min(Math.max(1, n), totalPaginas));
+  };
 
   const getLocalidadNombre = (localidadId) => {
     if (typeof localidadId === "object") return localidadId.nombre || "Sin localidad";
@@ -1008,6 +1025,7 @@ const GestionProductos = () => {
 
           {/* Tabla de productos */}
           {filteredProducts.length > 0 ? (
+            <>
             <div style={styles.tableContainer} className="productos-table-container">
               <table style={styles.table} className="productos-table">
                 <thead style={styles.tableHeader}>
@@ -1021,7 +1039,7 @@ const GestionProductos = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProducts.map((producto) => {
+                  {productosPagina.map((producto) => {
                     const productSizes = getProductSizes(producto.tallasDisponibles);
                     return (
                       <tr key={producto._id} style={styles.tableRow}>
@@ -1093,6 +1111,66 @@ const GestionProductos = () => {
                 </tbody>
               </table>
             </div>
+
+            {totalPaginas > 1 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "1rem",
+                  marginTop: "1.5rem",
+                }}
+              >
+                <button
+                  onClick={() => irAPagina(paginaActual - 1)}
+                  disabled={paginaActual === 1}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    borderRadius: stylesPublic.borders.radius.md,
+                    border: `1px solid ${stylesPublic.colors.neutral[300]}`,
+                    background: "transparent",
+                    color: stylesPublic.colors.text.primary,
+                    fontFamily: stylesPublic.typography.families.body,
+                    fontSize: stylesPublic.typography.scale.sm,
+                    cursor: paginaActual === 1 ? "not-allowed" : "pointer",
+                    opacity: paginaActual === 1 ? 0.5 : 1,
+                  }}
+                >
+                  ← Anterior
+                </button>
+                <span
+                  style={{
+                    fontFamily: stylesPublic.typography.families.body,
+                    fontSize: stylesPublic.typography.scale.sm,
+                    color: stylesPublic.colors.text.secondary,
+                    minWidth: "110px",
+                    textAlign: "center",
+                  }}
+                >
+                  Página {paginaActual} de {totalPaginas}
+                </span>
+                <button
+                  onClick={() => irAPagina(paginaActual + 1)}
+                  disabled={paginaActual === totalPaginas}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    borderRadius: stylesPublic.borders.radius.md,
+                    border: `1px solid ${stylesPublic.colors.neutral[300]}`,
+                    background: "transparent",
+                    color: stylesPublic.colors.text.primary,
+                    fontFamily: stylesPublic.typography.families.body,
+                    fontSize: stylesPublic.typography.scale.sm,
+                    cursor: paginaActual === totalPaginas ? "not-allowed" : "pointer",
+                    opacity: paginaActual === totalPaginas ? 0.5 : 1,
+                  }}
+                >
+                  Siguiente →
+                </button>
+              </div>
+            )}
+            </>
           ) : (
             <div style={styles.emptyState}>
               <h3 style={styles.emptyStateText}>
