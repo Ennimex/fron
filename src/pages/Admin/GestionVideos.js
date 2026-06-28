@@ -574,6 +574,7 @@ const GestionVideos = () => {
 
   // Estados para datos
   const [videos, setVideos] = useState([]);
+  const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -583,6 +584,7 @@ const GestionVideos = () => {
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
+    eventoId: '',
     video: null,
     imagen: null,
     imagenPreview: null,
@@ -609,6 +611,13 @@ const GestionVideos = () => {
       fetchVideos();
     }
   }, [isAuthenticated, user, fetchVideos]);
+
+  // Cargar eventos para el selector (opcional)
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'admin') {
+      adminService.getEventos().then(setEventos).catch(() => {});
+    }
+  }, [isAuthenticated, user]);
 
   // Cleanup preview URLs to prevent memory leaks
   useEffect(() => {
@@ -710,6 +719,7 @@ const GestionVideos = () => {
     setFormData({
       titulo: '',
       descripcion: '',
+      eventoId: '',
       video: null,
       imagen: null,
       imagenPreview: null,
@@ -723,6 +733,7 @@ const GestionVideos = () => {
     setFormData({
       titulo: video.titulo || '',
       descripcion: video.descripcion || '',
+      eventoId: video.eventoId?._id || video.eventoId || '',
       video: null,
       imagen: null,
       imagenPreview: video.miniatura || null,
@@ -743,6 +754,7 @@ const GestionVideos = () => {
     setFormData({
       titulo: '',
       descripcion: '',
+      eventoId: '',
       video: null,
       imagen: null,
       imagenPreview: null,
@@ -772,6 +784,7 @@ const GestionVideos = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('titulo', formData.titulo.trim());
       formDataToSend.append('descripcion', formData.descripcion.trim());
+      formDataToSend.append('eventoId', formData.eventoId || '');
       if (formData.video) {
         formDataToSend.append('video', formData.video);
       }
@@ -1012,6 +1025,30 @@ const GestionVideos = () => {
                       />
                       <small style={styles.helpText}>
                         Máximo 500 caracteres. Proporciona una descripción que ayude a los usuarios a comprender mejor el contenido.
+                      </small>
+                    </div>
+                    {/* Campo evento (opcional) */}
+                    <div style={styles.formGroup}>
+                      <label style={styles.label} htmlFor="eventoId">
+                        Evento (opcional)
+                      </label>
+                      <select
+                        style={styles.input}
+                        id="eventoId"
+                        name="eventoId"
+                        value={formData.eventoId}
+                        onChange={handleChange}
+                        disabled={formLoading}
+                      >
+                        <option value="">Sin evento</option>
+                        {eventos.map((ev) => (
+                          <option key={ev._id} value={ev._id}>
+                            {ev.titulo || 'Evento sin título'}
+                          </option>
+                        ))}
+                      </select>
+                      <small style={styles.helpText}>
+                        Si el video pertenece a un evento, selecciónalo para que aparezca en su galería.
                       </small>
                     </div>
                     {/* Campo archivo de video */}

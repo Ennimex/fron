@@ -482,6 +482,7 @@ const GestionFotos = () => {
 
   // Estados para datos
   const [fotos, setFotos] = useState([]);
+  const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -491,6 +492,7 @@ const GestionFotos = () => {
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
+    eventoId: '',
     imagen: null,
     imagenPreview: null,
   });
@@ -515,6 +517,13 @@ const GestionFotos = () => {
       fetchFotos();
     }
   }, [isAuthenticated, user, fetchFotos]);
+
+  // Cargar eventos para el selector (opcional)
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'admin') {
+      adminService.getEventos().then(setEventos).catch(() => {});
+    }
+  }, [isAuthenticated, user]);
 
   // Cleanup preview URLs to prevent memory leaks
   useEffect(() => {
@@ -588,6 +597,7 @@ const GestionFotos = () => {
     setFormData({
       titulo: '',
       descripcion: '',
+      eventoId: '',
       imagen: null,
       imagenPreview: null,
     });
@@ -600,6 +610,7 @@ const GestionFotos = () => {
     setFormData({
       titulo: foto.titulo || '',
       descripcion: foto.descripcion || '',
+      eventoId: foto.eventoId?._id || foto.eventoId || '',
       imagen: null,
       imagenPreview: foto.url,
     });
@@ -615,6 +626,7 @@ const GestionFotos = () => {
     setFormData({
       titulo: '',
       descripcion: '',
+      eventoId: '',
       imagen: null,
       imagenPreview: null,
     });
@@ -662,6 +674,7 @@ const GestionFotos = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('titulo', formData.titulo.trim());
       formDataToSend.append('descripcion', formData.descripcion.trim());
+      formDataToSend.append('eventoId', formData.eventoId || '');
       if (formData.imagen) {
         formDataToSend.append('imagen', formData.imagen);
       }
@@ -876,6 +889,31 @@ const GestionFotos = () => {
                     />
                     <small style={styles.helpText}>
                       Máximo 500 caracteres. Proporciona una descripción que ayude a los usuarios a comprender mejor la imagen.
+                    </small>
+                  </div>
+
+                  {/* Campo evento (opcional) */}
+                  <div style={styles.formGroup} className="fotos-form-group">
+                    <label style={styles.label} htmlFor="eventoId">
+                      Evento (opcional)
+                    </label>
+                    <select
+                      style={styles.input}
+                      id="eventoId"
+                      name="eventoId"
+                      value={formData.eventoId}
+                      onChange={handleChange}
+                      disabled={formLoading}
+                    >
+                      <option value="">Sin evento</option>
+                      {eventos.map((ev) => (
+                        <option key={ev._id} value={ev._id}>
+                          {ev.titulo || 'Evento sin título'}
+                        </option>
+                      ))}
+                    </select>
+                    <small style={styles.helpText}>
+                      Si la foto pertenece a un evento, selecciónalo para que aparezca en su galería.
                     </small>
                   </div>
 

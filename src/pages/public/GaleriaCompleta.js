@@ -17,7 +17,10 @@ const GaleriaCompleta = () => {
       try {
         setLoading(true)
         const data = await publicAPI.getFotos()
-        setFotos(data)
+        // Galería general: solo fotos que NO pertenecen a un evento
+        // (las de eventos viven en la página de Destacados)
+        const generales = Array.isArray(data) ? data.filter((f) => !f.eventoId) : []
+        setFotos(generales)
         setLoading(false)
       } catch (error) {
         console.error("Error al cargar las fotos:", error)
