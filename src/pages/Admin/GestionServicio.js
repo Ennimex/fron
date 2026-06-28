@@ -180,7 +180,7 @@ if (!document.getElementById('gestion-servicios-responsive-styles')) {
 
     .modal-close-btn:hover {
       opacity: 1 !important;
-      background-color: #fee2e2 !important;
+      background-color: #fef2f2 !important;
       color: #dc2626 !important;
     }
   `;
