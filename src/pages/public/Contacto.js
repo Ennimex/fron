@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Mail, Phone, Clock, MapPin, Send, MessageCircle } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
 import { useConfig } from "../../context/ConfigContext"
+import { publicAPI } from "../../services/api"
 
 const Contacto = () => {
   const { config } = useConfig()
@@ -45,23 +46,22 @@ const Contacto = () => {
 
     setIsSubmitting(true)
 
-    // Simulación de envío
-    setTimeout(() => {
+    try {
+      await publicAPI.enviarContacto(formState)
       setFormSubmitted(true)
       setFormError(false)
-      setIsSubmitting(false)
-      setFormState({
-        nombre: "",
-        email: "",
-        telefono: "",
-        mensaje: "",
-      })
+      setFormState({ nombre: "", email: "", telefono: "", mensaje: "" })
 
-      // Hide success message after 5 seconds
+      // Ocultar el mensaje de éxito después de 5 segundos
       setTimeout(() => {
         setFormSubmitted(false)
       }, 5000)
-    }, 1500)
+    } catch (error) {
+      setFormError(true)
+      console.error("Error al enviar contacto:", error?.error || error?.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const telefono = config?.telefono || "+52 771 123 4567"

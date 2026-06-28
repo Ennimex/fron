@@ -227,6 +227,16 @@ export const publicAPI = {
       throw error;
     }
   },
+
+  // Enviar el formulario de contacto
+  enviarContacto: async (data) => {
+    try {
+      const response = await api.post('/contacto', data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // Funciones para área administrativa
