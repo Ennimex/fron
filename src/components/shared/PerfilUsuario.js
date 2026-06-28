@@ -19,6 +19,7 @@ import { FaCheckCircle, FaExclamationTriangle, FaUser, FaLock, FaEdit, FaSave, F
 import { useAuth } from "../../context/AuthContext";
 import { profileService } from "../../services/profileService";
 import stylesGlobal from "../../styles/stylesGlobal";
+import adminTheme from "../../styles/adminTheme";
 import { useLocation } from "react-router-dom";
 
 const PerfilUsuario = ({ variant = "auto" }) => {
@@ -183,7 +184,7 @@ const PerfilUsuario = ({ variant = "auto" }) => {
   const getContextStyles = () => {
     if (isAdminContext) {
       return {
-        background: stylesGlobal.colors.surface.secondary,
+        background: adminTheme.bg,
         containerPadding: stylesGlobal.spacing.scale[8],
         heroSection: false, // Sin hero section en admin
         cardBackground: stylesGlobal.colors.surface.primary,
