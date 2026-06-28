@@ -8,10 +8,11 @@ import { useGitHubPagesNavigation } from "../../hooks/useGitHubPagesNavigation";
 
 const NavbarBase = ({ 
   isAuthenticated, 
-  user, 
-  onLogout, 
+  user,
+  onLogout,
   brandName = "App",
-  navLinks = [] 
+  logoUrl = "",
+  navLinks = []
 }) => {
   const navigate = useNavigate();
   const { handleLogoutRedirect, redirectToLogin } = useGitHubPagesNavigation();
@@ -287,8 +288,15 @@ const NavbarBase = ({
             as={Link}
             to="/"
             onClick={() => setExpanded(false)}
-            style={navbarStyles.brand}
+            style={{ ...navbarStyles.brand, display: "flex", alignItems: "center", gap: "10px" }}
           >
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt={brandName}
+                style={{ height: "36px", width: "auto", objectFit: "contain" }}
+              />
+            )}
             {brandName}
           </Navbar.Brand>
 

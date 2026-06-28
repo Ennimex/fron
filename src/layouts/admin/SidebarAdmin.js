@@ -21,6 +21,7 @@ import {
   FaCalendarAlt,
   FaInfoCircle,
   FaConciergeBell,
+  FaCog,
 } from "react-icons/fa"
 import stylesGlobal from "../../styles/stylesGlobal"
 
@@ -766,6 +767,16 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                   >
                     <FaConciergeBell size={14} />
                     <span style={styles.submenuText}>Servicios</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/configuracion"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaCog size={14} />
+                    <span style={styles.submenuText}>Configuración del Sitio</span>
                   </MenuLink>
                 </div>
               </div>

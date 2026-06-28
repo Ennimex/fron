@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react"
 import { Mail, Phone, Clock, MapPin, Send, MessageCircle } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
+import { useConfig } from "../../context/ConfigContext"
 
 const Contacto = () => {
+  const { config } = useConfig()
+  const redes = config?.redesSociales || {}
   const [formState, setFormState] = useState({
     nombre: "",
     email: "",
@@ -61,48 +64,60 @@ const Contacto = () => {
     }, 1500)
   }
 
+  const telefono = config?.telefono || "+52 771 123 4567"
+  const email = config?.email || "ventas@laaterciopelada.com"
+  const horarios = config?.horarios || "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM\nDomingos: Cerrado"
+  const direccion = config?.direccion || "Región Huasteca\nSan Luis Potosí, México"
+
   const contactInfo = [
     {
       icon: Phone,
       title: "Teléfono",
-      content: "+52 771 123 4567\n+52 771 987 6543",
-      action: () => window.open("tel:+527711234567"),
+      content: telefono,
+      action: () => window.open(`tel:${telefono.replace(/[^\d+]/g, "")}`),
     },
     {
       icon: Mail,
       title: "Correo Electrónico",
-      content: "ventas@laaterciopelada.com\nconsultas@laaterciopelada.com",
-      action: () => window.open("mailto:ventas@laaterciopelada.com"),
+      content: email,
+      action: () => window.open(`mailto:${email}`),
     },
     {
       icon: Clock,
       title: "Horario de Atención",
-      content: "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM\nDomingos: Cerrado",
+      content: horarios,
     },
     {
       icon: MapPin,
       title: "Ubicación",
-      content: "Región Huasteca\nSan Luis Potosí, México",
-      action: () => window.open("https://maps.google.com/?q=Huasteca+Potosina"),
+      content: direccion,
+      action: () => window.open(`https://maps.google.com/?q=${encodeURIComponent(direccion.replace(/\n/g, " "))}`),
     },
   ]
 
   const socialNetworks = [
-    {
+    redes.facebook && {
       icon: MessageCircle,
       name: "Facebook",
-      handle: "@LaAterciopelada",
-      url: "https://web.facebook.com/people/La-Aterciopelada/61567232369483/?sk=photos",
+      handle: config?.nombre || "La Aterciopelada",
+      url: redes.facebook,
       description: "Síguenos para ver nuestras últimas creaciones",
     },
-    {
+    redes.instagram && {
+      icon: MessageCircle,
+      name: "Instagram",
+      handle: config?.nombre || "La Aterciopelada",
+      url: redes.instagram,
+      description: "Descubre nuestras creaciones en Instagram",
+    },
+    redes.whatsapp && {
       icon: MessageCircle,
       name: "WhatsApp",
-      handle: "+52 771 123 4567",
-      url: "https://wa.me/527711234567",
+      handle: telefono,
+      url: redes.whatsapp,
       description: "Contáctanos directamente para consultas rápidas",
     },
-  ]
+  ].filter(Boolean)
 
   const containerStyle = {
     maxWidth: stylesPublic.utils.container.maxWidth.xl,

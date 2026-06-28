@@ -41,17 +41,20 @@ import GestionVideos from "./pages/Admin/GestionVideos";
 import GestionEventos from "./pages/Admin/GestionEventos";
 import GestionMision from "./pages/Admin/GestionMision";
 import GestionServicio from "./pages/Admin/GestionServicio";
+import GestionConfiguracion from "./pages/Admin/GestionConfiguracion";
 
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
 // import AdminCategoriasView from "./pages/Admin/AdminCategoriasView";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ConfigProvider } from "./context/ConfigContext";
 import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   return (
     <AuthProvider>
+      <ConfigProvider>
       <Router>
         <div className="App">
           <Routes>
@@ -90,12 +93,14 @@ function App() {
               <Route path="/admin/eventos" element={<PrivateRoute allowedRoles={["admin"]}><GestionEventos /></PrivateRoute>} />
               <Route path="/admin/informacion/mision" element={<PrivateRoute allowedRoles={["admin"]}><GestionMision /></PrivateRoute>} />
               <Route path="/admin/informacion/servicios" element={<PrivateRoute allowedRoles={["admin"]}><GestionServicio /></PrivateRoute>} />
+              <Route path="/admin/configuracion" element={<PrivateRoute allowedRoles={["admin"]}><GestionConfiguracion /></PrivateRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
       </Router>
+      </ConfigProvider>
     </AuthProvider>
   );
 }

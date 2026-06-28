@@ -217,6 +217,16 @@ export const publicAPI = {
       throw error;
     }
   },
+
+  // Configuración global del sitio (nombre, logo, contacto, redes)
+  getConfiguracion: async () => {
+    try {
+      const response = await api.get('/configuracion');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // Funciones para área administrativa
@@ -618,6 +628,27 @@ export const adminAPI = {
   updateNosotros: async (nosotrosData) => {
     try {
       const response = await api.post('/nosotros', nosotrosData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Configuración global del sitio
+  getConfiguracion: async () => {
+    try {
+      const response = await api.get('/configuracion');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateConfiguracion: async (formData) => {
+    try {
+      const response = await api.put('/configuracion', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response;
     } catch (error) {
       throw error;

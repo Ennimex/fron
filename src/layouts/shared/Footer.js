@@ -1,8 +1,12 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
 import stylesGlobal from "../../styles/stylesGlobal";
+import { useConfig } from "../../context/ConfigContext";
 
 const Footer = () => {
+    const { config } = useConfig();
+    const nombre = config?.nombre || "La Aterciopelada";
+    const redes = config?.redesSociales || {};
     const footerStyles = {
         footer: {
             ...stylesGlobal.components.footer.base,
@@ -46,10 +50,12 @@ const Footer = () => {
     };
 
     const socialLinks = [
-        { name: "Facebook", url: "https://facebook.com/laaterciopelada", icon: "📘" },
-        { name: "Twitter", url: "https://twitter.com/laaterciopelada", icon: "🐦" },
-        { name: "Instagram", url: "https://instagram.com/laaterciopelada", icon: "📷" }
-    ];
+        { name: "Facebook", url: redes.facebook, icon: "📘" },
+        { name: "Instagram", url: redes.instagram, icon: "📷" },
+        { name: "WhatsApp", url: redes.whatsapp, icon: "💬" },
+        { name: "Twitter", url: redes.twitter, icon: "🐦" },
+        { name: "TikTok", url: redes.tiktok, icon: "🎵" },
+    ].filter((s) => s.url);
 
     return (
         <footer style={footerStyles.footer}>
@@ -58,14 +64,22 @@ const Footer = () => {
                     <Col md={6} lg={4}>
                         <div style={footerStyles.brand}>
                             <div style={footerStyles.logo}>
-                                <div style={footerStyles.logoIcon}>
-                                    LA
-                                </div>
-                                <span style={footerStyles.logoText}>La Aterciopelada</span>
+                                {config?.logoUrl ? (
+                                    <img
+                                        src={config.logoUrl}
+                                        alt={nombre}
+                                        style={{ height: "40px", width: "auto", objectFit: "contain" }}
+                                    />
+                                ) : (
+                                    <div style={footerStyles.logoIcon}>
+                                        {nombre.substring(0, 2).toUpperCase()}
+                                    </div>
+                                )}
+                                <span style={footerStyles.logoText}>{nombre}</span>
                             </div>
                             <p style={footerStyles.description}>
-                                Descubre la elegancia y calidad en cada prenda. 
-                                Somos tu destino para la moda que refleja tu estilo único.
+                                {config?.descripcion ||
+                                    "Descubre la elegancia y calidad en cada prenda. Somos tu destino para la moda que refleja tu estilo único."}
                             </p>
                         </div>
                     </Col>
@@ -103,18 +117,24 @@ const Footer = () => {
                         <div style={stylesGlobal.components.footer.contact}>
                             <div style={stylesGlobal.components.footer.contactItem}>
                                 <span style={stylesGlobal.components.footer.contactIcon}>📍</span>
-                                <span>México</span>
+                                <span>{config?.direccion || "México"}</span>
                             </div>
+                            {config?.telefono && (
+                                <div style={stylesGlobal.components.footer.contactItem}>
+                                    <span style={stylesGlobal.components.footer.contactIcon}>📞</span>
+                                    <span>{config.telefono}</span>
+                                </div>
+                            )}
                             <div style={stylesGlobal.components.footer.contactItem}>
                                 <span style={stylesGlobal.components.footer.contactIcon}>📧</span>
-                                <span>info@laaterciopelada.com</span>
+                                <span>{config?.email || "info@laaterciopelada.com"}</span>
                             </div>
                         </div>
                     </Col>
                 </Row>
                 
                 <div style={footerStyles.copyright}>
-                    &copy; {new Date().getFullYear()} La Aterciopelada. Todos los derechos reservados.
+                    &copy; {new Date().getFullYear()} {nombre}. Todos los derechos reservados.
                 </div>
             </div>
         </footer>
