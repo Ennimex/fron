@@ -6,6 +6,7 @@ import adminService from "../../services/adminServices";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesGlobal from "../../styles/stylesGlobal";
+import adminTheme from "../../styles/adminTheme";
 
 // Agregar estilos CSS para animaciones y responsividad
 const modalStyles = `
@@ -164,7 +165,7 @@ const GestionEventos = () => {
     pageContainer: {
       ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
-      backgroundColor: stylesGlobal.colors.surface.primary,
+      backgroundColor: adminTheme.bg,
       minHeight: '100vh',
     },
     mainContainer: {
@@ -194,7 +195,10 @@ const GestionEventos = () => {
       },
     },
     title: {
-      ...stylesGlobal.typography.headings.h1,
+      fontFamily: stylesGlobal.typography.families.display,
+      fontSize: "1.9rem",
+      fontWeight: 700,
+      color: stylesGlobal.colors.text.primary,
       display: 'flex',
       alignItems: 'center',
       gap: stylesGlobal.spacing.scale[2],

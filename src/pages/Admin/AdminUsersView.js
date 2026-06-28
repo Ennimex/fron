@@ -23,6 +23,7 @@ import adminService from "../../services/adminServices";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesPublic from "../../styles/stylesGlobal"; // Import global styles
+import adminTheme from "../../styles/adminTheme";
 
 // Estilos CSS responsivos para AdminUsersView
 const responsiveStyles = `
@@ -166,7 +167,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   const styles = {
     pageContainer: {
       minHeight: "100vh",
-      backgroundColor: stylesPublic.colors.surface.primary,
+      backgroundColor: adminTheme.bg,
       padding: stylesPublic.spacing.scale[8],
     },
     mainContainer: {
@@ -181,7 +182,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       paddingBottom: stylesPublic.spacing.scale[4],
     },
     title: {
-      ...stylesPublic.typography.headings.h1,
+      fontFamily: stylesPublic.typography.families.display,
+      fontSize: "1.9rem",
+      fontWeight: 700,
+      color: stylesPublic.colors.text.primary,
       display: "flex",
       alignItems: "center",
       gap: stylesPublic.spacing.scale[2],

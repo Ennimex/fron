@@ -6,6 +6,7 @@ import adminService from '../../services/adminServices';
 import { useAdminNotifications } from '../../services/adminHooks';
 import NotificationContainer from '../../components/admin/NotificationContainer';
 import stylesGlobal from '../../styles/stylesGlobal';
+import adminTheme from '../../styles/adminTheme';
 
 // Inyectar estilos CSS responsivos
 if (!document.getElementById('gestion-servicios-responsive-styles')) {
@@ -210,7 +211,7 @@ const GestionServicio = () => {
   // Mapeo de estilos usando el sistema de diseño global
   const styles = {
     pageContainer: {
-      backgroundColor: stylesGlobal.colors.surface.secondary,
+      backgroundColor: adminTheme.bg,
       minHeight: '100vh',
       padding: stylesGlobal.spacing.sections.md,
     },

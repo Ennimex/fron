@@ -15,6 +15,7 @@ import {
   FaLock,
 } from "react-icons/fa";
 import stylesGlobal from "../../styles/stylesGlobal";
+import adminTheme from "../../styles/adminTheme";
 
 // Inyectar estilos CSS responsivos
 if (!document.getElementById('gestion-categorias-responsive-styles')) {
@@ -130,7 +131,8 @@ const GestionCategorias = () => {
     pageContainer: {
       ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
-      backgroundColor: stylesGlobal.colors.surface.primary,
+      backgroundColor: adminTheme.bg,
+      minHeight: "100vh",
     },
     mainContainer: {
       maxWidth: stylesGlobal.utils.container.maxWidth.lg,
@@ -143,7 +145,12 @@ const GestionCategorias = () => {
       alignItems: 'center',
       marginBottom: stylesGlobal.spacing.scale[8],
     },
-    title: stylesGlobal.typography.headings.h1,
+    title: {
+      fontFamily: stylesGlobal.typography.families.display,
+      fontSize: "1.9rem",
+      fontWeight: 700,
+      color: stylesGlobal.colors.text.primary,
+    },
     subtitle: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.secondary,

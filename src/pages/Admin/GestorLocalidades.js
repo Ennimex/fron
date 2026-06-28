@@ -6,6 +6,7 @@ import { useAdminNotifications } from '../../services/adminHooks';
 import NotificationContainer from '../../components/admin/NotificationContainer';
 import { Navigate } from 'react-router-dom';
 import stylesGlobal from '../../styles/stylesGlobal';
+import adminTheme from '../../styles/adminTheme';
 
 // Inyectar estilos CSS responsivos
 if (!document.getElementById('gestor-localidades-responsive-styles')) {
@@ -107,7 +108,8 @@ const GestorLocalidades = () => {
     pageContainer: {
       ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
-      backgroundColor: stylesGlobal.colors.surface.primary,
+      backgroundColor: adminTheme.bg,
+      minHeight: "100vh",
     },
     mainContainer: {
       maxWidth: stylesGlobal.utils.container.maxWidth.lg,
@@ -122,7 +124,12 @@ const GestorLocalidades = () => {
       flexWrap: 'wrap',
       gap: stylesGlobal.spacing.gaps.md,
     },
-    title: stylesGlobal.typography.headings.h1,
+    title: {
+      fontFamily: stylesGlobal.typography.families.display,
+      fontSize: "1.9rem",
+      fontWeight: 700,
+      color: stylesGlobal.colors.text.primary,
+    },
     subtitle: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.secondary,
