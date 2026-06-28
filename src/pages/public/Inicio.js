@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
+import { useConfig } from "../../context/ConfigContext"
 import { publicAPI } from "../../services/api"
 import {
   FaMountain,
@@ -24,6 +25,7 @@ import stylesPublic from "../../styles/stylesGlobal"
 
 const InicioEnhanced = () => {
   const navigate = useNavigate()
+  const { config } = useConfig()
   const [categorias, setCategorias] = useState([])
   const [localidades, setLocalidades] = useState([])
   const [comentarios, setComentarios] = useState([])
@@ -299,8 +301,8 @@ const InicioEnhanced = () => {
                 }}
               >
                 <img
-                  src={`${process.env.PUBLIC_URL}/images/logo-aterciopelada.jpeg`}
-                  alt="La Aterciopelada - Boutique Huasteca"
+                  src={config?.logoUrl || `${process.env.PUBLIC_URL}/images/logo-aterciopelada.jpeg`}
+                  alt={`${config?.nombre || "La Aterciopelada"} - Boutique Huasteca`}
                   style={{
                     width: "100%",
                     height: "auto",
