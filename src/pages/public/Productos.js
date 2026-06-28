@@ -270,10 +270,9 @@ const Productos = () => {
     }
 
     if (filtros.categoria) {
-      resultado = resultado.filter((producto) =>
-        producto.tallasDisponibles?.some(
-          (td) => td.categoriaId?.nombre?.toLowerCase() === filtros.categoria.toLowerCase(),
-        ),
+      // Filtra por la categoría propia del producto (no la de sus tallas)
+      resultado = resultado.filter(
+        (producto) => producto.categoriaId?.nombre?.toLowerCase() === filtros.categoria.toLowerCase(),
       )
       contadorFiltros++
     }
