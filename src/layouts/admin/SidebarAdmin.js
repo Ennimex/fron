@@ -23,6 +23,7 @@ import {
   FaConciergeBell,
   FaCog,
   FaBook,
+  FaUserFriends,
 } from "react-icons/fa"
 import stylesGlobal from "../../styles/stylesGlobal"
 
@@ -768,6 +769,16 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                   >
                     <FaBook size={14} />
                     <span style={styles.submenuText}>Historia y Valores</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink
+                    to="/admin/informacion/colaboradores"
+                    style={styles.submenuLink}
+                    activeStyle={styles.submenuLinkActive}
+                  >
+                    <FaUserFriends size={14} />
+                    <span style={styles.submenuText}>Colaboradores</span>
                   </MenuLink>
                 </div>
                 <div style={styles.submenuItem}>

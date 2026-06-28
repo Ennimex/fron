@@ -711,6 +711,47 @@ export const adminAPI = {
       throw error;
     }
   },
+
+  // Colaboradores / equipo (CRUD con foto)
+  getColaboradores: async () => {
+    try {
+      const response = await api.get('/colaboradores');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  createColaborador: async (formData) => {
+    try {
+      const response = await api.post('/colaboradores', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateColaborador: async (id, formData) => {
+    try {
+      const response = await api.put(`/colaboradores/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteColaborador: async (id) => {
+    try {
+      const response = await api.delete(`/colaboradores/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default api;
