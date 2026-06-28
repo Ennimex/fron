@@ -11,7 +11,6 @@ import {
   FaPlus,
   FaSpinner,
   FaSearch,
-  FaImage,
   FaLock,
 } from "react-icons/fa";
 import stylesGlobal from "../../styles/stylesGlobal";
@@ -97,8 +96,12 @@ if (!document.getElementById('gestion-categorias-responsive-styles')) {
       .categorias-modal-btn {
         width: 100% !important;
       }
+
+      .cards-thead { display: none !important; }
+      .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+      .cards-actions { justify-content: flex-start !important; }
     }
-    
+
     @media (max-width: 480px) {
       .categorias-container {
         padding: 0.5rem !important;
@@ -186,6 +189,98 @@ const GestionCategorias = () => {
     tableContainer: {
       overflowX: 'auto',
       marginBottom: stylesGlobal.spacing.scale[6],
+    },
+    // --- Lista de categorías como tarjetas por fila ---
+    cardThead: {
+      display: "grid",
+      gridTemplateColumns: "2.4fr 3fr 1fr",
+      gap: stylesGlobal.spacing.scale[4],
+      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
+      color: stylesGlobal.colors.text.tertiary,
+      fontSize: stylesGlobal.typography.scale.xs,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      textTransform: "uppercase",
+      letterSpacing: stylesGlobal.typography.tracking.wide,
+    },
+    cardRow: {
+      display: "grid",
+      gridTemplateColumns: "2.4fr 3fr 1fr",
+      gap: stylesGlobal.spacing.scale[4],
+      alignItems: "center",
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
+      marginBottom: stylesGlobal.spacing.scale[3],
+      boxShadow: stylesGlobal.shadows.sm,
+    },
+    cardCell: {
+      display: "flex",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.scale[4],
+      minWidth: 0,
+    },
+    cardThumb: {
+      width: "52px",
+      height: "52px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      background: stylesGlobal.colors.gradients.primary,
+      color: stylesGlobal.colors.text.inverse,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: adminTheme.serif,
+      fontWeight: 700,
+      fontSize: "18px",
+      flexShrink: 0,
+    },
+    cardThumbImg: {
+      width: "52px",
+      height: "52px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      objectFit: "cover",
+      flexShrink: 0,
+    },
+    cardName: {
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.primary,
+      fontSize: stylesGlobal.typography.scale.base,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    cardText: {
+      color: stylesGlobal.colors.text.secondary,
+      fontSize: stylesGlobal.typography.scale.sm,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+    },
+    cardActions: {
+      display: "flex",
+      gap: stylesGlobal.spacing.scale[2],
+      justifyContent: "flex-end",
+    },
+    cardAct: {
+      width: "36px",
+      height: "36px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      cursor: "pointer",
+      transition: stylesGlobal.animations.transitions.base,
+    },
+    cardActEdit: {
+      backgroundColor: stylesGlobal.colors.accent[50],
+      color: stylesGlobal.colors.accent[600],
+    },
+    cardActDel: {
+      backgroundColor: stylesGlobal.colors.primary[50],
+      color: stylesGlobal.colors.primary[500],
     },
     table: {
       width: '100%',
@@ -686,76 +781,57 @@ const GestionCategorias = () => {
             </p>
           </div>
         ) : (
-          <div style={styles.tableContainer} className="categorias-table-container">
-            <table style={styles.table} className="categorias-table">
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Imagen</th>
-                  <th style={styles.tableHeader}>Nombre</th>
-                  <th style={styles.tableHeader}>Descripción</th>
-                  <th style={styles.tableHeader}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCategorias.map((categoria) => (
-                  <tr key={categoria._id}>
-                    <td style={styles.tableCellFirst}>
-                      {categoria.imagenURL ? (
-                        <img
-                          src={categoria.imagenURL}
-                          alt={categoria.nombre}
-                          style={styles.imagePreview}
-                          className="categorias-image-preview"
-                        />
-                      ) : (
-                        <div style={styles.imagePlaceholder} className="categorias-image-placeholder">
-                          <FaImage size={18} />
-                        </div>
-                      )}
-                    </td>
-                    <td style={styles.tableCellBold}>
-                      <strong>{categoria.nombre}</strong>
-                    </td>
-                    <td style={styles.tableCell}>
-                      {categoria.descripcion || '—'}
-                    </td>
-                    <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer} className="categorias-actions">
-                        <button
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.editAction,
-                          }}
-                          className="categorias-action-btn"
-                          onClick={() => openModal(categoria)}
-                          title="Editar categoría"
-                          disabled={loading}
-                          aria-label={`Editar categoría ${categoria.nombre}`}
-                        >
-                          <FaEdit size={12} />
-                          Editar
-                        </button>
-                        <button
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.deleteAction,
-                          }}
-                          className="categorias-action-btn"
-                          onClick={() => handleDelete(categoria._id)}
-                          title="Eliminar categoría"
-                          disabled={loading}
-                          aria-label={`Eliminar categoría ${categoria.nombre}`}
-                        >
-                          <FaTrash size={12} />
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div style={styles.cardThead} className="cards-thead">
+              <div>Categoría</div>
+              <div>Descripción</div>
+              <div style={{ textAlign: "right" }}>Acciones</div>
+            </div>
+
+            {filteredCategorias.map((categoria) => (
+              <div key={categoria._id} style={styles.cardRow} className="cards-row">
+                <div style={styles.cardCell}>
+                  {categoria.imagenURL ? (
+                    <img
+                      src={categoria.imagenURL}
+                      alt={categoria.nombre}
+                      style={styles.cardThumbImg}
+                    />
+                  ) : (
+                    <div style={styles.cardThumb}>
+                      {(categoria.nombre || "C")[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div style={{ minWidth: 0 }}>
+                    <div style={styles.cardName}>{categoria.nombre}</div>
+                  </div>
+                </div>
+                <div style={styles.cardText}>
+                  {categoria.descripcion || '—'}
+                </div>
+                <div style={styles.cardActions} className="cards-actions">
+                  <button
+                    style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                    onClick={() => openModal(categoria)}
+                    title="Editar categoría"
+                    disabled={loading}
+                    aria-label={`Editar categoría ${categoria.nombre}`}
+                  >
+                    <FaEdit size={15} />
+                  </button>
+                  <button
+                    style={{ ...styles.cardAct, ...styles.cardActDel }}
+                    onClick={() => handleDelete(categoria._id)}
+                    title="Eliminar categoría"
+                    disabled={loading}
+                    aria-label={`Eliminar categoría ${categoria.nombre}`}
+                  >
+                    <FaTrash size={15} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </>
         )}
 
         {/* Modal */}

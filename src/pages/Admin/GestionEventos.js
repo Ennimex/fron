@@ -94,6 +94,10 @@ const modalStyles = `
       align-self: flex-start !important;
       width: fit-content !important;
     }
+
+    .cards-thead { display: none !important; }
+    .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+    .cards-actions { justify-content: flex-start !important; }
   }
 
   @media (max-width: 480px) {
@@ -375,6 +379,17 @@ const GestionEventos = () => {
         alignItems: 'stretch',
       },
     },
+    // --- Lista de eventos como tarjetas por fila ---
+    cardThead: { display:"grid", gridTemplateColumns:"2.2fr 2fr 1.3fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], padding:`${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.xs, fontWeight: stylesGlobal.typography.weights.semibold, textTransform:"uppercase", letterSpacing: stylesGlobal.typography.tracking.wide },
+    cardRow: { display:"grid", gridTemplateColumns:"2.2fr 2fr 1.3fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], alignItems:"center", backgroundColor: stylesGlobal.colors.surface.primary, border:`1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.lg, padding:`${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, marginBottom: stylesGlobal.spacing.scale[3], boxShadow: stylesGlobal.shadows.sm },
+    cardCell: { display:"flex", alignItems:"center", gap: stylesGlobal.spacing.scale[4], minWidth:0 },
+    cardThumb: { width:"52px", height:"52px", borderRadius: stylesGlobal.borders.radius.md, background: stylesGlobal.colors.gradients.primary, color: stylesGlobal.colors.text.inverse, display:"flex", alignItems:"center", justifyContent:"center", fontFamily: adminTheme.serif, fontWeight:700, fontSize:"18px", flexShrink:0 },
+    cardName: { fontWeight: stylesGlobal.typography.weights.semibold, color: stylesGlobal.colors.text.primary, fontSize: stylesGlobal.typography.scale.base, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" },
+    cardText: { color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm, overflow:"hidden", textOverflow:"ellipsis", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" },
+    cardActions: { display:"flex", gap: stylesGlobal.spacing.scale[2], justifyContent:"flex-end" },
+    cardAct: { width:"36px", height:"36px", borderRadius: stylesGlobal.borders.radius.md, display:"flex", alignItems:"center", justifyContent:"center", border:"none", cursor:"pointer", transition: stylesGlobal.animations.transitions.base },
+    cardActEdit: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
+    cardActDel: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
     modalOverlay: {
       ...stylesGlobal.utils.overlay.elegant,
       position: 'fixed',
@@ -1005,71 +1020,53 @@ const GestionEventos = () => {
           </div>
         ) : (
           <div style={styles.tableContainer} className="eventos-table-container">
-            <table style={styles.table} className="eventos-table">
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Título</th>
-                  <th style={styles.tableHeader}>Descripción</th>
-                  <th style={styles.tableHeader}>Fecha</th>
-                  <th style={styles.tableHeader}>Horario</th>
-                  <th style={styles.tableHeader}>Ubicación</th>
-                  <th style={styles.tableHeader}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {eventos.map((evento) => (
-                  <tr key={evento._id}>
-                    <td style={styles.tableCellFirst}>{evento.titulo}</td>
-                    <td style={styles.tableCell}>
-                      {evento.descripcion.length > 50 
-                        ? `${evento.descripcion.substring(0, 50)}...` 
-                        : evento.descripcion
-                      }
-                    </td>
-                    <td style={styles.tableCell}>
-                      {evento.fecha ? new Date(evento.fecha).toLocaleDateString('es-ES') : "No especificada"}
-                    </td>
-                    <td style={styles.tableCell}>
-                      {evento.horaInicio && evento.horaFin 
-                        ? `${evento.horaInicio} - ${evento.horaFin}` 
-                        : evento.horaInicio || evento.horaFin || "No especificado"
-                      }
-                    </td>
-                    <td style={styles.tableCell}>{evento.ubicacion}</td>
-                    <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer} className="eventos-actions">
-                        <button 
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.editAction,
-                          }} 
-                          className="eventos-action-btn"
-                          title="Editar evento"
-                          onClick={() => handleEditClick(evento)}
-                          aria-label={`Editar evento ${evento.titulo}`}
-                        >
-                          <FaEdit size={12} />
-                          Editar
-                        </button>
-                        <button 
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.deleteAction,
-                          }} 
-                          className="eventos-action-btn"
-                          title="Eliminar evento"
-                          onClick={() => handleDeleteClick(evento)}
-                          aria-label={`Eliminar evento ${evento.titulo}`}
-                        >
-                          <FaTrash size={12} />
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div style={styles.cardThead} className="cards-thead">
+              <div>Evento</div>
+              <div>Descripción</div>
+              <div>Fecha</div>
+              <div>Horario / Ubicación</div>
+              <div style={{ textAlign: "right" }}>Acciones</div>
+            </div>
+
+            {eventos.map((evento) => {
+              const horario = evento.horaInicio && evento.horaFin
+                ? `${evento.horaInicio} - ${evento.horaFin}`
+                : evento.horaInicio || evento.horaFin || "";
+              const horarioUbicacion = [horario, evento.ubicacion].filter(Boolean).join(" · ") || "No especificado";
+              return (
+                <div key={evento._id} style={styles.cardRow} className="cards-row">
+                  <div style={styles.cardCell}>
+                    <div style={styles.cardThumb}>{(evento.titulo || "E")[0].toUpperCase()}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={styles.cardName}>{evento.titulo || "Sin título"}</div>
+                    </div>
+                  </div>
+                  <div style={styles.cardText}>{evento.descripcion || "—"}</div>
+                  <div style={styles.cardText}>
+                    {evento.fecha ? new Date(evento.fecha).toLocaleDateString('es-ES') : "No especificada"}
+                  </div>
+                  <div style={styles.cardText}>{horarioUbicacion}</div>
+                  <div style={styles.cardActions} className="cards-actions">
+                    <button
+                      style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                      title="Editar evento"
+                      onClick={() => handleEditClick(evento)}
+                      aria-label={`Editar evento ${evento.titulo}`}
+                    >
+                      <FaEdit size={15} />
+                    </button>
+                    <button
+                      style={{ ...styles.cardAct, ...styles.cardActDel }}
+                      title="Eliminar evento"
+                      onClick={() => handleDeleteClick(evento)}
+                      aria-label={`Eliminar evento ${evento.titulo}`}
+                    >
+                      <FaTrash size={15} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

@@ -90,11 +90,17 @@ if (!document.getElementById('gestor-localidades-responsive-styles')) {
       .localidades-container {
         padding: 0.5rem !important;
       }
-      
+
       .localidades-table th:nth-child(2),
       .localidades-table td:nth-child(2) {
         display: none !important;
       }
+    }
+
+    @media (max-width: 768px) {
+      .cards-thead { display: none !important; }
+      .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+      .cards-actions { justify-content: flex-start !important; }
     }
   `;
   document.head.appendChild(style);
@@ -239,6 +245,17 @@ const GestorLocalidades = () => {
       gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
     },
+    // --- Lista de localidades como tarjetas por fila ---
+    cardThead: { display: "grid", gridTemplateColumns: "2.4fr 3fr 1fr", gap: stylesGlobal.spacing.scale[4], padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.xs, fontWeight: stylesGlobal.typography.weights.semibold, textTransform: "uppercase", letterSpacing: stylesGlobal.typography.tracking.wide },
+    cardRow: { display: "grid", gridTemplateColumns: "2.4fr 3fr 1fr", gap: stylesGlobal.spacing.scale[4], alignItems: "center", backgroundColor: stylesGlobal.colors.surface.primary, border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.lg, padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, marginBottom: stylesGlobal.spacing.scale[3], boxShadow: stylesGlobal.shadows.sm },
+    cardCell: { display: "flex", alignItems: "center", gap: stylesGlobal.spacing.scale[4], minWidth: 0 },
+    cardThumb: { width: "52px", height: "52px", borderRadius: stylesGlobal.borders.radius.md, background: stylesGlobal.colors.gradients.primary, color: stylesGlobal.colors.text.inverse, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: adminTheme.serif, fontWeight: 700, fontSize: "18px", flexShrink: 0 },
+    cardName: { fontWeight: stylesGlobal.typography.weights.semibold, color: stylesGlobal.colors.text.primary, fontSize: stylesGlobal.typography.scale.base, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+    cardText: { color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" },
+    cardActions: { display: "flex", gap: stylesGlobal.spacing.scale[2], justifyContent: "flex-end" },
+    cardAct: { width: "36px", height: "36px", borderRadius: stylesGlobal.borders.radius.md, display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", transition: stylesGlobal.animations.transitions.base },
+    cardActEdit: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
+    cardActDel: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
     modalOverlay: stylesGlobal.utils.overlay.elegant,
     modalContent: {
       ...stylesGlobal.components.card.luxury,
@@ -607,63 +624,45 @@ const GestorLocalidades = () => {
             </button>
           </div>
         ) : (
-          /* Table */
-          <div style={styles.tableContainer} className="localidades-table-container">
-            <table style={styles.table} className="localidades-table">
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Nombre</th>
-                  <th style={styles.tableHeader}>Descripción</th>
-                  <th style={styles.tableHeader}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {localidades.map((localidad) => (
-                  <tr key={localidad._id}>
-                    <td style={styles.tableCellFirst}>
-                      <strong>{localidad.nombre}</strong>
-                    </td>
-                    <td style={styles.tableCell}>
-                      {localidad.descripcion?.length > 50
-                        ? `${localidad.descripcion.substring(0, 50)}...`
-                        : localidad.descripcion || '—'}
-                    </td>
-                    <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer} className="localidades-actions">
-                        <button
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.editAction,
-                          }}
-                          className="localidades-action-btn"
-                          onClick={() => handleOpenEditModal(localidad)}
-                          title="Editar localidad"
-                          aria-label={`Editar localidad ${localidad.nombre}`}
-                          disabled={loading}
-                        >
-                          <FaEdit size={12} />
-                          Editar
-                        </button>
-                        <button
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.deleteAction,
-                          }}
-                          className="localidades-action-btn"
-                          onClick={() => handleDeleteLocalidad(localidad._id)}
-                          title="Eliminar localidad"
-                          aria-label={`Eliminar localidad ${localidad.nombre}`}
-                          disabled={loading}
-                        >
-                          <FaTrash size={12} />
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          /* Lista de localidades (tarjetas por fila) */
+          <div>
+            <div style={styles.cardThead} className="cards-thead">
+              <div>Localidad</div>
+              <div>Descripción</div>
+              <div style={{ textAlign: 'right' }}>Acciones</div>
+            </div>
+
+            {localidades.map((localidad) => (
+              <div key={localidad._id} style={styles.cardRow} className="cards-row">
+                <div style={styles.cardCell}>
+                  <div style={styles.cardThumb}>{(localidad.nombre || 'L')[0].toUpperCase()}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={styles.cardName}>{localidad.nombre}</div>
+                  </div>
+                </div>
+                <div style={styles.cardText}>{localidad.descripcion || '—'}</div>
+                <div style={styles.cardActions} className="cards-actions">
+                  <button
+                    style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                    onClick={() => handleOpenEditModal(localidad)}
+                    title="Editar localidad"
+                    aria-label={`Editar localidad ${localidad.nombre}`}
+                    disabled={loading}
+                  >
+                    <FaEdit size={15} />
+                  </button>
+                  <button
+                    style={{ ...styles.cardAct, ...styles.cardActDel }}
+                    onClick={() => handleDeleteLocalidad(localidad._id)}
+                    title="Eliminar localidad"
+                    aria-label={`Eliminar localidad ${localidad.nombre}`}
+                    disabled={loading}
+                  >
+                    <FaTrash size={15} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

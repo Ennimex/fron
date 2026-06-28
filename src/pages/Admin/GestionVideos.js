@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock, FaLock, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaVideo, FaClock, FaLock, FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import adminService from '../../services/adminServices';
@@ -106,8 +106,12 @@ if (!document.getElementById('gestion-videos-responsive-styles')) {
       .videos-preview-media {
         max-height: 200px !important;
       }
+
+      .cards-thead { display: none !important; }
+      .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+      .cards-actions { justify-content: flex-start !important; }
     }
-    
+
     @media (max-width: 480px) {
       .videos-container {
         padding: 0.5rem !important;
@@ -338,6 +342,98 @@ const GestionVideos = () => {
     cardActions: {
       display: 'flex',
       gap: stylesGlobal.spacing.gaps.md,
+    },
+    // --- Lista de videos como tarjetas por fila (look unificado del admin) ---
+    cardThead: {
+      display: "grid",
+      gridTemplateColumns: "2.4fr 3fr 1fr",
+      gap: stylesGlobal.spacing.scale[4],
+      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
+      color: stylesGlobal.colors.text.tertiary,
+      fontSize: stylesGlobal.typography.scale.xs,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      textTransform: "uppercase",
+      letterSpacing: stylesGlobal.typography.tracking.wide,
+    },
+    cardRow: {
+      display: "grid",
+      gridTemplateColumns: "2.4fr 3fr 1fr",
+      gap: stylesGlobal.spacing.scale[4],
+      alignItems: "center",
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
+      marginBottom: stylesGlobal.spacing.scale[3],
+      boxShadow: stylesGlobal.shadows.sm,
+    },
+    cardCell: {
+      display: "flex",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.scale[4],
+      minWidth: 0,
+    },
+    cardThumb: {
+      width: "52px",
+      height: "52px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      background: stylesGlobal.colors.gradients.primary,
+      color: stylesGlobal.colors.text.inverse,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: adminTheme.serif,
+      fontWeight: 700,
+      fontSize: "18px",
+      flexShrink: 0,
+    },
+    cardThumbImg: {
+      width: "52px",
+      height: "52px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      objectFit: "cover",
+      flexShrink: 0,
+    },
+    cardName: {
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.primary,
+      fontSize: stylesGlobal.typography.scale.base,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    cardText: {
+      color: stylesGlobal.colors.text.secondary,
+      fontSize: stylesGlobal.typography.scale.sm,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+    },
+    cardActionsRow: {
+      display: "flex",
+      gap: stylesGlobal.spacing.scale[2],
+      justifyContent: "flex-end",
+    },
+    cardAct: {
+      width: "36px",
+      height: "36px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      cursor: "pointer",
+      transition: stylesGlobal.animations.transitions.base,
+    },
+    cardActEdit: {
+      backgroundColor: stylesGlobal.colors.accent[50],
+      color: stylesGlobal.colors.accent[600],
+    },
+    cardActDel: {
+      backgroundColor: stylesGlobal.colors.primary[50],
+      color: stylesGlobal.colors.primary[500],
     },
     modalOverlay: {
       ...stylesGlobal.utils.overlay.elegant,
@@ -784,13 +880,6 @@ const GestionVideos = () => {
     }
   };
 
-  // Función para reproducir video
-  const handlePlayVideo = (url) => {
-    if (url) {
-      window.open(url, '_blank');
-    }
-  };
-
   // Check if the user is authenticated and has admin role
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -870,64 +959,57 @@ const GestionVideos = () => {
             </p>
           </div>
         ) : (
-          <div style={styles.content}>
+          <>
+            <div style={styles.cardThead} className="cards-thead">
+              <div>Video</div>
+              <div>Descripción</div>
+              <div style={{ textAlign: 'right' }}>Acciones</div>
+            </div>
+
             {videos.map((video) => (
-              <div key={video._id} style={styles.cardBase}>
-                <div
-                  style={{ ...styles.cardImageContainer, cursor: 'pointer' }}
-                  onClick={() => handlePlayVideo(video.url)}
-                >
+              <div key={video._id} style={styles.cardRow} className="cards-row">
+                <div style={styles.cardCell}>
                   {video.miniatura ? (
-                    <>
-                      <img
-                        src={video.miniatura}
-                        alt={video.titulo}
-                        style={styles.cardImage}
-                      />
-                      <div style={styles.cardPlayButton}>
-                        <FaPlay size={20} />
-                      </div>
-                    </>
+                    <img
+                      src={video.miniatura}
+                      alt={video.titulo || 'Video'}
+                      style={styles.cardThumbImg}
+                    />
                   ) : (
-                    <div style={styles.cardPlaceholder}>
-                      <FaVideo size={40} />
-                      <p>Sin miniatura</p>
+                    <div style={styles.cardThumb}>
+                      {(video.titulo || 'V')[0].toUpperCase()}
                     </div>
                   )}
-                </div>
-                <div style={styles.cardContent}>
-                  <h3 style={styles.cardTitle}>
-                    {video.titulo || 'Sin título'}
-                  </h3>
-                  <p style={styles.cardDescription}>
-                    {video.descripcion || 'Sin descripción'}
-                  </p>
-                  <div style={styles.cardActions}>
-                    <button
-                      style={styles.editAction}
-                      onClick={() => handleOpenEditModal(video)}
-                      title="Editar video"
-                      aria-label={`Editar video ${video.titulo || 'Sin título'}`}
-                      disabled={formLoading || loading}
-                    >
-                      <FaEdit size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
-                      Editar
-                    </button>
-                    <button
-                      style={styles.deleteAction}
-                      onClick={() => handleOpenDeleteModal(video)}
-                      title="Eliminar video"
-                      aria-label={`Eliminar video ${video.titulo || 'Sin título'}`}
-                      disabled={formLoading || loading}
-                    >
-                      <FaTrash size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
-                      Eliminar
-                    </button>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={styles.cardName}>{video.titulo || 'Sin título'}</div>
                   </div>
+                </div>
+                <div style={styles.cardText}>
+                  {video.descripcion || 'Sin descripción'}
+                </div>
+                <div style={styles.cardActionsRow} className="cards-actions">
+                  <button
+                    style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                    onClick={() => handleOpenEditModal(video)}
+                    title="Editar video"
+                    aria-label={`Editar video ${video.titulo || 'Sin título'}`}
+                    disabled={formLoading || loading}
+                  >
+                    <FaEdit size={15} />
+                  </button>
+                  <button
+                    style={{ ...styles.cardAct, ...styles.cardActDel }}
+                    onClick={() => handleOpenDeleteModal(video)}
+                    title="Eliminar video"
+                    aria-label={`Eliminar video ${video.titulo || 'Sin título'}`}
+                    disabled={formLoading || loading}
+                  >
+                    <FaTrash size={15} />
+                  </button>
                 </div>
               </div>
             ))}
-          </div>
+          </>
         )}
 
         {/* Modal para crear/editar video */}

@@ -119,6 +119,12 @@ const responsiveStyles = `
       font-size: 0.75rem !important;
     }
   }
+
+  @media (max-width: 768px) {
+    .cards-thead { display: none !important; }
+    .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+    .cards-actions { justify-content: flex-start !important; }
+  }
 `;
 
 // Inyectar estilos CSS
@@ -308,6 +314,17 @@ const GestionTallas = () => {
       gap: stylesGlobal.spacing.gaps.sm,
       justifyContent: 'flex-end',
     },
+    // --- Lista de tallas como tarjetas por fila (look de GestionProductos) ---
+    cardThead: { display: "grid", gridTemplateColumns: "2fr 1.4fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.xs, fontWeight: stylesGlobal.typography.weights.semibold, textTransform: "uppercase", letterSpacing: stylesGlobal.typography.tracking.wide },
+    cardRow: { display: "grid", gridTemplateColumns: "2fr 1.4fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], alignItems: "center", backgroundColor: stylesGlobal.colors.surface.primary, border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.lg, padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, marginBottom: stylesGlobal.spacing.scale[3], boxShadow: stylesGlobal.shadows.sm },
+    cardCell: { display: "flex", alignItems: "center", gap: stylesGlobal.spacing.scale[4], minWidth: 0 },
+    cardThumb: { width: "52px", height: "52px", borderRadius: stylesGlobal.borders.radius.md, background: stylesGlobal.colors.gradients.primary, color: stylesGlobal.colors.text.inverse, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: adminTheme.serif, fontWeight: 700, fontSize: "18px", flexShrink: 0 },
+    cardName: { fontWeight: stylesGlobal.typography.weights.semibold, color: stylesGlobal.colors.text.primary, fontSize: stylesGlobal.typography.scale.base },
+    cardText: { color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm },
+    cardActions: { display: "flex", gap: stylesGlobal.spacing.scale[2], justifyContent: "flex-end" },
+    cardAct: { width: "36px", height: "36px", borderRadius: stylesGlobal.borders.radius.md, display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", transition: stylesGlobal.animations.transitions.base },
+    cardActEdit: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
+    cardActDel: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
     modalOverlay: {
       ...stylesGlobal.utils.overlay.base,
       ...stylesGlobal.utils.overlay.elegant,
@@ -671,11 +688,6 @@ const GestionTallas = () => {
     return categoria ? categoria.nombre : "Sin categoría";
   };
 
-  // Get range or measure
-  const getRangoOMedida = (talla) => {
-    return talla.rangoEdad || talla.medida || "-";
-  };
-
   // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -810,58 +822,48 @@ const GestionTallas = () => {
             </p>
           </div>
         ) : (
-          <div style={styles.tableContainer}>
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Categoría</th>
-                  <th style={styles.tableHeader}>Talla</th>
-                  <th style={styles.tableHeader}>Género</th>
-                  <th style={styles.tableHeader}>Rango/Medida</th>
-                  <th style={styles.tableHeaderRight}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTallas.map((talla) => (
-                  <tr key={talla._id}>
-                    <td style={styles.tableCellFirst}>{getCategoriaNombre(talla.categoriaId)}</td>
-                    <td style={styles.tableCellBold}>{talla.talla}</td>
-                    <td style={styles.tableCell}>{talla.genero}</td>
-                    <td style={styles.tableCell}>{getRangoOMedida(talla)}</td>
-                    <td style={styles.tableCellLast}>
-                      <div style={styles.actionsContainer}>
-                        <button
-                          onClick={() => handleEdit(talla)}
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.editAction,
-                          }}
-                          title="Editar talla"
-                          disabled={loading.form}
-                          aria-label={`Editar talla ${talla.talla}`}
-                        >
-                          <FaEdit size={12} />
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDelete(talla._id)}
-                          style={{
-                            ...styles.actionButton,
-                            ...styles.deleteAction,
-                          }}
-                          title="Eliminar talla"
-                          disabled={loading.table}
-                          aria-label={`Eliminar talla ${talla.talla}`}
-                        >
-                          <FaTrash size={12} />
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div>
+            <div style={styles.cardThead} className="cards-thead">
+              <div>Talla</div>
+              <div>Género</div>
+              <div>Rango / Medida</div>
+              <div style={{ textAlign: "right" }}>Acciones</div>
+            </div>
+
+            {filteredTallas.map((talla) => (
+              <div key={talla._id} style={styles.cardRow} className="cards-row">
+                <div style={styles.cardCell}>
+                  <div style={styles.cardThumb}>{(talla.talla || "?")[0].toUpperCase()}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={styles.cardName}>{talla.talla}</div>
+                  </div>
+                </div>
+                <div style={styles.cardText}>{talla.genero || "—"}</div>
+                <div style={styles.cardText}>
+                  {[talla.rangoEdad, talla.medida].filter(Boolean).join(" · ") || "—"}
+                </div>
+                <div style={styles.cardActions} className="cards-actions">
+                  <button
+                    onClick={() => handleEdit(talla)}
+                    style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                    title="Editar talla"
+                    disabled={loading.form}
+                    aria-label={`Editar talla ${talla.talla}`}
+                  >
+                    <FaEdit size={15} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(talla._id)}
+                    style={{ ...styles.cardAct, ...styles.cardActDel }}
+                    title="Eliminar talla"
+                    disabled={loading.table}
+                    aria-label={`Eliminar talla ${talla.talla}`}
+                  >
+                    <FaTrash size={15} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
