@@ -28,40 +28,56 @@ api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     console.error('API Error:', error.response?.data || error.message);
-    
-    // Manejar diferentes tipos de errores del backend
-    if (error.response?.data) {
+
+    // 1) El servidor SÍ respondió (hubo conexión): es un error del servidor, no de red.
+    if (error.response) {
+      const status = error.response.status;
       const errorData = error.response.data;
-      
-      // Si es un array de errores de validación, unirlos en un string
-      if (Array.isArray(errorData.error)) {
-        const errorMessage = errorData.error.join(', ');
-        return Promise.reject({ error: errorMessage, originalError: errorData });
+
+      // 429: límite de peticiones excedido (rate limit). No es falta de internet.
+      if (status === 429) {
+        const message =
+          (errorData && (errorData.error || errorData.message)) ||
+          (typeof errorData === 'string' && errorData.trim()) ||
+          'Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.';
+        return Promise.reject({ error: message, status, originalError: errorData });
       }
-      
-      // Si es un error con mensaje simple
-      if (errorData.error) {
-        return Promise.reject({ error: errorData.error, originalError: errorData });
+
+      if (errorData) {
+        // Array de errores de validación → unirlos en un string
+        if (Array.isArray(errorData.error)) {
+          return Promise.reject({ error: errorData.error.join(', '), status, originalError: errorData });
+        }
+        // Error con mensaje en 'error'
+        if (errorData.error) {
+          return Promise.reject({ error: errorData.error, status, originalError: errorData });
+        }
+        // Error con mensaje en 'message'
+        if (errorData.message) {
+          return Promise.reject({ error: errorData.message, status, originalError: errorData });
+        }
+        // Cuerpo en texto plano (p. ej. mensaje por defecto del rate limiter)
+        if (typeof errorData === 'string' && errorData.trim()) {
+          return Promise.reject({ error: errorData, status, originalError: errorData });
+        }
       }
-      
-      // Si es un error con mensaje en 'message'
-      if (errorData.message) {
-        return Promise.reject({ error: errorData.message, originalError: errorData });
-      }
+
+      // Respuesta de error sin cuerpo útil
+      return Promise.reject({ error: `Error del servidor (${status}). Inténtalo de nuevo.`, status, originalError: error });
     }
-    
-    // Error de conexión o sin respuesta del servidor
+
+    // 2) Se hizo la petición pero NO hubo respuesta: problema de red real.
     if (error.request) {
-      return Promise.reject({ 
-        error: 'Error de conexión. Verifica tu conexión a internet.', 
-        originalError: error 
+      return Promise.reject({
+        error: 'Error de conexión. Verifica tu conexión a internet.',
+        originalError: error,
       });
     }
-    
-    // Otros errores
-    return Promise.reject({ 
-      error: error.message || 'Error desconocido', 
-      originalError: error 
+
+    // 3) Error al configurar la petición
+    return Promise.reject({
+      error: error.message || 'Error desconocido',
+      originalError: error,
     });
   }
 );
