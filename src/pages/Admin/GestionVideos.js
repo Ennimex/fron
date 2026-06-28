@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaVideo, FaClock, FaLock, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock, FaLock, FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import adminService from '../../services/adminServices';
@@ -106,10 +106,6 @@ if (!document.getElementById('gestion-videos-responsive-styles')) {
       .videos-preview-media {
         max-height: 200px !important;
       }
-
-      .cards-thead { display: none !important; }
-      .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
-      .cards-actions { justify-content: flex-start !important; }
     }
 
     @media (max-width: 480px) {
@@ -343,79 +339,17 @@ const GestionVideos = () => {
       display: 'flex',
       gap: stylesGlobal.spacing.gaps.md,
     },
-    // --- Lista de videos como tarjetas por fila (look unificado del admin) ---
-    cardThead: {
-      display: "grid",
-      gridTemplateColumns: "2.4fr 3fr 1fr",
-      gap: stylesGlobal.spacing.scale[4],
-      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
-      color: stylesGlobal.colors.text.tertiary,
-      fontSize: stylesGlobal.typography.scale.xs,
-      fontWeight: stylesGlobal.typography.weights.semibold,
-      textTransform: "uppercase",
-      letterSpacing: stylesGlobal.typography.tracking.wide,
-    },
-    cardRow: {
-      display: "grid",
-      gridTemplateColumns: "2.4fr 3fr 1fr",
-      gap: stylesGlobal.spacing.scale[4],
-      alignItems: "center",
-      backgroundColor: stylesGlobal.colors.surface.primary,
-      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
-      borderRadius: stylesGlobal.borders.radius.lg,
-      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
-      marginBottom: stylesGlobal.spacing.scale[3],
-      boxShadow: stylesGlobal.shadows.sm,
-    },
-    cardCell: {
-      display: "flex",
-      alignItems: "center",
-      gap: stylesGlobal.spacing.scale[4],
-      minWidth: 0,
-    },
-    cardThumb: {
-      width: "52px",
-      height: "52px",
-      borderRadius: stylesGlobal.borders.radius.md,
-      background: stylesGlobal.colors.gradients.primary,
-      color: stylesGlobal.colors.text.inverse,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: adminTheme.serif,
-      fontWeight: 700,
-      fontSize: "18px",
-      flexShrink: 0,
-    },
-    cardThumbImg: {
-      width: "52px",
-      height: "52px",
-      borderRadius: stylesGlobal.borders.radius.md,
-      objectFit: "cover",
-      flexShrink: 0,
-    },
-    cardName: {
-      fontWeight: stylesGlobal.typography.weights.semibold,
-      color: stylesGlobal.colors.text.primary,
-      fontSize: stylesGlobal.typography.scale.base,
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-    cardText: {
-      color: stylesGlobal.colors.text.secondary,
-      fontSize: stylesGlobal.typography.scale.sm,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      display: "-webkit-box",
-      WebkitLineClamp: 2,
-      WebkitBoxOrient: "vertical",
-    },
-    cardActionsRow: {
-      display: "flex",
-      gap: stylesGlobal.spacing.scale[2],
-      justifyContent: "flex-end",
-    },
+    // --- Lista de videos como grid de tarjetas tipo galería ---
+    mediaGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: stylesGlobal.spacing.scale[5] },
+    mediaCard: { backgroundColor: stylesGlobal.colors.surface.primary, border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.xl, overflow: "hidden", boxShadow: stylesGlobal.shadows.sm, display: "flex", flexDirection: "column" },
+    mediaThumbWrap: { position: "relative", width: "100%", aspectRatio: "16 / 9", backgroundColor: stylesGlobal.colors.neutral[100], overflow: "hidden" },
+    mediaThumbImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+    mediaThumbFallback: { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: stylesGlobal.colors.gradients.primary, color: stylesGlobal.colors.text.inverse, fontFamily: adminTheme.serif, fontWeight: 700, fontSize: "34px" },
+    mediaPlay: { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "54px", height: "54px", borderRadius: "50%", background: "rgba(0,0,0,0.45)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" },
+    mediaBody: { padding: stylesGlobal.spacing.scale[5], display: "flex", flexDirection: "column", gap: stylesGlobal.spacing.scale[2], flex: 1 },
+    mediaTitle: { fontFamily: adminTheme.serif, fontSize: stylesGlobal.typography.scale.lg, fontWeight: 700, color: stylesGlobal.colors.text.primary, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+    mediaDesc: { color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm, lineHeight: 1.5, margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.6em" },
+    mediaFooter: { display: "flex", justifyContent: "flex-end", gap: stylesGlobal.spacing.scale[2], marginTop: "auto", paddingTop: stylesGlobal.spacing.scale[3], borderTop: `1px solid ${stylesGlobal.colors.neutral[200]}` },
     cardAct: {
       width: "36px",
       height: "36px",
@@ -959,57 +893,54 @@ const GestionVideos = () => {
             </p>
           </div>
         ) : (
-          <>
-            <div style={styles.cardThead} className="cards-thead">
-              <div>Video</div>
-              <div>Descripción</div>
-              <div style={{ textAlign: 'right' }}>Acciones</div>
-            </div>
-
+          <div style={styles.mediaGrid}>
             {videos.map((video) => (
-              <div key={video._id} style={styles.cardRow} className="cards-row">
-                <div style={styles.cardCell}>
+              <div key={video._id} style={styles.mediaCard}>
+                <div style={styles.mediaThumbWrap}>
                   {video.miniatura ? (
-                    <img
-                      src={video.miniatura}
-                      alt={video.titulo || 'Video'}
-                      style={styles.cardThumbImg}
-                    />
+                    <>
+                      <img
+                        src={video.miniatura}
+                        alt={video.titulo || 'Video'}
+                        style={styles.mediaThumbImg}
+                      />
+                      <div style={styles.mediaPlay}>
+                        <FaPlay size={18} />
+                      </div>
+                    </>
                   ) : (
-                    <div style={styles.cardThumb}>
-                      {(video.titulo || 'V')[0].toUpperCase()}
+                    <div style={styles.mediaThumbFallback}>
+                      <FaVideo size={30} />
                     </div>
                   )}
-                  <div style={{ minWidth: 0 }}>
-                    <div style={styles.cardName}>{video.titulo || 'Sin título'}</div>
+                </div>
+                <div style={styles.mediaBody}>
+                  <h3 style={styles.mediaTitle}>{video.titulo || 'Sin título'}</h3>
+                  <p style={styles.mediaDesc}>{video.descripcion || 'Sin descripción'}</p>
+                  <div style={styles.mediaFooter}>
+                    <button
+                      style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                      onClick={() => handleOpenEditModal(video)}
+                      title="Editar video"
+                      aria-label={`Editar video ${video.titulo || 'Sin título'}`}
+                      disabled={formLoading || loading}
+                    >
+                      <FaEdit size={15} />
+                    </button>
+                    <button
+                      style={{ ...styles.cardAct, ...styles.cardActDel }}
+                      onClick={() => handleOpenDeleteModal(video)}
+                      title="Eliminar video"
+                      aria-label={`Eliminar video ${video.titulo || 'Sin título'}`}
+                      disabled={formLoading || loading}
+                    >
+                      <FaTrash size={15} />
+                    </button>
                   </div>
-                </div>
-                <div style={styles.cardText}>
-                  {video.descripcion || 'Sin descripción'}
-                </div>
-                <div style={styles.cardActionsRow} className="cards-actions">
-                  <button
-                    style={{ ...styles.cardAct, ...styles.cardActEdit }}
-                    onClick={() => handleOpenEditModal(video)}
-                    title="Editar video"
-                    aria-label={`Editar video ${video.titulo || 'Sin título'}`}
-                    disabled={formLoading || loading}
-                  >
-                    <FaEdit size={15} />
-                  </button>
-                  <button
-                    style={{ ...styles.cardAct, ...styles.cardActDel }}
-                    onClick={() => handleOpenDeleteModal(video)}
-                    title="Eliminar video"
-                    aria-label={`Eliminar video ${video.titulo || 'Sin título'}`}
-                    disabled={formLoading || loading}
-                  >
-                    <FaTrash size={15} />
-                  </button>
                 </div>
               </div>
             ))}
-          </>
+          </div>
         )}
 
         {/* Modal para crear/editar video */}
