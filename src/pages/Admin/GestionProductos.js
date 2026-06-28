@@ -135,6 +135,12 @@ const responsiveStyles = `
       height: auto !important;
     }
   }
+
+  @media (max-width: 768px) {
+    .productos-thead { display: none !important; }
+    .productos-prod-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+    .productos-actions { flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; }
+  }
 `;
 
 // Inyectar estilos CSS
@@ -670,6 +676,163 @@ const GestionProductos = () => {
       display: "flex",
       gap: stylesPublic.spacing.scale[2],
     },
+    // --- Lista de productos como tarjetas por fila (look del preview) ---
+    thead: {
+      display: "grid",
+      gridTemplateColumns: "3fr 1.4fr 1.6fr 1fr",
+      gap: stylesPublic.spacing.scale[4],
+      padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[5]}`,
+      color: stylesPublic.colors.text.tertiary,
+      fontSize: stylesPublic.typography.scale.xs,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      textTransform: "uppercase",
+      letterSpacing: stylesPublic.typography.tracking.wide,
+    },
+    prodRow: {
+      display: "grid",
+      gridTemplateColumns: "3fr 1.4fr 1.6fr 1fr",
+      gap: stylesPublic.spacing.scale[4],
+      alignItems: "center",
+      backgroundColor: stylesPublic.colors.surface.primary,
+      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      borderRadius: stylesPublic.borders.radius.lg,
+      padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[5]}`,
+      marginBottom: stylesPublic.spacing.scale[3],
+      boxShadow: stylesPublic.shadows.sm,
+    },
+    pcell: {
+      display: "flex",
+      alignItems: "center",
+      gap: stylesPublic.spacing.scale[4],
+      minWidth: 0,
+    },
+    pthumb: {
+      width: "52px",
+      height: "52px",
+      borderRadius: stylesPublic.borders.radius.md,
+      background: stylesPublic.colors.gradients.primary,
+      color: stylesPublic.colors.text.inverse,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: adminTheme.serif,
+      fontWeight: 700,
+      fontSize: "18px",
+      flexShrink: 0,
+    },
+    pthumbImg: {
+      width: "52px",
+      height: "52px",
+      borderRadius: stylesPublic.borders.radius.md,
+      objectFit: "cover",
+      flexShrink: 0,
+    },
+    pn: {
+      fontWeight: stylesPublic.typography.weights.semibold,
+      color: stylesPublic.colors.text.primary,
+      fontSize: stylesPublic.typography.scale.base,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    pt: {
+      color: stylesPublic.colors.text.tertiary,
+      fontSize: stylesPublic.typography.scale.sm,
+    },
+    cellText: {
+      color: stylesPublic.colors.text.secondary,
+      fontSize: stylesPublic.typography.scale.sm,
+    },
+    tallasWrap: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: stylesPublic.spacing.scale[1],
+    },
+    tg: {
+      fontSize: stylesPublic.typography.scale.xs,
+      fontWeight: stylesPublic.typography.weights.semibold,
+      color: stylesPublic.colors.text.secondary,
+      backgroundColor: stylesPublic.colors.neutral[100],
+      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      borderRadius: stylesPublic.borders.radius.base,
+      padding: `2px ${stylesPublic.spacing.scale[2]}`,
+    },
+    rowacts: {
+      display: "flex",
+      gap: stylesPublic.spacing.scale[2],
+      justifyContent: "flex-end",
+    },
+    ra: {
+      width: "36px",
+      height: "36px",
+      borderRadius: stylesPublic.borders.radius.md,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      cursor: "pointer",
+      transition: stylesPublic.animations.transitions.base,
+    },
+    raView: {
+      backgroundColor: stylesPublic.colors.neutral[100],
+      color: stylesPublic.colors.text.secondary,
+    },
+    raEdit: {
+      backgroundColor: stylesPublic.colors.accent[50],
+      color: stylesPublic.colors.accent[600],
+    },
+    raDel: {
+      backgroundColor: stylesPublic.colors.primary[50],
+      color: stylesPublic.colors.primary[500],
+    },
+    pagWrap: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: stylesPublic.spacing.scale[3],
+      marginTop: stylesPublic.spacing.scale[4],
+    },
+    pagInfo: {
+      color: stylesPublic.colors.text.tertiary,
+      fontSize: stylesPublic.typography.scale.sm,
+    },
+    pagControls: {
+      display: "flex",
+      alignItems: "center",
+      gap: stylesPublic.spacing.scale[2],
+    },
+    pagBtn: {
+      width: "36px",
+      height: "36px",
+      borderRadius: stylesPublic.borders.radius.md,
+      border: `1px solid ${stylesPublic.colors.neutral[300]}`,
+      backgroundColor: stylesPublic.colors.surface.primary,
+      color: stylesPublic.colors.text.secondary,
+      cursor: "pointer",
+      fontSize: "1.2rem",
+      lineHeight: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    pagBtnDisabled: {
+      opacity: 0.45,
+      cursor: "not-allowed",
+    },
+    pagCurrent: {
+      minWidth: "36px",
+      height: "36px",
+      borderRadius: stylesPublic.borders.radius.md,
+      backgroundColor: stylesPublic.colors.primary[500],
+      color: stylesPublic.colors.primary.contrast,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: adminTheme.serif,
+      fontWeight: 700,
+      padding: `0 ${stylesPublic.spacing.scale[2]}`,
+    },
     emptyState: {
       padding: stylesPublic.spacing.scale[10],
       textAlign: "center",
@@ -936,7 +1099,7 @@ const GestionProductos = () => {
           <div style={styles.headerContent} className="productos-header-content">
             <div>
               <h1 style={styles.title} className="productos-title">Gestión de Productos</h1>
-              <p style={styles.subtitle}>Administra tu catálogo de productos</p>
+              <p style={styles.subtitle}>{productos.length} piezas en tu colección artesanal</p>
             </div>
             <button
               style={styles.addButton}
@@ -1001,153 +1164,96 @@ const GestionProductos = () => {
             </div>
           </div>
 
-          {/* Tabla de productos */}
+          {/* Lista de productos (tarjetas por fila, look del preview) */}
           {filteredProducts.length > 0 ? (
             <>
-            <div style={styles.tableContainer} className="productos-table-container">
-              <table style={styles.table} className="productos-table">
-                <thead style={styles.tableHeader}>
-                  <tr>
-                    <th style={styles.tableHeaderCell}>Imagen</th>
-                    <th style={styles.tableHeaderCell}>Producto</th>
-                    <th style={styles.tableHeaderCell}>Localidad</th>
-                    <th style={styles.tableHeaderCell}>Tipo de Tela</th>
-                    <th style={styles.tableHeaderCell}>Tallas Disponibles</th>
-                    <th style={styles.tableHeaderCell}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productosPagina.map((producto) => {
-                    const productSizes = getProductSizes(producto.tallasDisponibles);
-                    return (
-                      <tr key={producto._id} style={styles.tableRow}>
-                        <td style={styles.tableCell}>
-                          <img
-                            src={producto.imagenURL || "/placeholder.svg"}
-                            alt={producto.nombre || "Producto"}
-                            style={styles.productImage}
-                          />
-                        </td>
-                        <td style={styles.tableCell}>
-                          <div style={{ fontWeight: stylesPublic.typography.weights.semibold }}>
-                            {producto.nombre || "Sin nombre"}
-                          </div>
-                          <div style={{ ...stylesPublic.typography.body.small, color: stylesPublic.colors.text.tertiary }}>
-                            {producto.descripcion?.length > 80
-                              ? `${producto.descripcion.substring(0, 80)}...`
-                              : producto.descripcion || "-"}
-                          </div>
-                        </td>
-                        <td style={styles.tableCell}>
-                          <span style={styles.badge}>{getLocalidadNombre(producto.localidadId)}</span>
-                        </td>
-                        <td style={styles.tableCell}>
-                          <span style={styles.badge}>{producto.tipoTela || "-"}</span>
-                        </td>
-                        <td style={styles.tableCell}>
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
-                            {productSizes.map((talla) => (
-                              <span key={talla._id} style={styles.badge}>
-                                {talla.talla}
-                                {talla.rangoEdad && ` (${talla.rangoEdad})`}
-                                {talla.medida && ` (${talla.medida})`}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer} className="productos-actions">
-                            <button
-                              style={{ ...styles.actionButton, ...styles.viewAction }}
-                              className="productos-action-btn"
-                              onClick={() => setSelectedProduct(producto)}
-                              title="Ver detalles"
-                            >
-                              <FaEye size={14} />
-                            </button>
-                            <button
-                              style={{ ...styles.actionButton, ...styles.editAction }}
-                              className="productos-action-btn"
-                              onClick={() => handleEditProduct(producto)}
-                              title="Editar producto"
-                            >
-                              <FaEdit size={14} />
-                            </button>
-                            <button
-                              style={{ ...styles.actionButton, ...styles.deleteAction }}
-                              className="productos-action-btn"
-                              onClick={() => handleDeleteProduct(producto._id)}
-                              title="Eliminar producto"
-                            >
-                              <FaTrash size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {totalPaginas > 1 && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "1rem",
-                  marginTop: "1.5rem",
-                }}
-              >
-                <button
-                  onClick={() => irAPagina(paginaActual - 1)}
-                  disabled={paginaActual === 1}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    borderRadius: stylesPublic.borders.radius.md,
-                    border: `1px solid ${stylesPublic.colors.neutral[300]}`,
-                    background: "transparent",
-                    color: stylesPublic.colors.text.primary,
-                    fontFamily: stylesPublic.typography.families.body,
-                    fontSize: stylesPublic.typography.scale.sm,
-                    cursor: paginaActual === 1 ? "not-allowed" : "pointer",
-                    opacity: paginaActual === 1 ? 0.5 : 1,
-                  }}
-                >
-                  ← Anterior
-                </button>
-                <span
-                  style={{
-                    fontFamily: stylesPublic.typography.families.body,
-                    fontSize: stylesPublic.typography.scale.sm,
-                    color: stylesPublic.colors.text.secondary,
-                    minWidth: "110px",
-                    textAlign: "center",
-                  }}
-                >
-                  Página {paginaActual} de {totalPaginas}
-                </span>
-                <button
-                  onClick={() => irAPagina(paginaActual + 1)}
-                  disabled={paginaActual === totalPaginas}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    borderRadius: stylesPublic.borders.radius.md,
-                    border: `1px solid ${stylesPublic.colors.neutral[300]}`,
-                    background: "transparent",
-                    color: stylesPublic.colors.text.primary,
-                    fontFamily: stylesPublic.typography.families.body,
-                    fontSize: stylesPublic.typography.scale.sm,
-                    cursor: paginaActual === totalPaginas ? "not-allowed" : "pointer",
-                    opacity: paginaActual === totalPaginas ? 0.5 : 1,
-                  }}
-                >
-                  Siguiente →
-                </button>
+              <div style={styles.thead} className="productos-thead">
+                <div>Producto</div>
+                <div>Localidad</div>
+                <div>Tallas</div>
+                <div style={{ textAlign: "right" }}>Acciones</div>
               </div>
-            )}
+
+              {productosPagina.map((producto) => {
+                const productSizes = getProductSizes(producto.tallasDisponibles);
+                return (
+                  <div key={producto._id} style={styles.prodRow} className="productos-prod-row">
+                    <div style={styles.pcell}>
+                      {producto.imagenURL ? (
+                        <img src={producto.imagenURL} alt={producto.nombre || "Producto"} style={styles.pthumbImg} />
+                      ) : (
+                        <div style={styles.pthumb}>{(producto.nombre || "P")[0].toUpperCase()}</div>
+                      )}
+                      <div style={{ minWidth: 0 }}>
+                        <div style={styles.pn}>{producto.nombre || "Sin nombre"}</div>
+                        <div style={styles.pt}>{producto.tipoTela || "—"}</div>
+                      </div>
+                    </div>
+                    <div style={styles.cellText}>{getLocalidadNombre(producto.localidadId)}</div>
+                    <div style={styles.tallasWrap}>
+                      {productSizes.length > 0 ? (
+                        productSizes.map((talla) => (
+                          <span key={talla._id} style={styles.tg}>{talla.talla}</span>
+                        ))
+                      ) : (
+                        <span style={styles.pt}>—</span>
+                      )}
+                    </div>
+                    <div style={styles.rowacts} className="productos-actions">
+                      <button
+                        style={{ ...styles.ra, ...styles.raView }}
+                        onClick={() => setSelectedProduct(producto)}
+                        title="Ver detalles"
+                      >
+                        <FaEye size={15} />
+                      </button>
+                      <button
+                        style={{ ...styles.ra, ...styles.raEdit }}
+                        onClick={() => handleEditProduct(producto)}
+                        title="Editar producto"
+                      >
+                        <FaEdit size={15} />
+                      </button>
+                      <button
+                        style={{ ...styles.ra, ...styles.raDel }}
+                        onClick={() => handleDeleteProduct(producto._id)}
+                        title="Eliminar producto"
+                      >
+                        <FaTrash size={15} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Pie con conteo y paginación */}
+              <div style={styles.pagWrap}>
+                <span style={styles.pagInfo}>
+                  Mostrando {productosPagina.length} de {filteredProducts.length} productos
+                </span>
+                {totalPaginas > 1 && (
+                  <div style={styles.pagControls}>
+                    <button
+                      onClick={() => irAPagina(paginaActual - 1)}
+                      disabled={paginaActual === 1}
+                      style={{ ...styles.pagBtn, ...(paginaActual === 1 ? styles.pagBtnDisabled : {}) }}
+                      aria-label="Página anterior"
+                    >
+                      ‹
+                    </button>
+                    <span style={styles.pagCurrent}>{paginaActual}</span>
+                    <span style={styles.pagInfo}>de {totalPaginas}</span>
+                    <button
+                      onClick={() => irAPagina(paginaActual + 1)}
+                      disabled={paginaActual === totalPaginas}
+                      style={{ ...styles.pagBtn, ...(paginaActual === totalPaginas ? styles.pagBtnDisabled : {}) }}
+                      aria-label="Página siguiente"
+                    >
+                      ›
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <div style={styles.emptyState}>
