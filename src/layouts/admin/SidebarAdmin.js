@@ -27,46 +27,45 @@ import {
   FaClipboardList,
 } from "react-icons/fa"
 import stylesGlobal from "../../styles/stylesGlobal"
+import adminTheme from "../../styles/adminTheme"
 
-// Estilos CSS responsivos adicionales
+// Estilos CSS responsivos adicionales (tema claro / crema)
 const additionalStyles = `
   .sidebar-admin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    scrollbar-color: ${stylesGlobal.colors.neutral[300]} transparent;
   }
-  
+
   .sidebar-admin::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   .sidebar-admin::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .sidebar-admin::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: ${stylesGlobal.colors.neutral[300]};
     border-radius: 3px;
   }
-  
+
   .sidebar-admin::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: ${stylesGlobal.colors.neutral[400]};
   }
 
   @media (max-width: 768px) {
     .sidebar-admin {
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3) !important;
+      box-shadow: 2px 0 16px rgba(42, 36, 31, 0.12) !important;
     }
   }
-  
+
   .menu-link-hover:hover {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    transform: translateX(4px) !important;
+    background-color: ${adminTheme.hover} !important;
   }
-  
+
   .submenu-link-hover:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: ${stylesGlobal.colors.text.inverse} !important;
-    transform: translateX(4px) !important;
+    background-color: ${adminTheme.hover} !important;
+    color: ${adminTheme.primary} !important;
   }
 `;
 
@@ -184,13 +183,14 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
   // En móvil, cuando esté visible mostrar expandido; en desktop usar el estado normal
   const effectiveCollapsed = isMobile ? false : isCollapsed
 
-  // Styles con stylesGlobal - variante dark elegante
+  // Styles con stylesGlobal + adminTheme — variante clara (crema)
   const styles = {
     sidebar: {
       ...stylesGlobal.components.sidebar.base,
-      ...stylesGlobal.components.sidebar.variants.dark,
-      ...(effectiveCollapsed ? stylesGlobal.components.sidebar.collapsed : {}),
-      width: effectiveCollapsed ? "70px" : "280px",
+      width: effectiveCollapsed ? "76px" : "260px",
+      backgroundColor: adminTheme.surface,
+      borderRight: `1px solid ${adminTheme.border}`,
+      boxShadow: "none",
       userSelect: isTransitioning ? "none" : "auto",
       WebkitOverflowScrolling: "touch",
       height: "100vh",
@@ -198,100 +198,115 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       zIndex: 1,
     },
     logo: {
-      ...stylesGlobal.components.sidebar.header,
-      height: "64px",
-      backgroundColor: stylesGlobal.colors.neutral[900],
-      borderBottom: `1px solid ${stylesGlobal.colors.neutral[700]}`,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: effectiveCollapsed ? "center" : "space-between",
+      height: "78px",
+      padding: effectiveCollapsed ? "0" : "0 18px",
+      backgroundColor: adminTheme.surface,
+      borderBottom: `1px solid ${adminTheme.border}`,
       position: "sticky",
       top: 0,
       zIndex: 10,
     },
+    brandLink: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      textDecoration: "none",
+      overflow: "hidden",
+    },
     logoIcon: {
-      ...stylesGlobal.components.sidebar.logoIcon,
-      backgroundColor: stylesGlobal.colors.primary[500],
+      width: "36px",
+      height: "36px",
+      borderRadius: "10px",
+      background: stylesGlobal.colors.gradients.primary,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: stylesGlobal.colors.text.inverse,
+      fontFamily: adminTheme.serif,
+      fontWeight: 800,
+      fontSize: "18px",
+      flexShrink: 0,
     },
     logoText: {
-      ...stylesGlobal.components.sidebar.logoText,
-      color: stylesGlobal.colors.text.inverse,
-      opacity: effectiveCollapsed ? 0 : 1,
-      visibility: effectiveCollapsed ? "hidden" : "visible",
+      fontFamily: adminTheme.serif,
+      fontSize: "17px",
+      fontWeight: 800,
+      color: adminTheme.text,
+      whiteSpace: "nowrap",
     },
     toggleButton: {
       background: "none",
       border: "none",
-      color: stylesGlobal.colors.text.inverse,
+      color: adminTheme.text2,
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "0",
-      width: "100%",
-      height: "64px",
+      padding: "8px",
+      borderRadius: "10px",
       transition: stylesGlobal.animations.transitions.base,
-      "&:hover": {
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-      }
     },
     content: {
       ...stylesGlobal.components.sidebar.content,
       padding: "1rem 0",
     },
     menuItems: {
-      ...stylesGlobal.components.sidebar.nav,
-      marginTop: "0",
+      listStyle: "none",
+      margin: 0,
+      padding: "12px 12px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "2px",
       flexGrow: 1,
     },
     menuItem: {
-      ...stylesGlobal.components.sidebar.navItem,
+      listStyle: "none",
       marginBottom: "2px",
     },
     menuLink: {
-      ...stylesGlobal.components.sidebar.navLink,
+      display: "flex",
+      alignItems: "center",
       justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      color: stylesGlobal.colors.text.inverse,
-      fontFamily: stylesGlobal.typography.families.body,
+      gap: "12px",
+      color: adminTheme.text2,
+      textDecoration: "none",
+      fontFamily: adminTheme.body,
       position: "relative",
       width: "100%",
-      padding: effectiveCollapsed ? "0" : "0 1.5rem",
-      height: "48px",
+      padding: effectiveCollapsed ? "0" : "0 14px",
+      height: "46px",
       cursor: "pointer",
-      fontSize: "0.95rem",
-      gap: "12px",
+      fontSize: "0.93rem",
+      fontWeight: 500,
+      borderRadius: "13px",
+      transition: stylesGlobal.animations.transitions.base,
     },
     menuLinkActive: {
-      color: stylesGlobal.colors.primary[400],
-      backgroundColor: "rgba(214, 51, 132, 0.15)",
+      color: adminTheme.primary,
+      backgroundColor: adminTheme.primarySoft,
       fontWeight: 600,
-      "&::before": {
-        content: '""',
-        position: "absolute",
-        left: 0,
-        top: "50%",
-        transform: "translateY(-50%)",
-        width: "3px",
-        height: "24px",
-        backgroundColor: stylesGlobal.colors.primary[400],
-        borderRadius: "0 2px 2px 0",
-      },
     },
     menuLinkHover: {
-      backgroundColor: "rgba(255, 255, 255, 0.08)",
-      transform: "translateX(4px)",
+      backgroundColor: adminTheme.hover,
     },
     menuIcon: {
-      ...stylesGlobal.components.sidebar.navIcon,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       color: "inherit",
-      width: effectiveCollapsed ? "70px" : "20px",
-      minWidth: effectiveCollapsed ? "70px" : "20px",
+      width: effectiveCollapsed ? "76px" : "20px",
+      minWidth: effectiveCollapsed ? "76px" : "20px",
       height: "20px",
-      fontSize: "1.1rem",
+      fontSize: "1.05rem",
     },
     menuText: {
-      ...stylesGlobal.components.sidebar.navText,
       opacity: effectiveCollapsed ? 0 : 1,
       visibility: effectiveCollapsed ? "hidden" : "visible",
       whiteSpace: "nowrap",
-      fontSize: "0.95rem",
+      fontSize: "0.93rem",
       fontWeight: 500,
       width: effectiveCollapsed ? 0 : "auto",
       overflow: "hidden",
@@ -301,23 +316,24 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       maxHeight: (effectiveCollapsed || !expandedMenus) ? "0" : "auto",
       transition: stylesGlobal.animations.transitions.elegant,
       opacity: effectiveCollapsed ? 0 : 1,
-      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      backgroundColor: stylesGlobal.colors.neutral[50],
       overflow: "hidden",
-      borderRadius: stylesGlobal.borders.radius.md,
-      margin: "4px 8px",
+      borderRadius: stylesGlobal.borders.radius.lg,
+      margin: "2px 6px",
     },
     submenuItem: {
       margin: "2px 0",
       width: "100%",
+      listStyle: "none",
     },
     submenuLink: {
       display: "flex",
       alignItems: "center",
-      padding: "10px 16px 10px 3rem",
-      color: stylesGlobal.colors.neutral[300],
+      padding: "10px 16px 10px 44px",
+      color: adminTheme.text3,
       textDecoration: "none",
-      fontFamily: stylesGlobal.typography.families.body,
-      fontSize: "0.875rem",
+      fontFamily: adminTheme.body,
+      fontSize: "0.85rem",
       transition: stylesGlobal.animations.transitions.base,
       borderRadius: stylesGlobal.borders.radius.md,
       margin: "2px 8px",
@@ -325,60 +341,56 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       gap: "8px",
     },
     submenuLinkActive: {
-      color: stylesGlobal.colors.primary[400],
-      backgroundColor: "rgba(214, 51, 132, 0.1)",
+      color: adminTheme.primary,
+      backgroundColor: adminTheme.primarySoft,
       fontWeight: 600,
     },
     submenuLinkHover: {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-      color: stylesGlobal.colors.text.inverse,
-      transform: "translateX(4px)",
+      backgroundColor: adminTheme.hover,
+      color: adminTheme.primary,
     },
     submenuText: {
       whiteSpace: "nowrap",
     },
     menuToggle: {
       position: "absolute",
-      right: "1.5rem",
+      right: "14px",
       visibility: effectiveCollapsed ? "hidden" : "visible",
       opacity: effectiveCollapsed ? 0 : 1,
       transition: stylesGlobal.animations.transitions.base,
-      color: stylesGlobal.colors.text.inverse,
-      fontSize: "0.875rem",
+      color: adminTheme.text3,
+      fontSize: "0.8rem",
     },
     footer: {
-      ...stylesGlobal.components.sidebar.footer,
-      padding: effectiveCollapsed ? "1rem 0" : "1rem 1.5rem",
-      borderTop: `1px solid ${stylesGlobal.colors.neutral[700]}`,
+      padding: effectiveCollapsed ? "12px 8px" : "12px 14px",
+      borderTop: `1px solid ${adminTheme.border}`,
       textAlign: effectiveCollapsed ? "center" : "left",
       position: "sticky",
       bottom: 0,
       width: "100%",
-      backgroundColor: stylesGlobal.colors.neutral[900],
+      backgroundColor: adminTheme.surface,
+      marginTop: "auto",
+      listStyle: "none",
       zIndex: 10,
     },
     logoutBtn: {
       display: "flex",
       alignItems: "center",
-      padding: effectiveCollapsed ? "12px 0" : "12px 16px",
-      color: stylesGlobal.colors.text.inverse,
+      padding: effectiveCollapsed ? "12px 0" : "12px 14px",
+      color: stylesGlobal.colors.semantic.error.main,
       textDecoration: "none",
       width: "100%",
       border: "none",
       backgroundColor: "transparent",
       cursor: "pointer",
-      fontFamily: stylesGlobal.typography.families.body,
-      fontSize: "0.95rem",
+      fontFamily: adminTheme.body,
+      fontSize: "0.93rem",
       fontWeight: 500,
       justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      height: "48px",
-      borderRadius: stylesGlobal.borders.radius.md,
+      height: "46px",
+      borderRadius: "13px",
       transition: stylesGlobal.animations.transitions.base,
       gap: "12px",
-      "&:hover": {
-        backgroundColor: "rgba(225, 29, 72, 0.1)",
-        color: stylesGlobal.colors.semantic.error.main,
-      }
     },
     logoutText: {
       opacity: effectiveCollapsed ? 0 : 1,
@@ -389,34 +401,34 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       overflow: "hidden",
     },
     userInfo: {
-      padding: effectiveCollapsed ? "1rem" : "1rem 1.5rem",
-      borderBottom: `1px solid ${stylesGlobal.colors.neutral[700]}`,
+      padding: effectiveCollapsed ? "16px 0" : "16px 18px",
+      borderBottom: `1px solid ${adminTheme.border}`,
       display: "flex",
       alignItems: "center",
       justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      color: stylesGlobal.colors.text.inverse,
       position: "sticky",
-      top: "64px",
-      backgroundColor: stylesGlobal.colors.neutral[900],
+      top: "78px",
+      backgroundColor: adminTheme.surface,
       zIndex: 9,
       gap: "12px",
     },
     userName: {
       fontSize: effectiveCollapsed ? "0" : "0.9rem",
-      opacity: effectiveCollapsed ? 0 : 0.9,
+      color: adminTheme.text,
+      opacity: effectiveCollapsed ? 0 : 1,
       visibility: effectiveCollapsed ? "hidden" : "visible",
       transition: stylesGlobal.animations.transitions.base,
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
-      maxWidth: "160px",
-      fontWeight: 500,
+      maxWidth: "150px",
+      fontWeight: 600,
     },
     userAvatar: {
-      width: "36px",
-      height: "36px",
+      width: "38px",
+      height: "38px",
       borderRadius: "50%",
-      backgroundColor: stylesGlobal.colors.primary[500],
+      background: stylesGlobal.colors.gradients.luxury,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -424,7 +436,6 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       fontWeight: 700,
       flexShrink: 0,
       color: stylesGlobal.colors.text.inverse,
-      boxShadow: stylesGlobal.shadows.sm,
     },
     submenuIcon: {
       transition: stylesGlobal.animations.transitions.base,
@@ -460,36 +471,10 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
 
   return (
     <div style={styles.sidebar} className="sidebar-admin">
-      {/* Header con botón toggle para desktop */}
+      {/* Header con la marca y el botón de colapsar */}
       <div style={styles.logo}>
-        {!effectiveCollapsed ? (
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            padding: "0 1.5rem",
-            width: "100%",
-          }}>
-            {/* Botón toggle solo en desktop */}
-            {!isMobile && (
-              <button
-                style={{
-                  ...styles.toggleButton,
-                  width: "auto",
-                  height: "auto",
-                  padding: "8px",
-                  borderRadius: stylesGlobal.borders.radius.md,
-                }}
-                onClick={toggleSidebar}
-                aria-label="Colapsar menú"
-                aria-expanded={!effectiveCollapsed}
-              >
-                <FaBars size={16} />
-              </button>
-            )}
-          </div>
-        ) : (
-          // Botón expandir solo en desktop cuando está colapsado
+        {effectiveCollapsed ? (
+          // Colapsado: solo el botón para expandir (desktop)
           !isMobile && (
             <button
               style={styles.toggleButton}
@@ -500,6 +485,23 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
               <FaBars size={16} />
             </button>
           )
+        ) : (
+          <>
+            <Link to="/admin" style={styles.brandLink}>
+              <span style={styles.logoIcon}>A</span>
+              <span style={styles.logoText}>La Aterciopelada</span>
+            </Link>
+            {!isMobile && (
+              <button
+                style={styles.toggleButton}
+                onClick={toggleSidebar}
+                aria-label="Colapsar menú"
+                aria-expanded={!effectiveCollapsed}
+              >
+                <FaBars size={16} />
+              </button>
+            )}
+          </>
         )}
       </div>
 

@@ -4,6 +4,7 @@ import Sidebar from './admin/SidebarAdmin';
 import NavbarAdmin from './admin/NavbarAdmin';
 import { useAuth } from '../context/AuthContext';
 import stylesGlobal from '../styles/stylesGlobal';
+import adminTheme from '../styles/adminTheme';
 
 // Estilos CSS responsivos para AdminLayout
 const responsiveStyles = `
@@ -124,7 +125,7 @@ const AdminLayout = () => {
       display: 'flex',
       height: '100vh',
       overflow: 'hidden',
-      backgroundColor: stylesGlobal.colors.surface.secondary,
+      backgroundColor: adminTheme.bg,
       position: 'relative',
     },
     sidebar: {
@@ -140,7 +141,7 @@ const AdminLayout = () => {
     },
     content: {
       flex: 1,
-      marginLeft: isMobile ? 0 : (sidebarCollapsed ? '70px' : '280px'),
+      marginLeft: isMobile ? 0 : (sidebarCollapsed ? '76px' : '260px'),
       transition: stylesGlobal.animations.transitions.elegant,
       display: 'flex',
       flexDirection: 'column',
@@ -151,7 +152,7 @@ const AdminLayout = () => {
     },
     pageContent: {
       flex: 1,
-      backgroundColor: stylesGlobal.colors.surface.secondary,
+      backgroundColor: adminTheme.bg,
       overflow: 'auto',
       padding: '0',
       transition: stylesGlobal.animations.transitions.elegant,

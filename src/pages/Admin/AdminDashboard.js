@@ -12,9 +12,17 @@ import {
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import stylesGlobal from '../../styles/stylesGlobal';
+import adminTheme from '../../styles/adminTheme';
 
 // Registrar componentes de ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+// Colores de los estados de solicitud (igual que en la vista de Solicitudes)
+const ESTADOS = {
+  pendiente: { bg: '#fffbeb', color: '#92400e', label: 'Pendiente' },
+  atendida: { bg: '#f0fdf4', color: '#065f46', label: 'Atendida' },
+  cerrada: { bg: '#f7f6f4', color: '#524842', label: 'Cerrada' },
+};
 
 // Estilos CSS responsivos para AdminDashboard
 const responsiveStyles = `
@@ -72,7 +80,7 @@ const AdminDashboard = () => {
   // Estilos alineados con la paleta de marca (stylesGlobal)
   const styles = {
     dashboardContainer: {
-      backgroundColor: stylesGlobal.colors.surface.secondary,
+      backgroundColor: adminTheme.bg,
       minHeight: '100vh',
       padding: stylesGlobal.spacing.scale[8],
       fontFamily: stylesGlobal.typography.families.body,
@@ -120,7 +128,8 @@ const AdminDashboard = () => {
       color: stylesGlobal.colors.text.inverse,
     },
     statValue: {
-      fontSize: '1.8rem',
+      fontFamily: adminTheme.serif,
+      fontSize: '2rem',
       fontWeight: stylesGlobal.typography.weights.bold,
       margin: `${stylesGlobal.spacing.scale[1]} 0 0 0`,
       color: stylesGlobal.colors.text.primary,
@@ -137,6 +146,21 @@ const AdminDashboard = () => {
       borderRadius: stylesGlobal.borders.radius.full,
       backgroundColor: stylesGlobal.colors.semantic.warning.light,
       color: stylesGlobal.colors.semantic.warning.dark,
+    },
+    estadoPill: {
+      fontSize: stylesGlobal.typography.scale.xs,
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      padding: `${stylesGlobal.spacing.scale[1]} ${stylesGlobal.spacing.scale[2]}`,
+      borderRadius: stylesGlobal.borders.radius.full,
+      textTransform: 'uppercase',
+      letterSpacing: stylesGlobal.typography.tracking.wide,
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+    },
+    usersGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: stylesGlobal.spacing.scale[3],
     },
     chartContainer: {
       ...stylesGlobal.components.card.base,
@@ -321,6 +345,7 @@ const AdminDashboard = () => {
   });
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [ultimasSolicitudes, setUltimasSolicitudes] = useState([]);
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -343,6 +368,15 @@ const AdminDashboard = () => {
 
         // Obtener localidades
         const localidadesData = await localidadService.getAll();
+
+        // Últimas solicitudes para el panel lateral. Si falla, no rompe el dashboard.
+        let solicitudesData = [];
+        try {
+          solicitudesData = await adminAPI.getSolicitudes();
+        } catch (e) {
+          solicitudesData = [];
+        }
+        setUltimasSolicitudes(Array.isArray(solicitudesData) ? solicitudesData.slice(0, 4) : []);
 
         // Crear array de actividades recientes combinando datos de diferentes servicios
         const productosRecientes = Array.isArray(productsData) ?
@@ -608,31 +642,67 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Usuarios recientes */}
+        {/* Últimas solicitudes */}
         <div style={styles.section} className="admin-section">
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>
-              <FaUsers style={{ color: stylesGlobal.colors.primary[500] }} /> Usuarios Recientes
+              <FaClipboardList style={{ color: stylesGlobal.colors.primary[500] }} /> Últimas solicitudes
             </h2>
-            <button onClick={() => navigate('/admin/usuarios')} style={styles.viewAllButton}>
-              Ver todos <FaEye />
+            <button onClick={() => navigate('/admin/solicitudes')} style={styles.viewAllButton}>
+              Ver todas <FaEye />
             </button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: stylesGlobal.spacing.scale[3] }}>
-            {recentUsers.map((u) => (
-              <div key={u._id} style={styles.userCard}>
-                <div style={styles.userAvatar}>
-                  {u.email[0].toUpperCase()}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p style={styles.userName}>{u.name || u.email.split('@')[0]}</p>
-                  <p style={styles.userEmail}>{u.email}</p>
-                  <span style={styles.userRole}>{u.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
-                </div>
-              </div>
-            ))}
+            {ultimasSolicitudes.length > 0 ? (
+              ultimasSolicitudes.map((s) => {
+                const estado = ESTADOS[s.estado] || ESTADOS.pendiente;
+                const primerProducto = (s.productos && s.productos[0] && s.productos[0].nombre) || 'Cotización';
+                return (
+                  <div key={s._id} style={styles.userCard}>
+                    <div style={{ ...styles.userAvatar, background: stylesGlobal.colors.gradients.luxury }}>
+                      {(s.nombre || 'C')[0].toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={styles.userName}>{s.nombre || 'Cliente'}</p>
+                      <p style={styles.userEmail}>{primerProducto}</p>
+                    </div>
+                    <span style={{ ...styles.estadoPill, background: estado.bg, color: estado.color }}>{estado.label}</span>
+                  </div>
+                );
+              })
+            ) : (
+              <p style={{ color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm, margin: 0 }}>
+                No hay solicitudes todavía.
+              </p>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* Usuarios recientes (ancho completo) */}
+      <div style={{ ...styles.section, marginTop: stylesGlobal.spacing.scale[6] }} className="admin-section">
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>
+            <FaUsers style={{ color: stylesGlobal.colors.primary[500] }} /> Usuarios recientes
+          </h2>
+          <button onClick={() => navigate('/admin/usuarios')} style={styles.viewAllButton}>
+            Ver todos <FaEye />
+          </button>
+        </div>
+        <div style={styles.usersGrid}>
+          {recentUsers.map((u) => (
+            <div key={u._id} style={styles.userCard}>
+              <div style={styles.userAvatar}>
+                {u.email[0].toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={styles.userName}>{u.name || u.email.split('@')[0]}</p>
+                <p style={styles.userEmail}>{u.email}</p>
+                <span style={styles.userRole}>{u.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

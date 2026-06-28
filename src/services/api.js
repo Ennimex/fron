@@ -270,6 +270,16 @@ export const adminAPI = {
     }
   },
 
+  // Solicitudes de cotización (lectura para el dashboard / vista admin)
+  getSolicitudes: async () => {
+    try {
+      const response = await api.get('/admin/solicitudes');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Gestión de usuarios
   getUsers: async () => {
     try {
