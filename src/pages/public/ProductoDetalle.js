@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft, MapPin, Palette, Ruler, Tag, MessageCircle } from "lucide-react"
+import { ArrowLeft, MapPin, Palette, Ruler, Tag, MessageCircle, Heart } from "lucide-react"
+import { useAuth } from "../../context/AuthContext"
+import { useFavoritos } from "../../context/FavoritosContext"
 import { publicAPI } from "../../services/api"
+import SolicitudModal from "../../components/shared/SolicitudModal"
 import stylesPublic from "../../styles/stylesGlobal"
 
 // Estilos CSS responsivos y animaciones
@@ -278,6 +281,9 @@ if (typeof document !== 'undefined') {
 const ProductoDetalleEnhanced = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const { esFavorito, toggleFavorito } = useFavoritos()
+  const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
   const [producto, setProducto] = useState(null)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -883,11 +889,52 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                   <MessageCircle size={16} />
                   Contactar por WhatsApp
                 </button>
+
+                <button
+                  type="button"
+                  className="producto-button hover-lift"
+                  style={{
+                    ...buttonStyle,
+                    backgroundColor: stylesPublic.colors.surface.primary,
+                    color: esFavorito(producto._id) ? "#e0245e" : stylesPublic.colors.text.primary,
+                    border: `1px solid ${stylesPublic.colors.neutral[300]}`,
+                  }}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      navigate("/login")
+                      return
+                    }
+                    toggleFavorito(producto)
+                  }}
+                >
+                  <Heart size={16} fill={esFavorito(producto._id) ? "currentColor" : "none"} />
+                  {esFavorito(producto._id) ? "Guardado" : "Guardar en favoritos"}
+                </button>
+
+                <button
+                  type="button"
+                  className="producto-button hover-lift"
+                  style={primaryButtonStyle}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      navigate("/login")
+                      return
+                    }
+                    setMostrarSolicitud(true)
+                  }}
+                >
+                  <MessageCircle size={16} />
+                  Solicitar cotización
+                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {mostrarSolicitud && producto && (
+        <SolicitudModal productos={[producto]} onClose={() => setMostrarSolicitud(false)} />
+      )}
     </div>
   )
 }

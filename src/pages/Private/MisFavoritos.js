@@ -1,14 +1,16 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Heart } from "lucide-react"
+import { Heart, MessageCircle } from "lucide-react"
 import { useFavoritos } from "../../context/FavoritosContext"
+import SolicitudModal from "../../components/shared/SolicitudModal"
 import stylesPublic from "../../styles/stylesGlobal"
 
 const MisFavoritos = () => {
   const navigate = useNavigate()
   const { favoritos, toggleFavorito, loading } = useFavoritos()
+  const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
 
   const contenedor = {
     maxWidth: "1280px",
@@ -69,6 +71,31 @@ const MisFavoritos = () => {
             : "Aquí se guardan las prendas que marques con el corazón."}
         </p>
       </div>
+
+      {favoritos.length > 0 && (
+        <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
+          <button
+            type="button"
+            onClick={() => setMostrarSolicitud(true)}
+            style={{
+              fontFamily: stylesPublic.typography.families.body,
+              fontSize: stylesPublic.typography.scale.sm,
+              fontWeight: 500,
+              padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[6]}`,
+              borderRadius: stylesPublic.borders.radius.md,
+              backgroundColor: stylesPublic.colors.primary[500],
+              color: stylesPublic.colors.primary.contrast,
+              border: "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: stylesPublic.spacing.scale[2],
+            }}
+          >
+            <MessageCircle size={18} /> Solicitar cotización de mis favoritos
+          </button>
+        </div>
+      )}
 
       {favoritos.length > 0 ? (
         <div
@@ -219,6 +246,10 @@ const MisFavoritos = () => {
             Explorar productos
           </button>
         </div>
+      )}
+
+      {mostrarSolicitud && (
+        <SolicitudModal productos={favoritos} onClose={() => setMostrarSolicitud(false)} />
       )}
     </section>
   )

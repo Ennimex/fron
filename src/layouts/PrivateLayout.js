@@ -15,7 +15,8 @@ const privateNavLinks = [
   { to: "/contacto", label: "Contacto" },
   { to: "/destacados", label: "Destacados" },
   { to: "/catalogofotos", label: "Galería" },
-  { to: "/favoritos", label: "Mis Favoritos" }
+  { to: "/favoritos", label: "Mis Favoritos" },
+  { to: "/solicitudes", label: "Mis Solicitudes" }
 ];
 
 const PrivateLayout = () => {
