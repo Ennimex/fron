@@ -6,6 +6,7 @@ import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import stylesPublic from "../../styles/stylesGlobal"; // Importamos los estilos globales
+import adminTheme from "../../styles/adminTheme";
 
 // Estilos CSS responsivos para GestionProductos
 const responsiveStyles = `
@@ -544,7 +545,7 @@ const GestionProductos = () => {
   const styles = {
     pageContainer: {
       minHeight: "100vh",
-      backgroundColor: stylesPublic.colors.neutral[100],
+      backgroundColor: adminTheme.bg,
       padding: stylesPublic.spacing.sections.sm,
       // Responsive padding
       '@media (max-width: 768px)': {
@@ -557,31 +558,12 @@ const GestionProductos = () => {
     container: {
       maxWidth: stylesPublic.utils.container.maxWidth["2xl"],
       margin: "0 auto",
-      backgroundColor: stylesPublic.colors.surface.primary,
-      borderRadius: stylesPublic.borders.radius.lg,
-      boxShadow: stylesPublic.shadows.base,
-      // Responsive container
-      '@media (max-width: 768px)': {
-        borderRadius: 0,
-        margin: 0,
-      },
     },
     header: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      padding: stylesPublic.spacing.scale[6],
-      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
-      // Responsive header
-      '@media (max-width: 768px)': {
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: stylesPublic.spacing.scale[4],
-        padding: stylesPublic.spacing.scale[4],
-      },
-      '@media (max-width: 480px)': {
-        padding: stylesPublic.spacing.scale[3],
-      },
+      marginBottom: stylesPublic.spacing.scale[6],
     },
     headerContent: {
       display: "flex",
@@ -596,17 +578,11 @@ const GestionProductos = () => {
       },
     },
     title: {
-      ...stylesPublic.typography.headings.h1,
+      fontFamily: adminTheme.serif,
+      fontSize: "1.9rem",
+      fontWeight: stylesPublic.typography.weights.bold,
       color: stylesPublic.colors.text.primary,
       margin: 0,
-      // Responsive title
-      '@media (max-width: 768px)': {
-        fontSize: '1.5rem',
-        textAlign: 'center',
-      },
-      '@media (max-width: 480px)': {
-        fontSize: '1.25rem',
-      },
     },
     subtitle: {
       ...stylesPublic.typography.body.small,
@@ -620,7 +596,7 @@ const GestionProductos = () => {
       alignItems: "center",
     },
     content: {
-      padding: stylesPublic.spacing.scale[6],
+      padding: 0,
     },
     error: {
       padding: stylesPublic.spacing.scale[4],
@@ -662,8 +638,10 @@ const GestionProductos = () => {
     },
     tableContainer: {
       overflowX: "auto",
-      borderRadius: stylesPublic.borders.radius.base,
+      borderRadius: stylesPublic.borders.radius.lg,
       border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      backgroundColor: stylesPublic.colors.surface.primary,
+      boxShadow: stylesPublic.shadows.base,
     },
     table: {
       width: "100%",
