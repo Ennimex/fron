@@ -6,9 +6,8 @@ import { localidadService } from '../../services/localidadService';
 import { categoriaService } from '../../services/categoriaService';
 import { productService } from '../../services/productService';
 import { 
-  FaUsers, FaBoxOpen, FaChartLine, 
-  FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus, 
-  FaArrowUp
+  FaUsers, FaBoxOpen, FaChartLine,
+  FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus
 } from 'react-icons/fa';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -629,7 +628,9 @@ const AdminDashboard = () => {
     users: 0,
     products: 0,
     categories: 0,
-    locations: 0
+    locations: 0,
+    eventos: 0,
+    fotos: 0
   });
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
@@ -641,6 +642,9 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        // Datos reales del dashboard (conteos + tendencia de registros)
+        const dashboard = await adminAPI.getDashboard();
+
         // Obtener lista de usuarios recientes usando adminAPI
         const usersData = await adminAPI.getUsers();
 
@@ -692,12 +696,15 @@ const AdminDashboard = () => {
         activityData = [...productosRecientes, ...usuariosRecientes, ...categoriasRecientes]
           .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-        // Procesar datos del dashboard
+        // Conteos reales (del endpoint del dashboard, con respaldo a los servicios)
+        const counts = dashboard?.counts || {};
         setStats({
-          users: usersData.length || 0,
-          products: Array.isArray(productsData) ? productsData.length : 0,
-          categories: Array.isArray(categoriasData) ? categoriasData.length : 0,
-          locations: Array.isArray(localidadesData) ? localidadesData.length : 0
+          users: counts.usuarios ?? (usersData.length || 0),
+          products: counts.productos ?? (Array.isArray(productsData) ? productsData.length : 0),
+          categories: counts.categorias ?? (Array.isArray(categoriasData) ? categoriasData.length : 0),
+          locations: counts.localidades ?? (Array.isArray(localidadesData) ? localidadesData.length : 0),
+          eventos: counts.eventos ?? 0,
+          fotos: counts.fotos ?? 0,
         });
 
         // Procesar usuarios recientes (tomar los últimos 5)
@@ -707,8 +714,8 @@ const AdminDashboard = () => {
         // Procesar actividad reciente
         setRecentActivity(activityData.slice(0, 5));
 
-        // Datos para el gráfico de usuarios registrados
-        const usersChartData = generateMockUserChartData(timeRange);
+        // Datos reales para el gráfico de usuarios registrados
+        const usersChartData = dashboard?.usersTrend?.[timeRange] || { labels: [], data: [] };
 
         // Configurar datos del gráfico
         setChartData({
@@ -734,25 +741,6 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
   }, [user.token, timeRange]);
-
-  // Función para generar datos de prueba para el gráfico de usuarios
-  const generateMockUserChartData = (range) => {
-    let labels = [];
-    let data = [];
-    
-    if (range === 'week') {
-      labels = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-      data = [5, 3, 7, 2, 4, 8, 6];
-    } else if (range === 'month') {
-      labels = ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'];
-      data = [12, 19, 15, 22];
-    } else {
-      labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-      data = [25, 30, 28, 42, 50, 55, 48, 60, 70, 75, 82, 90];
-    }
-    
-    return { labels, data };
-  };
 
   const handleViewAllUsers = () => {
     navigate('/admin/usuarios');
@@ -879,10 +867,6 @@ const AdminDashboard = () => {
           </div>
           <p style={styles.statLabel} className="admin-stat-label">Usuarios Registrados</p>
           <h3 style={styles.statValue} className="admin-stat-value">{stats.users.toLocaleString()}</h3>
-          <div style={styles.statChange}>
-            <FaArrowUp style={styles.positive} />
-            <span style={styles.positive}> 12% este mes</span>
-          </div>
         </div>
 
         <div style={styles.statsCard} className="admin-stats-card">
@@ -893,10 +877,6 @@ const AdminDashboard = () => {
           </div>
           <p style={styles.statLabel} className="admin-stat-label">Productos</p>
           <h3 style={styles.statValue} className="admin-stat-value">{stats.products.toLocaleString()}</h3>
-          <div style={styles.statChange}>
-            <FaArrowUp style={styles.positive} />
-            <span style={styles.positive}> 5% este mes</span>
-          </div>
         </div>
 
         {/* Categorías y Localidades */}
@@ -918,6 +898,26 @@ const AdminDashboard = () => {
           </div>
           <p style={styles.statLabel}>Localidades</p>
           <h3 style={styles.statValue}>{stats.locations.toLocaleString()}</h3>
+        </div>
+
+        <div style={styles.statsCard} className="admin-stats-card">
+          <div style={styles.statHeader}>
+            <div style={{...styles.statIcon, ...styles.iconOrders}}>
+              <FaCalendarAlt />
+            </div>
+          </div>
+          <p style={styles.statLabel}>Eventos</p>
+          <h3 style={styles.statValue}>{stats.eventos.toLocaleString()}</h3>
+        </div>
+
+        <div style={styles.statsCard} className="admin-stats-card">
+          <div style={styles.statHeader}>
+            <div style={{...styles.statIcon, ...styles.iconSales}}>
+              <FaEye />
+            </div>
+          </div>
+          <p style={styles.statLabel}>Fotos en galería</p>
+          <h3 style={styles.statValue}>{stats.fotos.toLocaleString()}</h3>
         </div>
       </div>
 
