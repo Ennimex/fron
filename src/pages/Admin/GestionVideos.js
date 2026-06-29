@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock, FaLock, FaSpinner } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaVideo, FaPlay, FaClock, FaLock, FaSpinner, FaInfoCircle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import adminService from '../../services/adminServices';
@@ -887,6 +887,21 @@ const GestionVideos = () => {
             <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
             Agregar Video
           </button>
+        </div>
+
+        {/* Banner de ayuda */}
+        <div style={{
+          display: 'flex', gap: stylesGlobal.spacing.scale[3], alignItems: 'flex-start',
+          backgroundColor: stylesGlobal.colors.accent[50], border: `1px solid ${stylesGlobal.colors.accent[200]}`,
+          borderRadius: stylesGlobal.borders.radius.lg, padding: stylesGlobal.spacing.scale[4],
+          marginBottom: stylesGlobal.spacing.scale[6], color: stylesGlobal.colors.text.secondary,
+        }}>
+          <FaInfoCircle size={18} style={{ color: stylesGlobal.colors.accent[600], flexShrink: 0, marginTop: 2 }} />
+          <div style={{ fontSize: stylesGlobal.typography.scale.sm, lineHeight: 1.55 }}>
+            Los videos <strong>sin evento</strong> se muestran en la <strong>Galería</strong> pública. Si un video es de un
+            evento, lo más fácil es subirlo desde <strong>Eventos → Gestionar galería</strong> (también puedes asignarle el
+            evento aquí abajo en el formulario).
+          </div>
         </div>
 
         {/* Sistema de notificaciones centralizado */}

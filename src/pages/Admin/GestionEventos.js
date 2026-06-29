@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner } from "react-icons/fa";
+import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaImages, FaImage, FaVideo, FaInfoCircle } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import adminService from "../../services/adminServices";
@@ -617,6 +617,13 @@ const GestionEventos = () => {
   const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'delete'
   const [eventoToDelete, setEventoToDelete] = useState(null);
 
+  // --- Galería por evento (centralizada) ---
+  const [galeriaEvento, setGaleriaEvento] = useState(null); // evento cuya galería se gestiona
+  const [galeriaFotos, setGaleriaFotos] = useState([]);
+  const [galeriaVideos, setGaleriaVideos] = useState([]);
+  const [galeriaLoading, setGaleriaLoading] = useState(false);
+  const [subiendo, setSubiendo] = useState(false);
+
   // Fetch eventos
   const fetchEventos = useCallback(async () => {
     try {
@@ -695,6 +702,98 @@ const GestionEventos = () => {
     }
   };
 
+  // --- Galería por evento ---
+  const idDe = (ref) => (ref && typeof ref === "object" ? ref._id : ref) || null;
+
+  const cargarMediaEvento = useCallback(async (eventoId) => {
+    setGaleriaLoading(true);
+    try {
+      const [fotos, videos] = await Promise.all([
+        adminService.getFotos(),
+        adminService.getVideos(),
+      ]);
+      setGaleriaFotos((fotos || []).filter((f) => idDe(f.eventoId) === eventoId));
+      setGaleriaVideos((videos || []).filter((v) => idDe(v.eventoId) === eventoId));
+    } catch (err) {
+      console.error("Error al cargar la galería del evento:", err);
+    } finally {
+      setGaleriaLoading(false);
+    }
+  }, []);
+
+  const abrirGaleria = (evento) => {
+    setGaleriaEvento(evento);
+    setGaleriaFotos([]);
+    setGaleriaVideos([]);
+    cargarMediaEvento(evento._id);
+  };
+
+  const cerrarGaleria = () => {
+    setGaleriaEvento(null);
+    setGaleriaFotos([]);
+    setGaleriaVideos([]);
+  };
+
+  const subirFotoEvento = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // permitir re-subir el mismo archivo
+    if (!file || !galeriaEvento) return;
+    setSubiendo(true);
+    try {
+      const fd = new FormData();
+      fd.append("imagen", file);
+      fd.append("titulo", file.name.replace(/\.[^.]+$/, "").slice(0, 100));
+      fd.append("descripcion", "");
+      fd.append("eventoId", galeriaEvento._id);
+      await adminService.createFoto(fd);
+      await cargarMediaEvento(galeriaEvento._id);
+    } catch (err) {
+      console.error("Error al subir foto:", err);
+    } finally {
+      setSubiendo(false);
+    }
+  };
+
+  const subirVideoEvento = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !galeriaEvento) return;
+    setSubiendo(true);
+    try {
+      const fd = new FormData();
+      fd.append("video", file);
+      fd.append("titulo", file.name.replace(/\.[^.]+$/, "").slice(0, 100));
+      fd.append("descripcion", "");
+      fd.append("eventoId", galeriaEvento._id);
+      await adminService.createVideo(fd);
+      await cargarMediaEvento(galeriaEvento._id);
+    } catch (err) {
+      console.error("Error al subir video:", err);
+    } finally {
+      setSubiendo(false);
+    }
+  };
+
+  const quitarFoto = async (id) => {
+    if (!window.confirm("¿Quitar esta foto del evento? Se eliminará definitivamente.")) return;
+    try {
+      await adminService.deleteFoto(id);
+      await cargarMediaEvento(galeriaEvento._id);
+    } catch (err) {
+      console.error("Error al eliminar foto:", err);
+    }
+  };
+
+  const quitarVideo = async (id) => {
+    if (!window.confirm("¿Quitar este video del evento? Se eliminará definitivamente.")) return;
+    try {
+      await adminService.deleteVideo(id);
+      await cargarMediaEvento(galeriaEvento._id);
+    } catch (err) {
+      console.error("Error al eliminar video:", err);
+    }
+  };
+
   const confirmDelete = async () => {
     if (!eventoToDelete) return;
 
@@ -756,6 +855,25 @@ const GestionEventos = () => {
             Nuevo Evento
           </button>
         </div>
+
+        {/* Banner de ayuda: explica el flujo galería ↔ Destacados */}
+        <div style={{
+          display: 'flex', gap: stylesGlobal.spacing.scale[3], alignItems: 'flex-start',
+          backgroundColor: stylesGlobal.colors.accent[50], border: `1px solid ${stylesGlobal.colors.accent[200]}`,
+          borderRadius: stylesGlobal.borders.radius.lg, padding: stylesGlobal.spacing.scale[4],
+          marginBottom: stylesGlobal.spacing.scale[6], color: stylesGlobal.colors.text.secondary,
+        }}>
+          <FaInfoCircle size={18} style={{ color: stylesGlobal.colors.accent[600], flexShrink: 0, marginTop: 2 }} />
+          <div style={{ fontSize: stylesGlobal.typography.scale.sm, lineHeight: 1.55 }}>
+            <strong>¿Cómo funciona?</strong> Cada evento tiene su propia galería. Usa el botón{' '}
+            <FaImages size={12} style={{ verticalAlign: 'middle', color: stylesGlobal.colors.secondary[600] }} />{' '}
+            <strong> Gestionar galería</strong> para subir sus fotos y videos. En la página pública{' '}
+            <strong>Destacados</strong>: los eventos con fecha futura salen en “Próximos eventos” y los pasados en
+            “Revive nuestros eventos” con su galería. Las fotos/videos que subas <em>sin</em> evento (desde Fotos o Videos)
+            aparecen en la <strong>Galería</strong> general.
+          </div>
+        </div>
+
         {/* Modal para agregar/editar evento */}
         {(modalType === 'add' || modalType === 'edit') && (
           <div
@@ -1048,6 +1166,14 @@ const GestionEventos = () => {
                   <div style={styles.cardText}>{horarioUbicacion}</div>
                   <div style={styles.cardActions} className="cards-actions">
                     <button
+                      style={{ ...styles.cardAct, backgroundColor: stylesGlobal.colors.secondary[50], color: stylesGlobal.colors.secondary[600] }}
+                      title="Gestionar galería (fotos y videos)"
+                      onClick={() => abrirGaleria(evento)}
+                      aria-label={`Gestionar galería de ${evento.titulo}`}
+                    >
+                      <FaImages size={15} />
+                    </button>
+                    <button
                       style={{ ...styles.cardAct, ...styles.cardActEdit }}
                       title="Editar evento"
                       onClick={() => handleEditClick(evento)}
@@ -1070,6 +1196,85 @@ const GestionEventos = () => {
           </div>
         )}
       </div>
+
+      {/* Modal: galería del evento (centralizado) */}
+      {galeriaEvento && (
+        <div
+          style={styles.modalOverlay}
+          className="modal-overlay"
+          onClick={(e) => e.target.classList.contains('modal-overlay') && cerrarGaleria()}
+        >
+          <div style={{ ...styles.modalContent, maxWidth: '820px' }} className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalBody}>
+              <button
+                style={styles.modalCloseButton}
+                className="modal-close-btn"
+                onClick={cerrarGaleria}
+                aria-label="Cerrar"
+                title="Cerrar"
+              >
+                ×
+              </button>
+              <h2 style={styles.modalTitle}>Galería de “{galeriaEvento.titulo || 'Evento'}”</h2>
+              <p style={{ ...stylesGlobal.typography.body.small, color: stylesGlobal.colors.text.tertiary, marginTop: -8, marginBottom: stylesGlobal.spacing.scale[4] }}>
+                Sube las fotos y videos de este evento. Se mostrarán en <strong>Destacados → “Revive nuestros eventos”</strong>.
+              </p>
+
+              {/* Botones de subir */}
+              <div style={{ display: 'flex', gap: stylesGlobal.spacing.scale[3], flexWrap: 'wrap', marginBottom: stylesGlobal.spacing.scale[5], alignItems: 'center' }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: subiendo ? 'not-allowed' : 'pointer', opacity: subiendo ? 0.6 : 1 }}>
+                  <FaImage /> Agregar foto
+                  <input type="file" accept="image/*" onChange={subirFotoEvento} disabled={subiendo} style={{ display: 'none' }} />
+                </label>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: subiendo ? 'not-allowed' : 'pointer', opacity: subiendo ? 0.6 : 1 }}>
+                  <FaVideo /> Agregar video
+                  <input type="file" accept="video/*" onChange={subirVideoEvento} disabled={subiendo} style={{ display: 'none' }} />
+                </label>
+                {subiendo && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: stylesGlobal.colors.text.tertiary, fontSize: '0.9rem' }}>
+                    <FaSpinner className="evt-spin" /> Subiendo…
+                  </span>
+                )}
+              </div>
+
+              {/* Grid de media */}
+              {galeriaLoading ? (
+                <div style={{ textAlign: 'center', padding: stylesGlobal.spacing.scale[8], color: stylesGlobal.colors.text.tertiary }}>
+                  <FaSpinner className="evt-spin" /> Cargando galería…
+                </div>
+              ) : (galeriaFotos.length + galeriaVideos.length === 0) ? (
+                <div style={{ textAlign: 'center', padding: stylesGlobal.spacing.scale[8], backgroundColor: stylesGlobal.colors.surface.secondary, borderRadius: stylesGlobal.borders.radius.md, color: stylesGlobal.colors.text.tertiary }}>
+                  Aún no hay fotos ni videos. Usa los botones de arriba para agregar.
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: stylesGlobal.spacing.scale[2] }}>
+                  {galeriaFotos.map((f) => (
+                    <div key={f._id} style={{ position: 'relative', aspectRatio: '1', borderRadius: stylesGlobal.borders.radius.md, overflow: 'hidden', border: `1px solid ${stylesGlobal.colors.neutral[200]}` }}>
+                      <img src={f.url || '/placeholder.svg'} alt={f.titulo || 'Foto'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <button onClick={() => quitarFoto(f._id)} title="Quitar foto" style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(0,0,0,0.55)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <FaTrash size={12} />
+                      </button>
+                    </div>
+                  ))}
+                  {galeriaVideos.map((v) => (
+                    <div key={v._id} style={{ position: 'relative', aspectRatio: '1', borderRadius: stylesGlobal.borders.radius.md, overflow: 'hidden', border: `1px solid ${stylesGlobal.colors.neutral[200]}`, background: stylesGlobal.colors.neutral[100] }}>
+                      <img src={v.miniatura || '/placeholder.svg'} alt={v.titulo || 'Video'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', bottom: 6, left: 6, background: stylesGlobal.colors.primary[500], color: '#fff', borderRadius: stylesGlobal.borders.radius.base, padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600 }}>
+                        <FaVideo size={10} /> Video
+                      </div>
+                      <button onClick={() => quitarVideo(v._id)} title="Quitar video" style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(0,0,0,0.55)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <FaTrash size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <style>{`@keyframes evtspin{to{transform:rotate(360deg)}} .evt-spin{animation:evtspin 1s linear infinite}`}</style>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sistema de notificaciones centralizado */}
       <NotificationContainer
