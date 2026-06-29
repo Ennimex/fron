@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaImages, FaVideo, FaInfoCircle, FaCloudUploadAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaImages, FaVideo, FaCloudUploadAlt } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import adminService from "../../services/adminServices";
@@ -7,6 +7,7 @@ import { fotoService } from "../../services/fotoService";
 import { videoService } from "../../services/videoService";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
+import InfoBanner from "../../components/admin/ui/InfoBanner";
 import stylesGlobal from "../../styles/stylesGlobal";
 import adminTheme from "../../styles/adminTheme";
 
@@ -886,22 +887,14 @@ const GestionEventos = () => {
         </div>
 
         {/* Banner de ayuda: explica el flujo galería ↔ Destacados */}
-        <div style={{
-          display: 'flex', gap: stylesGlobal.spacing.scale[3], alignItems: 'flex-start',
-          backgroundColor: stylesGlobal.colors.accent[50], border: `1px solid ${stylesGlobal.colors.accent[200]}`,
-          borderRadius: stylesGlobal.borders.radius.lg, padding: stylesGlobal.spacing.scale[4],
-          marginBottom: stylesGlobal.spacing.scale[6], color: stylesGlobal.colors.text.secondary,
-        }}>
-          <FaInfoCircle size={18} style={{ color: stylesGlobal.colors.accent[600], flexShrink: 0, marginTop: 2 }} />
-          <div style={{ fontSize: stylesGlobal.typography.scale.sm, lineHeight: 1.55 }}>
-            <strong>¿Cómo funciona?</strong> Cada evento tiene su propia galería. Usa el botón{' '}
-            <FaImages size={12} style={{ verticalAlign: 'middle', color: stylesGlobal.colors.secondary[600] }} />{' '}
-            <strong> Gestionar galería</strong> para subir sus fotos y videos. En la página pública{' '}
-            <strong>Destacados</strong>: los eventos con fecha futura salen en “Próximos eventos” y los pasados en
-            “Revive nuestros eventos” con su galería. Las fotos/videos que subas <em>sin</em> evento (desde Fotos o Videos)
-            aparecen en la <strong>Galería</strong> general.
-          </div>
-        </div>
+        <InfoBanner>
+          <strong>¿Cómo funciona?</strong> Cada evento tiene su propia galería. Usa el botón{' '}
+          <FaImages size={12} style={{ verticalAlign: 'middle', color: stylesGlobal.colors.secondary[600] }} />{' '}
+          <strong> Gestionar galería</strong> para subir sus fotos y videos. En la página pública{' '}
+          <strong>Destacados</strong>: los eventos con fecha futura salen en “Próximos eventos” y los pasados en
+          “Revive nuestros eventos” con su galería. Las fotos/videos que subas <em>sin</em> evento (desde Fotos o Videos)
+          aparecen en la <strong>Galería</strong> general.
+        </InfoBanner>
 
         {/* Modal para agregar/editar evento */}
         {(modalType === 'add' || modalType === 'edit') && (

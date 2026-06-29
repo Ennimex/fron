@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import stylesGlobal from "../../styles/stylesGlobal";
 import adminTheme from "../../styles/adminTheme";
+import StatCard from "../../components/admin/ui/StatCard";
 
 // Inyectar estilos CSS responsivos
 if (!document.getElementById('gestion-categorias-responsive-styles')) {
@@ -196,26 +197,6 @@ const GestionCategorias = () => {
       gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
       gap: stylesGlobal.spacing.scale[5],
       marginBottom: stylesGlobal.spacing.scale[6],
-    },
-    statCard: {
-      backgroundColor: stylesGlobal.colors.surface.primary,
-      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
-      borderRadius: stylesGlobal.borders.radius.xl,
-      padding: `${stylesGlobal.spacing.scale[5]} ${stylesGlobal.spacing.scale[6]}`,
-      boxShadow: stylesGlobal.shadows.sm,
-    },
-    statLabel: {
-      color: stylesGlobal.colors.text.tertiary,
-      fontSize: stylesGlobal.typography.scale.sm,
-      fontWeight: stylesGlobal.typography.weights.medium,
-      marginBottom: stylesGlobal.spacing.scale[2],
-    },
-    statValue: {
-      fontFamily: adminTheme.serif,
-      fontSize: "2rem",
-      fontWeight: 700,
-      lineHeight: 1,
-      color: stylesGlobal.colors.text.primary,
     },
     // --- Galería de categorías (tarjetas) ---
     mediaGrid: {
@@ -857,18 +838,9 @@ const GestionCategorias = () => {
 
         {/* Tarjetas de resumen (datos reales) */}
         <div style={styles.statGrid}>
-          <div style={styles.statCard}>
-            <div style={styles.statLabel}>Total de categorías</div>
-            <div style={styles.statValue}>{totalCategorias}</div>
-          </div>
-          <div style={styles.statCard}>
-            <div style={styles.statLabel}>Con imagen</div>
-            <div style={styles.statValue}>{conImagen}</div>
-          </div>
-          <div style={styles.statCard}>
-            <div style={styles.statLabel}>Con descripción</div>
-            <div style={styles.statValue}>{conDescripcion}</div>
-          </div>
+          <StatCard label="Total de categorías" value={totalCategorias} />
+          <StatCard label="Con imagen" value={conImagen} />
+          <StatCard label="Con descripción" value={conDescripcion} />
         </div>
 
         {/* Error message */}
