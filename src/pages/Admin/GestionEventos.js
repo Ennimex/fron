@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaImages, FaImage, FaVideo, FaInfoCircle } from "react-icons/fa";
+import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaImages, FaVideo, FaInfoCircle, FaCloudUploadAlt } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import adminService from "../../services/adminServices";
+import { fotoService } from "../../services/fotoService";
+import { videoService } from "../../services/videoService";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 import stylesGlobal from "../../styles/stylesGlobal";
@@ -622,7 +624,10 @@ const GestionEventos = () => {
   const [galeriaFotos, setGaleriaFotos] = useState([]);
   const [galeriaVideos, setGaleriaVideos] = useState([]);
   const [galeriaLoading, setGaleriaLoading] = useState(false);
-  const [subiendo, setSubiendo] = useState(false);
+  const [cola, setCola] = useState([]); // archivos en cola para subir
+  const [subiendoTodo, setSubiendoTodo] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const colaIdRef = useRef(0);
 
   // Fetch eventos
   const fetchEventos = useCallback(async () => {
@@ -729,49 +734,73 @@ const GestionEventos = () => {
   };
 
   const cerrarGaleria = () => {
+    if (subiendoTodo) return; // no cerrar a media subida
     setGaleriaEvento(null);
     setGaleriaFotos([]);
     setGaleriaVideos([]);
+    setCola([]);
   };
 
-  const subirFotoEvento = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // permitir re-subir el mismo archivo
-    if (!file || !galeriaEvento) return;
-    setSubiendo(true);
-    try {
-      const fd = new FormData();
-      fd.append("imagen", file);
-      fd.append("titulo", file.name.replace(/\.[^.]+$/, "").slice(0, 100));
-      fd.append("descripcion", "");
-      fd.append("eventoId", galeriaEvento._id);
-      await adminService.createFoto(fd);
-      await cargarMediaEvento(galeriaEvento._id);
-    } catch (err) {
-      console.error("Error al subir foto:", err);
-    } finally {
-      setSubiendo(false);
-    }
+  // Agregar archivos a la cola (clasifica por tipo, ignora los no soportados)
+  const agregarArchivos = (fileList) => {
+    const nuevos = [];
+    Array.from(fileList || []).forEach((file) => {
+      const esImg = file.type.startsWith("image/");
+      const esVid = file.type.startsWith("video/");
+      if (!esImg && !esVid) return;
+      nuevos.push({
+        id: ++colaIdRef.current,
+        file,
+        tipo: esImg ? "foto" : "video",
+        titulo: file.name.replace(/\.[^.]+$/, "").slice(0, 100),
+        previewUrl: esImg ? URL.createObjectURL(file) : null,
+        progress: 0,
+        status: "pendiente", // pendiente | subiendo | ok | error
+        error: "",
+      });
+    });
+    if (nuevos.length) setCola((prev) => [...prev, ...nuevos]);
   };
 
-  const subirVideoEvento = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file || !galeriaEvento) return;
-    setSubiendo(true);
-    try {
-      const fd = new FormData();
-      fd.append("video", file);
-      fd.append("titulo", file.name.replace(/\.[^.]+$/, "").slice(0, 100));
-      fd.append("descripcion", "");
-      fd.append("eventoId", galeriaEvento._id);
-      await adminService.createVideo(fd);
-      await cargarMediaEvento(galeriaEvento._id);
-    } catch (err) {
-      console.error("Error al subir video:", err);
-    } finally {
-      setSubiendo(false);
+  const onDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer?.files?.length) agregarArchivos(e.dataTransfer.files);
+  };
+
+  const setColaItem = (id, patch) =>
+    setCola((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+
+  const quitarDeCola = (id) => setCola((prev) => prev.filter((it) => it.id !== id));
+
+  const subirTodo = async () => {
+    if (!galeriaEvento) return;
+    const pendientes = cola.filter((it) => it.status === "pendiente" || it.status === "error");
+    if (!pendientes.length) return;
+    setSubiendoTodo(true);
+    for (const item of pendientes) {
+      setColaItem(item.id, { status: "subiendo", progress: 0, error: "" });
+      try {
+        const fd = new FormData();
+        fd.append("titulo", (item.titulo || "Sin título").trim());
+        fd.append("descripcion", "");
+        fd.append("eventoId", galeriaEvento._id);
+        if (item.tipo === "foto") {
+          fd.append("imagen", item.file);
+          await fotoService.create(fd, (p) => setColaItem(item.id, { progress: p }));
+        } else {
+          fd.append("video", item.file);
+          await videoService.create(fd, (p) => setColaItem(item.id, { progress: p }));
+        }
+        setColaItem(item.id, { status: "ok", progress: 100 });
+      } catch (err) {
+        setColaItem(item.id, { status: "error", error: err?.error || err?.message || "Error al subir" });
+      }
     }
+    setSubiendoTodo(false);
+    await cargarMediaEvento(galeriaEvento._id);
+    // Limpiar de la cola los que subieron bien (dejar errores visibles para reintentar)
+    setCola((prev) => prev.filter((it) => it.status !== "ok"));
   };
 
   const quitarFoto = async (id) => {
@@ -1220,22 +1249,70 @@ const GestionEventos = () => {
                 Sube las fotos y videos de este evento. Se mostrarán en <strong>Destacados → “Revive nuestros eventos”</strong>.
               </p>
 
-              {/* Botones de subir */}
-              <div style={{ display: 'flex', gap: stylesGlobal.spacing.scale[3], flexWrap: 'wrap', marginBottom: stylesGlobal.spacing.scale[5], alignItems: 'center' }}>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: subiendo ? 'not-allowed' : 'pointer', opacity: subiendo ? 0.6 : 1 }}>
-                  <FaImage /> Agregar foto
-                  <input type="file" accept="image/*" onChange={subirFotoEvento} disabled={subiendo} style={{ display: 'none' }} />
+              {/* Zona de subida: arrastrar y soltar + multi-archivo */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={onDrop}
+                style={{
+                  border: `2px dashed ${dragOver ? stylesGlobal.colors.primary[400] : stylesGlobal.colors.neutral[300]}`,
+                  background: dragOver ? stylesGlobal.colors.primary[50] : stylesGlobal.colors.surface.secondary,
+                  borderRadius: stylesGlobal.borders.radius.lg, padding: stylesGlobal.spacing.scale[6],
+                  textAlign: 'center', transition: 'all .15s', marginBottom: stylesGlobal.spacing.scale[4],
+                }}
+              >
+                <FaCloudUploadAlt size={30} style={{ color: stylesGlobal.colors.primary[400], marginBottom: 8 }} />
+                <div style={{ fontWeight: 600, color: stylesGlobal.colors.text.secondary, marginBottom: 4 }}>Arrastra fotos y videos aquí</div>
+                <div style={{ fontSize: stylesGlobal.typography.scale.sm, color: stylesGlobal.colors.text.tertiary, marginBottom: 12 }}>o</div>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                  Seleccionar archivos
+                  <input type="file" accept="image/*,video/*" multiple onChange={(e) => { agregarArchivos(e.target.files); e.target.value = ""; }} style={{ display: 'none' }} />
                 </label>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: subiendo ? 'not-allowed' : 'pointer', opacity: subiendo ? 0.6 : 1 }}>
-                  <FaVideo /> Agregar video
-                  <input type="file" accept="video/*" onChange={subirVideoEvento} disabled={subiendo} style={{ display: 'none' }} />
-                </label>
-                {subiendo && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: stylesGlobal.colors.text.tertiary, fontSize: '0.9rem' }}>
-                    <FaSpinner className="evt-spin" /> Subiendo…
-                  </span>
-                )}
               </div>
+
+              {/* Cola de subida */}
+              {cola.length > 0 && (
+                <div style={{ marginBottom: stylesGlobal.spacing.scale[5], display: 'flex', flexDirection: 'column', gap: stylesGlobal.spacing.scale[2] }}>
+                  {cola.map((it) => (
+                    <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 12, border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.md, padding: stylesGlobal.spacing.scale[2] }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: stylesGlobal.colors.neutral[100], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {it.previewUrl ? <img src={it.previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <FaVideo color={stylesGlobal.colors.text.tertiary} />}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <input
+                          value={it.titulo}
+                          onChange={(e) => setColaItem(it.id, { titulo: e.target.value })}
+                          disabled={it.status === 'subiendo' || it.status === 'ok'}
+                          placeholder="Título"
+                          maxLength={100}
+                          style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem', border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.sm, boxSizing: 'border-box', fontFamily: stylesGlobal.typography.families.body }}
+                        />
+                        {it.status === 'subiendo' && (
+                          <div style={{ height: 6, background: stylesGlobal.colors.neutral[200], borderRadius: stylesGlobal.borders.radius.full, overflow: 'hidden', marginTop: 6 }}>
+                            <div style={{ height: '100%', width: `${it.progress}%`, background: stylesGlobal.colors.primary[500], transition: 'width .2s' }} />
+                          </div>
+                        )}
+                        {it.status === 'pendiente' && <span style={{ fontSize: 12, color: stylesGlobal.colors.text.tertiary }}>{it.tipo === 'foto' ? 'Foto' : 'Video'} · listo para subir</span>}
+                        {it.status === 'ok' && <span style={{ fontSize: 12, color: stylesGlobal.colors.semantic.success.main }}>✓ Subido</span>}
+                        {it.status === 'error' && <span style={{ fontSize: 12, color: stylesGlobal.colors.semantic.error.main }}>⚠ {it.error}</span>}
+                      </div>
+                      {(it.status === 'pendiente' || it.status === 'error') && (
+                        <button onClick={() => quitarDeCola(it.id)} title="Quitar de la cola" style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer', background: stylesGlobal.colors.neutral[100], color: stylesGlobal.colors.text.secondary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <FaTrash size={11} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6 }}>
+                    <button onClick={() => setCola([])} disabled={subiendoTodo} style={{ padding: '9px 18px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: subiendoTodo ? 'not-allowed' : 'pointer', opacity: subiendoTodo ? 0.6 : 1 }}>
+                      Limpiar
+                    </button>
+                    <button onClick={subirTodo} disabled={subiendoTodo} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: stylesGlobal.borders.radius.lg, border: 'none', background: stylesGlobal.colors.primary[500], color: '#fff', fontWeight: 600, fontSize: '0.9rem', cursor: subiendoTodo ? 'not-allowed' : 'pointer', opacity: subiendoTodo ? 0.7 : 1 }}>
+                      {subiendoTodo ? <><FaSpinner className="evt-spin" /> Subiendo…</> : `Subir ${cola.filter((i) => i.status !== 'ok').length} archivo(s)`}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Grid de media */}
               {galeriaLoading ? (
