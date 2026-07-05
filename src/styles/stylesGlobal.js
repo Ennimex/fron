@@ -115,11 +115,11 @@ const stylesGlobal = {
     text: {
       primary: "#2a241f", // neutral-900 para máxima legibilidad
       secondary: "#524842", // neutral-700 para texto secundario
-      tertiary: "#8b7d74", // neutral-500 para texto auxiliar
+      tertiary: "#6e665c", // texto auxiliar — 5.65:1 sobre blanco (WCAG 2.2 AA)
       inverse: "#ffffff", // Texto sobre fondos oscuros
       accent: "#d63384", // primary-500
-      muted: "#b8aca4", // Para texto deshabilitado
-      luxury: "#e6a756", // Para acentos dorados
+      muted: "#787066", // texto deshabilitado — 4.87:1 sobre blanco (WCAG 2.2 AA)
+      luxury: "#946823", // dorado SOLO para texto — 4.93:1 sobre blanco (el dorado decorativo sigue en accent[500])
     },
 
     // Gradientes elegantes y sofisticados
@@ -212,7 +212,7 @@ const stylesGlobal = {
         fontFamily: "'Inter', 'SF Pro Text', sans-serif",
         fontWeight: 500,
         lineHeight: 1.5,
-        color: "#8b7d74",
+        color: "#6e665c",
       },
     },
 
@@ -234,14 +234,14 @@ const stylesGlobal = {
         fontSize: "0.875rem",
         lineHeight: 1.5,
         fontFamily: "'Inter', 'SF Pro Text', sans-serif",
-        color: "#8b7d74",
+        color: "#6e665c",
       },
       caption: {
         fontSize: "0.75rem",
         lineHeight: 1.4,
         fontFamily: "'Inter', 'SF Pro Text', sans-serif",
         fontWeight: 500,
-        color: "#b8aca4",
+        color: "#787066",
       },
     },
 
@@ -1104,7 +1104,7 @@ const stylesGlobal = {
 
       copyright: {
         fontSize: "0.875rem",
-        color: "#8b7d74",
+        color: "#a89b91", // aclarado para fondo oscuro — 5.66:1 sobre #2a241f (WCAG 2.2 AA)
       },
 
       bottomNav: {
@@ -1120,7 +1120,7 @@ const stylesGlobal = {
       },
 
       bottomNavLink: {
-        color: "#8b7d74",
+        color: "#a89b91", // aclarado para fondo oscuro — 5.66:1 sobre #2a241f (WCAG 2.2 AA)
         textDecoration: "none",
         fontSize: "0.875rem",
         transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",

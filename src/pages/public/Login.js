@@ -262,11 +262,13 @@ const Login = () => {
 
   const getPasswordStrengthColor = () => {
     const strength = passwordStrength(password);
-    if (strength === 0) return stylesPublic.colors.semantic.error.main;
-    if (strength === 1) return stylesPublic.colors.semantic.warning.main;
-    if (strength === 2) return stylesPublic.colors.semantic.warning.light;
-    if (strength === 3) return stylesPublic.colors.secondary[500];
-    if (strength === 4) return stylesPublic.colors.secondary[500];
+    // Colores con contraste >= 4.5:1 sobre fondo claro (WCAG 2.2 §1.4.3).
+    // Antes "Media" usaba warning.light (#fffbeb), invisible sobre blanco (1.04:1).
+    if (strength === 0) return "#be123c"; // Muy débil — 6.29:1
+    if (strength === 1) return "#c2410c"; // Débil — 5.18:1
+    if (strength === 2) return "#b45309"; // Media — 5.02:1
+    if (strength === 3) return "#15803d"; // Fuerte — 5.02:1
+    return "#15803d"; // Muy fuerte — 5.02:1
   };
 
   const getPasswordStrengthText = () => {
