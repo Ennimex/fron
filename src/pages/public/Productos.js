@@ -7,6 +7,7 @@ import { useFavoritos } from "../../context/FavoritosContext"
 import { publicAPI } from "../../services/api"
 import { Search, Grid, List, Sliders, Heart, Info } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
+import { SkeletonGrid, WakeMessage } from "../../components/shared/Skeleton"
 
 const ProductCard = React.memo(
   ({ producto, vistaGrilla, handleProductClick, animationDelay }) => {
@@ -443,35 +444,19 @@ const Productos = () => {
       >
         <div
           style={{
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: `${stylesPublic.spacing.scale[16]} ${stylesPublic.spacing.scale[4]}`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            padding: stylesPublic.spacing.scale[20],
-            color: stylesPublic.colors.text.secondary,
           }}
         >
-          <div
-            style={{
-              width: stylesPublic.spacing.scale[8],
-              height: stylesPublic.spacing.scale[8],
-              border: `2px solid ${stylesPublic.colors.primary[200]}`,
-              borderTop: `2px solid ${stylesPublic.colors.primary[500]}`,
-              borderRadius: stylesPublic.borders.radius.full,
-              animation: "spin 1s linear infinite",
-              marginBottom: stylesPublic.spacing.scale[4],
-            }}
-          />
-          <p>Cargando productos...</p>
+          <WakeMessage active={loading} />
+          <div style={{ marginTop: stylesPublic.spacing.scale[6], width: "100%" }}>
+            <SkeletonGrid count={8} />
+          </div>
         </div>
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
       </div>
     )
   }

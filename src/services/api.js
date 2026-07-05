@@ -3,6 +3,9 @@ import axios from 'axios';
 // Configuración global de Axios
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'https://back-yvy1.onrender.com/api', // URL de la API (Render); configurable con REACT_APP_API_URL
+  // El backend gratuito de Render "se duerme" y la 1a carga puede tardar ~50s.
+  // 75s da margen para ese cold start pero evita que la petición cuelgue para siempre.
+  timeout: 75000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -66,7 +69,17 @@ api.interceptors.response.use(
       return Promise.reject({ error: `Error del servidor (${status}). Inténtalo de nuevo.`, status, originalError: error });
     }
 
-    // 2) Se hizo la petición pero NO hubo respuesta: problema de red real.
+    // 2a) Timeout: el servidor no respondió a tiempo (probable cold start de Render).
+    //     No es falta de internet del usuario, así que damos un mensaje distinto.
+    if (error.code === 'ECONNABORTED' || (error.message && error.message.toLowerCase().includes('timeout'))) {
+      return Promise.reject({
+        error: 'El servidor está tardando en responder (puede estar iniciándose). Espera un momento e inténtalo de nuevo.',
+        code: 'timeout',
+        originalError: error,
+      });
+    }
+
+    // 2b) Se hizo la petición pero NO hubo respuesta: problema de red real.
     if (error.request) {
       return Promise.reject({
         error: 'Error de conexión. Verifica tu conexión a internet.',

@@ -22,6 +22,7 @@ import {
   FaStar,
 } from "react-icons/fa"
 import stylesPublic from "../../styles/stylesGlobal"
+import { SkeletonGrid, WakeMessage } from "../../components/shared/Skeleton"
 
 const InicioEnhanced = () => {
   const navigate = useNavigate()
@@ -558,28 +559,9 @@ const InicioEnhanced = () => {
           </div>
 
           {isLoadingLocalidades ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: stylesPublic.spacing.scale[16],
-                color: stylesPublic.colors.primary.contrast,
-              }}
-            >
-              <div
-                style={{
-                  width: stylesPublic.spacing.scale[8],
-                  height: stylesPublic.spacing.scale[8],
-                  border: `2px solid ${stylesPublic.colors.primary[200]}`,
-                  borderTop: `2px solid ${stylesPublic.colors.primary.contrast}`,
-                  borderRadius: stylesPublic.borders.radius.full,
-                  animation: "spin 1s linear infinite",
-                  marginBottom: stylesPublic.spacing.scale[4],
-                }}
-              />
-              <p>Cargando localidades...</p>
+            <div style={{ padding: `${stylesPublic.spacing.scale[8]} 0` }}>
+              <SkeletonGrid count={3} minCard={300} />
+              <WakeMessage active={isLoadingLocalidades} light />
             </div>
           ) : (
             <div
@@ -688,28 +670,9 @@ const InicioEnhanced = () => {
           </div>
 
           {isLoading ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: stylesPublic.spacing.scale[16],
-                color: stylesPublic.colors.text.secondary,
-              }}
-            >
-              <div
-                style={{
-                  width: stylesPublic.spacing.scale[8],
-                  height: stylesPublic.spacing.scale[8],
-                  border: `2px solid ${stylesPublic.colors.primary[200]}`,
-                  borderTop: `2px solid ${stylesPublic.colors.primary[500]}`,
-                  borderRadius: stylesPublic.borders.radius.full,
-                  animation: "spin 1s linear infinite",
-                  marginBottom: stylesPublic.spacing.scale[4],
-                }}
-              />
-              <p>Cargando categorías...</p>
+            <div style={{ padding: `${stylesPublic.spacing.scale[8]} 0` }}>
+              <SkeletonGrid count={3} minCard={300} />
+              <WakeMessage active={isLoading} />
             </div>
           ) : categorias.length > 0 ? (
             <div
