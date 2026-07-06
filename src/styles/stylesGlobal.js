@@ -33,8 +33,9 @@ const stylesGlobal = {
       200: "#d3e2d3",
       300: "#b0ccb0",
       400: "#85b085",
-      500: "#6b9b6b", // Verde salvia principal
+      500: "#6b9b6b", // Verde salvia principal (SOLO fondos/bloques grandes; como texto falla 3.22:1)
       600: "#5a8a5a",
+      650: "#4f7a4f", // verde accesible para texto/etiqueta/borde sobre fondo claro — 4.97:1 (WCAG 2.2 AA)
       700: "#4a734a",
       800: "#3d5e3d",
       900: "#344f34",
@@ -1192,11 +1193,11 @@ const stylesGlobal = {
         },
         secondary: {
           backgroundColor: "transparent",
-          color: "#6b9b6b",
-          border: "1px solid #6b9b6b",
+          color: "#4f7a4f", // texto verde accesible sobre fondo claro — 4.97:1 (antes #6b9b6b = 3.22:1)
+          border: "1px solid #4f7a4f",
           transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           "&:hover": {
-            backgroundColor: "#6b9b6b",
+            backgroundColor: "#4f7a4f", // relleno hover con texto blanco — 4.97:1
             color: "#ffffff",
             transform: "translateY(-1px)",
           },

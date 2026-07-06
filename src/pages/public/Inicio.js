@@ -159,8 +159,8 @@ const InicioEnhanced = () => {
   const secondaryButtonStyle = {
     ...buttonStyle,
     backgroundColor: "transparent",
-    color: stylesPublic.colors.secondary[500],
-    border: `2px solid ${stylesPublic.colors.secondary[500]}`,
+    color: stylesPublic.colors.secondary[650], // verde accesible como texto — 4.97:1 (WCAG AA)
+    border: `2px solid ${stylesPublic.colors.secondary[650]}`,
   }
 
   const cardStyle = {

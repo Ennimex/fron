@@ -602,8 +602,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       },
       user: {
         backgroundColor: stylesPublic.colors.secondary[50],
-        color: stylesPublic.colors.secondary[500],
-        border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.secondary[500]}`,
+        color: stylesPublic.colors.secondary[650], // verde accesible como texto de badge — 4.65:1 (WCAG AA)
+        border: `${stylesPublic.borders.width[1]} solid ${stylesPublic.colors.secondary[650]}`,
       },
     };
 
