@@ -253,7 +253,7 @@ const Destacados = () => {
                           const last = i === 5 && media.length > 6
                           if (m.tipo === "video") {
                             return (
-                              <div key={m._id} onClick={() => openVideo(m)} style={{ position: "relative", borderRadius: stylesPublic.borders.radius.md, overflow: "hidden", cursor: "pointer", aspectRatio: "1", background: stylesPublic.colors.neutral[200] }}>
+                              <div key={m._id} role="button" tabIndex={0} aria-label={`Ver video: ${m.titulo || "Video"}`} onClick={() => openVideo(m)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openVideo(m) } }} style={{ position: "relative", borderRadius: stylesPublic.borders.radius.md, overflow: "hidden", cursor: "pointer", aspectRatio: "1", background: stylesPublic.colors.neutral[200] }}>
                                 <img src={m.miniatura || "/placeholder.svg"} alt={m.titulo || "Video"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.32)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                   <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: stylesPublic.colors.primary[500], display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -266,7 +266,7 @@ const Destacados = () => {
                           }
                           const fi = fotosEvento.findIndex((f) => f._id === m._id)
                           return (
-                            <div key={m._id} onClick={() => openImage(fotosEvento, fi)} style={{ position: "relative", borderRadius: stylesPublic.borders.radius.md, overflow: "hidden", cursor: "pointer", aspectRatio: "1", background: stylesPublic.colors.neutral[200] }}>
+                            <div key={m._id} role="button" tabIndex={0} aria-label={`Ver foto: ${m.titulo || "Foto"}`} onClick={() => openImage(fotosEvento, fi)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openImage(fotosEvento, fi) } }} style={{ position: "relative", borderRadius: stylesPublic.borders.radius.md, overflow: "hidden", cursor: "pointer", aspectRatio: "1", background: stylesPublic.colors.neutral[200] }}>
                               <img src={m.url || "/placeholder.svg"} alt={m.titulo || "Foto"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                               {last && <div style={{ position: "absolute", inset: 0, background: "rgba(42,36,31,0.62)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>+{media.length - 6}</div>}
                             </div>

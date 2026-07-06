@@ -253,6 +253,9 @@ const GaleriaCompleta = () => {
               {images.map((image, index) => (
                 <div
                   key={image.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ver imagen: ${image.alt || "Imagen de galería"}`}
                   style={{
                     backgroundColor: stylesPublic.colors.surface.primary,
                     borderRadius: stylesPublic.borders.radius.xl,
@@ -267,6 +270,7 @@ const GaleriaCompleta = () => {
                     opacity: 0,
                   }}
                   onClick={() => openLightbox(image, index)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(image, index) } }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-4px)"
                     e.currentTarget.style.boxShadow = stylesPublic.shadows.xl
