@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useId } from "react";
+import { createPortal } from "react-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
 
 /**
@@ -6,16 +7,17 @@ import stylesGlobal from "../../styles/stylesGlobal";
  *
  * Cumple:
  * - role="dialog" + aria-modal="true"
- * - aria-labelledby apuntando al título (o al id que se pase en labelledBy)
- * - el foco ENTRA al diálogo al abrir
+ * - aria-labelledby al título (id generado con useId; se puede sobreescribir)
+ * - el foco ENTRA al diálogo al abrir (dirigible con initialFocusRef)
  * - focus-trap: Tab / Shift+Tab ciclan dentro del diálogo
  * - Escape cierra
- * - el foco REGRESA al elemento disparador al cerrar
- * - fondo inerte para lectores (aria-modal) y para el puntero (overlay a pantalla completa)
+ * - el foco REGRESA al disparador al cerrar; si ya no existe, va a un fallback sensato
+ * - se monta en un PORTAL a document.body (evita que un ancestro con transform/filter
+ *   rompa el position:fixed, y permite apagar el fondo para el lector)
+ * - fondo inerte real: inert + aria-hidden sobre el root de la app mientras está abierto
  *
- * Nota: si el contenido necesita una región viva, el consumidor debe usar el
- * patrón persistente del sub-commit 2 (contenedor role="status"/"alert" SIEMPRE
- * presente, que solo cambia su texto). Este componente no la monta condicionalmente.
+ * Nota: si el contenido necesita una región viva, el consumidor debe usar el patrón
+ * persistente (contenedor role="status"/"alert" SIEMPRE presente que solo cambia texto).
  */
 
 const FOCUSABLE_SELECTOR = [
@@ -27,17 +29,30 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
+// Enfoca un elemento haciéndolo enfocable de forma temporal si hiciera falta.
+function focusSafely(el) {
+  if (!el || typeof el.focus !== "function") return;
+  if (!el.hasAttribute("tabindex")) {
+    el.setAttribute("tabindex", "-1");
+    el.addEventListener("blur", () => el.removeAttribute("tabindex"), { once: true });
+  }
+  el.focus();
+}
+
 export default function Modal({
   isOpen,
   onClose,
   title,
-  titleId = "modal-title",
+  titleId: titleIdProp,
   labelledBy,
   children,
   initialFocusRef,
   maxWidth = 520,
   closeLabel = "Cerrar",
 }) {
+  const generatedId = useId();
+  const titleId = titleIdProp || `modal-title-${generatedId}`;
+
   const overlayRef = useRef(null);
   const dialogRef = useRef(null);
   const triggerRef = useRef(null);
@@ -49,26 +64,52 @@ export default function Modal({
     }
   }, [isOpen]);
 
-  // Al abrir: bloquea el scroll del fondo y mueve el foco al diálogo.
-  // Al cerrar/desmontar: restaura scroll y devuelve el foco al disparador.
+  // Al abrir: bloquea scroll (compensando la barra), inerta el fondo y mueve el foco.
+  // Al cerrar: restaura todo EN ORDEN (quitar inert antes de devolver el foco).
   useEffect(() => {
     if (!isOpen) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+
+    const body = document.body;
+    const root = document.getElementById("root");
+    const prevOverflow = body.style.overflow;
+    const prevPaddingRight = body.style.paddingRight;
+
+    // Compensa el ancho de la barra de scroll para evitar salto horizontal.
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      const current = parseFloat(window.getComputedStyle(body).paddingRight) || 0;
+      body.style.paddingRight = `${current + scrollbarWidth}px`;
+    }
+
+    // Fondo inerte para puntero, teclado y lector (el modal está fuera de #root vía portal).
+    if (root) {
+      root.setAttribute("aria-hidden", "true");
+      try { root.inert = true; } catch (e) { /* inert no soportado: aria-hidden basta */ }
+    }
 
     const toFocus =
       (initialFocusRef && initialFocusRef.current) ||
       dialogRef.current?.querySelector(FOCUSABLE_SELECTOR) ||
       dialogRef.current;
-    // Espera al pintado para que el nodo exista y sea enfocable.
     const raf = requestAnimationFrame(() => toFocus?.focus());
 
     return () => {
       cancelAnimationFrame(raf);
-      document.body.style.overflow = previousOverflow;
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPaddingRight;
+      // Quitar la inercia ANTES de devolver el foco (el disparador vive dentro de #root).
+      if (root) {
+        root.removeAttribute("aria-hidden");
+        try { root.inert = false; } catch (e) { /* no-op */ }
+      }
       const trigger = triggerRef.current;
-      if (trigger && typeof trigger.focus === "function") {
+      if (trigger && document.contains(trigger) && typeof trigger.focus === "function") {
         trigger.focus();
+      } else {
+        // Fallback sensato si el disparador ya no está en el DOM.
+        const fallback = document.querySelector("main, [role='main'], h1");
+        focusSafely(fallback || document.body);
       }
     };
   }, [isOpen, initialFocusRef]);
@@ -87,7 +128,6 @@ export default function Modal({
       ).filter((el) => el.offsetParent !== null || el === document.activeElement);
 
       if (focusables.length === 0) {
-        // Sin elementos enfocables: mantén el foco en el diálogo.
         e.preventDefault();
         dialogRef.current?.focus();
         return;
@@ -112,11 +152,10 @@ export default function Modal({
 
   const resolvedLabel = labelledBy || (title != null ? titleId : undefined);
 
-  return (
+  const overlay = (
     <div
       ref={overlayRef}
       onMouseDown={(e) => {
-        // Cierra solo si el clic empezó en el overlay, no dentro del diálogo.
         if (e.target === overlayRef.current) onClose?.();
       }}
       onKeyDown={handleKeyDown}
@@ -191,4 +230,6 @@ export default function Modal({
       </div>
     </div>
   );
+
+  return createPortal(overlay, document.body);
 }
