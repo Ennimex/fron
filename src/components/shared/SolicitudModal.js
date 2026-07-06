@@ -95,7 +95,7 @@ const SolicitudModal = ({ productos = [], onClose }) => {
     <div style={overlayStyle} onClick={onClose}>
       <div style={cardStyle} onClick={(e) => e.stopPropagation()}>
         {exito ? (
-          <div style={{ textAlign: "center", padding: stylesPublic.spacing.scale[4] }}>
+          <div role="status" aria-live="polite" style={{ textAlign: "center", padding: stylesPublic.spacing.scale[4] }}>
             <div style={{ color: "#16a34a", marginBottom: stylesPublic.spacing.scale[3] }}>
               <Check size={48} />
             </div>
@@ -258,18 +258,21 @@ const SolicitudModal = ({ productos = [], onClose }) => {
               }}
             />
 
-            {error && (
-              <p
-                style={{
-                  color: "#dc2626",
-                  fontSize: stylesPublic.typography.scale.sm,
-                  marginTop: 0,
-                  marginBottom: stylesPublic.spacing.scale[3],
-                }}
-              >
-                {error}
-              </p>
-            )}
+            {/* Región viva de error: siempre presente, solo cambia el texto */}
+            <div role="alert" aria-live="assertive">
+              {error && (
+                <p
+                  style={{
+                    color: "#dc2626",
+                    fontSize: stylesPublic.typography.scale.sm,
+                    marginTop: 0,
+                    marginBottom: stylesPublic.spacing.scale[3],
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+            </div>
 
             <button
               type="button"

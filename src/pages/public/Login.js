@@ -931,8 +931,14 @@ const Login = () => {
                       <h2 className="login-title">Iniciar Sesión</h2>
                       <p className="login-subtitle">Accede a tu cuenta para continuar</p>
 
-                      {error && <div className="login-alert-error">{error}</div>}
-                      {success && <div className="login-alert-success">{success}</div>}
+                      {/* Región viva de error: siempre en el DOM (aria-live assertive) */}
+                      <div role="alert" aria-live="assertive">
+                        {error && <div className="login-alert-error">{error}</div>}
+                      </div>
+                      {/* Región viva de éxito/info: siempre en el DOM (aria-live polite) */}
+                      <div role="status" aria-live="polite">
+                        {success && <div className="login-alert-success">{success}</div>}
+                      </div>
 
                       <form onSubmit={handleLoginSubmit}>
                         <div className="login-input-box">
@@ -1033,8 +1039,14 @@ const Login = () => {
                       <h2 className="login-title">Crear Cuenta</h2>
                       <p className="login-subtitle">Únete a nuestra comunidad</p>
 
-                      {error && <div className="login-alert-error">{error}</div>}
-                      {success && <div className="login-alert-success">{success}</div>}
+                      {/* Región viva de error: siempre en el DOM (aria-live assertive) */}
+                      <div role="alert" aria-live="assertive">
+                        {error && <div className="login-alert-error">{error}</div>}
+                      </div>
+                      {/* Región viva de éxito/info: siempre en el DOM (aria-live polite) */}
+                      <div role="status" aria-live="polite">
+                        {success && <div className="login-alert-success">{success}</div>}
+                      </div>
 
                       <form onSubmit={handleRegisterSubmit}>
                         <div className="login-input-box">

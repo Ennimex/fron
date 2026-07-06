@@ -313,7 +313,13 @@ const GestionConfiguracion = () => {
             </button>
           </div>
 
-          {mensaje.texto && <div style={s.alert(mensaje.tipo)}>{mensaje.texto}</div>}
+          {/* Regiones vivas persistentes: error (assertive) e info/éxito (polite) */}
+          <div role="alert" aria-live="assertive">
+            {mensaje.tipo === "error" && mensaje.texto ? <div style={s.alert("error")}>{mensaje.texto}</div> : null}
+          </div>
+          <div role="status" aria-live="polite">
+            {mensaje.tipo === "exito" && mensaje.texto ? <div style={s.alert("exito")}>{mensaje.texto}</div> : null}
+          </div>
 
           <div style={s.layout} className="settings-layout">
             {/* Sub-navegación */}
