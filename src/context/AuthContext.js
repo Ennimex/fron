@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     try {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setUser(null);
       
       // Usar función global si está disponible (GitHub Pages)
@@ -50,11 +51,16 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
+        // El JWT solo lleva id+role; el nombre/email se guardaron aparte al
+        // iniciar sesión, para no perderlos al recargar la página.
+        const stored = JSON.parse(localStorage.getItem('user') || 'null');
         setUser({
           isAuthenticated: true,
           token,
           id: decoded.id,
           role: decoded.role,
+          name: stored?.name,
+          email: stored?.email,
         });
       } catch (error) {
         console.error('Error decodificando token:', error);
@@ -113,6 +119,13 @@ export const AuthProvider = ({ children }) => {
 
       setUser(userData);
       localStorage.setItem('token', data.token);
+      // El JWT no incluye nombre/email; los guardamos para conservarlos al recargar.
+      localStorage.setItem('user', JSON.stringify({
+        id: decoded.id,
+        role: decoded.role,
+        name: data.user?.name,
+        email: data.user?.email,
+      }));
 
       return { success: true, role: decoded.role };
     } catch (error) {
