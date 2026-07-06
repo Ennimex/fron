@@ -279,12 +279,12 @@ const GestionConfiguracion = () => {
   // Tarjeta de campo (función, no componente, para no perder el foco al teclear)
   const field = (name, title, help, placeholder, textarea = false) => (
     <div style={s.settingCard}>
-      <div style={s.settingTitle}>{title}</div>
+      <label htmlFor={`config-${name}`} style={{ ...s.settingTitle, display: "block" }}>{title}</label>
       {help && <div style={s.settingHelp}>{help}</div>}
       {textarea ? (
-        <textarea style={s.textarea} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} />
+        <textarea id={`config-${name}`} style={s.textarea} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} />
       ) : (
-        <input style={s.input} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} />
+        <input id={`config-${name}`} style={s.input} name={name} value={form[name]} onChange={handleChange} placeholder={placeholder} />
       )}
     </div>
   );

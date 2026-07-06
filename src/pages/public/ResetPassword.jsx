@@ -302,8 +302,9 @@ const ResetPassword = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div className="rp-input-box">
-                    <label className="rp-label">Nueva contraseña*</label>
+                    <label className="rp-label" htmlFor="rp-new-password">Nueva contraseña*</label>
                     <input
+                      id="rp-new-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 8 caracteres"
                       value={password}
@@ -316,16 +317,17 @@ const ResetPassword = () => {
                       type="button"
                       className="rp-input-icon"
                       onClick={() => setShowPassword((s) => !s)}
-                      tabIndex={-1}
-                      aria-label="Mostrar u ocultar contraseña"
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      aria-pressed={showPassword}
                     >
-                      <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
+                      <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} aria-hidden="true" />
                     </button>
                   </div>
 
                   <div className="rp-input-box">
-                    <label className="rp-label">Confirmar contraseña*</label>
+                    <label className="rp-label" htmlFor="rp-confirm-password">Confirmar contraseña*</label>
                     <input
+                      id="rp-confirm-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Repite la contraseña"
                       value={confirm}

@@ -924,12 +924,13 @@ const GestionEventos = () => {
                     {/* Fila 1: Título y Ubicación */}
                     <div style={styles.formRow} className="eventos-form-row">
                       <div style={styles.formGroup}>
-                        <label style={styles.label}>
+                        <label style={styles.label} htmlFor="evento-titulo">
                           Título del Evento
                           <span style={styles.requiredField}>*</span>
                         </label>
-                        <input 
-                          name="titulo" 
+                        <input
+                          id="evento-titulo"
+                          name="titulo"
                           value={formData.titulo} 
                           onChange={handleInputChange} 
                           placeholder="Ingresa el título del evento" 
@@ -939,12 +940,13 @@ const GestionEventos = () => {
                         />
                       </div>
                       <div style={styles.formGroup}>
-                        <label style={styles.label}>
+                        <label style={styles.label} htmlFor="evento-ubicacion">
                           Ubicación
                           <span style={styles.requiredField}>*</span>
                         </label>
-                        <input 
-                          name="ubicacion" 
+                        <input
+                          id="evento-ubicacion"
+                          name="ubicacion"
                           value={formData.ubicacion} 
                           onChange={handleInputChange} 
                           placeholder="Lugar donde se realizará el evento" 
@@ -958,12 +960,13 @@ const GestionEventos = () => {
                     {/* Fila 2: Fecha y Horarios */}
                     <div style={styles.formRowThree} className="eventos-form-three">
                       <div style={styles.formGroup}>
-                        <label style={styles.label}>
+                        <label style={styles.label} htmlFor="evento-fecha">
                           Fecha
                           <span style={styles.requiredField}>*</span>
                         </label>
-                        <input 
-                          name="fecha" 
+                        <input
+                          id="evento-fecha"
+                          name="fecha"
                           type="date" 
                           value={formData.fecha} 
                           onChange={handleInputChange} 
@@ -973,12 +976,13 @@ const GestionEventos = () => {
                         />
                       </div>
                       <div style={styles.formGroup}>
-                        <label style={styles.label}>
+                        <label style={styles.label} htmlFor="evento-hora-inicio">
                           Hora de Inicio
                           <span style={styles.requiredField}>*</span>
                         </label>
-                        <input 
-                          name="horaInicio" 
+                        <input
+                          id="evento-hora-inicio"
+                          name="horaInicio"
                           type="time" 
                           value={formData.horaInicio} 
                           onChange={handleInputChange} 
@@ -988,12 +992,13 @@ const GestionEventos = () => {
                         />
                       </div>
                       <div style={styles.formGroup}>
-                        <label style={styles.label}>
+                        <label style={styles.label} htmlFor="evento-hora-fin">
                           Hora de Fin
                           <span style={styles.requiredField}>*</span>
                         </label>
-                        <input 
-                          name="horaFin" 
+                        <input
+                          id="evento-hora-fin"
+                          name="horaFin"
                           type="time" 
                           value={formData.horaFin} 
                           onChange={handleInputChange} 
@@ -1006,12 +1011,13 @@ const GestionEventos = () => {
                     
                     {/* Fila 3: Descripción */}
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>
+                      <label style={styles.label} htmlFor="evento-descripcion">
                         Descripción
                         <span style={styles.requiredField}>*</span>
                       </label>
-                      <textarea 
-                        name="descripcion" 
+                      <textarea
+                        id="evento-descripcion"
+                        name="descripcion"
                         value={formData.descripcion} 
                         onChange={handleInputChange} 
                         placeholder="Describe el evento, actividades, público objetivo, etc." 

@@ -519,8 +519,9 @@ const RecuperarContrasena = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div className="rp-input-box">
-                    <label className="rp-label">Correo Electrónico*</label>
+                    <label className="rp-label" htmlFor="rp-email">Correo Electrónico*</label>
                     <input
+                      id="rp-email"
                       type="email"
                       placeholder="tu@email.com"
                       value={email}

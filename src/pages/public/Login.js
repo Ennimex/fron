@@ -510,8 +510,16 @@ const Login = () => {
       height: ${stylesPublic.spacing.scale[6]};
       cursor: pointer;
       pointer-events: auto;
+      background: transparent;
+      border: none;
+      padding: 0;
       transition: ${stylesPublic.animations.transitions.elegant};
       border-radius: ${stylesPublic.borders.radius.sm};
+    }
+
+    .login-toggle-password:focus-visible {
+      outline: 2px solid ${stylesPublic.colors.primary[500]};
+      outline-offset: 2px;
     }
 
     .login-toggle-password:hover {
@@ -928,9 +936,11 @@ const Login = () => {
 
                       <form onSubmit={handleLoginSubmit}>
                         <div className="login-input-box">
-                          <label className="login-label">Correo Electrónico*</label>
+                          <label className="login-label" htmlFor="login-email">Correo Electrónico*</label>
                           <input
+                            id="login-email"
                             type="email"
+                            autoComplete="email"
                             placeholder="tu@email.com"
                             value={loginEmail}
                             onChange={(e) => {
@@ -948,9 +958,11 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label">Contraseña*</label>
+                          <label className="login-label" htmlFor="login-password">Contraseña*</label>
                           <input
+                            id="login-password"
                             type={showPassword ? "text" : "password"}
+                            autoComplete="current-password"
                             placeholder="Tu contraseña"
                             value={loginPassword}
                             onChange={(e) => {
@@ -959,9 +971,15 @@ const Login = () => {
                             }}
                             className={`login-input ${fieldErrors.loginPassword ? "input-error" : ""}`}
                           />
-                          <span className="login-toggle-password" onClick={togglePasswordVisibility}>
-                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
-                          </span>
+                          <button
+                            type="button"
+                            className="login-toggle-password"
+                            onClick={togglePasswordVisibility}
+                            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                            aria-pressed={showPassword}
+                          >
+                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} aria-hidden="true" />
+                          </button>
                           {fieldErrors.loginPassword && <p className="login-error-text">⚠️ La contraseña es requerida</p>}
                         </div>
 
@@ -1020,9 +1038,11 @@ const Login = () => {
 
                       <form onSubmit={handleRegisterSubmit}>
                         <div className="login-input-box">
-                          <label className="login-label">Nombre Completo*</label>
+                          <label className="login-label" htmlFor="reg-name">Nombre Completo*</label>
                           <input
+                            id="reg-name"
                             type="text"
+                            autoComplete="name"
                             placeholder="Tu nombre completo"
                             value={name}
                             onChange={(e) => {
@@ -1038,9 +1058,11 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label">Teléfono*</label>
+                          <label className="login-label" htmlFor="reg-phone">Teléfono*</label>
                           <input
+                            id="reg-phone"
                             type="tel"
+                            autoComplete="tel"
                             placeholder="+521234567890"
                             value={phone}
                             onChange={(e) => {
@@ -1058,9 +1080,11 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label">Correo Electrónico*</label>
+                          <label className="login-label" htmlFor="reg-email">Correo Electrónico*</label>
                           <input
+                            id="reg-email"
                             type="email"
+                            autoComplete="email"
                             placeholder="tu@email.com"
                             value={email}
                             onChange={(e) => {
@@ -1076,9 +1100,11 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label">Contraseña*</label>
+                          <label className="login-label" htmlFor="reg-password">Contraseña*</label>
                           <input
+                            id="reg-password"
                             type={showPassword ? "text" : "password"}
+                            autoComplete="new-password"
                             placeholder="Mínimo 8 caracteres"
                             value={password}
                             onChange={(e) => {
@@ -1087,9 +1113,15 @@ const Login = () => {
                             }}
                             className={`login-input ${fieldErrors.password ? "input-error" : ""}`}
                           />
-                          <span className="login-toggle-password" onClick={togglePasswordVisibility}>
-                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
-                          </span>
+                          <button
+                            type="button"
+                            className="login-toggle-password"
+                            onClick={togglePasswordVisibility}
+                            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                            aria-pressed={showPassword}
+                          >
+                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} aria-hidden="true" />
+                          </button>
 
                           {password && (
                             <>
@@ -1114,9 +1146,11 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label">Confirmar Contraseña*</label>
+                          <label className="login-label" htmlFor="reg-confirm-password">Confirmar Contraseña*</label>
                           <input
+                            id="reg-confirm-password"
                             type={showPassword ? "text" : "password"}
+                            autoComplete="new-password"
                             placeholder="Confirma tu contraseña"
                             value={confirmPassword}
                             onChange={(e) => {
@@ -1125,9 +1159,15 @@ const Login = () => {
                             }}
                             className={`login-input ${fieldErrors.confirmPassword ? "input-error" : ""}`}
                           />
-                          <span className="login-toggle-password" onClick={togglePasswordVisibility}>
-                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} />
-                          </span>
+                          <button
+                            type="button"
+                            className="login-toggle-password"
+                            onClick={togglePasswordVisibility}
+                            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                            aria-pressed={showPassword}
+                          >
+                            <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} aria-hidden="true" />
+                          </button>
                           {fieldErrors.confirmPassword && (
                             <p className="login-error-text">⚠️ Las contraseñas no coinciden</p>
                           )}
