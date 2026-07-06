@@ -497,6 +497,16 @@ const RecuperarContrasena = () => {
               <p className="rp-logo-subtext">Arte Textil Huasteco</p>
             </div>
 
+            {/* Región viva persistente (SR-only): anuncia la confirmación del paso 2
+                en tono polite sin mover el foco. Existe siempre; solo cambia su texto. */}
+            <div
+              role="status"
+              aria-live="polite"
+              style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}
+            >
+              {step === 2 ? `Correo enviado. Enviamos las instrucciones de recuperación a ${email}. Revisa tu bandeja de entrada.` : ""}
+            </div>
+
             {/* ───────── PASO 1: Formulario ───────── */}
             {step === 1 && (
               <>
