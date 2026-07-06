@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { Star, Calendar, MapPin, Play, X, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
+import Modal from "../../components/shared/Modal"
 import { publicAPI } from "../../services/api"
 import { useConfig } from "../../context/ConfigContext"
 
@@ -78,16 +79,13 @@ const Destacados = () => {
     setCurrentFotos(fotosEvento)
     setCurrentIndex(index)
     setSelectedImage(fotosEvento[index])
-    document.body.style.overflow = "hidden"
   }
   const openVideo = (video) => {
     setSelectedVideo(video)
-    document.body.style.overflow = "hidden"
   }
   const closeLightbox = () => {
     setSelectedImage(null)
     setSelectedVideo(null)
-    document.body.style.overflow = "auto"
   }
   const navImage = (dir) => {
     if (!currentFotos.length) return
@@ -96,6 +94,13 @@ const Destacados = () => {
     if (i >= currentFotos.length) i = 0
     setCurrentIndex(i)
     setSelectedImage(currentFotos[i])
+  }
+  // Flechas ←/→ para navegar entre fotos del lightbox de imagen
+  const onLightboxKey = (e) => {
+    if (selectedImage && currentFotos.length > 1) {
+      if (e.key === "ArrowLeft") { e.preventDefault(); navImage("prev") }
+      else if (e.key === "ArrowRight") { e.preventDefault(); navImage("next") }
+    }
   }
 
   // --- Estilos ---
@@ -295,48 +300,63 @@ const Destacados = () => {
       </div>
 
       {/* IMAGE LIGHTBOX */}
-      {selectedImage && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.95)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: stylesPublic.spacing.scale[4], animation: "lightboxFadeIn 0.3s ease-out" }} onClick={closeLightbox}>
-          <button onClick={closeLightbox} style={{ position: "absolute", top: stylesPublic.spacing.scale[4], right: stylesPublic.spacing.scale[4], background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[12], height: stylesPublic.spacing.scale[12], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
-            <X size={20} />
-          </button>
-          {currentFotos.length > 1 && (
-            <>
-              <button onClick={(e) => { e.stopPropagation(); navImage("prev") }} style={{ position: "absolute", left: stylesPublic.spacing.scale[4], top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[14], height: stylesPublic.spacing.scale[14], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
-                <ChevronLeft size={24} />
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); navImage("next") }} style={{ position: "absolute", right: stylesPublic.spacing.scale[4], top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[14], height: stylesPublic.spacing.scale[14], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
-                <ChevronRight size={24} />
-              </button>
-            </>
-          )}
-          <div style={{ maxWidth: "90%", maxHeight: "90%", display: "flex", flexDirection: "column", alignItems: "center", gap: stylesPublic.spacing.scale[4] }} onClick={(e) => e.stopPropagation()}>
-            <img src={selectedImage.url || "/placeholder.svg"} alt={selectedImage.titulo || "Imagen"} style={{ maxWidth: "100%", maxHeight: "80vh", objectFit: "contain", borderRadius: stylesPublic.borders.radius.lg, boxShadow: stylesPublic.shadows["2xl"] }} />
-            {selectedImage.titulo && (
-              <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: stylesPublic.borders.radius.xl, padding: stylesPublic.spacing.scale[5], maxWidth: "600px", textAlign: "center" }}>
-                <h3 style={{ fontSize: stylesPublic.typography.scale.lg, fontWeight: stylesPublic.typography.weights.medium, color: "#fff", margin: 0 }}>{selectedImage.titulo}</h3>
-              </div>
+      <Modal
+        bare
+        isOpen={!!selectedImage}
+        onClose={closeLightbox}
+        onKeyDown={onLightboxKey}
+        ariaLabel={selectedImage?.titulo || "Imagen ampliada"}
+      >
+        {selectedImage && (
+          <>
+            <button onClick={closeLightbox} aria-label="Cerrar" style={{ position: "absolute", top: stylesPublic.spacing.scale[4], right: stylesPublic.spacing.scale[4], background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[12], height: stylesPublic.spacing.scale[12], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
+              <X size={20} aria-hidden="true" />
+            </button>
+            {currentFotos.length > 1 && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); navImage("prev") }} aria-label="Imagen anterior" style={{ position: "absolute", left: stylesPublic.spacing.scale[4], top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[14], height: stylesPublic.spacing.scale[14], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
+                  <ChevronLeft size={24} aria-hidden="true" />
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); navImage("next") }} aria-label="Imagen siguiente" style={{ position: "absolute", right: stylesPublic.spacing.scale[4], top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[14], height: stylesPublic.spacing.scale[14], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
+                  <ChevronRight size={24} aria-hidden="true" />
+                </button>
+              </>
             )}
-          </div>
-        </div>
-      )}
+            <div style={{ maxWidth: "90%", maxHeight: "90%", display: "flex", flexDirection: "column", alignItems: "center", gap: stylesPublic.spacing.scale[4] }} onClick={(e) => e.stopPropagation()}>
+              <img src={selectedImage.url || "/placeholder.svg"} alt={selectedImage.titulo || "Imagen"} style={{ maxWidth: "100%", maxHeight: "80vh", objectFit: "contain", borderRadius: stylesPublic.borders.radius.lg, boxShadow: stylesPublic.shadows["2xl"] }} />
+              {selectedImage.titulo && (
+                <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: stylesPublic.borders.radius.xl, padding: stylesPublic.spacing.scale[5], maxWidth: "600px", textAlign: "center" }}>
+                  <h3 style={{ fontSize: stylesPublic.typography.scale.lg, fontWeight: stylesPublic.typography.weights.medium, color: "#fff", margin: 0 }}>{selectedImage.titulo}</h3>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </Modal>
 
       {/* VIDEO LIGHTBOX */}
-      {selectedVideo && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.95)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: stylesPublic.spacing.scale[4], animation: "lightboxFadeIn 0.3s ease-out" }} onClick={closeLightbox}>
-          <button onClick={closeLightbox} style={{ position: "absolute", top: stylesPublic.spacing.scale[4], right: stylesPublic.spacing.scale[4], background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[12], height: stylesPublic.spacing.scale[12], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
-            <X size={20} />
-          </button>
-          <div style={{ maxWidth: "90%", maxHeight: "90%", display: "flex", flexDirection: "column", alignItems: "center", gap: stylesPublic.spacing.scale[4] }} onClick={(e) => e.stopPropagation()}>
-            <video src={selectedVideo.url} controls autoPlay style={{ maxWidth: "100%", maxHeight: "80vh", borderRadius: stylesPublic.borders.radius.lg, boxShadow: stylesPublic.shadows["2xl"] }} />
-            {selectedVideo.titulo && (
-              <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: stylesPublic.borders.radius.xl, padding: stylesPublic.spacing.scale[5], maxWidth: "600px", textAlign: "center" }}>
-                <h3 style={{ fontSize: stylesPublic.typography.scale.lg, fontWeight: stylesPublic.typography.weights.medium, color: "#fff", margin: 0 }}>{selectedVideo.titulo}</h3>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <Modal
+        bare
+        isOpen={!!selectedVideo}
+        onClose={closeLightbox}
+        ariaLabel={selectedVideo?.titulo || "Video"}
+      >
+        {selectedVideo && (
+          <>
+            <button onClick={closeLightbox} aria-label="Cerrar" style={{ position: "absolute", top: stylesPublic.spacing.scale[4], right: stylesPublic.spacing.scale[4], background: "rgba(255,255,255,0.12)", border: "none", borderRadius: stylesPublic.borders.radius.full, width: stylesPublic.spacing.scale[12], height: stylesPublic.spacing.scale[12], display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", backdropFilter: "blur(10px)" }}>
+              <X size={20} aria-hidden="true" />
+            </button>
+            <div style={{ maxWidth: "90%", maxHeight: "90%", display: "flex", flexDirection: "column", alignItems: "center", gap: stylesPublic.spacing.scale[4] }} onClick={(e) => e.stopPropagation()}>
+              <video src={selectedVideo.url} controls autoPlay style={{ maxWidth: "100%", maxHeight: "80vh", borderRadius: stylesPublic.borders.radius.lg, boxShadow: stylesPublic.shadows["2xl"] }} />
+              {selectedVideo.titulo && (
+                <div style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: stylesPublic.borders.radius.xl, padding: stylesPublic.spacing.scale[5], maxWidth: "600px", textAlign: "center" }}>
+                  <h3 style={{ fontSize: stylesPublic.typography.scale.lg, fontWeight: stylesPublic.typography.weights.medium, color: "#fff", margin: 0 }}>{selectedVideo.titulo}</h3>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

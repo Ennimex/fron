@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { X, ChevronLeft, ChevronRight, Camera } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
+import Modal from "../../components/shared/Modal"
 import { publicAPI } from "../../services/api"
 
 const GaleriaCompleta = () => {
@@ -41,23 +42,29 @@ const GaleriaCompleta = () => {
   const openLightbox = (image, index) => {
     setSelectedImage(image)
     setCurrentIndex(index)
-    document.body.style.overflow = "hidden"
   }
 
   const closeLightbox = () => {
     setSelectedImage(null)
-    document.body.style.overflow = "auto"
   }
 
   const navigateImage = (direction) => {
     if (images.length === 0) return
-    
+
     let newIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1
     if (newIndex < 0) newIndex = images.length - 1
     if (newIndex >= images.length) newIndex = 0
-    
+
     setCurrentIndex(newIndex)
     setSelectedImage(images[newIndex])
+  }
+
+  // Flechas ←/→ para navegar entre imágenes del lightbox
+  const onGalleryKey = (e) => {
+    if (selectedImage && images.length > 1) {
+      if (e.key === "ArrowLeft") { e.preventDefault(); navigateImage("prev") }
+      else if (e.key === "ArrowRight") { e.preventDefault(); navigateImage("next") }
+    }
   }
 
   const containerStyle = {
@@ -392,21 +399,16 @@ const GaleriaCompleta = () => {
       </section>
 
       {/* Lightbox Modal */}
-      {selectedImage && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0, 0, 0, 0.95)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 50,
-            padding: stylesPublic.spacing.scale[4],
-            animation: "lightboxFadeIn 0.3s ease-out",
-          }}
-          onClick={closeLightbox}
-        >
+      {/* IMAGE LIGHTBOX */}
+      <Modal
+        bare
+        isOpen={!!selectedImage}
+        onClose={closeLightbox}
+        onKeyDown={onGalleryKey}
+        ariaLabel={selectedImage?.alt || "Imagen ampliada"}
+      >
+        {selectedImage && (
+          <>
           {/* Close Button */}
           <button
             style={{
@@ -427,6 +429,7 @@ const GaleriaCompleta = () => {
               backdropFilter: "blur(10px)",
             }}
             onClick={closeLightbox}
+            aria-label="Cerrar"
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)"
               e.currentTarget.style.transform = "scale(1.1)"
@@ -464,6 +467,7 @@ const GaleriaCompleta = () => {
                 e.stopPropagation()
                 navigateImage("prev")
               }}
+              aria-label="Imagen anterior"
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)"
                 e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
@@ -502,6 +506,7 @@ const GaleriaCompleta = () => {
                 e.stopPropagation()
                 navigateImage("next")
               }}
+              aria-label="Imagen siguiente"
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)"
                 e.currentTarget.style.transform = "translateY(-50%) scale(1.1)"
@@ -578,8 +583,9 @@ const GaleriaCompleta = () => {
               </div>
             )}
           </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

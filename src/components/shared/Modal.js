@@ -7,17 +7,18 @@ import stylesGlobal from "../../styles/stylesGlobal";
  *
  * Cumple:
  * - role="dialog" + aria-modal="true"
- * - aria-labelledby al título (id generado con useId; se puede sobreescribir)
- * - el foco ENTRA al diálogo al abrir (dirigible con initialFocusRef)
+ * - aria-labelledby al título (id con useId; o labelledBy/ariaLabel manual)
+ * - el foco ENTRA al diálogo al abrir (dirigible con initialFocusRef), y solo
+ *   DESPUÉS se inerta el fondo (evita un frame con foco en subárbol aria-hidden)
  * - focus-trap: Tab / Shift+Tab ciclan dentro del diálogo
- * - Escape cierra
- * - el foco REGRESA al disparador al cerrar; si ya no existe, va a un fallback sensato
- * - se monta en un PORTAL a document.body (evita que un ancestro con transform/filter
- *   rompa el position:fixed, y permite apagar el fondo para el lector)
- * - fondo inerte real: inert + aria-hidden sobre el root de la app mientras está abierto
+ * - Escape cierra; onKeyDown passthrough para teclas propias (p.ej. flechas)
+ * - el foco REGRESA al disparador al cerrar; si ya no existe, va a un fallback
+ * - portal a document.body (evita romperse por ancestros con transform/filter)
+ * - fondo inerte real: inert + aria-hidden sobre #root mientras está abierto
  *
- * Nota: si el contenido necesita una región viva, el consumidor debe usar el patrón
- * persistente (contenedor role="status"/"alert" SIEMPRE presente que solo cambia texto).
+ * Modo `bare`: sin "chrome" de tarjeta (fondo transparente, sin título ni botón
+ * de cerrar propios). El propio elemento a pantalla completa ES el role="dialog";
+ * pensado para lightbox (imagen/video) que traen su propio cierre y flechas.
  */
 
 const FOCUSABLE_SELECTOR = [
@@ -29,7 +30,6 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
-// Enfoca un elemento haciéndolo enfocable de forma temporal si hiciera falta.
 function focusSafely(el) {
   if (!el || typeof el.focus !== "function") return;
   if (!el.hasAttribute("tabindex")) {
@@ -45,10 +45,14 @@ export default function Modal({
   title,
   titleId: titleIdProp,
   labelledBy,
+  ariaLabel,
   children,
   initialFocusRef,
   maxWidth = 520,
   closeLabel = "Cerrar",
+  bare = false,
+  overlayColor,
+  onKeyDown,
 }) {
   const generatedId = useId();
   const titleId = titleIdProp || `modal-title-${generatedId}`;
@@ -57,15 +61,10 @@ export default function Modal({
   const dialogRef = useRef(null);
   const triggerRef = useRef(null);
 
-  // Guarda el elemento con foco al abrir para devolvérselo al cerrar.
   useEffect(() => {
-    if (isOpen) {
-      triggerRef.current = document.activeElement;
-    }
+    if (isOpen) triggerRef.current = document.activeElement;
   }, [isOpen]);
 
-  // Al abrir: bloquea scroll (compensando la barra), inerta el fondo y mueve el foco.
-  // Al cerrar: restaura todo EN ORDEN (quitar inert antes de devolver el foco).
   useEffect(() => {
     if (!isOpen) return undefined;
 
@@ -74,7 +73,6 @@ export default function Modal({
     const prevOverflow = body.style.overflow;
     const prevPaddingRight = body.style.paddingRight;
 
-    // Compensa el ancho de la barra de scroll para evitar salto horizontal.
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     body.style.overflow = "hidden";
     if (scrollbarWidth > 0) {
@@ -82,16 +80,14 @@ export default function Modal({
       body.style.paddingRight = `${current + scrollbarWidth}px`;
     }
 
-    // ORDEN IMPORTANTE: primero mover el foco DENTRO del modal, y solo DESPUÉS
-    // inertar #root. Si se inerta antes, queda un frame con el disparador
-    // enfocado dentro de un subárbol aria-hidden/inert (y inert lo mandaría al body).
+    // 1) foco DENTRO del modal primero
     const toFocus =
       (initialFocusRef && initialFocusRef.current) ||
       dialogRef.current?.querySelector(FOCUSABLE_SELECTOR) ||
       dialogRef.current;
     toFocus?.focus();
 
-    // Fondo inerte para puntero, teclado y lector (el modal está fuera de #root vía portal).
+    // 2) luego inertar el fondo (el foco ya salió de #root)
     if (root) {
       root.setAttribute("aria-hidden", "true");
       try { root.inert = true; } catch (e) { /* inert no soportado: aria-hidden basta */ }
@@ -100,7 +96,6 @@ export default function Modal({
     return () => {
       body.style.overflow = prevOverflow;
       body.style.paddingRight = prevPaddingRight;
-      // Quitar la inercia ANTES de devolver el foco (el disparador vive dentro de #root).
       if (root) {
         root.removeAttribute("aria-hidden");
         try { root.inert = false; } catch (e) { /* no-op */ }
@@ -109,7 +104,6 @@ export default function Modal({
       if (trigger && document.contains(trigger) && typeof trigger.focus === "function") {
         trigger.focus();
       } else {
-        // Fallback sensato si el disparador ya no está en el DOM.
         const fallback = document.querySelector("main, [role='main'], h1");
         focusSafely(fallback || document.body);
       }
@@ -118,6 +112,8 @@ export default function Modal({
 
   const handleKeyDown = useCallback(
     (e) => {
+      onKeyDown?.(e); // passthrough (flechas u otras teclas del consumidor)
+
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose?.();
@@ -147,14 +143,50 @@ export default function Modal({
         first.focus();
       }
     },
-    [onClose]
+    [onClose, onKeyDown]
   );
 
   if (!isOpen) return null;
 
   const resolvedLabel = labelledBy || (title != null ? titleId : undefined);
 
-  const overlay = (
+  // --- Modo bare: el contenedor a pantalla completa ES el diálogo (lightbox) ---
+  if (bare) {
+    const bareEl = (
+      <div
+        ref={(node) => {
+          overlayRef.current = node;
+          dialogRef.current = node;
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={resolvedLabel}
+        aria-label={ariaLabel}
+        tabIndex={-1}
+        onMouseDown={(e) => {
+          if (e.target === overlayRef.current) onClose?.();
+        }}
+        onKeyDown={handleKeyDown}
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: overlayColor || "rgba(0, 0, 0, 0.95)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: stylesGlobal.spacing.scale[4],
+          zIndex: stylesGlobal.utils.zIndex.modal,
+          outline: "none",
+        }}
+      >
+        {children}
+      </div>
+    );
+    return createPortal(bareEl, document.body);
+  }
+
+  // --- Modo tarjeta (por defecto) ---
+  const cardEl = (
     <div
       ref={overlayRef}
       onMouseDown={(e) => {
@@ -164,7 +196,7 @@ export default function Modal({
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: stylesGlobal.colors.surface.overlay,
+        backgroundColor: overlayColor || stylesGlobal.colors.surface.overlay,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -177,6 +209,7 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={resolvedLabel}
+        aria-label={ariaLabel}
         tabIndex={-1}
         style={{
           position: "relative",
@@ -233,5 +266,5 @@ export default function Modal({
     </div>
   );
 
-  return createPortal(overlay, document.body);
+  return createPortal(cardEl, document.body);
 }
