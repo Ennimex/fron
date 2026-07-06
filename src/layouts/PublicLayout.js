@@ -3,6 +3,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import NavbarPublic from "../layouts/public/NavbarPublic";
 import Footer from "../layouts/shared/Footer";
+import { useAuth } from "../context/AuthContext";
 import stylesGlobal from "../styles/stylesGlobal";
 
 const publicNavLinks = [
@@ -15,7 +16,20 @@ const publicNavLinks = [
   { to: "/catalogofotos", label: "Galería" }
 ];
 
+// Enlaces extra que ve un usuario normal autenticado, para que su menú
+// (favoritos/solicitudes) no desaparezca al navegar a páginas públicas.
+const userNavLinks = [
+  { to: "/favoritos", label: "Mis Favoritos" },
+  { to: "/solicitudes", label: "Mis Solicitudes" }
+];
+
 const PublicLayout = () => {
+  const { user, isAuthenticated } = useAuth();
+  const navLinks =
+    isAuthenticated && user?.role === "user"
+      ? [...publicNavLinks, ...userNavLinks]
+      : publicNavLinks;
+
   const layoutStyles = {
     container: {
       display: "flex", 
@@ -32,7 +46,7 @@ const PublicLayout = () => {
 
   return (
     <div style={layoutStyles.container}>
-      <NavbarPublic navLinks={publicNavLinks} />
+      <NavbarPublic navLinks={navLinks} />
       <main style={layoutStyles.main}>
         <Outlet />
       </main>
