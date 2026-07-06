@@ -14,9 +14,8 @@ const privateNavLinks = [
   { to: "/nosotros", label: "Nosotros" },
   { to: "/contacto", label: "Contacto" },
   { to: "/destacados", label: "Destacados" },
-  { to: "/catalogofotos", label: "Galería" },
-  { to: "/favoritos", label: "Mis Favoritos" },
-  { to: "/solicitudes", label: "Mis Solicitudes" }
+  { to: "/catalogofotos", label: "Galería" }
+  // "Mis Favoritos" / "Mis Solicitudes" ahora en el menú desplegable de usuario
 ];
 
 const PrivateLayout = () => {

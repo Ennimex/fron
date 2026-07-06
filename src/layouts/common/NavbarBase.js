@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar, Container, Button, Dropdown } from "react-bootstrap";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
-import { PersonCircle, BoxArrowRight, Gear, List, X } from "react-bootstrap-icons";
+import { PersonCircle, BoxArrowRight, Gear, List, X, Heart, ClipboardCheck } from "react-bootstrap-icons";
 import { useGitHubPagesNavigation } from "../../hooks/useGitHubPagesNavigation";
 
 const NavbarBase = ({ 
@@ -341,6 +341,28 @@ const NavbarBase = ({
                       <PersonCircle size={16} className="me-2" />
                       Mi perfil
                     </Dropdown.Item>
+                    {user?.role === "user" && (
+                      <>
+                        <Dropdown.Item
+                          as={NavLink}
+                          to="/favoritos"
+                          onClick={() => setExpanded(false)}
+                          style={navbarStyles.dropdownItem}
+                        >
+                          <Heart size={16} className="me-2" />
+                          Mis Favoritos
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          as={NavLink}
+                          to="/solicitudes"
+                          onClick={() => setExpanded(false)}
+                          style={navbarStyles.dropdownItem}
+                        >
+                          <ClipboardCheck size={16} className="me-2" />
+                          Mis Solicitudes
+                        </Dropdown.Item>
+                      </>
+                    )}
                     {user?.role === "admin" && (
                       <Dropdown.Item
                         as={NavLink}
@@ -436,7 +458,30 @@ const NavbarBase = ({
                       <PersonCircle size={14} className="me-2" />
                       Mi perfil
                     </Dropdown.Item>
-                    
+
+                    {user?.role === "user" && (
+                      <>
+                        <Dropdown.Item
+                          as={NavLink}
+                          to="/favoritos"
+                          onClick={() => setExpanded(false)}
+                          style={navbarStyles.dropdownItem}
+                        >
+                          <Heart size={14} className="me-2" />
+                          Mis Favoritos
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          as={NavLink}
+                          to="/solicitudes"
+                          onClick={() => setExpanded(false)}
+                          style={navbarStyles.dropdownItem}
+                        >
+                          <ClipboardCheck size={14} className="me-2" />
+                          Mis Solicitudes
+                        </Dropdown.Item>
+                      </>
+                    )}
+
                     {user?.role === "admin" && (
                       <Dropdown.Item
                         as={NavLink}
