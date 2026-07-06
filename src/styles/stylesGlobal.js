@@ -18,8 +18,9 @@ const stylesGlobal = {
       200: "#f9d0d9",
       300: "#f4a6b7",
       400: "#ed7590",
-      500: "#d63384", // Color principal - rosa elegante
+      500: "#d63384", // Color principal - rosa elegante (pasa 4.50:1 SOLO sobre blanco puro)
       600: "#c02a74",
+      650: "#b8296f", // rosa accesible para texto pequeño sobre crema/off-white — 5.43:1 (WCAG 2.2 AA)
       700: "#a02464",
       800: "#85205a",
       900: "#6f1e52",

@@ -187,7 +187,7 @@ const RecuperarContrasena = () => {
 
     .rp-email-highlight {
       font-weight: ${stylesPublic.typography.weights.semibold};
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
     }
 
     /* Input */
@@ -345,7 +345,7 @@ const RecuperarContrasena = () => {
     }
 
     .rp-back-link:hover {
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
     }
 
     .rp-back-link ion-icon {
@@ -380,7 +380,7 @@ const RecuperarContrasena = () => {
     }
 
     .rp-link {
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
       text-decoration: none;
       font-weight: ${stylesPublic.typography.weights.semibold};
       transition: ${stylesPublic.animations.transitions.colors};
@@ -424,7 +424,7 @@ const RecuperarContrasena = () => {
       outline: none;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
       background: transparent;
       transition: all ${stylesPublic.animations.duration.elegant} ${stylesPublic.animations.easing.elegant};
       font-family: ${stylesPublic.typography.families.body};

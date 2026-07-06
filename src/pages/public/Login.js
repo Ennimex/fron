@@ -563,7 +563,7 @@ const Login = () => {
     }
 
     .login-checkbox-label:hover {
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
     }
 
     .login-checkbox {
@@ -574,7 +574,7 @@ const Login = () => {
     }
 
     .login-forgot-password {
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
       font-size: ${stylesPublic.typography.scale.sm};
       text-decoration: none;
       transition: ${stylesPublic.animations.transitions.colors};
@@ -630,7 +630,7 @@ const Login = () => {
     }
 
     .login-link {
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
       text-decoration: none;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};
@@ -652,7 +652,7 @@ const Login = () => {
     }
 
     .login-highlight {
-      color: ${stylesPublic.colors.primary[500]};
+      color: ${stylesPublic.colors.primary[650]};
       text-decoration: underline;
       cursor: pointer;
       font-weight: ${stylesPublic.typography.weights.semibold};

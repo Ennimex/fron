@@ -281,7 +281,7 @@ const PerfilUsuario = ({ variant = "auto" }) => {
     },
     userRole: {
       ...stylesGlobal.typography.body.small,
-      color: stylesGlobal.colors.primary[500],
+      color: stylesGlobal.colors.primary[650], // rosa accesible sobre sidebar off-white — 5.6:1
       fontWeight: stylesGlobal.typography.weights.semibold,
       textTransform: "uppercase",
       letterSpacing: "0.5px",

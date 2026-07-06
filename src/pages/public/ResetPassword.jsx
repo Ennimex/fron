@@ -259,7 +259,7 @@ const ResetPassword = () => {
       font-weight: ${stylesPublic.typography.weights.medium};
     }
 
-    .rp-back-link:hover { color: ${stylesPublic.colors.primary[500]}; }
+    .rp-back-link:hover { color: ${stylesPublic.colors.primary[650]}; }
 
     .rp-hint {
       font-size: ${stylesPublic.typography.scale.xs};
