@@ -82,20 +82,22 @@ export default function Modal({
       body.style.paddingRight = `${current + scrollbarWidth}px`;
     }
 
+    // ORDEN IMPORTANTE: primero mover el foco DENTRO del modal, y solo DESPUÉS
+    // inertar #root. Si se inerta antes, queda un frame con el disparador
+    // enfocado dentro de un subárbol aria-hidden/inert (y inert lo mandaría al body).
+    const toFocus =
+      (initialFocusRef && initialFocusRef.current) ||
+      dialogRef.current?.querySelector(FOCUSABLE_SELECTOR) ||
+      dialogRef.current;
+    toFocus?.focus();
+
     // Fondo inerte para puntero, teclado y lector (el modal está fuera de #root vía portal).
     if (root) {
       root.setAttribute("aria-hidden", "true");
       try { root.inert = true; } catch (e) { /* inert no soportado: aria-hidden basta */ }
     }
 
-    const toFocus =
-      (initialFocusRef && initialFocusRef.current) ||
-      dialogRef.current?.querySelector(FOCUSABLE_SELECTOR) ||
-      dialogRef.current;
-    const raf = requestAnimationFrame(() => toFocus?.focus());
-
     return () => {
-      cancelAnimationFrame(raf);
       body.style.overflow = prevOverflow;
       body.style.paddingRight = prevPaddingRight;
       // Quitar la inercia ANTES de devolver el foco (el disparador vive dentro de #root).
