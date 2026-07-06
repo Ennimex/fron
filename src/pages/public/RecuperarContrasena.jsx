@@ -525,7 +525,9 @@ const RecuperarContrasena = () => {
                   <strong>💡 Tip:</strong> Revisa también tu carpeta de spam si no encuentras el correo en tu bandeja de entrada.
                 </div>
 
-                {error && <div className="rp-alert-error">{error}</div>}
+                <div role="alert" aria-live="assertive">
+                  {error && <div className="rp-alert-error">{error}</div>}
+                </div>
 
                 <form onSubmit={handleSubmit}>
                   <div className="rp-input-box">

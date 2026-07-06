@@ -284,6 +284,16 @@ const ResetPassword = () => {
               <p className="rp-logo-subtext">Arte Textil Huasteco</p>
             </div>
 
+            {/* Región viva persistente (SR-only): anuncia el éxito del paso 2 en
+                tono polite sin mover el foco. Existe siempre; solo cambia su texto. */}
+            <div
+              role="status"
+              aria-live="polite"
+              style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}
+            >
+              {step === 2 ? "Contraseña actualizada. Tu contraseña se cambió correctamente. Ya puedes iniciar sesión." : ""}
+            </div>
+
             {/* PASO 1: Formulario nueva contraseña */}
             {step === 1 && (
               <>
@@ -298,7 +308,9 @@ const ResetPassword = () => {
                   Crea una nueva contraseña para tu cuenta. Asegúrate de que sea segura.
                 </p>
 
-                {error && <div className="rp-alert-error">{error}</div>}
+                <div role="alert" aria-live="assertive">
+                  {error && <div className="rp-alert-error">{error}</div>}
+                </div>
 
                 <form onSubmit={handleSubmit}>
                   <div className="rp-input-box">
