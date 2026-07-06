@@ -926,7 +926,7 @@ const GestionEventos = () => {
                       <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="evento-titulo">
                           Título del Evento
-                          <span style={styles.requiredField}>*</span>
+                          <span style={styles.requiredField} aria-hidden="true">*</span>
                         </label>
                         <input
                           id="evento-titulo"
@@ -942,7 +942,7 @@ const GestionEventos = () => {
                       <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="evento-ubicacion">
                           Ubicación
-                          <span style={styles.requiredField}>*</span>
+                          <span style={styles.requiredField} aria-hidden="true">*</span>
                         </label>
                         <input
                           id="evento-ubicacion"
@@ -962,7 +962,7 @@ const GestionEventos = () => {
                       <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="evento-fecha">
                           Fecha
-                          <span style={styles.requiredField}>*</span>
+                          <span style={styles.requiredField} aria-hidden="true">*</span>
                         </label>
                         <input
                           id="evento-fecha"
@@ -978,7 +978,7 @@ const GestionEventos = () => {
                       <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="evento-hora-inicio">
                           Hora de Inicio
-                          <span style={styles.requiredField}>*</span>
+                          <span style={styles.requiredField} aria-hidden="true">*</span>
                         </label>
                         <input
                           id="evento-hora-inicio"
@@ -994,7 +994,7 @@ const GestionEventos = () => {
                       <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="evento-hora-fin">
                           Hora de Fin
-                          <span style={styles.requiredField}>*</span>
+                          <span style={styles.requiredField} aria-hidden="true">*</span>
                         </label>
                         <input
                           id="evento-hora-fin"
@@ -1013,7 +1013,7 @@ const GestionEventos = () => {
                     <div style={styles.formGroup}>
                       <label style={styles.label} htmlFor="evento-descripcion">
                         Descripción
-                        <span style={styles.requiredField}>*</span>
+                        <span style={styles.requiredField} aria-hidden="true">*</span>
                       </label>
                       <textarea
                         id="evento-descripcion"

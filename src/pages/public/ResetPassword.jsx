@@ -302,9 +302,10 @@ const ResetPassword = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div className="rp-input-box">
-                    <label className="rp-label" htmlFor="rp-new-password">Nueva contraseña*</label>
+                    <label className="rp-label" htmlFor="rp-new-password">Nueva contraseña<span aria-hidden="true">*</span></label>
                     <input
                       id="rp-new-password"
+                      aria-required="true"
                       type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 8 caracteres"
                       value={password}
@@ -325,9 +326,10 @@ const ResetPassword = () => {
                   </div>
 
                   <div className="rp-input-box">
-                    <label className="rp-label" htmlFor="rp-confirm-password">Confirmar contraseña*</label>
+                    <label className="rp-label" htmlFor="rp-confirm-password">Confirmar contraseña<span aria-hidden="true">*</span></label>
                     <input
                       id="rp-confirm-password"
+                      aria-required="true"
                       type={showPassword ? "text" : "password"}
                       placeholder="Repite la contraseña"
                       value={confirm}

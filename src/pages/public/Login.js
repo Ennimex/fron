@@ -942,9 +942,10 @@ const Login = () => {
 
                       <form onSubmit={handleLoginSubmit}>
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="login-email">Correo Electrónico*</label>
+                          <label className="login-label" htmlFor="login-email">Correo Electrónico<span aria-hidden="true">*</span></label>
                           <input
                             id="login-email"
+                            aria-required="true"
                             type="email"
                             autoComplete="email"
                             placeholder="tu@email.com"
@@ -964,9 +965,10 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="login-password">Contraseña*</label>
+                          <label className="login-label" htmlFor="login-password">Contraseña<span aria-hidden="true">*</span></label>
                           <input
                             id="login-password"
+                            aria-required="true"
                             type={showPassword ? "text" : "password"}
                             autoComplete="current-password"
                             placeholder="Tu contraseña"
@@ -1050,9 +1052,10 @@ const Login = () => {
 
                       <form onSubmit={handleRegisterSubmit}>
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="reg-name">Nombre Completo*</label>
+                          <label className="login-label" htmlFor="reg-name">Nombre Completo<span aria-hidden="true">*</span></label>
                           <input
                             id="reg-name"
+                            aria-required="true"
                             type="text"
                             autoComplete="name"
                             placeholder="Tu nombre completo"
@@ -1070,9 +1073,10 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="reg-phone">Teléfono*</label>
+                          <label className="login-label" htmlFor="reg-phone">Teléfono<span aria-hidden="true">*</span></label>
                           <input
                             id="reg-phone"
+                            aria-required="true"
                             type="tel"
                             autoComplete="tel"
                             placeholder="+521234567890"
@@ -1092,9 +1096,10 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="reg-email">Correo Electrónico*</label>
+                          <label className="login-label" htmlFor="reg-email">Correo Electrónico<span aria-hidden="true">*</span></label>
                           <input
                             id="reg-email"
+                            aria-required="true"
                             type="email"
                             autoComplete="email"
                             placeholder="tu@email.com"
@@ -1112,9 +1117,10 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="reg-password">Contraseña*</label>
+                          <label className="login-label" htmlFor="reg-password">Contraseña<span aria-hidden="true">*</span></label>
                           <input
                             id="reg-password"
+                            aria-required="true"
                             type={showPassword ? "text" : "password"}
                             autoComplete="new-password"
                             placeholder="Mínimo 8 caracteres"
@@ -1158,9 +1164,10 @@ const Login = () => {
                         </div>
 
                         <div className="login-input-box">
-                          <label className="login-label" htmlFor="reg-confirm-password">Confirmar Contraseña*</label>
+                          <label className="login-label" htmlFor="reg-confirm-password">Confirmar Contraseña<span aria-hidden="true">*</span></label>
                           <input
                             id="reg-confirm-password"
+                            aria-required="true"
                             type={showPassword ? "text" : "password"}
                             autoComplete="new-password"
                             placeholder="Confirma tu contraseña"
