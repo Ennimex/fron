@@ -117,20 +117,27 @@ class AdminService {
     );
   }
 
-  async createProducto(formData) {
+  // onProgress opcional: recibe el porcentaje (0-100) de subida de la imagen
+  async createProducto(formData, onProgress = null) {
     return this.handleApiResponse(
       () => api.post('/productos', formData, {
-        headers: { 'Content-Type': undefined }
+        headers: { 'Content-Type': undefined },
+        ...(onProgress && {
+          onUploadProgress: (e) => e.total && onProgress(Math.round((e.loaded * 100) / e.total)),
+        }),
       }),
       'Producto creado exitosamente',
       'Error al crear producto'
     );
   }
 
-  async updateProducto(productoId, formData) {
+  async updateProducto(productoId, formData, onProgress = null) {
     return this.handleApiResponse(
       () => api.put(`/productos/${productoId}`, formData, {
-        headers: { 'Content-Type': undefined }
+        headers: { 'Content-Type': undefined },
+        ...(onProgress && {
+          onUploadProgress: (e) => e.total && onProgress(Math.round((e.loaded * 100) / e.total)),
+        }),
       }),
       'Producto actualizado exitosamente',
       'Error al actualizar producto'

@@ -171,6 +171,9 @@ const GestionProductos = () => {
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  // Ref al input de archivo del formulario (antes se buscaba con
+  // document.querySelector, que podía agarrar cualquier input del DOM)
+  const fileInputRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLocalidad, setFilterLocalidad] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -311,77 +314,53 @@ const GestionProductos = () => {
     reader.readAsDataURL(file);
   };
 
+  // Solo nombre y localidad son obligatorios (lo mismo que exige el backend).
+  // Descripción, tipo de tela, tallas e imagen son opcionales y se validan
+  // únicamente si vienen con contenido.
   const validateForm = () => {
     if (!producto.nombre.trim()) {
       setError("El nombre del producto es obligatorio");
       return false;
     }
-    
+
     if (producto.nombre.trim().length < 3) {
       setError("El nombre debe tener al menos 3 caracteres");
       return false;
     }
-    
+
     if (producto.nombre.trim().length > 100) {
       setError("El nombre no puede exceder los 100 caracteres");
       return false;
     }
-    
-    if (!producto.descripcion.trim()) {
-      setError("La descripción del producto es obligatoria");
-      return false;
-    }
-    
-    if (producto.descripcion.trim().length < 10) {
-      setError("La descripción debe tener al menos 10 caracteres");
-      return false;
-    }
-    
-    if (producto.descripcion.trim().length > 500) {
-      setError("La descripción no puede exceder los 500 caracteres");
-      return false;
-    }
-    
+
     if (!producto.localidadId) {
       setError("Debe seleccionar una localidad");
       return false;
     }
-    
-    if (!producto.tipoTela.trim()) {
-      setError("El tipo de tela es obligatorio");
+
+    if (producto.descripcion.trim().length > 500) {
+      setError("La descripción no puede exceder los 500 caracteres");
       return false;
     }
-    
+
     if (producto.tipoTela.trim().length > 50) {
       setError("El tipo de tela no puede exceder los 50 caracteres");
       return false;
     }
-    
-    if (producto.tallasDisponibles.length === 0) {
-      setError("Selecciona al menos una talla disponible");
-      return false;
-    }
-    
-    const imageInput = document.querySelector('input[type="file"]');
-    if (!isEditMode && !imagePreview && !imageInput.files[0]) {
-      setError("La imagen del producto es obligatoria");
-      return false;
-    }
-    
-    if (imageInput.files[0]) {
-      const file = imageInput.files[0];
-      
+
+    const file = fileInputRef.current?.files?.[0];
+    if (file) {
       if (!file.type.match("image.*")) {
         setError("Por favor, selecciona un archivo de imagen válido");
         return false;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         setError("La imagen no debe exceder los 5MB");
         return false;
       }
     }
-    
+
     return true;
   };
 
@@ -409,16 +388,16 @@ const GestionProductos = () => {
         formData.append("tallasDisponibles[]", t._id);
       });
 
-      const imageInput = document.querySelector('input[type="file"]');
-      if (imageInput.files[0]) {
-        formData.append("imagen", imageInput.files[0]);
+      const archivo = fileInputRef.current?.files?.[0];
+      if (archivo) {
+        formData.append("imagen", archivo);
       }
 
       let response;
       if (isEditMode) {
-        response = await adminService.updateProducto(producto._id, formData);
+        response = await adminService.updateProducto(producto._id, formData, setUploadProgress);
       } else {
-        response = await adminService.createProducto(formData);
+        response = await adminService.createProducto(formData, setUploadProgress);
       }
 
       if (response) {
@@ -1358,7 +1337,7 @@ const GestionProductos = () => {
 
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="tipoTela">
-                      Tipo de Tela<span style={styles.requiredField}>*</span>
+                      Tipo de Tela<span style={styles.helpText}> (opcional)</span>
                     </label>
                     <input
                       style={styles.input}
@@ -1367,7 +1346,6 @@ const GestionProductos = () => {
                       name="tipoTela"
                       value={producto.tipoTela}
                       onChange={handleChange}
-                      required
                       disabled={loading}
                       placeholder="Ej: Algodón"
                       maxLength={50}
@@ -1378,7 +1356,7 @@ const GestionProductos = () => {
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
                   <div style={styles.formGroup}>
                     <label style={styles.label} htmlFor="descripcion">
-                      Descripción<span style={styles.requiredField}>*</span>
+                      Descripción<span style={styles.helpText}> (opcional)</span>
                     </label>
                     <textarea
                       style={styles.textarea}
@@ -1386,25 +1364,24 @@ const GestionProductos = () => {
                       name="descripcion"
                       value={producto.descripcion}
                       onChange={handleChange}
-                      required
                       disabled={loading}
-                      placeholder="Descripción del producto"
+                      placeholder="Descripción del producto (puedes completarla después)"
                       maxLength={500}
-                      minLength={10}
                     />
                   </div>
 
                   <div style={styles.formGroup}>
                     <label style={styles.label}>
-                      Imagen{isEditMode ? "" : <span style={styles.requiredField}>*</span>}
+                      Imagen<span style={styles.helpText}> (opcional)</span>
                     </label>
                     <div
                       style={styles.imageUploadArea}
-                      onClick={() => document.getElementById("imagen").click()}
+                      onClick={() => fileInputRef.current?.click()}
                     >
                       <div style={styles.uploadText}>{imagePreview ? "Cambiar imagen" : "Seleccionar imagen"}</div>
                       <div style={styles.uploadSubtext}>PNG, JPG (máx. 5MB)</div>
                       <input
+                        ref={fileInputRef}
                         style={styles.fileInput}
                         type="file"
                         id="imagen"
@@ -1424,8 +1401,8 @@ const GestionProductos = () => {
 
                 <div style={{ ...styles.formGroup, ...styles.tallasSection }}>
                   <label style={styles.label}>
-                    Tallas Disponibles<span style={styles.requiredField}>*</span>
-                    <span style={styles.helpText}> (Seleccione al menos una)</span>
+                    Tallas Disponibles
+                    <span style={styles.helpText}> (opcional, puedes asignarlas después)</span>
                   </label>
                   <div style={styles.tallasContainer} className="productos-tallas-grid">
                     {orderedGroupedTallas.map(([genero, sizes]) => (
