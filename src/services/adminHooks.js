@@ -32,7 +32,7 @@ export const useAdminNotifications = () => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [removeNotification]);
 
   const addNotification = useCallback((message, type = 'info', duration = 3000) => {
     const notification = {

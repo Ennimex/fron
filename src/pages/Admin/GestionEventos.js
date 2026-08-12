@@ -808,7 +808,6 @@ const GestionEventos = () => {
     );
   }
 
-  const nuevasEnCola = cola.filter((it) => it.status !== "ok").length;
   const erroresEnCola = cola.filter((it) => it.status === "error").length;
 
   return (
