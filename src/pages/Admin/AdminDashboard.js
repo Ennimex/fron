@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI } from '../../services/api';
-import { localidadService } from '../../services/localidadService';
-import { categoriaService } from '../../services/categoriaService';
-import { productService } from '../../services/productService';
 import {
   FaUsers, FaBoxOpen, FaChartLine,
   FaCalendarAlt, FaEye, FaTag, FaMapMarkerAlt, FaUserPlus, FaClipboardList
@@ -346,116 +343,76 @@ const AdminDashboard = () => {
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [ultimasSolicitudes, setUltimasSolicitudes] = useState([]);
-  const [chartData, setChartData] = useState(null);
+  const [usersTrend, setUsersTrend] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeRange, setTimeRange] = useState('week');
 
+  // Una sola petición: el endpoint del dashboard trae conteos, tendencia
+  // (semana/mes/año completa) y las listas de recientes. Cambiar el rango
+  // del gráfico no vuelve a pedir nada.
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Datos reales del dashboard (conteos + tendencia de registros)
+        setLoading(true);
         const dashboard = await adminAPI.getDashboard();
-
-        // Obtener lista de usuarios recientes usando adminAPI
-        const usersData = await adminAPI.getUsers();
-
-        // Obtener productos
-        const productsData = await productService.getAll();
-
-        // Obtener categorías
-        const categoriasData = await categoriaService.getAll();
-
-        // Obtener localidades
-        const localidadesData = await localidadService.getAll();
-
-        // Últimas solicitudes para el panel lateral. Si falla, no rompe el dashboard.
-        let solicitudesData = [];
-        try {
-          solicitudesData = await adminAPI.getSolicitudes();
-        } catch (e) {
-          solicitudesData = [];
-        }
-        setUltimasSolicitudes(Array.isArray(solicitudesData) ? solicitudesData.slice(0, 4) : []);
-
-        // Crear array de actividades recientes combinando datos de diferentes servicios
-        const productosRecientes = Array.isArray(productsData) ?
-          productsData
-            .slice(0, 3)
-            .map(p => ({
-              tipo: 'producto',
-              accion: 'Nuevo',
-              fecha: p.createdAt || new Date(),
-              detalles: { nombre: p.nombre }
-            })) : [];
-
-        const usuariosRecientes = usersData
-          .slice(0, 3)
-          .map(u => ({
-            tipo: 'usuario',
-            accion: 'Nuevo',
-            fecha: u.createdAt || new Date(),
-            detalles: { email: u.email }
-          }));
-
-        const categoriasRecientes = Array.isArray(categoriasData) ?
-          categoriasData
-            .slice(0, 2)
-            .map(c => ({
-              tipo: 'categoria',
-              accion: 'Nueva',
-              fecha: c.createdAt || new Date(),
-              detalles: { nombre: c.nombre }
-            })) : [];
-
-        const activityData = [...productosRecientes, ...usuariosRecientes, ...categoriasRecientes]
-          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-        // Conteos reales (del endpoint del dashboard, con respaldo a los servicios)
         const counts = dashboard?.counts || {};
+        const recientes = dashboard?.recientes || {};
+
         setStats({
-          users: counts.usuarios ?? (usersData.length || 0),
-          products: counts.productos ?? (Array.isArray(productsData) ? productsData.length : 0),
-          categories: counts.categorias ?? (Array.isArray(categoriasData) ? categoriasData.length : 0),
-          locations: counts.localidades ?? (Array.isArray(localidadesData) ? localidadesData.length : 0),
+          users: counts.usuarios ?? 0,
+          products: counts.productos ?? 0,
+          categories: counts.categorias ?? 0,
+          locations: counts.localidades ?? 0,
           eventos: counts.eventos ?? 0,
           fotos: counts.fotos ?? 0,
           solicitudesPendientes: counts.solicitudesPendientes ?? 0,
         });
 
-        // Procesar usuarios recientes (tomar los últimos 5)
-        const sortedUsers = usersData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setRecentUsers(sortedUsers.slice(0, 5));
+        setRecentUsers(recientes.usuarios || []);
+        setUltimasSolicitudes(recientes.solicitudes || []);
 
-        // Procesar actividad reciente
-        setRecentActivity(activityData.slice(0, 5));
+        // Actividad reciente combinando los recientes que manda el backend
+        const actividad = [
+          ...(recientes.productos || []).map((p) => ({
+            tipo: 'producto', accion: 'Nuevo', fecha: p.createdAt || null, detalles: { nombre: p.nombre },
+          })),
+          ...(recientes.usuarios || []).slice(0, 3).map((u) => ({
+            tipo: 'usuario', accion: 'Nuevo', fecha: u.createdAt || null, detalles: { email: u.email },
+          })),
+          ...(recientes.categorias || []).map((c) => ({
+            tipo: 'categoria', accion: 'Nueva', fecha: c.createdAt || null, detalles: { nombre: c.nombre },
+          })),
+        ].sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+        setRecentActivity(actividad.slice(0, 5));
 
-        // Datos reales para el gráfico de usuarios registrados
-        const usersChartData = dashboard?.usersTrend?.[timeRange] || { labels: [], data: [] };
-
-        setChartData({
-          labels: usersChartData.labels,
-          datasets: [
-            {
-              label: 'Usuarios Registrados',
-              data: usersChartData.data,
-              borderColor: stylesGlobal.colors.primary[500],
-              backgroundColor: 'rgba(214, 51, 132, 0.15)',
-              tension: 0.4,
-              fill: true,
-            },
-          ],
-        });
+        setUsersTrend(dashboard?.usersTrend || null);
       } catch (err) {
         console.error(err);
-        setError(err.message);
+        setError(err.error || err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [user?.token, timeRange]);
+  }, [user?.token]);
+
+  // El gráfico se deriva de la tendencia ya descargada según el rango elegido
+  const usersChartData = usersTrend?.[timeRange] || { labels: [], data: [] };
+  const chartData = {
+    labels: usersChartData.labels,
+    datasets: [
+      {
+        label: 'Usuarios Registrados',
+        data: usersChartData.data,
+        borderColor: stylesGlobal.colors.primary[500],
+        backgroundColor: 'rgba(214, 51, 132, 0.15)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
 
   const handleTimeRangeChange = (range) => {
     setTimeRange(range);
