@@ -377,7 +377,7 @@ const GestorLocalidades = () => {
       const localidades = await localidadService.getAll();
       setLocalidades(localidades);
     } catch (err) {
-      const errorMsg = err.message || "Error al cargar localidades";
+      const errorMsg = err.error || err.message || "Error al cargar localidades";
       setError(errorMsg);
       addNotificationRef.current(errorMsg, 'error');
     } finally {
@@ -500,7 +500,7 @@ const GestorLocalidades = () => {
       await fetchLocalidades();
       setModalOpen(false);
     } catch (err) {
-      const errorMsg = err.message || `Error al ${isEditing ? 'actualizar' : 'crear'} la localidad`;
+      const errorMsg = err.error || err.message || `Error al ${isEditing ? 'actualizar' : 'crear'} la localidad`;
       setFormError(errorMsg);
       addNotification(errorMsg, 'error');
     } finally {
@@ -531,7 +531,7 @@ const GestorLocalidades = () => {
       // Refresh list after deletion
       await fetchLocalidades();
     } catch (err) {
-      const errorMsg = err.message || 'Error al eliminar la localidad';
+      const errorMsg = err.error || err.message || 'Error al eliminar la localidad';
       setError(errorMsg);
       addNotification(errorMsg, 'error');
     } finally {

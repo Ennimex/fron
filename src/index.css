@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Animación global de los spinners del panel admin.
+   Muchas páginas usan style={{ animation: 'spin 1s linear infinite' }}
+   y este keyframe no existía, así que los spinners no giraban. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

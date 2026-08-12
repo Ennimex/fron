@@ -634,7 +634,7 @@ const GestionCategorias = () => {
       const categorias = await categoriaService.getAll();
       setCategorias(categorias);
     } catch (err) {
-      setError(err.message || "Error al cargar categorías");
+      setError(err.error || err.message || "Error al cargar categorías");
     } finally {
       setLoading(false);
     }
@@ -731,7 +731,7 @@ const GestionCategorias = () => {
       await fetchCategorias();
       closeModal();
     } catch (err) {
-      setError(err.message || `Error al ${modoEdicion ? "actualizar" : "crear"} la categoría`);
+      setError(err.error || err.message || `Error al ${modoEdicion ? "actualizar" : "crear"} la categoría`);
     } finally {
       setLoading(false);
     }
@@ -739,7 +739,6 @@ const GestionCategorias = () => {
 
   // Modal controls
   const openModal = (categoria = null) => {
-    console.log('openModal called with:', categoria); // Debug log
     if (categoria) {
       setCategoriaActual(categoria);
       setModoEdicion(true);
@@ -748,7 +747,6 @@ const GestionCategorias = () => {
       setModoEdicion(false);
     }
     setModalVisible(true);
-    console.log('Modal should be visible now'); // Debug log
   };
 
   const closeModal = () => {
@@ -766,7 +764,7 @@ const GestionCategorias = () => {
       await categoriaService.delete(id);
       await fetchCategorias();
     } catch (err) {
-      setError(err.message || "Error al eliminar la categoría");
+      setError(err.error || err.message || "Error al eliminar la categoría");
     } finally {
       setLoading(false);
     }

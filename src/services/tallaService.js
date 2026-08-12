@@ -105,8 +105,14 @@ export const tallaService = {
         matches = false;
       }
 
-      if (filters.categoria && talla.categoriaId !== filters.categoria) {
-        matches = false;
+      if (filters.categoria) {
+        // categoriaId puede venir poblado (objeto) o plano (string)
+        const categoriaId = talla.categoriaId && typeof talla.categoriaId === 'object'
+          ? talla.categoriaId._id
+          : talla.categoriaId;
+        if (categoriaId !== filters.categoria) {
+          matches = false;
+        }
       }
 
       if (filters.search) {

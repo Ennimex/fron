@@ -455,7 +455,7 @@ const AdminDashboard = () => {
     };
 
     fetchDashboardData();
-  }, [user.token, timeRange]);
+  }, [user?.token, timeRange]);
 
   const handleTimeRangeChange = (range) => {
     setTimeRange(range);
@@ -694,10 +694,10 @@ const AdminDashboard = () => {
           {recentUsers.map((u) => (
             <div key={u._id} style={styles.userCard}>
               <div style={styles.userAvatar}>
-                {u.email[0].toUpperCase()}
+                {(u.email || u.name || "?")[0].toUpperCase()}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={styles.userName}>{u.name || u.email.split('@')[0]}</p>
+                <p style={styles.userName}>{u.name || (u.email ? u.email.split('@')[0] : 'Usuario')}</p>
                 <p style={styles.userEmail}>{u.email}</p>
                 <span style={styles.userRole}>{u.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
               </div>

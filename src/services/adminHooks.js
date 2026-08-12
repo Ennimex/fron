@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import adminService from './adminServices';
 
-// Hook personalizado para manejar notificaciones del admin
+// Hook personalizado para manejar notificaciones del admin.
+// Las funciones devueltas están memoizadas: varias páginas las usan como
+// dependencia de useEffect y una identidad nueva en cada render provoca
+// re-suscripciones (notificaciones duplicadas) o bucles de peticiones.
 export const useAdminNotifications = () => {
   const [notifications, setNotifications] = useState([]);
 
-  const removeNotification = (id) => {
+  const removeNotification = useCallback((id) => {
     setNotifications(prev => prev.filter(notif => notif.id !== id));
-  };
+  }, []);
 
   useEffect(() => {
     // Suscribirse a las notificaciones del adminService
@@ -31,7 +34,7 @@ export const useAdminNotifications = () => {
     return unsubscribe;
   }, []);
 
-  const addNotification = (message, type = 'info', duration = 3000) => {
+  const addNotification = useCallback((message, type = 'info', duration = 3000) => {
     const notification = {
       id: Date.now() + Math.random(),
       timestamp: new Date(),
@@ -39,21 +42,21 @@ export const useAdminNotifications = () => {
       message,
       duration
     };
-    
+
     setNotifications(prev => [...prev, notification]);
-    
+
     // Auto-remover notificación después de su duración
     if (duration > 0) {
       setTimeout(() => {
         removeNotification(notification.id);
       }, duration);
     }
-  };
+  }, [removeNotification]);
 
-  const clearAllNotifications = () => {
+  const clearAllNotifications = useCallback(() => {
     setNotifications([]);
     adminService.clearNotifications();
-  };
+  }, []);
 
   return {
     notifications,
