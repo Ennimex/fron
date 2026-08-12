@@ -72,15 +72,9 @@ const idDe = (ref) => (ref && typeof ref === "object" ? ref._id : ref) || null;
 
 const GestionEventos = () => {
   const { user, isAuthenticated } = useAuth();
-  const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
-
-  // Suscribirse a las notificaciones de adminService
-  useEffect(() => {
-    const unsubscribe = adminService.onNotification((n) => {
-      addNotification(n.message, n.type, n.duration);
-    });
-    return unsubscribe;
-  }, [addNotification]);
+  // El hook ya se suscribe a adminService.onNotification por dentro;
+  // suscribirse otra vez aquí duplicaría cada notificación.
+  const { notifications, removeNotification, clearAllNotifications } = useAdminNotifications();
 
   const styles = {
     pageContainer: {

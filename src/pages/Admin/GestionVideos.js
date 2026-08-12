@@ -203,14 +203,8 @@ const GestionVideos = () => {
     addNotificationRef.current = addNotification;
   }, [addNotification]);
 
-  // Suscribirse a las notificaciones de adminService
-  useEffect(() => {
-    const unsubscribe = adminService.onNotification((notification) => {
-      addNotification(notification.message, notification.type, notification.duration);
-    });
-
-    return unsubscribe;
-  }, [addNotification]);
+  // Nota: useAdminNotifications ya se suscribe a adminService.onNotification
+  // por dentro; suscribirse otra vez aquí duplicaba cada notificación.
 
   // Mapeo de estilos globales
   const styles = {
