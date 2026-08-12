@@ -5,8 +5,6 @@ import {
   FaPlus,
   FaEdit,
   FaTrash,
-  FaUserCheck,
-  FaUserTimes,
   FaChevronLeft,
   FaChevronRight,
   FaSortUp,
@@ -269,21 +267,21 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
   };
 
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
   const [sortField, setSortField] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
-  const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Un solo modal para alta y edición: editingUserId null = alta
   const [showUserForm, setShowUserForm] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [hoveredRow, setHoveredRow] = useState(null);
+  // Confirmación de borrado con modal propio (antes window.confirm)
+  const [confirmacion, setConfirmacion] = useState(null); // { id, nombre }
+  const [confirmLoading, setConfirmLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -307,7 +305,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       try {
         const data = await adminService.getUsers();
         setUsers(data);
-        setFilteredUsers(data);
       } catch (error) {
         // adminService ya maneja las notificaciones de error
         // Solo actualizamos el estado local de error para el UI
@@ -362,10 +359,17 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     return filtered;
   }, [users, searchTerm, selectedRole, sortField, sortDirection]);
 
+  // Al cambiar la búsqueda o el filtro de rol, volver a la primera página
+  // (antes la página se quedaba fuera de rango y la tabla salía vacía)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedRole]);
+
   // Pagination
-  // TODO: Could extract pagination logic to a separate Pagination component
   const totalPages = Math.ceil(processedUsers.length / usersPerPage);
-  const startIndex = (currentPage - 1) * usersPerPage;
+  // Nunca quedarse en una página que ya no existe (p. ej. tras borrar el último de la última página)
+  const pageActual = Math.min(currentPage, Math.max(totalPages, 1));
+  const startIndex = (pageActual - 1) * usersPerPage;
   const paginatedUsers = processedUsers.slice(startIndex, startIndex + usersPerPage);
 
   // Handle sorting
@@ -381,22 +385,29 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     [sortField, sortDirection]
   );
 
-  // Handle user deletion
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
-      try {
-        await adminService.deleteUser(userId);
-        // adminService ya maneja las notificaciones de éxito automáticamente
-        // Solo actualizamos el estado local
-        setUsers(users.filter((user) => user._id !== userId));
-        setFilteredUsers(filteredUsers.filter((user) => user._id !== userId));
-        setSelectedUsers(new Set([...selectedUsers].filter((id) => id !== userId)));
-      } catch (error) {
-        // adminService ya maneja las notificaciones de error
-        // Solo actualizamos el estado local de error para el UI
-        setError(error?.error || error?.message || "Error al eliminar el usuario");
-      }
-    }
+  const FORM_VACIO = { name: "", email: "", phone: "", password: "", role: "user" };
+  const VALIDACION_VACIA = {
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+  };
+
+  const cerrarFormulario = () => {
+    setShowUserForm(false);
+    setEditingUserId(null);
+    setFormData(FORM_VACIO);
+    setPasswordValidation(VALIDACION_VACIA);
+    setShowPassword(false);
+  };
+
+  const abrirNuevoUsuario = () => {
+    setEditingUserId(null);
+    setFormData(FORM_VACIO);
+    setPasswordValidation(VALIDACION_VACIA);
+    setShowPassword(false);
+    setShowUserForm(true);
   };
 
   // Handle user edit
@@ -412,48 +423,36 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       password: "",
       role: userToEdit.role || "user",
     });
-    setShowEditForm(true);
+    setPasswordValidation(VALIDACION_VACIA);
+    setShowPassword(false);
+    setShowUserForm(true);
   };
 
-  // Handle edit form submission
-  const handleEditFormSubmit = async (e) => {
-    e.preventDefault();
-    setFormLoading(true);
-
-    const updateData = { ...formData };
-    if (!updateData.password) delete updateData.password;
-
+  // Eliminar usuario (la confirmación la pide el modal propio)
+  const ejecutarEliminacion = async () => {
+    if (!confirmacion) return;
+    setConfirmLoading(true);
     try {
-      const response = await adminService.updateUser(editingUserId, updateData);
-
+      await adminService.deleteUser(confirmacion.id);
       // adminService ya maneja las notificaciones de éxito automáticamente
-      // Solo actualizamos el estado local
-      const updatedUser = response.data || response;
-      const updatedUsers = users.map((user) =>
-        user._id === editingUserId ? { ...user, ...updatedUser } : user
-      );
-      setUsers(updatedUsers);
-
-      // Cerrar modal después de un breve delay
-      setTimeout(() => {
-        setShowEditForm(false);
-        setEditingUserId(null);
-      }, 1000);
+      setUsers((prev) => prev.filter((u) => u._id !== confirmacion.id));
+      setConfirmacion(null);
     } catch (error) {
       // adminService ya maneja las notificaciones de error
-      // No necesitamos manejar errores adicionales aquí
     } finally {
-      setFormLoading(false);
+      setConfirmLoading(false);
     }
   };
 
-  // Handle new user form submission
-  const handleFormSubmit = async (e) => {
+  // Alta y edición comparten el mismo submit.
+  // La contraseña debe cumplir los requisitos siempre al crear, y al editar
+  // solo si se está cambiando (antes la edición no validaba nada).
+  const handleUserFormSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validar que la contraseña cumpla con todos los requisitos
-    const isPasswordValid = Object.values(passwordValidation).every(valid => valid);
-    if (!isPasswordValid) {
+    const esEdicion = Boolean(editingUserId);
+    const reglasOk = Object.values(passwordValidation).every(Boolean);
+
+    if ((!esEdicion || formData.password) && !reglasOk) {
       addNotificationRef.current(
         'La contraseña no cumple con todos los requisitos de seguridad',
         'error',
@@ -463,36 +462,21 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
     }
 
     setFormLoading(true);
-
     try {
-      const response = await adminService.createUser(formData);
-
-      // adminService ya maneja las notificaciones de éxito automáticamente
-      // Solo actualizamos el estado local
-      const newUser = response.data || response;
-      setUsers([...users, newUser]);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        role: "user",
-      });
-      setPasswordValidation({
-        minLength: false,
-        hasUppercase: false,
-        hasLowercase: false,
-        hasNumber: false,
-        hasSpecialChar: false
-      });
-
-      // Cerrar modal después de un breve delay
-      setTimeout(() => {
-        setShowUserForm(false);
-      }, 1000);
+      if (esEdicion) {
+        const updateData = { ...formData };
+        if (!updateData.password) delete updateData.password;
+        const response = await adminService.updateUser(editingUserId, updateData);
+        const updatedUser = response.data || response;
+        setUsers((prev) => prev.map((u) => (u._id === editingUserId ? { ...u, ...updatedUser } : u)));
+      } else {
+        const response = await adminService.createUser(formData);
+        const newUser = response.data || response;
+        setUsers((prev) => [...prev, newUser]);
+      }
+      cerrarFormulario();
     } catch (error) {
       // adminService ya maneja las notificaciones de error
-      // No necesitamos manejar errores adicionales aquí
     } finally {
       setFormLoading(false);
     }
@@ -749,16 +733,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   alignItems: "center",
                   gap: stylesPublic.spacing.scale[2],
                 }}
-                onClick={() => {
-                  setShowUserForm(true);
-                  setPasswordValidation({
-                    minLength: false,
-                    hasUppercase: false,
-                    hasLowercase: false,
-                    hasNumber: false,
-                    hasSpecialChar: false
-                  });
-                }}
+                onClick={abrirNuevoUsuario}
               >
                 <FaPlus size={14} />
                 Nuevo Usuario
@@ -827,72 +802,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           )}
 
           <div style={styles.tableContainer} className="users-table-container">
-            {/* TODO: Could extract to a BulkActions component */}
-            {selectedUsers.size > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: stylesPublic.spacing.scale[4],
-                  backgroundColor: stylesPublic.colors.neutral[50],
-                  borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
-                }}
-              >
-                <span
-                  style={{
-                    ...stylesPublic.typography.body.base,
-                    color: stylesPublic.colors.text.secondary,
-                  }}
-                >
-                  {selectedUsers.size} usuario(s) seleccionado(s)
-                </span>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: stylesPublic.spacing.gaps.sm,
-                  }}
-                >
-                  <button
-                    style={{
-                      ...stylesPublic.components.button.variants.ghost,
-                      ...stylesPublic.components.button.sizes.sm,
-                      opacity: 0.5,
-                      cursor: "not-allowed",
-                    }}
-                    disabled={true}
-                  >
-                    <FaUserCheck size={12} style={{ marginRight: stylesPublic.spacing.scale[1] }} />
-                    Activar
-                  </button>
-                  <button
-                    style={{
-                      ...stylesPublic.components.button.variants.ghost,
-                      ...stylesPublic.components.button.sizes.sm,
-                      opacity: 0.5,
-                      cursor: "not-allowed",
-                    }}
-                    disabled={true}
-                  >
-                    <FaUserTimes size={12} style={{ marginRight: stylesPublic.spacing.scale[1] }} />
-                    Suspender
-                  </button>
-                  <button
-                    style={{
-                      ...stylesPublic.components.button.variants.ghost,
-                      ...stylesPublic.components.button.sizes.sm,
-                      opacity: 0.5,
-                      cursor: "not-allowed",
-                    }}
-                    disabled={true}
-                  >
-                    <FaTrash size={12} style={{ marginRight: stylesPublic.spacing.scale[1] }} />
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* TODO: Could extract to a UsersTable component */}
             <div style={{ overflowX: "auto" }}>
               {noUsers ? (
@@ -929,6 +838,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                           }}
                         >
                           Email
+                          {renderSortIcon("email")}
                         </div>
                       </th>
                       <th style={styles.tableHeaderCell} onClick={() => handleSort("phone")}>
@@ -974,13 +884,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     {paginatedUsers.map((user, index) => (
                       <tr
                         key={user._id}
+                        className="users-row"
                         style={{
                           ...styles.tableRow,
-                          ...(hoveredRow === index ? { backgroundColor: stylesPublic.colors.neutral[50] } : {}),
                           ...(index === paginatedUsers.length - 1 ? { borderBottom: "none" } : {}),
                         }}
-                        onMouseEnter={() => setHoveredRow(index)}
-                        onMouseLeave={() => setHoveredRow(null)}
                       >
                         {/* Celda de selección eliminada */}
                         <td style={styles.tableCell}>
@@ -1051,7 +959,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                                 ...styles.deleteAction,
                               }}
                               className="users-action-btn"
-                              onClick={() => handleDeleteUser(user._id)}
+                              onClick={() => setConfirmacion({ id: user._id, nombre: user.name || user.email })}
                               title="Eliminar usuario"
                               aria-label={`Eliminar usuario ${user.name || "Sin nombre"}`}
                             >
@@ -1099,42 +1007,61 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                     style={{
                       ...stylesPublic.components.button.variants.ghost,
                       ...stylesPublic.components.button.sizes.xs,
-                      ...(currentPage === 1 ? { opacity: 0.5, cursor: "not-allowed" } : {}),
+                      ...(pageActual === 1 ? { opacity: 0.5, cursor: "not-allowed" } : {}),
                     }}
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(Math.max(1, pageActual - 1))}
+                    disabled={pageActual === 1}
                     aria-label="Página anterior"
                   >
                     <FaChevronLeft size={12} />
                   </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      style={{
-                        ...stylesPublic.components.button.variants.ghost,
-                        ...stylesPublic.components.button.sizes.xs,
-                        ...(page === currentPage
-                          ? {
-                              backgroundColor: stylesPublic.colors.primary[500],
-                              color: stylesPublic.colors.primary.contrast,
-                              boxShadow: stylesPublic.shadows.base,
-                            }
-                          : {}),
-                      }}
-                      onClick={() => setCurrentPage(page)}
-                      aria-label={`Página ${page}`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {/* Ventana de páginas: primera, última y vecinas de la actual (antes
+                      se pintaba un botón por cada página, sin límite) */}
+                  {(() => {
+                    const items = [];
+                    for (let p = 1; p <= totalPages; p++) {
+                      if (p === 1 || p === totalPages || Math.abs(p - pageActual) <= 1) items.push(p);
+                      else if (items[items.length - 1] !== "…") items.push("…");
+                    }
+                    return items.map((page, i) =>
+                      page === "…" ? (
+                        <span
+                          key={`salto-${i}`}
+                          style={{ alignSelf: "center", padding: "0 4px", color: stylesPublic.colors.text.tertiary }}
+                          aria-hidden="true"
+                        >
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          style={{
+                            ...stylesPublic.components.button.variants.ghost,
+                            ...stylesPublic.components.button.sizes.xs,
+                            ...(page === pageActual
+                              ? {
+                                  backgroundColor: stylesPublic.colors.primary[500],
+                                  color: stylesPublic.colors.primary.contrast,
+                                  boxShadow: stylesPublic.shadows.base,
+                                }
+                              : {}),
+                          }}
+                          onClick={() => setCurrentPage(page)}
+                          aria-label={`Página ${page}`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    );
+                  })()}
                   <button
                     style={{
                       ...stylesPublic.components.button.variants.ghost,
                       ...stylesPublic.components.button.sizes.xs,
-                      ...(currentPage === totalPages ? { opacity: 0.5, cursor: "not-allowed" } : {}),
+                      ...(pageActual === totalPages ? { opacity: 0.5, cursor: "not-allowed" } : {}),
                     }}
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(Math.min(totalPages, pageActual + 1))}
+                    disabled={pageActual === totalPages}
                     aria-label="Página siguiente"
                   >
                     <FaChevronRight size={12} />
@@ -1145,8 +1072,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
         </div>
 
-        {/* New User Form Modal */}
-        {/* TODO: Could extract to a reusable UserForm component */}
+        {/* Modal de usuario: un solo formulario para alta y edición */}
         {showUserForm && (
           <div style={stylesPublic.utils.overlay.base}>
             <div
@@ -1161,7 +1087,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               className="users-form-modal"
             >
               <button
-                onClick={() => setShowUserForm(false)}
+                onClick={cerrarFormulario}
                 style={{
                   position: "absolute",
                   top: stylesPublic.spacing.scale[2],
@@ -1174,9 +1100,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   padding: stylesPublic.spacing.scale[2],
                   borderRadius: stylesPublic.borders.radius.sm,
                   transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: stylesPublic.colors.neutral[50],
-                  },
                 }}
                 aria-label="Cerrar modal"
               >
@@ -1184,16 +1107,16 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               </button>
               <div style={{ padding: stylesPublic.spacing.scale[4], paddingBottom: stylesPublic.spacing.scale[2] }}>
                 <h2 style={{ ...stylesPublic.typography.headings.h2, margin: 0, fontSize: "1.4rem" }}>
-                  Agregar Nuevo Usuario
+                  {editingUserId ? "Editar Usuario" : "Agregar Nuevo Usuario"}
                 </h2>
               </div>
               <form
-                onSubmit={handleFormSubmit}
+                onSubmit={handleUserFormSubmit}
                 style={{
                   padding: stylesPublic.spacing.scale[4],
                   paddingTop: stylesPublic.spacing.scale[2],
                 }}
-                className="users-create-form"
+                className="users-form"
               >
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: stylesPublic.spacing.scale[3], marginBottom: stylesPublic.spacing.scale[4] }} className="users-form-grid">
                   <div>
@@ -1301,7 +1224,12 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                       }}
                       htmlFor="password"
                     >
-                      Contraseña <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
+                      Contraseña{" "}
+                      {editingUserId ? (
+                        <span style={{ color: stylesPublic.colors.text.tertiary, fontWeight: 500 }}>(opcional)</span>
+                      ) : (
+                        <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
+                      )}
                     </label>
                     <div style={{ position: "relative" }}>
                       <input
@@ -1310,8 +1238,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                         name="password"
                         value={formData.password}
                         onChange={handleFormChange}
-                        required
-                        placeholder="Ingrese una contraseña segura"
+                        required={!editingUserId}
+                        placeholder={editingUserId ? "Nueva contraseña (opcional)" : "Ingrese una contraseña segura"}
                         style={{
                           ...stylesPublic.components.input.base,
                           fontSize: "0.9rem",
@@ -1358,7 +1286,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 >
                   <button
                     type="button"
-                    onClick={() => setShowUserForm(false)}
+                    onClick={cerrarFormulario}
                     style={{
                       ...stylesPublic.components.button.variants.ghost,
                       ...stylesPublic.components.button.sizes.sm,
@@ -1382,7 +1310,7 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                         : {}),
                     }}
                   >
-                    {formLoading ? "Guardando..." : "Guardar"}
+                    {formLoading ? "Guardando..." : editingUserId ? "Guardar Cambios" : "Guardar"}
                   </button>
                 </div>
               </form>
@@ -1390,261 +1318,87 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           </div>
         )}
 
-        {/* Edit User Form Modal */}
-        {/* TODO: Could reuse the UserForm component for edit mode */}
-        {showEditForm && (
+        {/* Modal de confirmación de borrado (antes window.confirm) */}
+        {confirmacion && (
           <div style={stylesPublic.utils.overlay.base}>
             <div
               style={{
                 ...stylesPublic.components.card.base,
-                maxWidth: "480px",
+                maxWidth: "420px",
                 width: "90%",
                 margin: stylesPublic.spacing.margins.auto,
-                maxHeight: "90vh",
-                overflowY: "auto",
+                padding: stylesPublic.spacing.scale[6],
+                textAlign: "center",
               }}
-              className="users-form-modal"
             >
-              <button
-                onClick={() => setShowEditForm(false)}
+              <FaTrash
+                size={40}
+                style={{ color: stylesPublic.colors.semantic.error.main, marginBottom: stylesPublic.spacing.scale[4] }}
+              />
+              <h2 style={{ ...stylesPublic.typography.headings.h2, fontSize: "1.4rem", margin: 0 }}>
+                ¿Eliminar usuario?
+              </h2>
+              <p
                 style={{
-                  position: "absolute",
-                  top: stylesPublic.spacing.scale[2],
-                  right: stylesPublic.spacing.scale[2],
-                  backgroundColor: "transparent",
-                  border: "none",
-                  fontSize: stylesPublic.typography.scale.lg,
+                  ...stylesPublic.typography.body.base,
                   color: stylesPublic.colors.text.secondary,
-                  cursor: "pointer",
-                  padding: stylesPublic.spacing.scale[2],
-                  borderRadius: stylesPublic.borders.radius.sm,
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: stylesPublic.colors.neutral[50],
-                  },
+                  marginTop: stylesPublic.spacing.scale[3],
                 }}
-                aria-label="Cerrar modal"
               >
-                ✕
-              </button>
-              <div style={{ padding: stylesPublic.spacing.scale[4], paddingBottom: stylesPublic.spacing.scale[2] }}>
-                <h2 style={{ ...stylesPublic.typography.headings.h2, margin: 0, fontSize: "1.4rem" }}>
-                  Editar Usuario
-                </h2>
-              </div>
-              <form
-                onSubmit={handleEditFormSubmit}
+                <strong>{confirmacion.nombre}</strong>
+              </p>
+              <p
                 style={{
-                  padding: stylesPublic.spacing.scale[4],
-                  paddingTop: stylesPublic.spacing.scale[2],
+                  ...stylesPublic.typography.body.caption,
+                  color: stylesPublic.colors.text.muted,
+                  fontStyle: "italic",
+                  marginTop: stylesPublic.spacing.scale[2],
+                  marginBottom: stylesPublic.spacing.scale[5],
                 }}
-                className="users-edit-form"
               >
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: stylesPublic.spacing.scale[3], marginBottom: stylesPublic.spacing.scale[4] }} className="users-form-grid">
-                  <div>
-                    <label
-                      style={{
-                        ...stylesPublic.typography.body.small,
-                        fontWeight: stylesPublic.typography.weights.semibold,
-                        display: "block",
-                        marginBottom: stylesPublic.spacing.scale[1],
-                      }}
-                      htmlFor="name"
-                    >
-                      Nombre <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      required
-                      placeholder="Ej: María González"
-                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
-                    />
-                  </div>
-                  <div>
-                    <label
-                      style={{
-                        ...stylesPublic.typography.body.small,
-                        fontWeight: stylesPublic.typography.weights.semibold,
-                        display: "block",
-                        marginBottom: stylesPublic.spacing.scale[1],
-                      }}
-                      htmlFor="role"
-                    >
-                      Rol
-                    </label>
-                    <select
-                      id="role"
-                      name="role"
-                      value={formData.role}
-                      onChange={handleFormChange}
-                      style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
-                    >
-                      <option value="user">Usuario</option>
-                      <option value="admin">Administrador</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div style={{ marginBottom: stylesPublic.spacing.scale[4] }}>
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.small,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                      display: "block",
-                      marginBottom: stylesPublic.spacing.scale[1],
-                    }}
-                    htmlFor="email"
-                  >
-                    Correo Electrónico <span style={{ color: stylesPublic.colors.semantic.error.main }}>*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleFormChange}
-                    required
-                    placeholder="ejemplo@gmail.com"
-                    style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
-                  />
-                </div>
-                
-                <div style={{ marginBottom: stylesPublic.spacing.scale[5] }}>
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.small,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                      display: "block",
-                      marginBottom: stylesPublic.spacing.scale[1],
-                    }}
-                    htmlFor="phone"
-                  >
-                    Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleFormChange}
-                    placeholder="Ej: 55 1234 5678"
-                    style={{ ...stylesPublic.components.input.base, fontSize: "0.9rem", padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}` }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: stylesPublic.spacing.scale[5] }}>
-                  <label
-                    style={{
-                      ...stylesPublic.typography.body.small,
-                      fontWeight: stylesPublic.typography.weights.semibold,
-                      display: "block",
-                      marginBottom: stylesPublic.spacing.scale[1],
-                    }}
-                    htmlFor="password"
-                  >
-                    Contraseña
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleFormChange}
-                      placeholder="Ingrese una nueva contraseña (opcional)"
-                      style={{
-                        ...stylesPublic.components.input.base,
-                        fontSize: "0.9rem",
-                        padding: `${stylesPublic.spacing.scale[2]} ${stylesPublic.spacing.scale[3]}`,
-                        paddingRight: 36
-                      }}
-                    />
-                    <button
-                      type="button"
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                      onClick={() => setShowPassword((v) => !v)}
-                      style={{
-                        position: "absolute",
-                        top: "50%",
-                        right: 8,
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        padding: 0,
-                        margin: 0,
-                        cursor: "pointer",
-                        color: stylesPublic.colors.text.secondary,
-                        fontSize: 18,
-                        display: "flex",
-                        alignItems: "center"
-                      }}
-                      tabIndex={-1}
-                    >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-                </div>
-
-                <div
+                Esta acción no se puede deshacer.
+              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: stylesPublic.spacing.scale[3] }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmacion(null)}
+                  disabled={confirmLoading}
                   style={{
-                    display: "flex",
-                    gap: stylesPublic.spacing.scale[3],
-                    justifyContent: "flex-end",
-                    paddingTop: stylesPublic.spacing.scale[3],
-                    borderTop: `1px solid ${stylesPublic.borders.colors.default}`,
+                    ...stylesPublic.components.button.variants.ghost,
+                    ...stylesPublic.components.button.sizes.sm,
                   }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setShowEditForm(false)}
-                    style={{
-                      ...stylesPublic.components.button.variants.ghost,
-                      ...stylesPublic.components.button.sizes.sm,
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={formLoading}
-                    style={{
-                      ...stylesPublic.components.button.variants.primary,
-                      ...stylesPublic.components.button.sizes.sm,
-                      ...(formLoading
-                        ? {
-                            backgroundColor: stylesPublic.colors.neutral[300],
-                            color: stylesPublic.colors.text.muted,
-                            cursor: "not-allowed",
-                            boxShadow: "none",
-                          }
-                        : {}),
-                    }}
-                  >
-                    {formLoading ? "Guardando..." : "Guardar Cambios"}
-                  </button>
-                </div>
-              </form>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={ejecutarEliminacion}
+                  disabled={confirmLoading}
+                  style={{
+                    ...stylesPublic.components.button.variants.primary,
+                    ...stylesPublic.components.button.sizes.sm,
+                    backgroundColor: stylesPublic.colors.semantic.error.main,
+                    borderColor: stylesPublic.colors.semantic.error.main,
+                  }}
+                >
+                  {confirmLoading ? "Eliminando..." : "Eliminar"}
+                </button>
+              </div>
             </div>
           </div>
         )}
+        )}
       </div>
 
-      {/* Inline styles for dynamic effects */}
+      {/* Hover de filas/acciones y estados de foco (las clases sí existen en el DOM) */}
       <style>
         {`
-          .action-button:hover {
+          .users-action-btn:hover {
             transform: scale(1.05);
             opacity: 0.9;
           }
-          .table-row:hover {
+          .users-row:hover {
             background-color: ${stylesPublic.colors.neutral[50]};
-          }
-          input[type="checkbox"] {
-            cursor: pointer;
           }
           select:focus, input:focus {
             outline: none;
