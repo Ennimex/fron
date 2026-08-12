@@ -261,9 +261,11 @@ class AdminService {
   }
 
   // ============== GESTIÓN DE FOTOS ==============
-  async getFotos() {
+  // params opcional: { eventoId } para traer solo las fotos de un evento
+  // (o eventoId: 'null' para las que no tienen evento)
+  async getFotos(params = null) {
     return this.handleApiResponse(
-      () => api.get('/fotos'),
+      () => api.get('/fotos', params ? { params } : undefined),
       null,
       'Error al cargar fotos'
     );
@@ -306,9 +308,10 @@ class AdminService {
   }
 
   // ============== GESTIÓN DE VIDEOS ==============
-  async getVideos() {
+  // params opcional: { eventoId } igual que en getFotos
+  async getVideos(params = null) {
     return this.handleApiResponse(
-      () => api.get('/videos'),
+      () => api.get('/videos', params ? { params } : undefined),
       null,
       'Error al cargar videos'
     );
@@ -325,7 +328,8 @@ class AdminService {
   async createVideo(formData) {
     return this.handleApiResponse(
       () => api.post('/videos', formData, {
-        headers: { 'Content-Type': undefined }
+        headers: { 'Content-Type': undefined },
+        timeout: 600000 // 10 min: el timeout global (75s) corta videos grandes a media subida
       }),
       'Video subido exitosamente',
       'Error al subir video'
@@ -335,7 +339,8 @@ class AdminService {
   async updateVideo(videoId, formData) {
     return this.handleApiResponse(
       () => api.put(`/videos/${videoId}`, formData, {
-        headers: { 'Content-Type': undefined }
+        headers: { 'Content-Type': undefined },
+        timeout: 600000 // 10 min: igual que createVideo
       }),
       'Video actualizado exitosamente',
       'Error al actualizar video'

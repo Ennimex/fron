@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner, FaImages, FaVideo, FaCloudUploadAlt } from "react-icons/fa";
+import {
+  FaCalendarAlt, FaPlus, FaEdit, FaTrash, FaLock, FaSpinner,
+  FaImages, FaVideo, FaCloudUploadAlt, FaCheck,
+} from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import adminService from "../../services/adminServices";
@@ -7,630 +10,500 @@ import { fotoService } from "../../services/fotoService";
 import { videoService } from "../../services/videoService";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
-import InfoBanner from "../../components/admin/ui/InfoBanner";
 import stylesGlobal from "../../styles/stylesGlobal";
 import adminTheme from "../../styles/adminTheme";
 
-// Agregar estilos CSS para animaciones y responsividad
-const modalStyles = `
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
+/*
+ * Gestión de Eventos — flujo unificado en un asistente de 2 pasos:
+ *   Paso 1 "Datos del evento"  → solo título y fecha son obligatorios.
+ *   Paso 2 "Galería (opcional)" → subida de fotos/videos del evento, en el mismo modal.
+ * La lista muestra el estado de la galería de cada evento (insignia con conteos)
+ * y permite entrar directo al paso 2 sin pasar por el formulario.
+ */
 
-  @keyframes overlayFadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+// Animaciones, hovers y responsive (lo que los estilos inline de React no cubren)
+const cssEventos = `
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes evtVeloIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes evtModalIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: none; }
   }
+  .evt-overlay { animation: evtVeloIn 0.2s ease-out; }
+  .evt-modal { animation: evtModalIn 0.25s ease-out; }
+  .evt-cerrar { transition: all 0.15s ease; }
+  .evt-cerrar:hover { background-color: #fdf2f4 !important; color: #d63384 !important; border-color: #f5c6d8 !important; }
+  .evt-badge { transition: all 0.15s ease; cursor: pointer; }
+  .evt-badge:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(45, 40, 35, 0.12); }
+  .evt-icono { transition: filter 0.15s ease; }
+  .evt-icono:hover { filter: brightness(0.94); }
+  .evt-btn-archivos { transition: all 0.15s ease; }
+  .evt-btn-archivos:hover { border-color: #d63384 !important; color: #d63384 !important; }
+  .evt-celda-media .evt-quitar { opacity: 0; transition: opacity 0.15s ease; }
+  .evt-celda-media:hover .evt-quitar { opacity: 1; }
+  .evt-fila { transition: box-shadow 0.15s ease; }
+  .evt-fila:hover { box-shadow: 0 4px 18px rgba(45, 40, 35, 0.1); }
 
-  .modal-overlay {
-    animation: overlayFadeIn 0.3s ease-out;
-  }
-
-  .modal-content {
-    animation: modalFadeIn 0.3s ease-out;
-  }
-
-  .modal-content:hover .modal-close-btn {
-    opacity: 1;
-  }
-
-  .modal-close-btn {
-    transition: all 0.2s ease;
-    opacity: 0.7;
-  }
-
-  .modal-close-btn:hover {
-    opacity: 1 !important;
-    background-color: #fef2f2 !important;
-    color: #dc2626 !important;
-  }
-
-  /* Estilos responsivos para la tabla de eventos */
   @media (max-width: 768px) {
-    .eventos-table-container {
-      overflow-x: auto;
-      margin: 0 -16px;
-      padding: 0 16px;
-    }
-    
-    .eventos-table {
-      min-width: 800px;
-    }
-    
-    .eventos-table th,
-    .eventos-table td {
-      padding: 8px !important;
-      font-size: 14px !important;
-    }
-    
-    .eventos-actions {
-      flex-direction: column !important;
-      gap: 4px !important;
-      align-items: stretch !important;
-    }
-    
-    .eventos-action-btn {
-      justify-content: center !important;
-      font-size: 12px !important;
-      padding: 6px 12px !important;
-      min-width: auto !important;
-    }
-    
-    .eventos-header {
-      flex-direction: column !important;
-      align-items: stretch !important;
-      gap: 16px !important;
-    }
-    
-    .eventos-add-btn {
-      align-self: flex-start !important;
-      width: fit-content !important;
-    }
-
-    .cards-thead { display: none !important; }
-    .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
-    .cards-actions { justify-content: flex-start !important; }
+    .evt-thead { display: none !important; }
+    .evt-fila { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+    .evt-acciones { justify-content: flex-start !important; }
+    .evt-cab { flex-direction: column !important; align-items: stretch !important; }
   }
-
-  @media (max-width: 480px) {
-    .eventos-modal-content {
-      margin: 8px !important;
-      width: calc(100% - 16px) !important;
-      max-height: calc(100vh - 16px) !important;
-    }
-    
-    .eventos-form-row {
-      flex-direction: column !important;
-      gap: 16px !important;
-    }
-    
-    .eventos-form-three {
-      flex-direction: column !important;
-      gap: 16px !important;
-    }
-    
-    .eventos-modal-actions {
-      flex-direction: column !important;
-      gap: 12px !important;
-    }
-    
-    .eventos-modal-body {
-      padding: 16px !important;
-      padding-top: 48px !important;
-    }
-    
-    .eventos-main-container {
-      padding: 16px !important;
-    }
+  @media (max-width: 560px) {
+    .evt-fila3 { grid-template-columns: 1fr !important; }
+    .evt-modal { margin: 8px !important; width: calc(100% - 16px) !important; }
+    .evt-pie { flex-direction: column-reverse !important; align-items: stretch !important; }
+    .evt-pie button { width: 100%; justify-content: center; }
   }
 `;
 
-// Inyectar estilos CSS
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = modalStyles;
-  if (!document.head.querySelector('style[data-modal-eventos-styles]')) {
-    styleElement.setAttribute('data-modal-eventos-styles', 'true');
-    document.head.appendChild(styleElement);
-  }
+if (typeof document !== "undefined" && !document.head.querySelector("style[data-evt-eventos]")) {
+  const styleElement = document.createElement("style");
+  styleElement.setAttribute("data-evt-eventos", "true");
+  styleElement.textContent = cssEventos;
+  document.head.appendChild(styleElement);
 }
+
+const FORM_VACIO = { titulo: "", descripcion: "", fecha: "", ubicacion: "", horaInicio: "", horaFin: "" };
+
+// eventoId de una foto/video puede venir poblado (objeto) o plano (string)
+const idDe = (ref) => (ref && typeof ref === "object" ? ref._id : ref) || null;
 
 const GestionEventos = () => {
   const { user, isAuthenticated } = useAuth();
-
-  // Hook de notificaciones
   const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
-  
-  // Crear una referencia estable para addNotification
-  const addNotificationRef = useRef(addNotification);
-  useEffect(() => {
-    addNotificationRef.current = addNotification;
-  }, [addNotification]);
 
   // Suscribirse a las notificaciones de adminService
   useEffect(() => {
-    const unsubscribe = adminService.onNotification((notification) => {
-      addNotification(notification.message, notification.type, notification.duration);
+    const unsubscribe = adminService.onNotification((n) => {
+      addNotification(n.message, n.type, n.duration);
     });
-
     return unsubscribe;
   }, [addNotification]);
 
-  // Mapeo de estilos globales con mejoras responsivas
   const styles = {
     pageContainer: {
       ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
       backgroundColor: adminTheme.bg,
-      minHeight: '100vh',
+      minHeight: "100vh",
     },
     mainContainer: {
       maxWidth: stylesGlobal.utils.container.maxWidth.lg,
       margin: stylesGlobal.spacing.margins.auto,
       padding: stylesGlobal.spacing.scale[4],
-      // Responsive padding
-      '@media (max-width: 768px)': {
-        padding: stylesGlobal.spacing.scale[3],
-      },
-      '@media (max-width: 480px)': {
-        padding: stylesGlobal.spacing.scale[2],
-      },
     },
     header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
       marginBottom: stylesGlobal.spacing.scale[8],
-      flexWrap: 'wrap',
+      flexWrap: "wrap",
       gap: stylesGlobal.spacing.gaps.md,
-      // Responsive layout
-      '@media (max-width: 768px)': {
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: stylesGlobal.spacing.gaps.lg,
-      },
     },
     title: {
       fontFamily: stylesGlobal.typography.families.display,
       fontSize: "1.9rem",
       fontWeight: 700,
       color: stylesGlobal.colors.text.primary,
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
       gap: stylesGlobal.spacing.scale[2],
-      // Responsive font size
-      '@media (max-width: 768px)': {
-        fontSize: '1.5rem',
-      },
-      '@media (max-width: 480px)': {
-        fontSize: '1.25rem',
-        flexDirection: 'column',
-        textAlign: 'center',
-        gap: stylesGlobal.spacing.scale[1],
-      },
     },
     subtitle: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.secondary,
-      // Responsive text
-      '@media (max-width: 480px)': {
-        fontSize: '0.875rem',
-        textAlign: 'center',
-      },
+      marginTop: stylesGlobal.spacing.scale[1],
     },
     addButton: {
       ...stylesGlobal.components.button.variants.primary,
       ...stylesGlobal.components.button.sizes.base,
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
       gap: stylesGlobal.spacing.gaps.xs,
-      // Responsive button
-      '@media (max-width: 768px)': {
-        alignSelf: 'flex-start',
-        width: 'fit-content',
-      },
-      '@media (max-width: 480px)': {
-        fontSize: '0.875rem',
-        padding: `${stylesGlobal.spacing.scale[2]} ${stylesGlobal.spacing.scale[4]}`,
-      },
     },
-    content: {
-      padding: stylesGlobal.spacing.scale[4],
-      backgroundColor: stylesGlobal.colors.surface.secondary,
-      borderRadius: stylesGlobal.borders.radius.md,
-    },
-    error: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.semantic.error.main,
-      backgroundColor: stylesGlobal.colors.semantic.error.light,
-      padding: stylesGlobal.spacing.scale[3],
-      borderRadius: stylesGlobal.borders.radius.sm,
-      marginBottom: stylesGlobal.spacing.scale[4],
-    },
-    success: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.semantic.success.main,
-      backgroundColor: stylesGlobal.colors.semantic.success.light,
-      padding: stylesGlobal.spacing.scale[3],
-      borderRadius: stylesGlobal.borders.radius.sm,
-      marginBottom: stylesGlobal.spacing.scale[4],
-    },
-    tableContainer: {
-      overflowX: 'auto',
-      padding: stylesGlobal.spacing.scale[2],
-      // Responsive table container
-      '@media (max-width: 768px)': {
-        margin: `0 -${stylesGlobal.spacing.scale[3]}`,
-        padding: stylesGlobal.spacing.scale[3],
-      },
-      '@media (max-width: 480px)': {
-        margin: `0 -${stylesGlobal.spacing.scale[2]}`,
-        padding: stylesGlobal.spacing.scale[2],
-      },
-    },
-    table: {
-      width: '100%',
-      borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
-      borderCollapse: 'separate',
-      // Responsive table
-      '@media (max-width: 768px)': {
-        minWidth: '800px',
-      },
-    },
-    tableHeader: {
-      ...stylesGlobal.typography.body.small,
+
+    // --- Lista de eventos ---
+    thead: {
+      display: "grid",
+      gridTemplateColumns: "2.2fr 1.2fr 1.8fr 1.4fr auto",
+      gap: stylesGlobal.spacing.scale[4],
+      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
+      color: stylesGlobal.colors.text.tertiary,
+      fontSize: stylesGlobal.typography.scale.xs,
       fontWeight: stylesGlobal.typography.weights.semibold,
+      textTransform: "uppercase",
+      letterSpacing: stylesGlobal.typography.tracking.wide,
+    },
+    fila: {
+      display: "grid",
+      gridTemplateColumns: "2.2fr 1.2fr 1.8fr 1.4fr auto",
+      gap: stylesGlobal.spacing.scale[4],
+      alignItems: "center",
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
+      marginBottom: stylesGlobal.spacing.scale[3],
+      boxShadow: stylesGlobal.shadows.sm,
+    },
+    celdaEvento: { display: "flex", alignItems: "center", gap: stylesGlobal.spacing.scale[4], minWidth: 0 },
+    thumb: {
+      width: "48px",
+      height: "48px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      background: stylesGlobal.colors.gradients.primary,
+      color: stylesGlobal.colors.text.inverse,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: adminTheme.serif,
+      fontWeight: 700,
+      fontSize: "18px",
+      flexShrink: 0,
+    },
+    nombreEvento: {
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      color: stylesGlobal.colors.text.primary,
+      fontSize: stylesGlobal.typography.scale.base,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    lugarEvento: {
+      fontSize: stylesGlobal.typography.scale.sm,
+      color: stylesGlobal.colors.text.tertiary,
+      marginTop: "2px",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    textoCelda: {
       color: stylesGlobal.colors.text.secondary,
-      padding: stylesGlobal.spacing.scale[3],
-      textAlign: 'left',
-      backgroundColor: stylesGlobal.colors.surface.tertiary,
-      // Responsive header
-      '@media (max-width: 768px)': {
-        padding: stylesGlobal.spacing.scale[2],
-        fontSize: '0.75rem',
-      },
+      fontSize: stylesGlobal.typography.scale.sm,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
     },
-    tableCell: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-      // Responsive cell
-      '@media (max-width: 768px)': {
-        padding: stylesGlobal.spacing.scale[2],
-        fontSize: '0.875rem',
-      },
+    chipProximo: {
+      display: "inline-block",
+      backgroundColor: stylesGlobal.colors.secondary[50],
+      color: stylesGlobal.colors.secondary[650],
+      fontSize: "11px",
+      fontWeight: 700,
+      borderRadius: stylesGlobal.borders.radius.full,
+      padding: "2px 9px",
+      marginLeft: stylesGlobal.spacing.scale[2],
     },
-    tableCellFirst: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderLeft: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderTopLeftRadius: stylesGlobal.borders.radius.sm,
-      borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
-      // Responsive cell
-      '@media (max-width: 768px)': {
-        padding: stylesGlobal.spacing.scale[2],
-        fontSize: '0.875rem',
-      },
+    badgeConFotos: {
+      border: `1px solid ${stylesGlobal.colors.primary[100] || "#f5c6d8"}`,
+      backgroundColor: stylesGlobal.colors.primary[50],
+      color: stylesGlobal.colors.primary[650],
+      borderRadius: stylesGlobal.borders.radius.full,
+      padding: "7px 14px",
+      fontSize: "12.5px",
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "7px",
+      width: "fit-content",
     },
-    tableCellLast: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderRight: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderTopRightRadius: stylesGlobal.borders.radius.sm,
-      borderBottomRightRadius: stylesGlobal.borders.radius.sm,
-      // Responsive cell
-      '@media (max-width: 768px)': {
-        padding: stylesGlobal.spacing.scale[2],
-        fontSize: '0.875rem',
-      },
+    badgeSinFotos: {
+      border: `1px dashed ${stylesGlobal.colors.accent[200]}`,
+      backgroundColor: stylesGlobal.colors.accent[50],
+      color: stylesGlobal.colors.accent[600],
+      borderRadius: stylesGlobal.borders.radius.full,
+      padding: "7px 14px",
+      fontSize: "12.5px",
+      fontWeight: stylesGlobal.typography.weights.semibold,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "7px",
+      width: "fit-content",
     },
-    actionButton: {
-      ...stylesGlobal.components.button.variants.secondary,
-      ...stylesGlobal.components.button.sizes.sm,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.xs,
-      // Responsive button
-      '@media (max-width: 768px)': {
-        fontSize: '0.75rem',
-        padding: `${stylesGlobal.spacing.scale[1]} ${stylesGlobal.spacing.scale[3]}`,
-        justifyContent: 'center',
-        minWidth: 'auto',
-      },
+    acciones: { display: "flex", gap: stylesGlobal.spacing.scale[2], justifyContent: "flex-end" },
+    iconoBtn: {
+      width: "36px",
+      height: "36px",
+      borderRadius: stylesGlobal.borders.radius.md,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      cursor: "pointer",
     },
-    editAction: {
-      color: stylesGlobal.colors.semantic.info.main,
-      borderColor: stylesGlobal.colors.semantic.info.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.info.light,
-        color: stylesGlobal.colors.semantic.info.dark,
-      },
-    },
-    deleteAction: {
-      color: stylesGlobal.colors.semantic.error.main,
-      borderColor: stylesGlobal.colors.semantic.error.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.light,
-        color: stylesGlobal.colors.semantic.error.dark,
-      },
-    },
-    actionsContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.sm,
-      justifyContent: 'flex-end',
-      // Responsive actions
-      '@media (max-width: 768px)': {
-        flexDirection: 'column',
-        gap: stylesGlobal.spacing.scale[1],
-        alignItems: 'stretch',
-      },
-    },
-    // --- Lista de eventos como tarjetas por fila ---
-    cardThead: { display:"grid", gridTemplateColumns:"2.2fr 2fr 1.3fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], padding:`${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.xs, fontWeight: stylesGlobal.typography.weights.semibold, textTransform:"uppercase", letterSpacing: stylesGlobal.typography.tracking.wide },
-    cardRow: { display:"grid", gridTemplateColumns:"2.2fr 2fr 1.3fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], alignItems:"center", backgroundColor: stylesGlobal.colors.surface.primary, border:`1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.lg, padding:`${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, marginBottom: stylesGlobal.spacing.scale[3], boxShadow: stylesGlobal.shadows.sm },
-    cardCell: { display:"flex", alignItems:"center", gap: stylesGlobal.spacing.scale[4], minWidth:0 },
-    cardThumb: { width:"52px", height:"52px", borderRadius: stylesGlobal.borders.radius.md, background: stylesGlobal.colors.gradients.primary, color: stylesGlobal.colors.text.inverse, display:"flex", alignItems:"center", justifyContent:"center", fontFamily: adminTheme.serif, fontWeight:700, fontSize:"18px", flexShrink:0 },
-    cardName: { fontWeight: stylesGlobal.typography.weights.semibold, color: stylesGlobal.colors.text.primary, fontSize: stylesGlobal.typography.scale.base, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" },
-    cardText: { color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm, overflow:"hidden", textOverflow:"ellipsis", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" },
-    cardActions: { display:"flex", gap: stylesGlobal.spacing.scale[2], justifyContent:"flex-end" },
-    cardAct: { width:"36px", height:"36px", borderRadius: stylesGlobal.borders.radius.md, display:"flex", alignItems:"center", justifyContent:"center", border:"none", cursor:"pointer", transition: stylesGlobal.animations.transitions.base },
-    cardActEdit: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
-    cardActDel: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
-    modalOverlay: {
+    iconoEditar: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
+    iconoBorrar: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
+
+    // --- Modal / asistente ---
+    overlay: {
       ...stylesGlobal.utils.overlay.elegant,
-      position: 'fixed',
+      position: "fixed",
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "center",
       zIndex: 1300,
+      overflowY: "auto",
+      padding: "4vh 16px",
     },
-    modalContent: {
+    modal: {
       ...stylesGlobal.components.card.luxury,
-      maxWidth: '700px',
-      width: '90%',
-      maxHeight: '90vh',
-      overflow: 'auto',
-      position: 'relative',
-      margin: '20px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-      transform: 'scale(1)',
-      transition: 'all 0.3s ease-in-out',
-      // Responsive modal
-      '@media (max-width: 480px)': {
-        margin: '8px',
-        width: 'calc(100% - 16px)',
-        maxHeight: 'calc(100vh - 16px)',
-      },
+      maxWidth: "660px",
+      width: "100%",
+      position: "relative",
+      margin: "0 0 4vh",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
+      overflow: "hidden",
     },
-    deleteModalContent: {
+    modalDelete: {
       ...stylesGlobal.components.card.luxury,
-      maxWidth: '500px',
-      width: '90%',
-      textAlign: 'center',
-      position: 'relative',
-      margin: '20px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-      transform: 'scale(1)',
-      transition: 'all 0.3s ease-in-out',
-      // Responsive delete modal
-      '@media (max-width: 480px)': {
-        margin: '8px',
-        width: 'calc(100% - 16px)',
-        maxHeight: 'calc(100vh - 16px)',
-      },
+      maxWidth: "480px",
+      width: "100%",
+      textAlign: "center",
+      position: "relative",
+      margin: "10vh 0 4vh",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
     },
-    modalCloseButton: {
-      ...stylesGlobal.components.button.variants.ghost,
-      ...stylesGlobal.components.button.sizes.sm,
-      position: 'absolute',
-      top: stylesGlobal.spacing.scale[3],
-      right: stylesGlobal.spacing.scale[3],
-      width: '32px',
-      height: '32px',
+    modalCab: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: `${stylesGlobal.spacing.scale[5]} ${stylesGlobal.spacing.scale[6]} 0`,
+    },
+    modalTitulo: { ...stylesGlobal.typography.headings.h2, fontSize: "1.45rem" },
+    cerrar: {
+      width: "34px",
+      height: "34px",
       borderRadius: stylesGlobal.borders.radius.full,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '18px',
-      fontWeight: 'bold',
-      zIndex: 10,
-      backgroundColor: stylesGlobal.colors.surface.secondary,
       border: `1px solid ${stylesGlobal.borders.colors.default}`,
-      cursor: 'pointer',
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      color: stylesGlobal.colors.text.tertiary,
+      fontSize: "17px",
+      lineHeight: 1,
+      cursor: "pointer",
+      flexShrink: 0,
     },
-    modalBody: {
-      padding: stylesGlobal.spacing.scale[6],
-      position: 'relative',
-      paddingTop: stylesGlobal.spacing.scale[8], // Extra space for close button
-      // Responsive modal body
-      '@media (max-width: 480px)': {
-        padding: stylesGlobal.spacing.scale[4],
-        paddingTop: stylesGlobal.spacing.scale[6],
-      },
+    pasos: {
+      display: "flex",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.scale[2],
+      padding: `${stylesGlobal.spacing.scale[4]} ${stylesGlobal.spacing.scale[6]} ${stylesGlobal.spacing.scale[5]}`,
     },
-    modalTitle: {
-      ...stylesGlobal.typography.headings.h2,
-      // Responsive title
-      '@media (max-width: 480px)': {
-        fontSize: '1.25rem',
-      },
-    },
-    modalActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: stylesGlobal.spacing.gaps.md,
-      marginTop: stylesGlobal.spacing.scale[6],
-      paddingTop: stylesGlobal.spacing.scale[4],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      // Responsive actions
-      '@media (max-width: 480px)': {
-        flexDirection: 'column',
-        gap: stylesGlobal.spacing.scale[3],
-      },
-    },
-    formContainer: {
-      width: '100%',
-      padding: stylesGlobal.spacing.scale[6],
-      // Responsive form container
-      '@media (max-width: 480px)': {
-        padding: stylesGlobal.spacing.scale[4],
-      },
-    },
-    formGroup: {
-      marginBottom: stylesGlobal.spacing.scale[6],
-      width: '100%',
-      // Responsive form group
-      '@media (max-width: 480px)': {
-        marginBottom: stylesGlobal.spacing.scale[4],
-      },
-    },
-    formRow: {
-      display: 'flex',
-      gap: stylesGlobal.spacing.gaps.lg,
-      flexWrap: 'wrap',
-      marginBottom: stylesGlobal.spacing.scale[6],
-      // Responsive form row
-      '@media (max-width: 480px)': {
-        flexDirection: 'column',
-        gap: stylesGlobal.spacing.scale[4],
-        marginBottom: stylesGlobal.spacing.scale[4],
-      },
-    },
-    formRowThree: {
-      display: 'flex',
-      gap: stylesGlobal.spacing.gaps.lg,
-      flexWrap: 'wrap',
-      marginBottom: stylesGlobal.spacing.scale[6],
-      // Responsive form row three
-      '@media (max-width: 480px)': {
-        flexDirection: 'column',
-        gap: stylesGlobal.spacing.scale[4],
-        marginBottom: stylesGlobal.spacing.scale[4],
-      },
-    },
+    paso: { display: "flex", alignItems: "center", gap: stylesGlobal.spacing.scale[2], fontSize: "13px", fontWeight: 600 },
+    pasoNum: (estado) => ({
+      width: "24px",
+      height: "24px",
+      borderRadius: stylesGlobal.borders.radius.full,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "12px",
+      border: `1.5px solid ${
+        estado === "activo" ? stylesGlobal.colors.primary[500]
+        : estado === "hecho" ? stylesGlobal.colors.secondary[650]
+        : stylesGlobal.colors.neutral[200]
+      }`,
+      backgroundColor:
+        estado === "activo" ? stylesGlobal.colors.primary[500]
+        : estado === "hecho" ? stylesGlobal.colors.secondary[50]
+        : stylesGlobal.colors.surface.primary,
+      color:
+        estado === "activo" ? stylesGlobal.colors.text.inverse
+        : estado === "hecho" ? stylesGlobal.colors.secondary[650]
+        : stylesGlobal.colors.text.tertiary,
+    }),
+    pasoTexto: (estado) => ({
+      color:
+        estado === "activo" ? stylesGlobal.colors.text.primary
+        : estado === "hecho" ? stylesGlobal.colors.secondary[650]
+        : stylesGlobal.colors.text.tertiary,
+    }),
+    pasoLinea: { flex: "0 1 60px", height: "1.5px", backgroundColor: stylesGlobal.colors.neutral[200] },
+    pasoOpcional: { fontWeight: 500, color: stylesGlobal.colors.text.tertiary, fontSize: "12px" },
+    modalCuerpo: { padding: `0 ${stylesGlobal.spacing.scale[6]} ${stylesGlobal.spacing.scale[6]}` },
+
+    // --- Formulario (paso 1) ---
+    campo: { marginBottom: stylesGlobal.spacing.scale[5] },
     label: {
-      ...stylesGlobal.typography.body.base,
-      fontWeight: stylesGlobal.typography.weights.medium,
+      display: "block",
+      fontSize: "13.5px",
+      fontWeight: stylesGlobal.typography.weights.semibold,
       color: stylesGlobal.colors.text.primary,
       marginBottom: stylesGlobal.spacing.scale[2],
-      display: 'block',
     },
-    requiredField: {
+    req: { color: stylesGlobal.colors.primary[500], marginLeft: "3px" },
+    opc: { color: stylesGlobal.colors.text.tertiary, fontWeight: 500, fontSize: "12px", marginLeft: "6px" },
+    input: { ...stylesGlobal.components.input.base, width: "100%" },
+    inputError: { borderColor: stylesGlobal.colors.semantic.error.main },
+    msjError: {
       color: stylesGlobal.colors.semantic.error.main,
-      marginLeft: stylesGlobal.spacing.scale[1],
-    },
-    input: {
-      ...stylesGlobal.components.input.base,
-      flex: 1,
-      minWidth: '200px',
-    },
-    inputSmall: {
-      ...stylesGlobal.components.input.base,
-      flex: 1,
-      minWidth: '150px',
+      fontSize: "12.5px",
+      marginTop: stylesGlobal.spacing.scale[1],
     },
     textarea: {
       ...stylesGlobal.components.input.base,
-      minHeight: '120px',
-      resize: 'vertical',
+      width: "100%",
+      minHeight: "90px",
+      resize: "vertical",
       lineHeight: stylesGlobal.typography.leading.normal,
     },
-    helpText: {
-      ...stylesGlobal.typography.body.caption,
-      marginTop: stylesGlobal.spacing.scale[2],
-      fontStyle: 'italic',
+    fila3: { display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", gap: stylesGlobal.spacing.scale[3] },
+    pista: { ...stylesGlobal.typography.body.caption, marginTop: stylesGlobal.spacing.scale[2] },
+    pie: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.scale[3],
+      padding: `${stylesGlobal.spacing.scale[4]} ${stylesGlobal.spacing.scale[6]}`,
+      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
+      backgroundColor: stylesGlobal.colors.surface.secondary,
     },
-    outlineButton: {
+    btnSecundario: {
       ...stylesGlobal.components.button.variants.secondary,
       ...stylesGlobal.components.button.sizes.base,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    primaryButton: {
+    btnPrimario: {
       ...stylesGlobal.components.button.variants.primary,
       ...stylesGlobal.components.button.sizes.base,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.gaps.xs,
     },
-    deleteButton: {
-      ...stylesGlobal.components.button.variants.secondary,
-      ...stylesGlobal.components.button.sizes.base,
-      color: stylesGlobal.colors.semantic.error.main,
-      borderColor: stylesGlobal.colors.semantic.error.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.light,
-        color: stylesGlobal.colors.semantic.error.dark,
-      },
+    btnDeshabilitado: { opacity: 0.55, cursor: "not-allowed" },
+
+    // --- Galería (paso 2) ---
+    subGaleria: {
+      ...stylesGlobal.typography.body.small,
+      color: stylesGlobal.colors.text.secondary,
+      marginBottom: stylesGlobal.spacing.scale[4],
+      lineHeight: 1.55,
     },
-    disabledButton: {
-      opacity: 0.5,
-      cursor: 'not-allowed',
+    zonaSoltar: (activa) => ({
+      border: `2px dashed ${activa ? stylesGlobal.colors.primary[400] : stylesGlobal.colors.neutral[300]}`,
+      backgroundColor: activa ? stylesGlobal.colors.primary[50] : stylesGlobal.colors.surface.secondary,
+      borderRadius: stylesGlobal.borders.radius.lg,
+      padding: stylesGlobal.spacing.scale[6],
+      textAlign: "center",
+      transition: "all 0.15s",
+      marginBottom: stylesGlobal.spacing.scale[4],
+    }),
+    btnArchivos: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "8px",
+      padding: "10px 20px",
+      borderRadius: stylesGlobal.borders.radius.lg,
+      border: `1.5px solid ${stylesGlobal.colors.neutral[300]}`,
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      color: stylesGlobal.colors.text.secondary,
+      fontWeight: 600,
+      fontSize: "0.9rem",
+      cursor: "pointer",
     },
+    colaItem: {
+      display: "flex",
+      alignItems: "center",
+      gap: stylesGlobal.spacing.scale[3],
+      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
+      borderRadius: stylesGlobal.borders.radius.md,
+      padding: stylesGlobal.spacing.scale[2],
+    },
+    colaThumb: {
+      width: "44px",
+      height: "44px",
+      borderRadius: stylesGlobal.borders.radius.sm,
+      overflow: "hidden",
+      flexShrink: 0,
+      backgroundColor: stylesGlobal.colors.neutral[100],
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    barraProgreso: {
+      height: "6px",
+      backgroundColor: stylesGlobal.colors.neutral[200],
+      borderRadius: stylesGlobal.borders.radius.full,
+      overflow: "hidden",
+      marginTop: "6px",
+    },
+    mediaGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+      gap: stylesGlobal.spacing.scale[2],
+    },
+    celdaMedia: {
+      position: "relative",
+      aspectRatio: "1",
+      borderRadius: stylesGlobal.borders.radius.md,
+      overflow: "hidden",
+      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
+      backgroundColor: stylesGlobal.colors.neutral[100],
+    },
+    quitarMedia: {
+      position: "absolute",
+      top: "6px",
+      right: "6px",
+      width: "27px",
+      height: "27px",
+      borderRadius: stylesGlobal.borders.radius.full,
+      border: "none",
+      cursor: "pointer",
+      background: "rgba(45, 40, 35, 0.55)",
+      color: "#fff",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
     emptyState: {
       padding: stylesGlobal.spacing.scale[8],
-      textAlign: 'center',
+      textAlign: "center",
       backgroundColor: stylesGlobal.colors.surface.secondary,
       borderRadius: stylesGlobal.borders.radius.md,
     },
-    emptyStateText: stylesGlobal.typography.headings.h3,
-    loadingContainer: {
-      padding: stylesGlobal.spacing.scale[8],
-      textAlign: 'center',
-    },
-    textCenter: {
-      textAlign: 'center',
-    },
-    flexCenter: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
+    loadingContainer: { padding: stylesGlobal.spacing.scale[8], textAlign: "center" },
   };
 
-  // Estados del componente
+  // ============== Estado ==============
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ 
-    titulo: '', 
-    descripcion: '', 
-    fecha: '', 
-    ubicacion: '', 
-    horaInicio: '', 
-    horaFin: '' 
-  });
-  const [editId, setEditId] = useState(null);
-  const [formLoading, setFormLoading] = useState(false);
-  const [modalType, setModalType] = useState(null); // 'add' | 'edit' | 'delete'
-  const [eventoToDelete, setEventoToDelete] = useState(null);
 
-  // --- Galería por evento (centralizada) ---
-  const [galeriaEvento, setGaleriaEvento] = useState(null); // evento cuya galería se gestiona
+  // Asistente (paso 1: datos, paso 2: galería)
+  const [wizardAbierto, setWizardAbierto] = useState(false);
+  const [paso, setPaso] = useState(1);
+  const [soloGaleria, setSoloGaleria] = useState(false); // se abrió directo a la galería
+  const [editId, setEditId] = useState(null); // id del evento (existente o recién creado)
+  const [eventoActual, setEventoActual] = useState(null); // doc para el paso 2
+  const [formData, setFormData] = useState(FORM_VACIO);
+  const [erroresForm, setErroresForm] = useState({});
+  const [formLoading, setFormLoading] = useState(false);
+
+  // Galería del evento
   const [galeriaFotos, setGaleriaFotos] = useState([]);
   const [galeriaVideos, setGaleriaVideos] = useState([]);
   const [galeriaLoading, setGaleriaLoading] = useState(false);
-  const [cola, setCola] = useState([]); // archivos en cola para subir
-  const [subiendoTodo, setSubiendoTodo] = useState(false);
+  const [cola, setCola] = useState([]);
+  const [subiendo, setSubiendo] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const colaRef = useRef([]); // fuente de verdad de la cola (evita estado obsoleto en el bucle de subida)
   const colaIdRef = useRef(0);
+  const subiendoRef = useRef(false);
 
-  // Fetch eventos
+  // Confirmaciones destructivas: { tipo: 'evento'|'foto'|'video', id, titulo }
+  const [confirmacion, setConfirmacion] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  // ============== Carga de datos ==============
   const fetchEventos = useCallback(async () => {
     try {
       setLoading(true);
@@ -638,88 +511,36 @@ const GestionEventos = () => {
       setEventos(data);
     } catch (err) {
       // adminService ya maneja las notificaciones de error
-      console.error('Error al cargar eventos:', err);
+      console.error("Error al cargar eventos:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch eventos on component mount
   useEffect(() => {
-    if (isAuthenticated && user?.role === 'admin') {
+    if (isAuthenticated && user?.role === "admin") {
       fetchEventos();
     }
   }, [isAuthenticated, user, fetchEventos]);
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddClick = () => {
-    setFormData({ 
-      titulo: '', 
-      descripcion: '', 
-      fecha: '', 
-      ubicacion: '', 
-      horaInicio: '', 
-      horaFin: '' 
-    });
-    setEditId(null);
-    setModalType('add');
-  };
-
-  const handleEditClick = (evento) => {
-    setFormData({
-      titulo: evento.titulo,
-      descripcion: evento.descripcion,
-      fecha: evento.fecha ? evento.fecha.substring(0, 10) : '',
-      ubicacion: evento.ubicacion,
-      horaInicio: evento.horaInicio || '',
-      horaFin: evento.horaFin || '',
-    });
-    setEditId(evento._id);
-    setModalType('edit');
-  };
-
-  const handleDeleteClick = (evento) => {
-    setEventoToDelete(evento);
-    setModalType('delete');
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    setFormLoading(true);
-    try {
-      if (editId) {
-        const updated = await adminService.updateEvento(editId, formData);
-        setEventos(eventos.map((e) => (e._id === editId ? updated : e)));
-      } else {
-        const created = await adminService.createEvento(formData);
-        setEventos([created, ...eventos]);
-      }
-      setModalType(null);
-      await fetchEventos(); // Refrescar lista
-    } catch (err) {
-      // adminService ya maneja las notificaciones de error
-      console.error('Error saving evento:', err);
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
-  // --- Galería por evento ---
-  const idDe = (ref) => (ref && typeof ref === "object" ? ref._id : ref) || null;
-
+  // Carga la galería de un evento y sincroniza los conteos de su fila en la lista
   const cargarMediaEvento = useCallback(async (eventoId) => {
     setGaleriaLoading(true);
     try {
       const [fotos, videos] = await Promise.all([
-        adminService.getFotos(),
-        adminService.getVideos(),
+        adminService.getFotos({ eventoId }),
+        adminService.getVideos({ eventoId }),
       ]);
-      setGaleriaFotos((fotos || []).filter((f) => idDe(f.eventoId) === eventoId));
-      setGaleriaVideos((videos || []).filter((v) => idDe(v.eventoId) === eventoId));
+      // Filtro defensivo por si el backend aún no aplica el query param
+      const fotosEvento = (fotos || []).filter((f) => idDe(f.eventoId) === eventoId);
+      const videosEvento = (videos || []).filter((v) => idDe(v.eventoId) === eventoId);
+      setGaleriaFotos(fotosEvento);
+      setGaleriaVideos(videosEvento);
+      setEventos((prev) =>
+        prev.map((e) =>
+          e._id === eventoId ? { ...e, totalFotos: fotosEvento.length, totalVideos: videosEvento.length } : e
+        )
+      );
     } catch (err) {
       console.error("Error al cargar la galería del evento:", err);
     } finally {
@@ -727,23 +548,129 @@ const GestionEventos = () => {
     }
   }, []);
 
-  const abrirGaleria = (evento) => {
-    setGaleriaEvento(evento);
+  // ============== Asistente ==============
+  const abrirNuevo = () => {
+    setFormData(FORM_VACIO);
+    setErroresForm({});
+    setEditId(null);
+    setEventoActual(null);
+    setSoloGaleria(false);
     setGaleriaFotos([]);
     setGaleriaVideos([]);
+    colaRef.current = [];
+    setCola([]);
+    setPaso(1);
+    setWizardAbierto(true);
+  };
+
+  const abrirEdicion = (evento) => {
+    setFormData({
+      titulo: evento.titulo || "",
+      descripcion: evento.descripcion || "",
+      fecha: evento.fecha ? evento.fecha.substring(0, 10) : "",
+      ubicacion: evento.ubicacion || "",
+      horaInicio: evento.horaInicio || "",
+      horaFin: evento.horaFin || "",
+    });
+    setErroresForm({});
+    setEditId(evento._id);
+    setEventoActual(evento);
+    setSoloGaleria(false);
+    setGaleriaFotos([]);
+    setGaleriaVideos([]);
+    colaRef.current = [];
+    setCola([]);
+    setPaso(1);
+    setWizardAbierto(true);
+  };
+
+  const abrirGaleria = (evento) => {
+    setEditId(evento._id);
+    setEventoActual(evento);
+    setSoloGaleria(true);
+    setGaleriaFotos([]);
+    setGaleriaVideos([]);
+    colaRef.current = [];
+    setCola([]);
+    setPaso(2);
+    setWizardAbierto(true);
     cargarMediaEvento(evento._id);
   };
 
-  const cerrarGaleria = () => {
-    if (subiendoTodo) return; // no cerrar a media subida
-    setGaleriaEvento(null);
-    setGaleriaFotos([]);
-    setGaleriaVideos([]);
+  const cerrarWizard = () => {
+    if (subiendoRef.current) return; // no cerrar a media subida
+    setWizardAbierto(false);
     setCola([]);
+    colaRef.current = [];
   };
 
-  // Agregar archivos a la cola (clasifica por tipo, ignora los no soportados)
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (erroresForm[name]) setErroresForm((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  // Paso 1 → guarda el evento (crea o actualiza) y avanza a la galería
+  const guardarYContinuar = async (e) => {
+    e.preventDefault();
+    const errs = {};
+    if (!formData.titulo.trim()) errs.titulo = "Escribe un título para el evento.";
+    if (!formData.fecha) errs.fecha = "Elige la fecha del evento.";
+    setErroresForm(errs);
+    if (Object.keys(errs).length) return;
+
+    setFormLoading(true);
+    try {
+      let guardado;
+      if (editId) {
+        guardado = await adminService.updateEvento(editId, formData);
+        setEventos((prev) =>
+          prev.map((ev) =>
+            ev._id === editId
+              ? { ...guardado, totalFotos: ev.totalFotos || 0, totalVideos: ev.totalVideos || 0 }
+              : ev
+          )
+        );
+      } else {
+        guardado = await adminService.createEvento(formData);
+        guardado = { ...guardado, totalFotos: 0, totalVideos: 0 };
+        setEventos((prev) => [guardado, ...prev]);
+        setEditId(guardado._id);
+      }
+      setEventoActual(guardado);
+      setPaso(2);
+      cargarMediaEvento(guardado._id);
+    } catch (err) {
+      // adminService ya maneja las notificaciones de error
+      console.error("Error al guardar evento:", err);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const volverADatos = () => {
+    if (subiendoRef.current) return;
+    setPaso(1);
+  };
+
+  // ============== Cola de subida (paso 2) ==============
+  const sincronizarCola = () => setCola([...colaRef.current]);
+
+  const patchItem = (id, patch) => {
+    colaRef.current = colaRef.current.map((it) => (it.id === id ? { ...it, ...patch } : it));
+    sincronizarCola();
+  };
+
+  const quitarDeCola = (id) => {
+    const item = colaRef.current.find((it) => it.id === id);
+    if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    colaRef.current = colaRef.current.filter((it) => it.id !== id);
+    sincronizarCola();
+  };
+
+  // Agrega archivos a la cola y arranca la subida automáticamente
   const agregarArchivos = (fileList) => {
+    if (!eventoActual) return;
     const nuevos = [];
     Array.from(fileList || []).forEach((file) => {
       const esImg = file.type.startsWith("image/");
@@ -753,14 +680,66 @@ const GestionEventos = () => {
         id: ++colaIdRef.current,
         file,
         tipo: esImg ? "foto" : "video",
-        titulo: file.name.replace(/\.[^.]+$/, "").slice(0, 100),
+        titulo: file.name.replace(/\.[^.]+$/, "").slice(0, 100) || "Sin título",
         previewUrl: esImg ? URL.createObjectURL(file) : null,
         progress: 0,
         status: "pendiente", // pendiente | subiendo | ok | error
         error: "",
       });
     });
-    if (nuevos.length) setCola((prev) => [...prev, ...nuevos]);
+    if (!nuevos.length) return;
+    colaRef.current = [...colaRef.current, ...nuevos];
+    sincronizarCola();
+    procesarCola(eventoActual._id);
+  };
+
+  const procesarCola = async (eventoId) => {
+    if (subiendoRef.current) return; // ya hay un bucle activo; tomará los nuevos pendientes
+    subiendoRef.current = true;
+    setSubiendo(true);
+    try {
+      // Sube de uno en uno; el bucle relee la cola para incluir archivos agregados sobre la marcha
+      let siguiente;
+      while ((siguiente = colaRef.current.find((it) => it.status === "pendiente"))) {
+        const item = siguiente;
+        patchItem(item.id, { status: "subiendo", progress: 0, error: "" });
+        try {
+          const fd = new FormData();
+          fd.append("titulo", (item.titulo || "Sin título").trim());
+          fd.append("descripcion", "");
+          fd.append("eventoId", eventoId);
+          if (item.tipo === "foto") {
+            fd.append("imagen", item.file);
+            await fotoService.create(fd, (p) => patchItem(item.id, { progress: p }));
+          } else {
+            fd.append("video", item.file);
+            await videoService.create(fd, (p) => patchItem(item.id, { progress: p }));
+          }
+          patchItem(item.id, { status: "ok", progress: 100 });
+        } catch (err) {
+          patchItem(item.id, { status: "error", error: err?.error || err?.message || "Error al subir" });
+        }
+      }
+    } finally {
+      subiendoRef.current = false;
+      setSubiendo(false);
+    }
+    await cargarMediaEvento(eventoId);
+    // Limpiar de la cola los que subieron bien (los errores quedan visibles para reintentar)
+    colaRef.current.forEach((it) => {
+      if (it.status === "ok" && it.previewUrl) URL.revokeObjectURL(it.previewUrl);
+    });
+    colaRef.current = colaRef.current.filter((it) => it.status !== "ok");
+    sincronizarCola();
+  };
+
+  const reintentarErrores = () => {
+    if (!eventoActual) return;
+    colaRef.current = colaRef.current.map((it) =>
+      it.status === "error" ? { ...it, status: "pendiente", error: "" } : it
+    );
+    sincronizarCola();
+    procesarCola(eventoActual._id);
   };
 
   const onDrop = (e) => {
@@ -769,90 +748,57 @@ const GestionEventos = () => {
     if (e.dataTransfer?.files?.length) agregarArchivos(e.dataTransfer.files);
   };
 
-  const setColaItem = (id, patch) =>
-    setCola((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-
-  const quitarDeCola = (id) => setCola((prev) => prev.filter((it) => it.id !== id));
-
-  const subirTodo = async () => {
-    if (!galeriaEvento) return;
-    const pendientes = cola.filter((it) => it.status === "pendiente" || it.status === "error");
-    if (!pendientes.length) return;
-    setSubiendoTodo(true);
-    for (const item of pendientes) {
-      setColaItem(item.id, { status: "subiendo", progress: 0, error: "" });
-      try {
-        const fd = new FormData();
-        fd.append("titulo", (item.titulo || "Sin título").trim());
-        fd.append("descripcion", "");
-        fd.append("eventoId", galeriaEvento._id);
-        if (item.tipo === "foto") {
-          fd.append("imagen", item.file);
-          await fotoService.create(fd, (p) => setColaItem(item.id, { progress: p }));
-        } else {
-          fd.append("video", item.file);
-          await videoService.create(fd, (p) => setColaItem(item.id, { progress: p }));
-        }
-        setColaItem(item.id, { status: "ok", progress: 100 });
-      } catch (err) {
-        setColaItem(item.id, { status: "error", error: err?.error || err?.message || "Error al subir" });
+  // ============== Confirmaciones destructivas ==============
+  const ejecutarConfirmacion = async () => {
+    if (!confirmacion) return;
+    setConfirmLoading(true);
+    try {
+      if (confirmacion.tipo === "evento") {
+        await adminService.deleteEvento(confirmacion.id);
+        setEventos((prev) => prev.filter((e) => e._id !== confirmacion.id));
+      } else if (confirmacion.tipo === "foto") {
+        await adminService.deleteFoto(confirmacion.id);
+        await cargarMediaEvento(eventoActual._id);
+      } else if (confirmacion.tipo === "video") {
+        await adminService.deleteVideo(confirmacion.id);
+        await cargarMediaEvento(eventoActual._id);
       }
-    }
-    setSubiendoTodo(false);
-    await cargarMediaEvento(galeriaEvento._id);
-    // Limpiar de la cola los que subieron bien (dejar errores visibles para reintentar)
-    setCola((prev) => prev.filter((it) => it.status !== "ok"));
-  };
-
-  const quitarFoto = async (id) => {
-    if (!window.confirm("¿Quitar esta foto del evento? Se eliminará definitivamente.")) return;
-    try {
-      await adminService.deleteFoto(id);
-      await cargarMediaEvento(galeriaEvento._id);
-    } catch (err) {
-      console.error("Error al eliminar foto:", err);
-    }
-  };
-
-  const quitarVideo = async (id) => {
-    if (!window.confirm("¿Quitar este video del evento? Se eliminará definitivamente.")) return;
-    try {
-      await adminService.deleteVideo(id);
-      await cargarMediaEvento(galeriaEvento._id);
-    } catch (err) {
-      console.error("Error al eliminar video:", err);
-    }
-  };
-
-  const confirmDelete = async () => {
-    if (!eventoToDelete) return;
-
-    setFormLoading(true);
-    try {
-      await adminService.deleteEvento(eventoToDelete._id);
-      setEventos(eventos.filter((e) => e._id !== eventoToDelete._id));
-      setModalType(null);
-      setEventoToDelete(null);
+      setConfirmacion(null);
     } catch (err) {
       // adminService ya maneja las notificaciones de error
-      console.error('Error deleting evento:', err);
+      console.error("Error al eliminar:", err);
     } finally {
-      setFormLoading(false);
+      setConfirmLoading(false);
     }
   };
 
-  // Check authentication and admin role
+  const textosConfirmacion = {
+    evento: {
+      titulo: "¿Eliminar evento?",
+      detalle: "Sus fotos y videos no se borran: pasarán a la galería general.",
+    },
+    foto: { titulo: "¿Quitar esta foto?", detalle: "Se eliminará definitivamente." },
+    video: { titulo: "¿Quitar este video?", detalle: "Se eliminará definitivamente." },
+  };
+
+  // ============== Utilidades de presentación ==============
+  const formatearFecha = (iso) =>
+    iso ? new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" }) : "Sin fecha";
+
+  const esFuturo = (iso) => {
+    if (!iso) return false;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return new Date(iso) >= hoy;
+  };
+
+  // ============== Guardias de acceso ==============
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  if (user?.role !== 'admin') {
+  if (user?.role !== "admin") {
     return (
-      <div style={{
-        ...styles.pageContainer,
-        ...styles.flexCenter,
-        height: '80vh',
-        textAlign: 'center',
-      }}>
+      <div style={{ ...styles.pageContainer, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "80vh", textAlign: "center" }}>
         <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
         <h2 style={styles.title}>Acceso Denegado</h2>
         <p style={styles.subtitle}>
@@ -862,357 +808,114 @@ const GestionEventos = () => {
     );
   }
 
+  const nuevasEnCola = cola.filter((it) => it.status !== "ok").length;
+  const erroresEnCola = cola.filter((it) => it.status === "error").length;
+
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.mainContainer} className="eventos-main-container">
-        <div style={styles.header} className="eventos-header">
+      <div style={styles.mainContainer}>
+        <div style={styles.header} className="evt-cab">
           <div>
             <h1 style={styles.title}>
-              <FaCalendarAlt style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
+              <FaCalendarAlt />
               Gestión de Eventos
             </h1>
             <p style={styles.subtitle}>
-              Administra y supervisa todos los eventos del sistema
+              Crea un evento y sube sus fotos en el mismo paso. Los eventos con fecha futura salen en
+              “Próximos eventos” y los pasados en “Revive nuestros eventos”.
             </p>
           </div>
-          <button
-            style={styles.addButton}
-            className="eventos-add-btn"
-            onClick={handleAddClick}
-            aria-label="Nuevo evento"
-          >
-            <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
+          <button style={styles.addButton} onClick={abrirNuevo} aria-label="Nuevo evento">
+            <FaPlus size={14} />
             Nuevo Evento
           </button>
         </div>
 
-        {/* Banner de ayuda: explica el flujo galería ↔ Destacados */}
-        <InfoBanner>
-          <strong>¿Cómo funciona?</strong> Cada evento tiene su propia galería. Usa el botón{' '}
-          <FaImages size={12} style={{ verticalAlign: 'middle', color: stylesGlobal.colors.secondary[600] }} />{' '}
-          <strong> Gestionar galería</strong> para subir sus fotos y videos. En la página pública{' '}
-          <strong>Destacados</strong>: los eventos con fecha futura salen en “Próximos eventos” y los pasados en
-          “Revive nuestros eventos” con su galería. Las fotos/videos que subas <em>sin</em> evento (desde Fotos o Videos)
-          aparecen en la <strong>Galería</strong> general.
-        </InfoBanner>
-
-        {/* Modal para agregar/editar evento */}
-        {(modalType === 'add' || modalType === 'edit') && (
-          <div
-            style={styles.modalOverlay}
-            className="modal-overlay"
-            onClick={(e) => e.target.classList.contains('modal-overlay') && setModalType(null)}
-          >
-            <div style={styles.modalContent} className="modal-content eventos-modal-content" onClick={(e) => e.stopPropagation()}>
-              <div style={styles.modalBody} className="eventos-modal-body">
-                <button
-                  style={styles.modalCloseButton}
-                  className="modal-close-btn"
-                  onClick={() => setModalType(null)}
-                  aria-label="Cerrar modal"
-                  disabled={formLoading}
-                  title="Cerrar"
-                >
-                  ×
-                </button>
-                <h2 style={styles.modalTitle}>
-                  {modalType === 'edit' ? 'Editar Evento' : 'Nuevo Evento'}
-                </h2>
-                
-                <form onSubmit={handleFormSubmit}>
-                  <div style={styles.formContainer}>
-                    {/* Fila 1: Título y Ubicación */}
-                    <div style={styles.formRow} className="eventos-form-row">
-                      <div style={styles.formGroup}>
-                        <label style={styles.label} htmlFor="evento-titulo">
-                          Título del Evento
-                          <span style={styles.requiredField} aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          id="evento-titulo"
-                          name="titulo"
-                          value={formData.titulo} 
-                          onChange={handleInputChange} 
-                          placeholder="Ingresa el título del evento" 
-                          required 
-                          style={styles.input}
-                          disabled={formLoading}
-                        />
-                      </div>
-                      <div style={styles.formGroup}>
-                        <label style={styles.label} htmlFor="evento-ubicacion">
-                          Ubicación
-                          <span style={styles.requiredField} aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          id="evento-ubicacion"
-                          name="ubicacion"
-                          value={formData.ubicacion} 
-                          onChange={handleInputChange} 
-                          placeholder="Lugar donde se realizará el evento" 
-                          required 
-                          style={styles.input}
-                          disabled={formLoading}
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Fila 2: Fecha y Horarios */}
-                    <div style={styles.formRowThree} className="eventos-form-three">
-                      <div style={styles.formGroup}>
-                        <label style={styles.label} htmlFor="evento-fecha">
-                          Fecha
-                          <span style={styles.requiredField} aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          id="evento-fecha"
-                          name="fecha"
-                          type="date" 
-                          value={formData.fecha} 
-                          onChange={handleInputChange} 
-                          required 
-                          style={styles.inputSmall}
-                          disabled={formLoading}
-                        />
-                      </div>
-                      <div style={styles.formGroup}>
-                        <label style={styles.label} htmlFor="evento-hora-inicio">
-                          Hora de Inicio
-                          <span style={styles.requiredField} aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          id="evento-hora-inicio"
-                          name="horaInicio"
-                          type="time" 
-                          value={formData.horaInicio} 
-                          onChange={handleInputChange} 
-                          required 
-                          style={styles.inputSmall}
-                          disabled={formLoading}
-                        />
-                      </div>
-                      <div style={styles.formGroup}>
-                        <label style={styles.label} htmlFor="evento-hora-fin">
-                          Hora de Fin
-                          <span style={styles.requiredField} aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          id="evento-hora-fin"
-                          name="horaFin"
-                          type="time" 
-                          value={formData.horaFin} 
-                          onChange={handleInputChange} 
-                          required 
-                          style={styles.inputSmall}
-                          disabled={formLoading}
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Fila 3: Descripción */}
-                    <div style={styles.formGroup}>
-                      <label style={styles.label} htmlFor="evento-descripcion">
-                        Descripción
-                        <span style={styles.requiredField} aria-hidden="true">*</span>
-                      </label>
-                      <textarea
-                        id="evento-descripcion"
-                        name="descripcion"
-                        value={formData.descripcion} 
-                        onChange={handleInputChange} 
-                        placeholder="Describe el evento, actividades, público objetivo, etc." 
-                        required 
-                        rows={4} 
-                        style={styles.textarea}
-                        disabled={formLoading}
-                      />
-                      <small style={styles.helpText}>
-                        Proporciona información detallada sobre el evento para ayudar a los asistentes.
-                      </small>
-                    </div>
-                    
-                    <div style={styles.modalActions} className="eventos-modal-actions">
-                      <button 
-                        type="button" 
-                        style={{
-                          ...styles.outlineButton,
-                          ...(formLoading ? styles.disabledButton : {}),
-                        }}
-                        onClick={() => setModalType(null)} 
-                        disabled={formLoading}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit" 
-                        style={{
-                          ...styles.primaryButton,
-                          ...(formLoading ? styles.disabledButton : {}),
-                        }} 
-                        disabled={formLoading}
-                        aria-label={editId ? "Actualizar evento" : "Crear evento"}
-                      >
-                        {formLoading ? (
-                          <>
-                            <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[1] }} />
-                            {editId ? 'Actualizando...' : 'Creando...'}
-                          </>
-                        ) : (
-                          <>
-                            <FaPlus size={12} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
-                            {editId ? 'Actualizar Evento' : 'Crear Evento'}
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal para confirmar eliminación */}
-        {modalType === 'delete' && eventoToDelete && (
-          <div
-            style={styles.modalOverlay}
-            className="modal-overlay"
-            onClick={(e) => e.target.classList.contains('modal-overlay') && setModalType(null)}
-          >
-            <div style={styles.deleteModalContent} className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div style={styles.modalBody}>
-                <button
-                  style={styles.modalCloseButton}
-                  className="modal-close-btn"
-                  onClick={() => setModalType(null)}
-                  aria-label="Cerrar modal"
-                  disabled={formLoading}
-                  title="Cerrar"
-                >
-                  ×
-                </button>
-                <div style={{ textAlign: 'center' }}>
-                  <FaTrash size={48} style={{ color: stylesGlobal.colors.semantic.error.main, marginBottom: stylesGlobal.spacing.scale[4] }} />
-                  <h2 style={styles.modalTitle}>¿Eliminar Evento?</h2>
-                  <p style={{ 
-                    marginBottom: stylesGlobal.spacing.scale[6], 
-                    ...stylesGlobal.typography.body.base,
-                    color: stylesGlobal.colors.text.secondary,
-                  }}>
-                    ¿Estás seguro de que deseas eliminar el evento <strong>{eventoToDelete?.titulo}</strong>?
-                  </p>
-                  <p style={{ 
-                    marginBottom: stylesGlobal.spacing.scale[6], 
-                    ...stylesGlobal.typography.body.caption,
-                    color: stylesGlobal.colors.text.muted,
-                    fontStyle: 'italic',
-                  }}>
-                    Esta acción no se puede deshacer.
-                  </p>
-                  
-                  <div style={styles.modalActions}>
-                    <button 
-                      style={{
-                        ...styles.outlineButton,
-                        ...(formLoading ? styles.disabledButton : {}),
-                      }}
-                      onClick={() => setModalType(null)}
-                      disabled={formLoading}
-                    >
-                      Cancelar
-                    </button>
-                    <button 
-                      style={{
-                        ...styles.primaryButton,
-                        backgroundColor: stylesGlobal.colors.semantic.error.main,
-                        borderColor: stylesGlobal.colors.semantic.error.main,
-                        ...(formLoading ? styles.disabledButton : {}),
-                      }}
-                      onClick={confirmDelete}
-                      disabled={formLoading}
-                      aria-label={`Eliminar evento ${eventoToDelete?.titulo}`}
-                    >
-                      {formLoading ? (
-                        <>
-                          <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[1] }} />
-                          Eliminando...
-                        </>
-                      ) : (
-                        <>
-                          <FaTrash size={12} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
-                          Eliminar Evento
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         {loading ? (
           <div style={styles.loadingContainer}>
-            <div style={styles.textCenter}>
-              <FaSpinner style={{ animation: 'spin 1s linear infinite', marginRight: stylesGlobal.spacing.scale[2] }} />
-              <h3 style={stylesGlobal.typography.headings.h3}>Cargando eventos...</h3>
-            </div>
+            <FaSpinner style={{ animation: "spin 1s linear infinite", marginRight: stylesGlobal.spacing.scale[2] }} />
+            <h3 style={stylesGlobal.typography.headings.h3}>Cargando eventos...</h3>
           </div>
         ) : eventos.length === 0 ? (
           <div style={styles.emptyState}>
-            <h3 style={styles.emptyStateText}>No hay eventos registrados</h3>
-            <p style={stylesGlobal.typography.body.base}>
-              ¡Crea un nuevo evento para comenzar!
-            </p>
+            <h3 style={stylesGlobal.typography.headings.h3}>No hay eventos registrados</h3>
+            <p style={stylesGlobal.typography.body.base}>¡Crea un nuevo evento para comenzar!</p>
           </div>
         ) : (
-          <div style={styles.tableContainer} className="eventos-table-container">
-            <div style={styles.cardThead} className="cards-thead">
+          <div>
+            <div style={styles.thead} className="evt-thead">
               <div>Evento</div>
-              <div>Descripción</div>
               <div>Fecha</div>
-              <div>Horario / Ubicación</div>
+              <div>Descripción</div>
+              <div>Galería</div>
               <div style={{ textAlign: "right" }}>Acciones</div>
             </div>
 
             {eventos.map((evento) => {
-              const horario = evento.horaInicio && evento.horaFin
-                ? `${evento.horaInicio} - ${evento.horaFin}`
-                : evento.horaInicio || evento.horaFin || "";
-              const horarioUbicacion = [horario, evento.ubicacion].filter(Boolean).join(" · ") || "No especificado";
+              const horario =
+                evento.horaInicio && evento.horaFin
+                  ? `${evento.horaInicio}–${evento.horaFin}`
+                  : evento.horaInicio || evento.horaFin || "";
+              const lugarHorario = [evento.ubicacion, horario].filter(Boolean).join(" · ");
+              const totalFotos = evento.totalFotos || 0;
+              const totalVideos = evento.totalVideos || 0;
+              const partes = [];
+              if (totalFotos) partes.push(`${totalFotos} ${totalFotos === 1 ? "foto" : "fotos"}`);
+              if (totalVideos) partes.push(`${totalVideos} ${totalVideos === 1 ? "video" : "videos"}`);
               return (
-                <div key={evento._id} style={styles.cardRow} className="cards-row">
-                  <div style={styles.cardCell}>
-                    <div style={styles.cardThumb}>{(evento.titulo || "E")[0].toUpperCase()}</div>
+                <div key={evento._id} style={styles.fila} className="evt-fila">
+                  <div style={styles.celdaEvento}>
+                    <div style={styles.thumb}>{(evento.titulo || "E")[0].toUpperCase()}</div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={styles.cardName}>{evento.titulo || "Sin título"}</div>
+                      <div style={styles.nombreEvento}>{evento.titulo || "Sin título"}</div>
+                      {lugarHorario && <div style={styles.lugarEvento}>{lugarHorario}</div>}
                     </div>
                   </div>
-                  <div style={styles.cardText}>{evento.descripcion || "—"}</div>
-                  <div style={styles.cardText}>
-                    {evento.fecha ? new Date(evento.fecha).toLocaleDateString('es-ES') : "No especificada"}
+                  <div style={styles.textoCelda}>
+                    {formatearFecha(evento.fecha)}
+                    {esFuturo(evento.fecha) && <span style={styles.chipProximo}>Próximo</span>}
                   </div>
-                  <div style={styles.cardText}>{horarioUbicacion}</div>
-                  <div style={styles.cardActions} className="cards-actions">
+                  <div style={styles.textoCelda}>{evento.descripcion || "—"}</div>
+                  <div>
+                    {partes.length ? (
+                      <button
+                        style={styles.badgeConFotos}
+                        className="evt-badge"
+                        onClick={() => abrirGaleria(evento)}
+                        title="Ver y administrar la galería"
+                        aria-label={`Galería de ${evento.titulo}: ${partes.join(" y ")}`}
+                      >
+                        <FaImages size={12} />
+                        {partes.join(" · ")}
+                      </button>
+                    ) : (
+                      <button
+                        style={styles.badgeSinFotos}
+                        className="evt-badge"
+                        onClick={() => abrirGaleria(evento)}
+                        title="Este evento aún no tiene fotos"
+                        aria-label={`Agregar fotos a ${evento.titulo}`}
+                      >
+                        <FaPlus size={10} />
+                        Agregar fotos
+                      </button>
+                    )}
+                  </div>
+                  <div style={styles.acciones} className="evt-acciones">
                     <button
-                      style={{ ...styles.cardAct, backgroundColor: stylesGlobal.colors.secondary[50], color: stylesGlobal.colors.secondary[600] }}
-                      title="Gestionar galería (fotos y videos)"
-                      onClick={() => abrirGaleria(evento)}
-                      aria-label={`Gestionar galería de ${evento.titulo}`}
-                    >
-                      <FaImages size={15} />
-                    </button>
-                    <button
-                      style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                      style={{ ...styles.iconoBtn, ...styles.iconoEditar }}
+                      className="evt-icono"
                       title="Editar evento"
-                      onClick={() => handleEditClick(evento)}
+                      onClick={() => abrirEdicion(evento)}
                       aria-label={`Editar evento ${evento.titulo}`}
                     >
                       <FaEdit size={15} />
                     </button>
                     <button
-                      style={{ ...styles.cardAct, ...styles.cardActDel }}
+                      style={{ ...styles.iconoBtn, ...styles.iconoBorrar }}
+                      className="evt-icono"
                       title="Eliminar evento"
-                      onClick={() => handleDeleteClick(evento)}
+                      onClick={() => setConfirmacion({ tipo: "evento", id: evento._id, titulo: evento.titulo })}
                       aria-label={`Eliminar evento ${evento.titulo}`}
                     >
                       <FaTrash size={15} />
@@ -1225,128 +928,404 @@ const GestionEventos = () => {
         )}
       </div>
 
-      {/* Modal: galería del evento (centralizado) */}
-      {galeriaEvento && (
+      {/* ============== Asistente: Datos → Galería ============== */}
+      {wizardAbierto && (
         <div
-          style={styles.modalOverlay}
-          className="modal-overlay"
-          onClick={(e) => e.target.classList.contains('modal-overlay') && cerrarGaleria()}
+          style={styles.overlay}
+          className="evt-overlay"
+          onClick={(e) => e.target === e.currentTarget && cerrarWizard()}
         >
-          <div style={{ ...styles.modalContent, maxWidth: '820px' }} className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalBody}>
+          <div style={styles.modal} className="evt-modal">
+            <div style={styles.modalCab}>
+              <h2 style={styles.modalTitulo}>
+                {paso === 2
+                  ? `Galería de “${eventoActual?.titulo || "Evento"}”`
+                  : editId
+                  ? "Editar evento"
+                  : "Nuevo evento"}
+              </h2>
               <button
-                style={styles.modalCloseButton}
-                className="modal-close-btn"
-                onClick={cerrarGaleria}
+                style={styles.cerrar}
+                className="evt-cerrar"
+                onClick={cerrarWizard}
+                disabled={subiendo}
                 aria-label="Cerrar"
-                title="Cerrar"
+                title={subiendo ? "Espera a que termine la subida" : "Cerrar"}
               >
                 ×
               </button>
-              <h2 style={styles.modalTitle}>Galería de “{galeriaEvento.titulo || 'Evento'}”</h2>
-              <p style={{ ...stylesGlobal.typography.body.small, color: stylesGlobal.colors.text.tertiary, marginTop: -8, marginBottom: stylesGlobal.spacing.scale[4] }}>
-                Sube las fotos y videos de este evento. Se mostrarán en <strong>Destacados → “Revive nuestros eventos”</strong>.
-              </p>
+            </div>
 
-              {/* Zona de subida: arrastrar y soltar + multi-archivo */}
-              <div
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={onDrop}
-                style={{
-                  border: `2px dashed ${dragOver ? stylesGlobal.colors.primary[400] : stylesGlobal.colors.neutral[300]}`,
-                  background: dragOver ? stylesGlobal.colors.primary[50] : stylesGlobal.colors.surface.secondary,
-                  borderRadius: stylesGlobal.borders.radius.lg, padding: stylesGlobal.spacing.scale[6],
-                  textAlign: 'center', transition: 'all .15s', marginBottom: stylesGlobal.spacing.scale[4],
-                }}
-              >
-                <FaCloudUploadAlt size={30} style={{ color: stylesGlobal.colors.primary[400], marginBottom: 8 }} />
-                <div style={{ fontWeight: 600, color: stylesGlobal.colors.text.secondary, marginBottom: 4 }}>Arrastra fotos y videos aquí</div>
-                <div style={{ fontSize: stylesGlobal.typography.scale.sm, color: stylesGlobal.colors.text.tertiary, marginBottom: 12 }}>o</div>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Seleccionar archivos
-                  <input type="file" accept="image/*,video/*" multiple onChange={(e) => { agregarArchivos(e.target.files); e.target.value = ""; }} style={{ display: 'none' }} />
-                </label>
+            {!soloGaleria && (
+              <div style={styles.pasos}>
+                <div style={styles.paso}>
+                  <span style={styles.pasoNum(paso === 1 ? "activo" : "hecho")}>
+                    {paso === 1 ? "1" : <FaCheck size={10} />}
+                  </span>
+                  <span style={styles.pasoTexto(paso === 1 ? "activo" : "hecho")}>Datos del evento</span>
+                </div>
+                <div style={styles.pasoLinea} />
+                <div style={styles.paso}>
+                  <span style={styles.pasoNum(paso === 2 ? "activo" : "pendiente")}>2</span>
+                  <span style={styles.pasoTexto(paso === 2 ? "activo" : "pendiente")}>Galería</span>
+                  <span style={styles.pasoOpcional}>(opcional)</span>
+                </div>
               </div>
+            )}
 
-              {/* Cola de subida */}
-              {cola.length > 0 && (
-                <div style={{ marginBottom: stylesGlobal.spacing.scale[5], display: 'flex', flexDirection: 'column', gap: stylesGlobal.spacing.scale[2] }}>
-                  {cola.map((it) => (
-                    <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 12, border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.md, padding: stylesGlobal.spacing.scale[2] }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: stylesGlobal.colors.neutral[100], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {it.previewUrl ? <img src={it.previewUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <FaVideo color={stylesGlobal.colors.text.tertiary} />}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <input
-                          value={it.titulo}
-                          onChange={(e) => setColaItem(it.id, { titulo: e.target.value })}
-                          disabled={it.status === 'subiendo' || it.status === 'ok'}
-                          placeholder="Título"
-                          maxLength={100}
-                          style={{ width: '100%', padding: '6px 10px', fontSize: '0.85rem', border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.sm, boxSizing: 'border-box', fontFamily: stylesGlobal.typography.families.body }}
-                        />
-                        {it.status === 'subiendo' && (
-                          <div style={{ height: 6, background: stylesGlobal.colors.neutral[200], borderRadius: stylesGlobal.borders.radius.full, overflow: 'hidden', marginTop: 6 }}>
-                            <div style={{ height: '100%', width: `${it.progress}%`, background: stylesGlobal.colors.primary[500], transition: 'width .2s' }} />
-                          </div>
-                        )}
-                        {it.status === 'pendiente' && <span style={{ fontSize: 12, color: stylesGlobal.colors.text.tertiary }}>{it.tipo === 'foto' ? 'Foto' : 'Video'} · listo para subir</span>}
-                        {it.status === 'ok' && <span style={{ fontSize: 12, color: stylesGlobal.colors.semantic.success.main }}>✓ Subido</span>}
-                        {it.status === 'error' && <span style={{ fontSize: 12, color: stylesGlobal.colors.semantic.error.main }}>⚠ {it.error}</span>}
-                      </div>
-                      {(it.status === 'pendiente' || it.status === 'error') && (
-                        <button onClick={() => quitarDeCola(it.id)} title="Quitar de la cola" style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer', background: stylesGlobal.colors.neutral[100], color: stylesGlobal.colors.text.secondary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <FaTrash size={11} />
-                        </button>
-                      )}
+            {/* Paso 1: datos */}
+            {paso === 1 && (
+              <form onSubmit={guardarYContinuar} noValidate>
+                <div style={{ ...styles.modalCuerpo, paddingTop: soloGaleria ? stylesGlobal.spacing.scale[4] : 0 }}>
+                  <div style={styles.campo}>
+                    <label style={styles.label} htmlFor="evento-titulo">
+                      Título del evento<span style={styles.req} aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      id="evento-titulo"
+                      name="titulo"
+                      value={formData.titulo}
+                      onChange={handleInputChange}
+                      placeholder="Ej. Taller de bordado de primavera"
+                      maxLength={120}
+                      style={{ ...styles.input, ...(erroresForm.titulo ? styles.inputError : {}) }}
+                      disabled={formLoading}
+                    />
+                    {erroresForm.titulo && <div style={styles.msjError}>{erroresForm.titulo}</div>}
+                  </div>
+
+                  <div style={{ ...styles.fila3, ...styles.campo }} className="evt-fila3">
+                    <div>
+                      <label style={styles.label} htmlFor="evento-fecha">
+                        Fecha<span style={styles.req} aria-hidden="true">*</span>
+                      </label>
+                      <input
+                        id="evento-fecha"
+                        name="fecha"
+                        type="date"
+                        value={formData.fecha}
+                        onChange={handleInputChange}
+                        style={{ ...styles.input, ...(erroresForm.fecha ? styles.inputError : {}) }}
+                        disabled={formLoading}
+                      />
+                      {erroresForm.fecha && <div style={styles.msjError}>{erroresForm.fecha}</div>}
                     </div>
-                  ))}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6 }}>
-                    <button onClick={() => setCola([])} disabled={subiendoTodo} style={{ padding: '9px 18px', borderRadius: stylesGlobal.borders.radius.lg, border: `1px solid ${stylesGlobal.colors.neutral[300]}`, background: stylesGlobal.colors.surface.primary, color: stylesGlobal.colors.text.secondary, fontWeight: 600, fontSize: '0.9rem', cursor: subiendoTodo ? 'not-allowed' : 'pointer', opacity: subiendoTodo ? 0.6 : 1 }}>
-                      Limpiar
-                    </button>
-                    <button onClick={subirTodo} disabled={subiendoTodo} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 20px', borderRadius: stylesGlobal.borders.radius.lg, border: 'none', background: stylesGlobal.colors.primary[500], color: '#fff', fontWeight: 600, fontSize: '0.9rem', cursor: subiendoTodo ? 'not-allowed' : 'pointer', opacity: subiendoTodo ? 0.7 : 1 }}>
-                      {subiendoTodo ? <><FaSpinner className="evt-spin" /> Subiendo…</> : `Subir ${cola.filter((i) => i.status !== 'ok').length} archivo(s)`}
-                    </button>
+                    <div>
+                      <label style={styles.label} htmlFor="evento-hora-inicio">
+                        Hora inicio<span style={styles.opc}>opcional</span>
+                      </label>
+                      <input
+                        id="evento-hora-inicio"
+                        name="horaInicio"
+                        type="time"
+                        value={formData.horaInicio}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        disabled={formLoading}
+                      />
+                    </div>
+                    <div>
+                      <label style={styles.label} htmlFor="evento-hora-fin">
+                        Hora fin<span style={styles.opc}>opcional</span>
+                      </label>
+                      <input
+                        id="evento-hora-fin"
+                        name="horaFin"
+                        type="time"
+                        value={formData.horaFin}
+                        onChange={handleInputChange}
+                        style={styles.input}
+                        disabled={formLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={styles.campo}>
+                    <label style={styles.label} htmlFor="evento-ubicacion">
+                      Ubicación<span style={styles.opc}>opcional</span>
+                    </label>
+                    <input
+                      id="evento-ubicacion"
+                      name="ubicacion"
+                      value={formData.ubicacion}
+                      onChange={handleInputChange}
+                      placeholder="Ej. Centro Cultural, Sala 2"
+                      style={styles.input}
+                      disabled={formLoading}
+                    />
+                  </div>
+
+                  <div style={{ ...styles.campo, marginBottom: stylesGlobal.spacing.scale[2] }}>
+                    <label style={styles.label} htmlFor="evento-descripcion">
+                      Descripción<span style={styles.opc}>opcional</span>
+                    </label>
+                    <textarea
+                      id="evento-descripcion"
+                      name="descripcion"
+                      value={formData.descripcion}
+                      onChange={handleInputChange}
+                      placeholder="¿De qué trata el evento? Puedes completarla después."
+                      rows={3}
+                      style={styles.textarea}
+                      disabled={formLoading}
+                    />
+                    <div style={styles.pista}>
+                      Solo el título y la fecha son obligatorios. Todo lo demás se puede editar después.
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {/* Grid de media */}
-              {galeriaLoading ? (
-                <div style={{ textAlign: 'center', padding: stylesGlobal.spacing.scale[8], color: stylesGlobal.colors.text.tertiary }}>
-                  <FaSpinner className="evt-spin" /> Cargando galería…
+                <div style={styles.pie} className="evt-pie">
+                  <button
+                    type="button"
+                    style={{ ...styles.btnSecundario, ...(formLoading ? styles.btnDeshabilitado : {}) }}
+                    onClick={cerrarWizard}
+                    disabled={formLoading}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ ...styles.btnPrimario, ...(formLoading ? styles.btnDeshabilitado : {}) }}
+                    disabled={formLoading}
+                  >
+                    {formLoading ? (
+                      <>
+                        <FaSpinner style={{ animation: "spin 1s linear infinite" }} />
+                        Guardando...
+                      </>
+                    ) : (
+                      "Guardar y continuar →"
+                    )}
+                  </button>
                 </div>
-              ) : (galeriaFotos.length + galeriaVideos.length === 0) ? (
-                <div style={{ textAlign: 'center', padding: stylesGlobal.spacing.scale[8], backgroundColor: stylesGlobal.colors.surface.secondary, borderRadius: stylesGlobal.borders.radius.md, color: stylesGlobal.colors.text.tertiary }}>
-                  Aún no hay fotos ni videos. Usa los botones de arriba para agregar.
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: stylesGlobal.spacing.scale[2] }}>
-                  {galeriaFotos.map((f) => (
-                    <div key={f._id} style={{ position: 'relative', aspectRatio: '1', borderRadius: stylesGlobal.borders.radius.md, overflow: 'hidden', border: `1px solid ${stylesGlobal.colors.neutral[200]}` }}>
-                      <img src={f.url || '/placeholder.svg'} alt={f.titulo || 'Foto'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <button onClick={() => quitarFoto(f._id)} title="Quitar foto" style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(0,0,0,0.55)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <FaTrash size={12} />
-                      </button>
-                    </div>
-                  ))}
-                  {galeriaVideos.map((v) => (
-                    <div key={v._id} style={{ position: 'relative', aspectRatio: '1', borderRadius: stylesGlobal.borders.radius.md, overflow: 'hidden', border: `1px solid ${stylesGlobal.colors.neutral[200]}`, background: stylesGlobal.colors.neutral[100] }}>
-                      <img src={v.miniatura || '/placeholder.svg'} alt={v.titulo || 'Video'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div style={{ position: 'absolute', bottom: 6, left: 6, background: stylesGlobal.colors.primary[500], color: '#fff', borderRadius: stylesGlobal.borders.radius.base, padding: '2px 6px', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600 }}>
-                        <FaVideo size={10} /> Video
-                      </div>
-                      <button onClick={() => quitarVideo(v._id)} title="Quitar video" style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(0,0,0,0.55)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <FaTrash size={12} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              </form>
+            )}
 
-              <style>{`@keyframes evtspin{to{transform:rotate(360deg)}} .evt-spin{animation:evtspin 1s linear infinite}`}</style>
+            {/* Paso 2: galería */}
+            {paso === 2 && (
+              <>
+                <div style={{ ...styles.modalCuerpo, paddingTop: soloGaleria ? stylesGlobal.spacing.scale[4] : 0 }}>
+                  <p style={styles.subGaleria}>
+                    Sube las fotos y videos de <strong>“{eventoActual?.titulo || "el evento"}”</strong>. Se
+                    mostrarán en <strong>Destacados → “Revive nuestros eventos”</strong>. Este paso es
+                    opcional: puedes cerrarlo y volver cuando quieras.
+                  </p>
+
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={onDrop}
+                    style={styles.zonaSoltar(dragOver)}
+                  >
+                    <FaCloudUploadAlt size={30} style={{ color: stylesGlobal.colors.primary[400], marginBottom: 8 }} />
+                    <div style={{ fontWeight: 600, color: stylesGlobal.colors.text.secondary, marginBottom: 4 }}>
+                      Arrastra fotos y videos aquí
+                    </div>
+                    <div style={{ fontSize: stylesGlobal.typography.scale.sm, color: stylesGlobal.colors.text.tertiary, marginBottom: 12 }}>
+                      o
+                    </div>
+                    <label style={styles.btnArchivos} className="evt-btn-archivos">
+                      Seleccionar archivos
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        multiple
+                        onChange={(e) => { agregarArchivos(e.target.files); e.target.value = ""; }}
+                        style={{ display: "none" }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Cola de subida (los archivos se suben solos al agregarlos) */}
+                  {cola.length > 0 && (
+                    <div style={{ marginBottom: stylesGlobal.spacing.scale[5], display: "flex", flexDirection: "column", gap: stylesGlobal.spacing.scale[2] }}>
+                      {cola.map((it) => (
+                        <div key={it.id} style={styles.colaItem}>
+                          <div style={styles.colaThumb}>
+                            {it.previewUrl ? (
+                              <img src={it.previewUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              <FaVideo color={stylesGlobal.colors.text.tertiary} />
+                            )}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: stylesGlobal.colors.text.primary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {it.titulo}
+                            </div>
+                            {it.status === "subiendo" && (
+                              <div style={styles.barraProgreso}>
+                                <div style={{ height: "100%", width: `${it.progress}%`, background: stylesGlobal.colors.primary[500], transition: "width .2s" }} />
+                              </div>
+                            )}
+                            {it.status === "pendiente" && (
+                              <span style={{ fontSize: 12, color: stylesGlobal.colors.text.tertiary }}>
+                                {it.tipo === "foto" ? "Foto" : "Video"} · en espera
+                              </span>
+                            )}
+                            {it.status === "error" && (
+                              <span style={{ fontSize: 12, color: stylesGlobal.colors.semantic.error.main }}>
+                                ⚠ {it.error}
+                              </span>
+                            )}
+                          </div>
+                          {(it.status === "pendiente" || it.status === "error") && (
+                            <button
+                              onClick={() => quitarDeCola(it.id)}
+                              title="Quitar de la cola"
+                              style={{ width: 28, height: 28, borderRadius: "50%", border: "none", cursor: "pointer", background: stylesGlobal.colors.neutral[100], color: stylesGlobal.colors.text.secondary, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                            >
+                              <FaTrash size={11} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      {erroresEnCola > 0 && !subiendo && (
+                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                          <button style={styles.btnSecundario} onClick={reintentarErrores}>
+                            Reintentar {erroresEnCola} con error
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Media ya subida */}
+                  {galeriaLoading ? (
+                    <div style={{ textAlign: "center", padding: stylesGlobal.spacing.scale[6], color: stylesGlobal.colors.text.tertiary }}>
+                      <FaSpinner style={{ animation: "spin 1s linear infinite", marginRight: 8 }} />
+                      Cargando galería…
+                    </div>
+                  ) : galeriaFotos.length + galeriaVideos.length === 0 && cola.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: stylesGlobal.spacing.scale[6], backgroundColor: stylesGlobal.colors.surface.secondary, borderRadius: stylesGlobal.borders.radius.md, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.sm }}>
+                      Aún no hay fotos ni videos. Puedes agregarlos ahora o después desde la lista.
+                    </div>
+                  ) : (
+                    <div style={styles.mediaGrid}>
+                      {galeriaFotos.map((f) => (
+                        <div key={f._id} style={styles.celdaMedia} className="evt-celda-media">
+                          <img
+                            src={f.url || "/placeholder.svg"}
+                            alt={f.titulo || "Foto"}
+                            loading="lazy"
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                          <button
+                            onClick={() => setConfirmacion({ tipo: "foto", id: f._id, titulo: f.titulo })}
+                            title="Quitar foto"
+                            className="evt-quitar"
+                            style={styles.quitarMedia}
+                          >
+                            <FaTrash size={12} />
+                          </button>
+                        </div>
+                      ))}
+                      {galeriaVideos.map((v) => (
+                        <div key={v._id} style={styles.celdaMedia} className="evt-celda-media">
+                          <img
+                            src={v.miniatura || "/placeholder.svg"}
+                            alt={v.titulo || "Video"}
+                            loading="lazy"
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                          <div style={{ position: "absolute", bottom: 6, left: 6, background: stylesGlobal.colors.primary[500], color: "#fff", borderRadius: stylesGlobal.borders.radius.base, padding: "2px 6px", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600 }}>
+                            <FaVideo size={10} /> Video
+                          </div>
+                          <button
+                            onClick={() => setConfirmacion({ tipo: "video", id: v._id, titulo: v.titulo })}
+                            title="Quitar video"
+                            className="evt-quitar"
+                            style={styles.quitarMedia}
+                          >
+                            <FaTrash size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div style={styles.pie} className="evt-pie">
+                  {soloGaleria ? <span /> : (
+                    <button
+                      type="button"
+                      style={{ ...styles.btnSecundario, ...(subiendo ? styles.btnDeshabilitado : {}) }}
+                      onClick={volverADatos}
+                      disabled={subiendo}
+                    >
+                      ← Volver a los datos
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    style={{ ...styles.btnPrimario, ...(subiendo ? styles.btnDeshabilitado : {}) }}
+                    onClick={cerrarWizard}
+                    disabled={subiendo}
+                    title={subiendo ? "Espera a que termine la subida" : undefined}
+                  >
+                    {subiendo ? (
+                      <>
+                        <FaSpinner style={{ animation: "spin 1s linear infinite" }} />
+                        Subiendo…
+                      </>
+                    ) : (
+                      "Listo"
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============== Confirmación de eliminación (evento / foto / video) ============== */}
+      {confirmacion && (
+        <div
+          style={{ ...styles.overlay, zIndex: 1400 }}
+          className="evt-overlay"
+          onClick={(e) => e.target === e.currentTarget && !confirmLoading && setConfirmacion(null)}
+        >
+          <div style={styles.modalDelete} className="evt-modal">
+            <div style={{ padding: stylesGlobal.spacing.scale[6] }}>
+              <FaTrash size={42} style={{ color: stylesGlobal.colors.semantic.error.main, marginBottom: stylesGlobal.spacing.scale[4] }} />
+              <h2 style={styles.modalTitulo}>{textosConfirmacion[confirmacion.tipo].titulo}</h2>
+              {confirmacion.titulo && (
+                <p style={{ ...stylesGlobal.typography.body.base, color: stylesGlobal.colors.text.secondary, marginTop: stylesGlobal.spacing.scale[3] }}>
+                  <strong>{confirmacion.titulo}</strong>
+                </p>
+              )}
+              <p style={{ ...stylesGlobal.typography.body.caption, color: stylesGlobal.colors.text.muted, fontStyle: "italic", marginTop: stylesGlobal.spacing.scale[2], marginBottom: stylesGlobal.spacing.scale[6] }}>
+                {textosConfirmacion[confirmacion.tipo].detalle}
+              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: stylesGlobal.spacing.scale[3] }}>
+                <button
+                  style={{ ...styles.btnSecundario, ...(confirmLoading ? styles.btnDeshabilitado : {}) }}
+                  onClick={() => setConfirmacion(null)}
+                  disabled={confirmLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  style={{
+                    ...styles.btnPrimario,
+                    backgroundColor: stylesGlobal.colors.semantic.error.main,
+                    borderColor: stylesGlobal.colors.semantic.error.main,
+                    ...(confirmLoading ? styles.btnDeshabilitado : {}),
+                  }}
+                  onClick={ejecutarConfirmacion}
+                  disabled={confirmLoading}
+                >
+                  {confirmLoading ? (
+                    <>
+                      <FaSpinner style={{ animation: "spin 1s linear infinite" }} />
+                      Eliminando...
+                    </>
+                  ) : (
+                    "Eliminar"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
