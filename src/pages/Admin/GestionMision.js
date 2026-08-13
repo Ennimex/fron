@@ -115,7 +115,6 @@ const GestionMision = () => {
   // Mapeo de estilos globales
   const styles = {
     pageContainer: {
-      ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
       backgroundColor: adminTheme.bg,
       minHeight: "100vh",
@@ -142,11 +141,6 @@ const GestionMision = () => {
     subtitle: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.secondary,
-    },
-    content: {
-      padding: stylesGlobal.spacing.scale[4],
-      backgroundColor: stylesGlobal.colors.surface.secondary,
-      borderRadius: stylesGlobal.borders.radius.md,
     },
     error: {
       ...stylesGlobal.typography.body.base,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaImage, FaSpinner, FaConciergeBell, FaTimes, FaLock } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -192,12 +192,6 @@ const GestionServicio = () => {
 
   // Hook de notificaciones centralizado
   const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
-  
-  // Crear una referencia estable para addNotification
-  const addNotificationRef = useRef(addNotification);
-  useEffect(() => {
-    addNotificationRef.current = addNotification;
-  }, [addNotification]);
 
   // Nota: useAdminNotifications ya se suscribe a adminService.onNotification
   // por dentro; suscribirse otra vez aquí duplicaba cada notificación.
@@ -285,9 +279,6 @@ const GestionServicio = () => {
     tableRow: {
       borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
       transition: stylesGlobal.animations.transitions.base,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.surface.secondary,
-      },
     },
     tableCell: {
       padding: stylesGlobal.spacing.scale[4],
@@ -306,16 +297,10 @@ const GestionServicio = () => {
     editAction: {
       backgroundColor: stylesGlobal.colors.semantic.info.main,
       color: stylesGlobal.colors.semantic.info.contrast,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.info.dark,
-      },
     },
     deleteAction: {
       backgroundColor: stylesGlobal.colors.semantic.error.main,
       color: stylesGlobal.colors.semantic.error.contrast,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.dark,
-      },
     },
     emptyState: {
       display: 'flex',
@@ -349,16 +334,16 @@ const GestionServicio = () => {
       padding: stylesGlobal.spacing.scale[6],
     },
     modalContent: {
-      ...stylesGlobal.components.card.luxury,
+      backgroundColor: '#ffffff',
+      borderRadius: '18px',
+      border: 'none',
+      boxShadow: '0 24px 70px rgba(45, 40, 35, 0.3)',
       width: '100%',
       maxWidth: '800px',
       maxHeight: '90vh',
       overflow: 'auto',
       position: 'relative',
       margin: '20px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-      transform: 'scale(1)',
-      transition: 'all 0.3s ease-in-out',
     },
     modalCloseButton: {
       ...stylesGlobal.components.button.variants.ghost,
@@ -432,9 +417,6 @@ const GestionServicio = () => {
       textAlign: 'center',
       cursor: 'pointer',
       transition: stylesGlobal.animations.transitions.base,
-      '&:hover': {
-        borderColor: stylesGlobal.colors.primary[400],
-      },
     },
     uploadText: {
       ...stylesGlobal.typography.body.base,
@@ -468,9 +450,6 @@ const GestionServicio = () => {
     submitButtonDisabled: {
       opacity: 0.7,
       cursor: 'not-allowed',
-      '&:hover': {
-        transform: 'none',
-      },
     },
   };
 
@@ -491,14 +470,6 @@ const GestionServicio = () => {
     imagen: null,
   });
 
-  // Verificar autenticación y rol al cargar
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      setLoading(false);
-      return;
-    }
-  }, [isAuthenticated, user]);
-
   // Cargar servicios usando adminService
   const fetchServicios = useCallback(async () => {
     try {
@@ -513,13 +484,8 @@ const GestionServicio = () => {
     }
   }, []);
 
-  // Cerrar modal con cleanup - Definido antes para evitar advertencias de ESLint
+  // Cerrar modal - Definido antes para evitar advertencias de ESLint
   const closeModal = useCallback(() => {
-    // Cleanup de blobs
-    if (imagePreview && imagePreview.startsWith('blob:')) {
-      URL.revokeObjectURL(imagePreview);
-    }
-    
     setShowModal(false);
     setServicio({
       nombre: '',
@@ -530,7 +496,7 @@ const GestionServicio = () => {
     setImagePreview(null);
     setSelectedServicio(null);
     setIsEditMode(false);
-  }, [imagePreview]);
+  }, []);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -558,15 +524,6 @@ const GestionServicio = () => {
     };
   }, [showModal, closeModal]);
 
-  // Cleanup de blobs al desmontar el componente
-  useEffect(() => {
-    return () => {
-      if (imagePreview && imagePreview.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    };
-  }, [imagePreview]);
-
   // Manejar cambios en el formulario
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -588,14 +545,9 @@ const GestionServicio = () => {
         return;
       }
 
-      // Cleanup del blob anterior si existe
-      if (imagePreview && imagePreview.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-      }
-
       setServicio(prev => ({ ...prev, imagen: file }));
-      
-      // Crear nueva URL de blob para preview
+
+      // Generar preview como data URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -612,11 +564,6 @@ const GestionServicio = () => {
 
   // Abrir modal para nuevo servicio
   const openModal = (editServicio = null) => {
-    // Cleanup del blob anterior si existe
-    if (imagePreview && imagePreview.startsWith('blob:')) {
-      URL.revokeObjectURL(imagePreview);
-    }
-
     if (editServicio) {
       setIsEditMode(true);
       setSelectedServicio(editServicio);

@@ -48,37 +48,10 @@ const responsiveStyles = `
       gap: 0.75rem !important;
     }
     
-    .productos-table-container {
-      overflow-x: auto !important;
-      margin: 0 -1rem !important;
-      padding: 0 1rem !important;
-    }
-    
-    .productos-table {
-      min-width: 800px !important;
-    }
-    
-    .productos-table th,
-    .productos-table td {
-      padding: 0.5rem !important;
-      font-size: 0.875rem !important;
-    }
-    
     .productos-actions {
       flex-direction: column !important;
       gap: 0.25rem !important;
       align-items: stretch !important;
-    }
-    
-    .productos-action-btn {
-      justify-content: center !important;
-      font-size: 0.75rem !important;
-      padding: 0.375rem 0.75rem !important;
-    }
-    
-    .productos-search-filter {
-      flex-direction: column !important;
-      gap: 0.75rem !important;
     }
   }
 
@@ -106,11 +79,6 @@ const responsiveStyles = `
       padding-top: 3rem !important;
     }
     
-    .productos-form-row {
-      flex-direction: column !important;
-      gap: 1rem !important;
-    }
-    
     .productos-modal-actions {
       flex-direction: column !important;
       gap: 0.75rem !important;
@@ -128,11 +96,6 @@ const responsiveStyles = `
     .productos-talla-checkboxes {
       grid-template-columns: repeat(2, 1fr) !important;
       gap: 0.5rem !important;
-    }
-    
-    .productos-image-preview {
-      max-width: 100% !important;
-      height: auto !important;
     }
   }
 
@@ -540,13 +503,6 @@ const GestionProductos = () => {
       minHeight: "100vh",
       backgroundColor: adminTheme.bg,
       padding: stylesPublic.spacing.sections.sm,
-      // Responsive padding
-      '@media (max-width: 768px)': {
-        padding: stylesPublic.spacing.scale[2],
-      },
-      '@media (max-width: 480px)': {
-        padding: stylesPublic.spacing.scale[1],
-      },
     },
     container: {
       maxWidth: stylesPublic.utils.container.maxWidth["2xl"],
@@ -563,12 +519,6 @@ const GestionProductos = () => {
       justifyContent: "space-between",
       alignItems: "center",
       width: "100%",
-      // Responsive header content
-      '@media (max-width: 768px)': {
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: stylesPublic.spacing.scale[3],
-      },
     },
     title: {
       fontFamily: adminTheme.serif,
@@ -599,17 +549,6 @@ const GestionProductos = () => {
       marginBottom: stylesPublic.spacing.scale[4],
       border: `1px solid ${stylesPublic.colors.semantic.error.main}`,
     },
-    success: {
-      padding: stylesPublic.spacing.scale[4],
-      backgroundColor: stylesPublic.colors.semantic.success.light,
-      color: stylesPublic.colors.semantic.success.main,
-      borderRadius: stylesPublic.borders.radius.base,
-      marginBottom: stylesPublic.spacing.scale[4],
-      border: `1px solid ${stylesPublic.colors.semantic.success.main}`,
-      display: "flex",
-      alignItems: "center",
-      gap: stylesPublic.spacing.scale[2],
-    },
     controlsContainer: {
       display: "flex",
       justifyContent: "space-between",
@@ -628,40 +567,6 @@ const GestionProductos = () => {
     filterSelect: {
       ...stylesPublic.components.input.base,
       minWidth: "200px",
-    },
-    tableContainer: {
-      overflowX: "auto",
-      borderRadius: stylesPublic.borders.radius.lg,
-      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
-      backgroundColor: stylesPublic.colors.surface.primary,
-      boxShadow: stylesPublic.shadows.base,
-    },
-    table: {
-      width: "100%",
-      borderCollapse: "collapse",
-    },
-    tableHeader: {
-      backgroundColor: stylesPublic.colors.neutral[100],
-    },
-    tableHeaderCell: {
-      padding: stylesPublic.spacing.scale[4],
-      textAlign: "left",
-      fontWeight: stylesPublic.typography.weights.semibold,
-      color: stylesPublic.colors.text.secondary,
-      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
-    },
-    tableRow: {
-      "&:hover": {
-        backgroundColor: stylesPublic.colors.neutral[50],
-      },
-    },
-    tableCell: {
-      padding: stylesPublic.spacing.scale[4],
-      borderBottom: `1px solid ${stylesPublic.colors.neutral[200]}`,
-    },
-    actionsContainer: {
-      display: "flex",
-      gap: stylesPublic.spacing.scale[2],
     },
     // --- Lista de productos como tarjetas por fila (look del preview) ---
     thead: {
@@ -839,13 +744,14 @@ const GestionProductos = () => {
       justifyContent: "center",
     },
     modalContent: {
-      backgroundColor: stylesPublic.colors.surface.primary,
-      borderRadius: stylesPublic.borders.radius.xl,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
       width: "90%",
       maxWidth: "800px",
       maxHeight: "90vh",
       overflowY: "auto",
-      boxShadow: stylesPublic.shadows.xl,
     },
     modalHeader: {
       padding: stylesPublic.spacing.scale[6],
@@ -864,9 +770,6 @@ const GestionProductos = () => {
       fontSize: stylesPublic.typography.scale["2xl"],
       cursor: "pointer",
       color: stylesPublic.colors.text.tertiary,
-      "&:hover": {
-        color: stylesPublic.colors.text.primary,
-      },
     },
     modalBody: {
       padding: stylesPublic.spacing.scale[6],
@@ -907,9 +810,6 @@ const GestionProductos = () => {
       textAlign: "center",
       cursor: "pointer",
       transition: stylesPublic.animations.transitions.base,
-      "&:hover": {
-        borderColor: stylesPublic.colors.primary[500],
-      },
     },
     uploadText: {
       ...stylesPublic.typography.body.base,
@@ -1004,41 +904,6 @@ const GestionProductos = () => {
       color: stylesPublic.colors.text.secondary,
       fontSize: stylesPublic.typography.scale.sm,
       fontWeight: stylesPublic.typography.weights.semibold,
-    },
-    productImage: {
-      width: "50px",
-      height: "50px",
-      objectFit: "cover",
-      borderRadius: stylesPublic.borders.radius.sm,
-    },
-    actionButton: {
-      ...stylesPublic.components.button.sizes.sm,
-      padding: stylesPublic.spacing.scale[2],
-      minWidth: "32px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    editAction: {
-      backgroundColor: stylesPublic.colors.semantic.info.main,
-      color: stylesPublic.colors.semantic.info.contrast,
-      "&:hover": {
-        backgroundColor: stylesPublic.colors.semantic.info.dark,
-      },
-    },
-    deleteAction: {
-      backgroundColor: stylesPublic.colors.semantic.error.main,
-      color: stylesPublic.colors.semantic.error.contrast,
-      "&:hover": {
-        backgroundColor: stylesPublic.colors.semantic.error.dark,
-      },
-    },
-    viewAction: {
-      backgroundColor: stylesPublic.colors.semantic.success.main,
-      color: stylesPublic.colors.semantic.success.contrast,
-      "&:hover": {
-        backgroundColor: stylesPublic.colors.semantic.success.dark,
-      },
     },
   };
 
@@ -1168,7 +1033,7 @@ const GestionProductos = () => {
                   <div key={producto._id} style={styles.prodRow} className="productos-prod-row">
                     <div style={styles.pcell}>
                       {producto.imagenURL ? (
-                        <img src={producto.imagenURL} alt={producto.nombre || "Producto"} style={styles.pthumbImg} />
+                        <img src={producto.imagenURL} alt={producto.nombre || "Producto"} loading="lazy" style={styles.pthumbImg} />
                       ) : (
                         <div style={styles.pthumb}>{(producto.nombre || "P")[0].toUpperCase()}</div>
                       )}

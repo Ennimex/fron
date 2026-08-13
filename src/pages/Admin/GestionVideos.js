@@ -14,137 +14,6 @@ if (!document.getElementById('gestion-videos-responsive-styles')) {
   const style = document.createElement('style');
   style.id = 'gestion-videos-responsive-styles';
   style.textContent = `
-    /* Estilos responsivos para GestionVideos */
-    @media (max-width: 768px) {
-      .videos-container {
-        padding: 1rem !important;
-      }
-      
-      .videos-header {
-        flex-direction: column !important;
-        gap: 1rem !important;
-        align-items: flex-start !important;
-      }
-      
-      .videos-header-text h1 {
-        font-size: 1.5rem !important;
-        margin-bottom: 0.5rem !important;
-      }
-      
-      .videos-add-btn {
-        width: 100% !important;
-        justify-content: center !important;
-      }
-      
-      .videos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-        gap: 1rem !important;
-      }
-      
-      .videos-card {
-        min-height: auto !important;
-      }
-      
-      .videos-card-content {
-        padding: 0.75rem !important;
-      }
-      
-      .videos-card-title {
-        font-size: 1rem !important;
-        margin-bottom: 0.5rem !important;
-      }
-      
-      .videos-card-description {
-        font-size: 0.875rem !important;
-        margin-bottom: 0.75rem !important;
-      }
-      
-      .videos-card-actions {
-        flex-direction: column !important;
-        gap: 0.25rem !important;
-      }
-      
-      .videos-action-btn {
-        width: 100% !important;
-        font-size: 0.75rem !important;
-        padding: 0.375rem 0.75rem !important;
-      }
-      
-      .videos-modal-content {
-        margin: 1rem !important;
-        max-width: calc(100% - 2rem) !important;
-        max-height: calc(100vh - 2rem) !important;
-      }
-      
-      .videos-modal-header h2 {
-        font-size: 1.25rem !important;
-        margin-bottom: 1rem !important;
-      }
-      
-      .videos-modal-body {
-        padding: 1rem !important;
-        padding-top: 2.5rem !important;
-      }
-      
-      .videos-form-group {
-        margin-bottom: 1rem !important;
-      }
-      
-      .videos-modal-actions {
-        flex-direction: column-reverse !important;
-        gap: 0.75rem !important;
-      }
-      
-      .videos-modal-btn {
-        width: 100% !important;
-      }
-      
-      .videos-preview-container {
-        margin-top: 1rem !important;
-        padding: 0.75rem !important;
-      }
-      
-      .videos-preview-media {
-        max-height: 200px !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .videos-container {
-        padding: 0.5rem !important;
-      }
-      
-      .videos-grid {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
-      }
-      
-      .videos-card-content {
-        padding: 0.5rem !important;
-      }
-      
-      .videos-card-title {
-        font-size: 0.875rem !important;
-      }
-      
-      .videos-card-description {
-        font-size: 0.75rem !important;
-      }
-      
-      .videos-modal-body {
-        padding: 0.75rem !important;
-        padding-top: 2rem !important;
-      }
-      
-      .videos-form-group {
-        margin-bottom: 0.75rem !important;
-      }
-      
-      .videos-preview-media {
-        max-height: 150px !important;
-      }
-    }
-    
     @keyframes modalFadeIn {
       from {
         opacity: 0;
@@ -242,20 +111,6 @@ const GestionVideos = () => {
       display: 'flex',
       alignItems: 'center',
     },
-    content: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-      gap: stylesGlobal.spacing.gaps.lg,
-    },
-    error: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.semantic.error.main,
-      backgroundColor: stylesGlobal.colors.semantic.error.light,
-      padding: stylesGlobal.spacing.scale[4],
-      borderRadius: stylesGlobal.borders.radius.md,
-      marginBottom: stylesGlobal.spacing.scale[4],
-      textAlign: 'center',
-    },
     emptyState: {
       display: 'flex',
       flexDirection: 'column',
@@ -273,66 +128,6 @@ const GestionVideos = () => {
     emptyStateSubtext: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.tertiary,
-    },
-    cardBase: {
-      ...stylesGlobal.components.card.base,
-      ...stylesGlobal.components.card.interactive,
-    },
-    cardImageContainer: {
-      position: 'relative',
-      width: '100%',
-      aspectRatio: '16 / 9',
-      overflow: 'hidden',
-      borderTopLeftRadius: stylesGlobal.borders.radius.lg,
-      borderTopRightRadius: stylesGlobal.borders.radius.lg,
-    },
-    cardImage: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-    },
-    cardPlayButton: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: stylesGlobal.colors.surface.glass,
-      borderRadius: stylesGlobal.borders.radius.full,
-      padding: stylesGlobal.spacing.scale[4],
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      transition: stylesGlobal.animations.transitions.elegant,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.primary[500],
-        color: stylesGlobal.colors.primary.contrast,
-      },
-    },
-    cardPlaceholder: {
-      ...stylesGlobal.components.card.base,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      backgroundColor: stylesGlobal.colors.neutral[100],
-      color: stylesGlobal.colors.neutral[500],
-    },
-    cardContent: {
-      padding: stylesGlobal.spacing.scale[4],
-    },
-    cardTitle: {
-      ...stylesGlobal.typography.headings.h4,
-      marginBottom: stylesGlobal.spacing.scale[2],
-    },
-    cardDescription: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.text.secondary,
-      marginBottom: stylesGlobal.spacing.scale[4],
-    },
-    cardActions: {
-      display: 'flex',
-      gap: stylesGlobal.spacing.gaps.md,
     },
     // --- Lista de videos como grid de tarjetas tipo galería ---
     mediaGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: stylesGlobal.spacing.scale[5] },
@@ -377,25 +172,29 @@ const GestionVideos = () => {
       zIndex: 1300,
     },
     modalContent: {
-      ...stylesGlobal.components.card.luxury,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
       maxWidth: '600px',
       width: '90%',
       maxHeight: '90vh',
       overflow: 'auto',
       position: 'relative',
       margin: '20px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
       transform: 'scale(1)',
       transition: 'all 0.3s ease-in-out',
     },
     deleteModalContent: {
-      ...stylesGlobal.components.card.luxury,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
       maxWidth: '500px',
       width: '90%',
       textAlign: 'center',
       position: 'relative',
       margin: '20px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
       transform: 'scale(1)',
       transition: 'all 0.3s ease-in-out',
     },
@@ -455,9 +254,6 @@ const GestionVideos = () => {
     input: {
       ...stylesGlobal.components.input.base,
     },
-    inputFocus: {
-      ...stylesGlobal.components.input.base['&:focus'],
-    },
     textarea: {
       ...stylesGlobal.components.input.base,
       minHeight: '100px',
@@ -494,22 +290,6 @@ const GestionVideos = () => {
       height: 'auto',
       borderRadius: stylesGlobal.borders.radius.md,
       border: `1px solid ${stylesGlobal.borders.colors.muted}`,
-    },
-    actionButton: {
-      ...stylesGlobal.components.button.variants.secondary,
-      ...stylesGlobal.components.button.sizes.sm,
-    },
-    editAction: {
-      ...stylesGlobal.components.button.variants.secondary,
-    },
-    deleteAction: {
-      ...stylesGlobal.components.button.variants.secondary,
-      borderColor: stylesGlobal.colors.semantic.error.main,
-      color: stylesGlobal.colors.semantic.error.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.main,
-        color: stylesGlobal.colors.semantic.error.contrast,
-      },
     },
     outlineButton: {
       ...stylesGlobal.components.button.variants.ghost,
@@ -918,6 +698,7 @@ const GestionVideos = () => {
                         src={video.miniatura}
                         alt={video.titulo || 'Video'}
                         style={styles.mediaThumbImg}
+                        loading="lazy"
                       />
                       <div style={styles.mediaPlay}>
                         <FaPlay size={18} />

@@ -36,39 +36,6 @@ if (!document.getElementById('gestion-fotos-responsive-styles')) {
         justify-content: center !important;
       }
       
-      .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
-        gap: 1rem !important;
-      }
-      
-      .fotos-card {
-        min-height: auto !important;
-      }
-      
-      .fotos-card-image {
-        height: 120px !important;
-      }
-      
-      .fotos-card-content {
-        padding: 0.75rem !important;
-      }
-      
-      .fotos-card-title {
-        font-size: 1rem !important;
-        margin-bottom: 0.5rem !important;
-      }
-      
-      .fotos-card-actions {
-        flex-direction: column !important;
-        gap: 0.25rem !important;
-      }
-      
-      .fotos-action-btn {
-        width: 100% !important;
-        font-size: 0.75rem !important;
-        padding: 0.375rem 0.75rem !important;
-      }
-      
       .fotos-modal-content {
         margin: 1rem !important;
         max-width: calc(100% - 2rem) !important;
@@ -105,27 +72,6 @@ if (!document.getElementById('gestion-fotos-responsive-styles')) {
     @media (max-width: 480px) {
       .fotos-container {
         padding: 0.5rem !important;
-      }
-      
-      .fotos-grid {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
-      }
-      
-      .fotos-card-image {
-        height: 100px !important;
-      }
-      
-      .fotos-card-content {
-        padding: 0.5rem !important;
-      }
-      
-      .fotos-card-title {
-        font-size: 0.875rem !important;
-      }
-      
-      .fotos-card-description {
-        font-size: 0.75rem !important;
       }
     }
   `;
@@ -185,30 +131,6 @@ const GestionFotos = () => {
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.xs,
     },
-    content: {
-      padding: stylesGlobal.spacing.scale[4],
-      backgroundColor: stylesGlobal.colors.surface.secondary,
-      borderRadius: stylesGlobal.borders.radius.md,
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-      gap: stylesGlobal.spacing.gaps.lg,
-    },
-    error: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.semantic.error.main,
-      backgroundColor: stylesGlobal.colors.semantic.error.light,
-      padding: stylesGlobal.spacing.scale[3],
-      borderRadius: stylesGlobal.borders.radius.sm,
-      marginBottom: stylesGlobal.spacing.scale[4],
-    },
-    success: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.semantic.success.main,
-      backgroundColor: stylesGlobal.colors.semantic.success.light,
-      padding: stylesGlobal.spacing.scale[3],
-      borderRadius: stylesGlobal.borders.radius.sm,
-      marginBottom: stylesGlobal.spacing.scale[4],
-    },
     emptyState: {
       padding: stylesGlobal.spacing.scale[8],
       textAlign: 'center',
@@ -219,54 +141,6 @@ const GestionFotos = () => {
     emptyStateSubtext: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.text.muted,
-    },
-    cardBase: {
-      ...stylesGlobal.components.card.base,
-      backgroundColor: stylesGlobal.colors.surface.secondary,
-      border: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderRadius: stylesGlobal.borders.radius.md,
-      boxShadow: stylesGlobal.shadows.sm,
-      overflow: 'hidden',
-    },
-    cardImageContainer: {
-      width: '100%',
-      height: '150px',
-      overflow: 'hidden',
-      position: 'relative',
-    },
-    cardImage: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-    },
-    cardPlaceholder: {
-      ...stylesGlobal.utils.flexCenter,
-      width: '100%',
-      height: '100%',
-      backgroundColor: stylesGlobal.colors.surface.tertiary,
-      flexDirection: 'column',
-      gap: stylesGlobal.spacing.gaps.sm,
-      color: stylesGlobal.colors.text.muted,
-    },
-    cardContent: {
-      padding: stylesGlobal.spacing.scale[4],
-    },
-    cardTitle: {
-      ...stylesGlobal.typography.headings.h3,
-      margin: 0,
-      marginBottom: stylesGlobal.spacing.scale[2],
-    },
-    cardDescription: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.text.secondary,
-      margin: 0,
-      marginBottom: stylesGlobal.spacing.scale[3],
-    },
-    cardActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: stylesGlobal.spacing.gaps.md,
-      paddingTop: stylesGlobal.spacing.scale[2],
     },
     // --- Lista de fotos como grid de tarjetas tipo galería (look canónico .sol/.grid3) ---
     mediaGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: stylesGlobal.spacing.scale[5] },
@@ -289,7 +163,10 @@ const GestionFotos = () => {
       justifyContent: 'center',
     },
     modalContent: {
-      ...stylesGlobal.components.card.luxury,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
       maxWidth: '600px',
       width: '90%',
       maxHeight: '90vh',
@@ -351,9 +228,6 @@ const GestionFotos = () => {
       padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[4]}`,
       cursor: 'pointer',
       backgroundColor: stylesGlobal.colors.surface.tertiary,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.surface.secondary,
-      },
     },
     helpText: {
       ...stylesGlobal.typography.body.caption,
@@ -385,29 +259,6 @@ const GestionFotos = () => {
       border: `1px solid ${stylesGlobal.borders.colors.default}`,
       boxShadow: stylesGlobal.shadows.sm,
     },
-    actionButton: {
-      ...stylesGlobal.components.button.variants.secondary,
-      ...stylesGlobal.components.button.sizes.sm,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.xs,
-    },
-    editAction: {
-      color: stylesGlobal.colors.semantic.info.main,
-      borderColor: stylesGlobal.colors.semantic.info.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.info.light,
-        color: stylesGlobal.colors.semantic.info.dark,
-      },
-    },
-    deleteAction: {
-      color: stylesGlobal.colors.semantic.error.main,
-      borderColor: stylesGlobal.colors.semantic.error.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.light,
-        color: stylesGlobal.colors.semantic.error.dark,
-      },
-    },
     outlineButton: {
       ...stylesGlobal.components.button.variants.secondary,
       ...stylesGlobal.components.button.sizes.base,
@@ -436,7 +287,10 @@ const GestionFotos = () => {
       alignItems: 'center',
     },
     deleteModalContent: {
-      ...stylesGlobal.components.card.base,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
       maxWidth: '400px',
       width: '90%',
       position: 'relative',
@@ -469,9 +323,6 @@ const GestionFotos = () => {
       display: 'flex',
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.xs,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.dark,
-      },
     },
   };
 
@@ -784,6 +635,7 @@ const GestionFotos = () => {
                         src={imagen}
                         alt={foto.titulo || 'Foto sin título'}
                         style={styles.mediaThumbImg}
+                        loading="lazy"
                       />
                     ) : (
                       <div style={styles.mediaThumbFallback}>

@@ -122,8 +122,7 @@ const GestionColaboradores = () => {
   if (loading) {
     return (
       <div style={{ ...s.container, textAlign: "center", paddingTop: "4rem" }}>
-        <FaSpinner className="spin" /> Cargando...
-        <style>{`.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+        <FaSpinner style={{ animation: "spin 1s linear infinite" }} /> Cargando...
       </div>
     );
   }
@@ -205,7 +204,8 @@ const GestionColaboradores = () => {
         ))}
       </div>
 
-      <style>{`.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      {/* La animación @keyframes spin es global (src/index.css); aquí solo la clase local */}
+      <style>{`.spin{animation:spin 1s linear infinite}`}</style>
     </div>
   );
 };

@@ -108,11 +108,7 @@ const responsiveStyles = `
       font-size: 0.875rem !important;
       text-align: center !important;
     }
-    
-    .users-per-page-select {
-      width: 100% !important;
-    }
-    
+
     .users-form-modal {
       margin: 0.5rem !important;
       max-width: calc(100% - 1rem) !important;
@@ -121,11 +117,6 @@ const responsiveStyles = `
     .users-form-grid {
       grid-template-columns: 1fr !important;
       gap: 0.75rem !important;
-    }
-    
-    .users-form-input {
-      font-size: 0.875rem !important;
-      padding: 0.5rem 0.75rem !important;
     }
   }
 `;
@@ -1078,6 +1069,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             <div
               style={{
                 ...stylesPublic.components.card.base,
+                borderRadius: "18px",
+                border: "none",
+                boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
                 maxWidth: "480px",
                 width: "90%",
                 margin: stylesPublic.spacing.margins.auto,
@@ -1324,6 +1318,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             <div
               style={{
                 ...stylesPublic.components.card.base,
+                borderRadius: "18px",
+                border: "none",
+                boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
                 maxWidth: "420px",
                 width: "90%",
                 margin: stylesPublic.spacing.margins.auto,
@@ -1386,7 +1383,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
               </div>
             </div>
           </div>
-        )}
         )}
       </div>
 

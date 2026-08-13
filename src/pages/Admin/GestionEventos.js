@@ -247,8 +247,12 @@ const GestionEventos = () => {
       overflowY: "auto",
       padding: "4vh 16px",
     },
+    // Modal blanco limpio (lenguaje del boceto aprobado): sin degradados
+    // ni borde dorado de card.luxury, esquinas de 18px y sombra profunda.
     modal: {
-      ...stylesGlobal.components.card.luxury,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
       maxWidth: "660px",
       width: "100%",
       position: "relative",
@@ -257,13 +261,16 @@ const GestionEventos = () => {
       overflow: "hidden",
     },
     modalDelete: {
-      ...stylesGlobal.components.card.luxury,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
       maxWidth: "480px",
       width: "100%",
       textAlign: "center",
       position: "relative",
       margin: "10vh 0 4vh",
       boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
+      overflow: "hidden",
     },
     modalCab: {
       display: "flex",
@@ -359,9 +366,13 @@ const GestionEventos = () => {
       borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
       backgroundColor: stylesGlobal.colors.surface.secondary,
     },
+    // Botón neutro del boceto: blanco con borde suave (no el verde delineado)
     btnSecundario: {
-      ...stylesGlobal.components.button.variants.secondary,
       ...stylesGlobal.components.button.sizes.base,
+      backgroundColor: stylesGlobal.colors.surface.primary,
+      color: stylesGlobal.colors.text.secondary,
+      border: `1.5px solid ${stylesGlobal.colors.neutral[200]}`,
+      cursor: "pointer",
       display: "inline-flex",
       alignItems: "center",
       gap: stylesGlobal.spacing.gaps.xs,

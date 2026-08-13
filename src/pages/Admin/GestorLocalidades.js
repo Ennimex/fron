@@ -35,32 +35,6 @@ if (!document.getElementById('gestor-localidades-responsive-styles')) {
         justify-content: center !important;
       }
       
-      .localidades-table-container {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-      }
-      
-      .localidades-table {
-        min-width: 600px !important;
-      }
-      
-      .localidades-table th,
-      .localidades-table td {
-        padding: 0.5rem !important;
-        font-size: 0.875rem !important;
-      }
-      
-      .localidades-actions {
-        flex-direction: column !important;
-        gap: 0.25rem !important;
-      }
-      
-      .localidades-action-btn {
-        width: 100% !important;
-        font-size: 0.75rem !important;
-        padding: 0.375rem 0.75rem !important;
-      }
-      
       .localidades-modal-content {
         margin: 1rem !important;
         max-width: calc(100% - 2rem) !important;
@@ -89,11 +63,6 @@ if (!document.getElementById('gestor-localidades-responsive-styles')) {
     @media (max-width: 480px) {
       .localidades-container {
         padding: 0.5rem !important;
-      }
-
-      .localidades-table th:nth-child(2),
-      .localidades-table td:nth-child(2) {
-        display: none !important;
       }
     }
 
@@ -147,11 +116,6 @@ const GestorLocalidades = () => {
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.xs,
     },
-    content: {
-      padding: stylesGlobal.spacing.scale[4],
-      backgroundColor: stylesGlobal.colors.surface.secondary,
-      borderRadius: stylesGlobal.borders.radius.md,
-    },
     error: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.semantic.error.main,
@@ -159,91 +123,6 @@ const GestorLocalidades = () => {
       padding: stylesGlobal.spacing.scale[3],
       borderRadius: stylesGlobal.borders.radius.sm,
       marginBottom: stylesGlobal.spacing.scale[4],
-    },
-    success: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.semantic.success.main,
-      backgroundColor: stylesGlobal.colors.semantic.success.light,
-      padding: stylesGlobal.spacing.scale[3],
-      borderRadius: stylesGlobal.borders.radius.sm,
-      marginBottom: stylesGlobal.spacing.scale[4],
-    },
-    tableContainer: {
-      overflowX: 'auto',
-      padding: stylesGlobal.spacing.scale[2],
-    },
-    table: {
-      width: '100%',
-      borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
-      borderCollapse: 'separate',
-    },
-    tableHeader: {
-      ...stylesGlobal.typography.body.small,
-      fontWeight: stylesGlobal.typography.weights.semibold,
-      color: stylesGlobal.colors.text.secondary,
-      padding: stylesGlobal.spacing.scale[3],
-      textAlign: 'left',
-      backgroundColor: stylesGlobal.colors.surface.tertiary,
-    },
-    tableCell: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-    },
-    tableCellFirst: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderLeft: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderTopLeftRadius: stylesGlobal.borders.radius.sm,
-      borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
-    },
-    tableCellBold: {
-      ...stylesGlobal.typography.body.base,
-      fontWeight: stylesGlobal.typography.weights.medium,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-    },
-    tableCellLast: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderRight: `1px solid ${stylesGlobal.borders.colors.default}`,
-      borderTopRightRadius: stylesGlobal.borders.radius.sm,
-      borderBottomRightRadius: stylesGlobal.borders.radius.sm,
-    },
-    actionButton: {
-      ...stylesGlobal.components.button.variants.secondary,
-      ...stylesGlobal.components.button.sizes.sm,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.xs,
-    },
-    editAction: {
-      color: stylesGlobal.colors.semantic.info.main,
-      borderColor: stylesGlobal.colors.semantic.info.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.info.light,
-        color: stylesGlobal.colors.semantic.info.dark,
-      },
-    },
-    deleteAction: {
-      color: stylesGlobal.colors.semantic.error.main,
-      borderColor: stylesGlobal.colors.semantic.error.main,
-      '&:hover': {
-        backgroundColor: stylesGlobal.colors.semantic.error.light,
-        color: stylesGlobal.colors.semantic.error.dark,
-      },
-    },
-    actionsContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.sm,
-      justifyContent: 'flex-end',
     },
     // --- Lista de localidades como tarjetas por fila ---
     cardThead: { display: "grid", gridTemplateColumns: "2.4fr 3fr 1fr", gap: stylesGlobal.spacing.scale[4], padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.xs, fontWeight: stylesGlobal.typography.weights.semibold, textTransform: "uppercase", letterSpacing: stylesGlobal.typography.tracking.wide },
@@ -256,20 +135,6 @@ const GestorLocalidades = () => {
     cardAct: { width: "36px", height: "36px", borderRadius: stylesGlobal.borders.radius.md, display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", transition: stylesGlobal.animations.transitions.base },
     cardActEdit: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
     cardActDel: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
-    modalOverlay: stylesGlobal.utils.overlay.elegant,
-    modalContent: {
-      ...stylesGlobal.components.card.luxury,
-      maxWidth: '600px',
-      maxHeight: '90vh',
-      overflow: 'auto',
-    },
-    modalCloseButton: {
-      ...stylesGlobal.components.button.variants.ghost,
-      ...stylesGlobal.components.button.sizes.xs,
-      position: 'absolute',
-      top: stylesGlobal.spacing.scale[2],
-      right: stylesGlobal.spacing.scale[2],
-    },
     modalTitle: stylesGlobal.typography.headings.h2,
     modalActions: {
       display: 'flex',
@@ -693,15 +558,16 @@ const GestorLocalidades = () => {
             aria-labelledby="modal-title"
           >
             <div style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              borderRadius: '18px',
+              border: 'none',
+              boxShadow: '0 24px 70px rgba(45, 40, 35, 0.3)',
               padding: '20px',
               maxWidth: '600px',
               width: '90%',
               maxHeight: '90vh',
               overflow: 'auto',
               position: 'relative',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             }} className="localidades-modal-content">
               <div style={styles.modalBody}>
                 <div style={{

@@ -48,32 +48,6 @@ if (!document.getElementById('gestion-categorias-responsive-styles')) {
         margin-bottom: 1rem !important;
       }
       
-      .categorias-table-container {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-      }
-      
-      .categorias-table {
-        min-width: 600px !important;
-      }
-      
-      .categorias-table th,
-      .categorias-table td {
-        padding: 0.5rem !important;
-        font-size: 0.875rem !important;
-      }
-      
-      .categorias-actions {
-        flex-direction: column !important;
-        gap: 0.25rem !important;
-      }
-      
-      .categorias-action-btn {
-        width: 100% !important;
-        font-size: 0.75rem !important;
-        padding: 0.375rem 0.75rem !important;
-      }
-      
       .categorias-modal-content {
         margin: 1rem !important;
         max-width: calc(100% - 2rem) !important;
@@ -97,30 +71,11 @@ if (!document.getElementById('gestion-categorias-responsive-styles')) {
       .categorias-modal-btn {
         width: 100% !important;
       }
-
-      .cards-thead { display: none !important; }
-      .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
-      .cards-actions { justify-content: flex-start !important; }
     }
 
     @media (max-width: 480px) {
       .categorias-container {
         padding: 0.5rem !important;
-      }
-      
-      .categorias-table th:not(:first-child):not(:last-child),
-      .categorias-table td:not(:first-child):not(:last-child) {
-        display: none !important;
-      }
-      
-      .categorias-image-preview {
-        width: 30px !important;
-        height: 30px !important;
-      }
-      
-      .categorias-image-placeholder {
-        width: 30px !important;
-        height: 30px !important;
       }
     }
   `;
@@ -166,11 +121,6 @@ const GestionCategorias = () => {
       alignItems: 'center',
       gap: stylesGlobal.spacing.gaps.sm,
     },
-    content: {
-      backgroundColor: stylesGlobal.colors.surface.primary,
-      borderRadius: stylesGlobal.borders.radius.md,
-      padding: stylesGlobal.spacing.scale[6],
-    },
     error: {
       backgroundColor: stylesGlobal.colors.semantic.error.light,
       color: stylesGlobal.colors.semantic.error.main,
@@ -178,18 +128,6 @@ const GestionCategorias = () => {
       borderRadius: stylesGlobal.borders.radius.sm,
       marginBottom: stylesGlobal.spacing.scale[4],
       border: `1px solid ${stylesGlobal.colors.semantic.error.main}`,
-    },
-    success: {
-      backgroundColor: stylesGlobal.colors.semantic.success.light,
-      color: stylesGlobal.colors.semantic.success.main,
-      padding: stylesGlobal.spacing.scale[4],
-      borderRadius: stylesGlobal.borders.radius.sm,
-      marginBottom: stylesGlobal.spacing.scale[4],
-      border: `1px solid ${stylesGlobal.colors.semantic.success.main}`,
-    },
-    tableContainer: {
-      overflowX: 'auto',
-      marginBottom: stylesGlobal.spacing.scale[6],
     },
     // --- Tarjetas de resumen (stat cards) ---
     statGrid: {
@@ -279,79 +217,6 @@ const GestionCategorias = () => {
       paddingTop: stylesGlobal.spacing.scale[3],
       borderTop: `1px solid ${stylesGlobal.colors.neutral[200]}`,
     },
-    // --- Lista de categorías como tarjetas por fila ---
-    cardThead: {
-      display: "grid",
-      gridTemplateColumns: "2.4fr 3fr 1fr",
-      gap: stylesGlobal.spacing.scale[4],
-      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
-      color: stylesGlobal.colors.text.tertiary,
-      fontSize: stylesGlobal.typography.scale.xs,
-      fontWeight: stylesGlobal.typography.weights.semibold,
-      textTransform: "uppercase",
-      letterSpacing: stylesGlobal.typography.tracking.wide,
-    },
-    cardRow: {
-      display: "grid",
-      gridTemplateColumns: "2.4fr 3fr 1fr",
-      gap: stylesGlobal.spacing.scale[4],
-      alignItems: "center",
-      backgroundColor: stylesGlobal.colors.surface.primary,
-      border: `1px solid ${stylesGlobal.colors.neutral[200]}`,
-      borderRadius: stylesGlobal.borders.radius.lg,
-      padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`,
-      marginBottom: stylesGlobal.spacing.scale[3],
-      boxShadow: stylesGlobal.shadows.sm,
-    },
-    cardCell: {
-      display: "flex",
-      alignItems: "center",
-      gap: stylesGlobal.spacing.scale[4],
-      minWidth: 0,
-    },
-    cardThumb: {
-      width: "52px",
-      height: "52px",
-      borderRadius: stylesGlobal.borders.radius.md,
-      background: stylesGlobal.colors.gradients.primary,
-      color: stylesGlobal.colors.text.inverse,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: adminTheme.serif,
-      fontWeight: 700,
-      fontSize: "18px",
-      flexShrink: 0,
-    },
-    cardThumbImg: {
-      width: "52px",
-      height: "52px",
-      borderRadius: stylesGlobal.borders.radius.md,
-      objectFit: "cover",
-      flexShrink: 0,
-    },
-    cardName: {
-      fontWeight: stylesGlobal.typography.weights.semibold,
-      color: stylesGlobal.colors.text.primary,
-      fontSize: stylesGlobal.typography.scale.base,
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-    cardText: {
-      color: stylesGlobal.colors.text.secondary,
-      fontSize: stylesGlobal.typography.scale.sm,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      display: "-webkit-box",
-      WebkitLineClamp: 2,
-      WebkitBoxOrient: "vertical",
-    },
-    cardActions: {
-      display: "flex",
-      gap: stylesGlobal.spacing.scale[2],
-      justifyContent: "flex-end",
-    },
     cardAct: {
       width: "36px",
       height: "36px",
@@ -371,79 +236,15 @@ const GestionCategorias = () => {
       backgroundColor: stylesGlobal.colors.primary[50],
       color: stylesGlobal.colors.primary[500],
     },
-    table: {
-      width: '100%',
-      borderCollapse: 'separate',
-      borderSpacing: `0 ${stylesGlobal.spacing.scale[2]}`,
-    },
-    tableHeader: {
-      ...stylesGlobal.typography.body.small,
-      color: stylesGlobal.colors.text.secondary,
-      padding: stylesGlobal.spacing.scale[3],
-      backgroundColor: stylesGlobal.colors.surface.secondary,
-      borderBottom: `${stylesGlobal.borders.width[2]} solid ${stylesGlobal.borders.colors.muted}`,
-      textAlign: 'left',
-    },
-    tableCell: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-    },
-    tableCellFirst: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      border: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-      borderTopLeftRadius: stylesGlobal.borders.radius.sm,
-      borderBottomLeftRadius: stylesGlobal.borders.radius.sm,
-    },
-    tableCellBold: {
-      ...stylesGlobal.typography.body.base,
-      fontWeight: stylesGlobal.typography.weights.semibold,
-      padding: stylesGlobal.spacing.scale[3],
-      borderTop: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-      borderBottom: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-    },
-    tableCellLast: {
-      ...stylesGlobal.typography.body.base,
-      padding: stylesGlobal.spacing.scale[3],
-      border: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-      borderTopRightRadius: stylesGlobal.borders.radius.sm,
-      borderBottomRightRadius: stylesGlobal.borders.radius.sm,
-    },
-    actionButton: {
-      ...stylesGlobal.components.button.variants.ghost,
-      ...stylesGlobal.components.button.sizes.sm,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.xs,
-    },
-    editAction: {
-      ...stylesGlobal.components.button.variants.secondary,
-    },
-    deleteAction: {
-      ...stylesGlobal.components.button.variants.ghost,
-      color: stylesGlobal.colors.semantic.error.main,
-      borderColor: stylesGlobal.colors.semantic.error.main,
-      "&:hover": {
-        backgroundColor: stylesGlobal.colors.semantic.error.light,
-        color: stylesGlobal.colors.semantic.error.main,
-      },
-    },
-    actionsContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.sm,
-      justifyContent: 'flex-end',
-    },
     modalOverlay: {
       ...stylesGlobal.utils.overlay.elegant,
       zIndex: stylesGlobal.utils.zIndex.modal,
     },
     modalContent: {
-      backgroundColor: stylesGlobal.colors.surface.primary,
-      borderRadius: stylesGlobal.borders.radius.lg,
-      boxShadow: stylesGlobal.shadows.lg,
+      backgroundColor: "#ffffff",
+      borderRadius: "18px",
+      border: "none",
+      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
       maxWidth: '600px',
       maxHeight: '90vh',
       overflow: 'auto',
@@ -460,9 +261,6 @@ const GestionCategorias = () => {
       cursor: 'pointer',
       color: stylesGlobal.colors.text.secondary,
       transition: stylesGlobal.animations.transitions.fast,
-      "&:hover": {
-        color: stylesGlobal.colors.text.primary,
-      },
     },
     modalTitle: {
       ...stylesGlobal.typography.headings.h3,
@@ -516,24 +314,6 @@ const GestionCategorias = () => {
       marginTop: stylesGlobal.spacing.scale[2],
       fontStyle: 'italic',
     },
-    imagePreview: {
-      height: '40px',
-      width: '40px',
-      borderRadius: stylesGlobal.borders.radius.full,
-      objectFit: 'cover',
-      border: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-    },
-    imagePlaceholder: {
-      height: '40px',
-      width: '40px',
-      backgroundColor: stylesGlobal.colors.neutral[200],
-      borderRadius: stylesGlobal.borders.radius.full,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: stylesGlobal.colors.text.muted,
-      border: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-    },
     modalImagePreview: {
       maxWidth: '100%',
       maxHeight: '150px',
@@ -568,10 +348,6 @@ const GestionCategorias = () => {
     disabledButton: {
       opacity: 0.6,
       cursor: 'not-allowed',
-      "&:hover": {
-        transform: 'none',
-        boxShadow: stylesGlobal.shadows.none,
-      },
     },
     emptyState: {
       padding: stylesGlobal.spacing.scale[8],
@@ -599,11 +375,6 @@ const GestionCategorias = () => {
     flexCenter: {
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center',
-    },
-    flexBetween: {
-      display: 'flex',
-      justifyContent: 'space-between',
       alignItems: 'center',
     },
   };
@@ -889,6 +660,7 @@ const GestionCategorias = () => {
                     <img
                       src={categoria.imagenURL}
                       alt={categoria.nombre}
+                      loading="lazy"
                       style={styles.mediaThumbImg}
                     />
                   ) : (

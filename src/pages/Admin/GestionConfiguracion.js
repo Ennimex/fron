@@ -11,7 +11,6 @@ if (typeof document !== "undefined" && !document.getElementById("gestion-config-
   el.id = "gestion-config-styles";
   el.textContent = `
     .spin{animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
     @media (max-width: 768px){
       .settings-layout{grid-template-columns:1fr !important;}
       .settings-subnav{flex-direction:row !important; overflow-x:auto; position:static !important;}
