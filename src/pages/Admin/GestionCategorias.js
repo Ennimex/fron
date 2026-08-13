@@ -7,80 +7,23 @@ import NotificationContainer from "../../components/admin/NotificationContainer"
 import {
   FaEdit,
   FaTrash,
-  FaSave,
   FaPlus,
   FaSpinner,
   FaSearch,
   FaLock,
+  FaTags,
 } from "react-icons/fa";
 import stylesGlobal from "../../styles/stylesGlobal";
 import adminTheme from "../../styles/adminTheme";
 import StatCard from "../../components/admin/ui/StatCard";
 
-// Inyectar estilos CSS responsivos
-if (!document.getElementById('gestion-categorias-responsive-styles')) {
-  const style = document.createElement('style');
-  style.id = 'gestion-categorias-responsive-styles';
-  style.textContent = `
-    /* Estilos responsivos para GestionCategorias */
-    @media (max-width: 768px) {
-      .categorias-container {
-        padding: 1rem !important;
-      }
-      
-      .categorias-header {
-        flex-direction: column !important;
-        gap: 1rem !important;
-        align-items: flex-start !important;
-      }
-      
-      .categorias-header-text h1 {
-        font-size: 1.5rem !important;
-        margin-bottom: 0.5rem !important;
-      }
-      
-      .categorias-add-btn {
-        width: 100% !important;
-        justify-content: center !important;
-      }
-      
-      .categorias-search {
-        margin-bottom: 1rem !important;
-      }
-      
-      .categorias-modal-content {
-        margin: 1rem !important;
-        max-width: calc(100% - 2rem) !important;
-        max-height: calc(100vh - 2rem) !important;
-      }
-      
-      .categorias-modal-header h2 {
-        font-size: 1.25rem !important;
-        margin-bottom: 1rem !important;
-      }
-      
-      .categorias-form-group {
-        margin-bottom: 1rem !important;
-      }
-      
-      .categorias-modal-actions {
-        flex-direction: column-reverse !important;
-        gap: 0.75rem !important;
-      }
-      
-      .categorias-modal-btn {
-        width: 100% !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .categorias-container {
-        padding: 0.5rem !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
+// Kit de UI compartido del panel: garantiza que esta vista se vea igual
+// que las demás (encabezado, modal, confirmación, campos, botones).
+import AdminHeader from "../../components/admin/ui/AdminHeader";
+import AdminModal from "../../components/admin/ui/AdminModal";
+import ConfirmDialog from "../../components/admin/ui/ConfirmDialog";
+import Campo from "../../components/admin/ui/Campo";
+import { BotonPrimario, BotonSecundario, BotonIcono } from "../../components/admin/ui/Botones";
 
 const GestionCategorias = () => {
   const { user, isAuthenticated } = useAuth();
@@ -88,7 +31,6 @@ const GestionCategorias = () => {
   // Mapeo de estilos globales
   const styles = {
     pageContainer: {
-      ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
       backgroundColor: adminTheme.bg,
       minHeight: "100vh",
@@ -98,36 +40,13 @@ const GestionCategorias = () => {
       margin: stylesGlobal.spacing.margins.auto,
       padding: stylesGlobal.spacing.scale[4],
     },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: stylesGlobal.spacing.scale[8],
-    },
-    title: {
-      fontFamily: stylesGlobal.typography.families.display,
-      fontSize: "1.9rem",
-      fontWeight: 700,
-      color: stylesGlobal.colors.text.primary,
-    },
-    subtitle: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.text.secondary,
-    },
-    addButton: {
-      ...stylesGlobal.components.button.variants.primary,
-      ...stylesGlobal.components.button.sizes.base,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.sm,
-    },
     error: {
-      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.semantic.error.main,
-      padding: stylesGlobal.spacing.scale[4],
+      backgroundColor: stylesGlobal.colors.semantic.error.light,
+      padding: stylesGlobal.spacing.scale[3],
       borderRadius: stylesGlobal.borders.radius.sm,
       marginBottom: stylesGlobal.spacing.scale[4],
-      border: `1px solid ${stylesGlobal.colors.semantic.error.main}`,
     },
     // --- Tarjetas de resumen (stat cards) ---
     statGrid: {
@@ -217,165 +136,37 @@ const GestionCategorias = () => {
       paddingTop: stylesGlobal.spacing.scale[3],
       borderTop: `1px solid ${stylesGlobal.colors.neutral[200]}`,
     },
-    cardAct: {
-      width: "36px",
-      height: "36px",
-      borderRadius: stylesGlobal.borders.radius.md,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      border: "none",
-      cursor: "pointer",
-      transition: stylesGlobal.animations.transitions.base,
-    },
-    cardActEdit: {
-      backgroundColor: stylesGlobal.colors.accent[50],
-      color: stylesGlobal.colors.accent[600],
-    },
-    cardActDel: {
-      backgroundColor: stylesGlobal.colors.primary[50],
-      color: stylesGlobal.colors.primary[500],
-    },
-    modalOverlay: {
-      ...stylesGlobal.utils.overlay.elegant,
-      zIndex: stylesGlobal.utils.zIndex.modal,
-    },
-    modalContent: {
-      backgroundColor: "#ffffff",
-      borderRadius: "18px",
-      border: "none",
-      boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
-      maxWidth: '600px',
-      maxHeight: '90vh',
-      overflow: 'auto',
-      margin: 'auto',
-      position: 'relative',
-    },
-    modalCloseButton: {
-      position: 'absolute',
-      top: stylesGlobal.spacing.scale[3],
-      right: stylesGlobal.spacing.scale[3],
-      background: 'none',
-      border: 'none',
-      fontSize: stylesGlobal.typography.scale.base,
-      cursor: 'pointer',
-      color: stylesGlobal.colors.text.secondary,
-      transition: stylesGlobal.animations.transitions.fast,
-    },
-    modalTitle: {
-      ...stylesGlobal.typography.headings.h3,
-      marginBottom: stylesGlobal.spacing.scale[6],
-    },
-    modalActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: stylesGlobal.spacing.gaps.md,
-      paddingTop: stylesGlobal.spacing.scale[4],
-      borderTop: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
-      marginTop: stylesGlobal.spacing.scale[6],
-    },
-    modalBody: {
-      padding: stylesGlobal.spacing.scale[6],
-    },
-    formContainer: {
-      width: '100%',
-    },
-    formGroup: {
-      marginBottom: stylesGlobal.spacing.scale[6],
-      width: '100%',
-    },
-    label: {
-      ...stylesGlobal.typography.body.base,
-      display: 'block',
-      marginBottom: stylesGlobal.spacing.scale[2],
-      color: stylesGlobal.colors.text.primary,
-      fontWeight: stylesGlobal.typography.weights.medium,
-    },
-    requiredField: {
-      color: stylesGlobal.colors.semantic.error.main,
-      marginLeft: stylesGlobal.spacing.scale[1],
-    },
-    charCount: {
-      ...stylesGlobal.typography.body.caption,
-      marginLeft: stylesGlobal.spacing.scale[2],
+    searchContainer: { position: "relative" },
+    searchIcon: {
+      position: "absolute",
+      left: stylesGlobal.spacing.scale[3],
+      top: "50%",
+      transform: "translateY(-50%)",
       color: stylesGlobal.colors.text.muted,
     },
-    input: {
-      ...stylesGlobal.components.input.base,
-    },
+    input: { ...stylesGlobal.components.input.base, width: "100%" },
     textarea: {
       ...stylesGlobal.components.input.base,
-      minHeight: '120px',
-      resize: 'vertical',
-    },
-    helpText: {
-      ...stylesGlobal.typography.body.small,
-      color: stylesGlobal.colors.text.muted,
-      marginTop: stylesGlobal.spacing.scale[2],
-      fontStyle: 'italic',
+      width: "100%",
+      minHeight: "120px",
+      resize: "vertical",
     },
     modalImagePreview: {
-      maxWidth: '100%',
-      maxHeight: '150px',
+      maxWidth: "100%",
+      maxHeight: "150px",
       marginTop: stylesGlobal.spacing.scale[4],
       borderRadius: stylesGlobal.borders.radius.sm,
       border: `${stylesGlobal.borders.width[1]} solid ${stylesGlobal.borders.colors.default}`,
     },
-    searchContainer: {
-      position: 'relative',
-      marginBottom: stylesGlobal.spacing.scale[6],
-    },
-    searchIcon: {
-      position: 'absolute',
-      left: stylesGlobal.spacing.scale[3],
-      top: '50%',
-      transform: 'translateY(-50%)',
-      color: stylesGlobal.colors.text.muted,
-      zIndex: stylesGlobal.utils.zIndex.base,
-    },
-    searchInput: {
-      ...stylesGlobal.components.input.base,
-      paddingLeft: '2.5rem',
-    },
-    outlineButton: {
-      ...stylesGlobal.components.button.variants.ghost,
-      ...stylesGlobal.components.button.sizes.base,
-    },
-    primaryButton: {
-      ...stylesGlobal.components.button.variants.primary,
-      ...stylesGlobal.components.button.sizes.base,
-    },
-    disabledButton: {
-      opacity: 0.6,
-      cursor: 'not-allowed',
-    },
     emptyState: {
       padding: stylesGlobal.spacing.scale[8],
-      textAlign: 'center',
+      textAlign: "center",
       backgroundColor: stylesGlobal.colors.surface.secondary,
       borderRadius: stylesGlobal.borders.radius.md,
     },
-    emptyStateText: {
-      ...stylesGlobal.typography.headings.h4,
-      color: stylesGlobal.colors.text.secondary,
-    },
     loadingContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
       padding: stylesGlobal.spacing.scale[8],
-    },
-    spinner: {
-      animation: 'spin 1s linear infinite',
-      marginRight: stylesGlobal.spacing.scale[2],
-    },
-    textCenter: {
-      textAlign: 'center',
-    },
-    flexCenter: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+      textAlign: "center",
     },
   };
 
@@ -393,6 +184,9 @@ const GestionCategorias = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  // Confirmación de borrado: { id, nombre }
+  const [confirmacion, setConfirmacion] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   // Usar el hook de notificaciones
   const { notifications, removeNotification, clearAllNotifications } = useAdminNotifications();
@@ -437,42 +231,42 @@ const GestionCategorias = () => {
       setError("El nombre de la categoría es obligatorio");
       return false;
     }
-    
+
     if (categoriaActual.nombre.trim().length < 3) {
       setError("El nombre debe tener al menos 3 caracteres");
       return false;
     }
-    
+
     if (categoriaActual.nombre.trim().length > 50) {
       setError("El nombre no puede exceder los 50 caracteres");
       return false;
     }
-    
+
     const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s-]+$/;
     if (!nombreRegex.test(categoriaActual.nombre.trim())) {
       setError("El nombre solo debe contener letras, números, espacios y guiones");
       return false;
     }
-    
+
     if (categoriaActual.descripcion && categoriaActual.descripcion.length > 200) {
       setError("La descripción no puede exceder los 200 caracteres");
       return false;
     }
-    
+
     if (selectedFile) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(selectedFile.type)) {
         setError("El archivo debe ser una imagen (JPEG, PNG, GIF o WEBP)");
         return false;
       }
-      
+
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (selectedFile.size > maxSize) {
         setError("La imagen no puede superar los 5MB");
         return false;
       }
     }
-    
+
     setError(null);
     return true;
   };
@@ -485,7 +279,7 @@ const GestionCategorias = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const formData = new FormData();
       formData.append("nombre", categoriaActual.nombre);
       formData.append("descripcion", categoriaActual.descripcion);
@@ -525,19 +319,19 @@ const GestionCategorias = () => {
     resetForm();
   };
 
-  // Delete category
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Está seguro de eliminar esta categoría?")) return;
-
+  // Eliminar (la confirmación la pide el ConfirmDialog)
+  const ejecutarEliminacion = async () => {
+    if (!confirmacion) return;
+    setConfirmLoading(true);
     try {
-      setLoading(true);
       setError(null);
-      await categoriaService.delete(id);
+      await categoriaService.delete(confirmacion.id);
+      setConfirmacion(null);
       await fetchCategorias();
     } catch (err) {
       setError(err.error || err.message || "Error al eliminar la categoría");
     } finally {
-      setLoading(false);
+      setConfirmLoading(false);
     }
   };
 
@@ -569,14 +363,20 @@ const GestionCategorias = () => {
   }
   if (user?.role !== 'admin') {
     return (
-      <div style={{
-        ...styles.pageContainer,
-        ...styles.flexCenter,
-        height: '80vh',
-      }}>
+      <div
+        style={{
+          ...styles.pageContainer,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+          textAlign: "center",
+        }}
+      >
         <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
-        <h2 style={styles.title}>Acceso Denegado</h2>
-        <p style={styles.subtitle}>
+        <h2 style={stylesGlobal.typography.headings.h2}>Acceso Denegado</h2>
+        <p style={{ ...stylesGlobal.typography.body.base, color: stylesGlobal.colors.text.secondary }}>
           No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
         </p>
       </div>
@@ -584,26 +384,18 @@ const GestionCategorias = () => {
   }
 
   return (
-    <div style={styles.pageContainer} className="categorias-container">
+    <div style={styles.pageContainer}>
       <div style={styles.mainContainer}>
-        {/* Header */}
-        <div style={styles.header} className="categorias-header">
-          <div className="categorias-header-text">
-            <h1 style={styles.title}>Gestión de Categorías</h1>
-            <p style={styles.subtitle}>
-              Organiza tus colecciones artesanales
-            </p>
-          </div>
-          <button
-            style={styles.addButton}
-            className="categorias-add-btn"
-            onClick={() => openModal()}
-            aria-label="Nueva categoría"
-          >
-            <FaPlus size={14} />
-            Nueva Categoría
-          </button>
-        </div>
+        <AdminHeader
+          icon={FaTags}
+          titulo="Gestión de Categorías"
+          subtitulo="Organiza tus colecciones artesanales"
+          accion={
+            <BotonPrimario icono={FaPlus} onClick={() => openModal()} aria-label="Nueva categoría">
+              Nueva Categoría
+            </BotonPrimario>
+          }
+        />
 
         {/* Tarjetas de resumen (datos reales) */}
         <div style={styles.statGrid}>
@@ -613,38 +405,36 @@ const GestionCategorias = () => {
         </div>
 
         {/* Error message */}
-        {error && (
-          <div style={styles.error}>
-            {error}
-          </div>
-        )}
+        {error && !modalVisible && <div style={styles.error}>{error}</div>}
 
         {/* Search */}
-        <div style={styles.searchContainer} className="categorias-search">
-          <label style={styles.label}>Buscar categorías</label>
-          <div style={{ position: 'relative' }}>
+        <Campo
+          etiqueta="Buscar categorías"
+          htmlFor="categorias-buscar"
+          style={{ marginBottom: stylesGlobal.spacing.scale[6] }}
+        >
+          <div style={styles.searchContainer}>
             <FaSearch style={styles.searchIcon} />
             <input
+              id="categorias-buscar"
               type="text"
               placeholder="Buscar por nombre o descripción..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={styles.searchInput}
+              style={{ ...styles.input, paddingLeft: stylesGlobal.spacing.scale[10] }}
             />
           </div>
-        </div>
+        </Campo>
 
-        {/* Table */}
+        {/* Galería de categorías */}
         {loading ? (
           <div style={styles.loadingContainer}>
-            <div style={styles.textCenter}>
-              <FaSpinner style={styles.spinner} />
-              <h3>Cargando categorías...</h3>
-            </div>
+            <FaSpinner style={{ animation: "spin 1s linear infinite", marginRight: stylesGlobal.spacing.scale[2] }} />
+            <h3 style={stylesGlobal.typography.headings.h3}>Cargando categorías...</h3>
           </div>
         ) : filteredCategorias.length === 0 ? (
           <div style={styles.emptyState}>
-            <h3 style={styles.emptyStateText}>
+            <h3 style={stylesGlobal.typography.headings.h3}>
               {searchTerm ? "No se encontraron categorías" : "No hay categorías registradas"}
             </h3>
             <p style={stylesGlobal.typography.body.base}>
@@ -679,24 +469,24 @@ const GestionCategorias = () => {
                     {categoria.descripcion || "Sin descripción"}
                   </p>
                   <div style={styles.mediaFooter}>
-                    <button
-                      style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                    <BotonIcono
+                      variante="editar"
                       onClick={() => openModal(categoria)}
                       title="Editar categoría"
                       disabled={loading}
                       aria-label={`Editar categoría ${categoria.nombre}`}
                     >
                       <FaEdit size={15} />
-                    </button>
-                    <button
-                      style={{ ...styles.cardAct, ...styles.cardActDel }}
-                      onClick={() => handleDelete(categoria._id)}
+                    </BotonIcono>
+                    <BotonIcono
+                      variante="eliminar"
+                      onClick={() => setConfirmacion({ id: categoria._id, nombre: categoria.nombre })}
                       title="Eliminar categoría"
                       disabled={loading}
                       aria-label={`Eliminar categoría ${categoria.nombre}`}
                     >
                       <FaTrash size={15} />
-                    </button>
+                    </BotonIcono>
                   </div>
                 </div>
               </div>
@@ -704,150 +494,111 @@ const GestionCategorias = () => {
           </div>
         )}
 
-        {/* Modal */}
-        {modalVisible && (
-          <div 
-            style={{
-              ...styles.modalOverlay,
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}
-            className="modal"
-            onClick={(e) => e.target.classList.contains('modal') && closeModal()}
-          >
-            <div style={styles.modalContent} className="categorias-modal-content">
-              <div style={styles.modalBody}>
-                <button
-                  style={styles.modalCloseButton}
-                  onClick={closeModal}
-                  aria-label="Cerrar modal"
-                >
-                  ✗
-                </button>
-                <div className="categorias-modal-header">
-                  <h2 style={styles.modalTitle}>
-                    {modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
-                  </h2>
-                </div>
-
-                {error && (
-                  <div style={styles.error}>
-                    {error}
-                  </div>
+        {/* Modal de alta/edición */}
+        <AdminModal
+          abierto={modalVisible}
+          onCerrar={closeModal}
+          titulo={modoEdicion ? "Editar Categoría" : "Nueva Categoría"}
+          maxWidth="600px"
+          bloqueado={loading}
+          pie={
+            <>
+              <BotonSecundario onClick={closeModal} disabled={loading}>
+                Cancelar
+              </BotonSecundario>
+              <BotonPrimario
+                type="submit"
+                form="form-categoria"
+                disabled={loading}
+                aria-label={modoEdicion ? "Actualizar categoría" : "Crear categoría"}
+              >
+                {loading ? (
+                  <>
+                    <FaSpinner style={{ animation: "spin 1s linear infinite" }} />
+                    {modoEdicion ? "Actualizando..." : "Guardando..."}
+                  </>
+                ) : modoEdicion ? (
+                  "Actualizar"
+                ) : (
+                  "Guardar"
                 )}
+              </BotonPrimario>
+            </>
+          }
+        >
+          <form id="form-categoria" onSubmit={handleSubmit}>
+            {error && <div style={styles.error}>{error}</div>}
 
-                <form style={styles.formContainer} onSubmit={handleSubmit}>
-                  <div style={styles.formGroup} className="categorias-form-group">
-                    <label style={styles.label} htmlFor="nombre">
-                      Nombre de la Categoría
-                      <span style={styles.requiredField}>*</span>
-                      <span style={styles.charCount}>
-                        ({categoriaActual.nombre.length}/50)
-                      </span>
-                    </label>
-                    <input
-                      id="nombre"
-                      type="text"
-                      name="nombre"
-                      value={categoriaActual.nombre}
-                      onChange={handleChange}
-                      required
-                      style={styles.input}
-                      placeholder="Ej: Ropa de Hombre"
-                    />
-                  </div>
+            <Campo
+              etiqueta="Nombre de la Categoría"
+              htmlFor="nombre"
+              requerido
+              pista={`${categoriaActual.nombre.length}/50 caracteres`}
+            >
+              <input
+                id="nombre"
+                type="text"
+                name="nombre"
+                value={categoriaActual.nombre}
+                onChange={handleChange}
+                required
+                style={styles.input}
+                placeholder="Ej: Ropa de Hombre"
+              />
+            </Campo>
 
-                  <div style={styles.formGroup} className="categorias-form-group">
-                    <label style={styles.label} htmlFor="descripcion">
-                      Descripción
-                      <span style={styles.charCount}>
-                        ({categoriaActual.descripcion?.length || 0}/200)
-                      </span>
-                    </label>
-                    <textarea
-                      id="descripcion"
-                      name="descripcion"
-                      value={categoriaActual.descripcion}
-                      onChange={handleChange}
-                      style={styles.textarea}
-                      rows="3"
-                      placeholder="Descripción breve de la categoría (opcional)"
-                    />
-                    <small style={styles.helpText}>
-                      Proporciona una descripción que ayude a identificar esta categoría.
-                    </small>
-                  </div>
+            <Campo
+              etiqueta="Descripción"
+              htmlFor="descripcion"
+              opcional
+              pista={`${categoriaActual.descripcion?.length || 0}/200 caracteres. Proporciona una descripción que ayude a identificar esta categoría.`}
+            >
+              <textarea
+                id="descripcion"
+                name="descripcion"
+                value={categoriaActual.descripcion}
+                onChange={handleChange}
+                style={styles.textarea}
+                rows="3"
+                placeholder="Descripción breve de la categoría (opcional)"
+              />
+            </Campo>
 
-                  <div style={styles.formGroup} className="categorias-form-group">
-                    <label style={styles.label} htmlFor="imagen">
-                      Imagen de la Categoría
-                    </label>
-                    <input
-                      id="imagen"
-                      type="file"
-                      onChange={handleFileChange}
-                      accept="image/*"
-                      style={styles.input}
-                    />
-                    <small style={styles.helpText}>
-                      Formatos admitidos: JPEG, PNG, GIF, WEBP. Tamaño máximo: 5MB.
-                    </small>
-                    {categoriaActual.imagenURL && (
-                      <img
-                        src={categoriaActual.imagenURL}
-                        alt="Vista previa"
-                        style={styles.modalImagePreview}
-                      />
-                    )}
-                  </div>
+            <Campo
+              etiqueta="Imagen de la Categoría"
+              htmlFor="imagen"
+              opcional
+              pista="Formatos admitidos: JPEG, PNG, GIF, WEBP. Tamaño máximo: 5MB."
+            >
+              <input
+                id="imagen"
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*"
+                style={styles.input}
+              />
+              {categoriaActual.imagenURL && (
+                <img
+                  src={categoriaActual.imagenURL}
+                  alt="Vista previa"
+                  style={styles.modalImagePreview}
+                />
+              )}
+            </Campo>
+          </form>
+        </AdminModal>
 
-                  <div style={styles.modalActions} className="categorias-modal-actions">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      style={styles.outlineButton}
-                      className="categorias-modal-btn"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      style={{
-                        ...styles.primaryButton,
-                        ...(loading ? styles.disabledButton : {}),
-                      }}
-                      className="categorias-modal-btn"
-                      disabled={loading}
-                      aria-label={modoEdicion ? "Actualizar categoría" : "Crear categoría"}
-                    >
-                      {loading ? (
-                        <>
-                          <FaSpinner style={styles.spinner} />
-                          {modoEdicion ? "Actualizando..." : "Guardando..."}
-                        </>
-                      ) : (
-                        <>
-                          <FaSave style={{ marginRight: stylesGlobal.spacing.scale[2] }} />
-                          {modoEdicion ? "Actualizar Categoría" : "Guardar Categoría"}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Confirmación de borrado */}
+        <ConfirmDialog
+          abierto={Boolean(confirmacion)}
+          titulo="¿Eliminar categoría?"
+          nombre={confirmacion ? confirmacion.nombre : ""}
+          cargando={confirmLoading}
+          onCancelar={() => setConfirmacion(null)}
+          onConfirmar={ejecutarEliminacion}
+        />
       </div>
-      
+
       {/* Contenedor de notificaciones */}
       <NotificationContainer
         notifications={notifications}
