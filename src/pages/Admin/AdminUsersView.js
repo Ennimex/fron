@@ -1065,7 +1065,15 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
         {/* Modal de usuario: un solo formulario para alta y edición */}
         {showUserForm && (
-          <div style={stylesPublic.utils.overlay.base}>
+          <div
+            style={{
+              ...stylesPublic.utils.overlay.base,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+          >
             <div
               style={{
                 ...stylesPublic.components.card.base,
@@ -1074,9 +1082,10 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
                 maxWidth: "480px",
                 width: "90%",
-                margin: stylesPublic.spacing.margins.auto,
                 maxHeight: "90vh",
                 overflowY: "auto",
+                // El botón ✕ es absolute; sin esto se anclaba a la pantalla, no al modal
+                position: "relative",
               }}
               className="users-form-modal"
             >
@@ -1314,7 +1323,15 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
 
         {/* Modal de confirmación de borrado (antes window.confirm) */}
         {confirmacion && (
-          <div style={stylesPublic.utils.overlay.base}>
+          <div
+            style={{
+              ...stylesPublic.utils.overlay.base,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+            }}
+          >
             <div
               style={{
                 ...stylesPublic.components.card.base,
@@ -1323,9 +1340,9 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 boxShadow: "0 24px 70px rgba(45, 40, 35, 0.3)",
                 maxWidth: "420px",
                 width: "90%",
-                margin: stylesPublic.spacing.margins.auto,
                 padding: stylesPublic.spacing.scale[6],
                 textAlign: "center",
+                position: "relative",
               }}
             >
               <FaTrash
