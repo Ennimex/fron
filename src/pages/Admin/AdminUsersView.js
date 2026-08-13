@@ -51,34 +51,19 @@ const responsiveStyles = `
       gap: 0.75rem !important;
     }
     
-    .users-table-container {
-      overflow-x: auto !important;
-      margin: 0 -1rem !important;
-      padding: 0 1rem !important;
+    .users-thead {
+      display: none !important;
     }
-    
-    .users-table {
-      min-width: 800px !important;
+
+    .users-fila {
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important;
     }
-    
-    .users-table th,
-    .users-table td {
-      padding: 0.5rem !important;
-      font-size: 0.875rem !important;
+
+    .users-acciones {
+      justify-content: flex-start !important;
     }
-    
-    .users-actions {
-      flex-direction: column !important;
-      gap: 0.25rem !important;
-      align-items: stretch !important;
-    }
-    
-    .users-action-btn {
-      justify-content: center !important;
-      font-size: 0.75rem !important;
-      padding: 0.375rem 0.75rem !important;
-    }
-    
+
     .users-pagination {
       flex-direction: column !important;
       gap: 1rem !important;
@@ -98,12 +83,7 @@ const responsiveStyles = `
     .users-title {
       font-size: 1.25rem !important;
     }
-    
-    .users-table-container {
-      margin: 0 -0.75rem !important;
-      padding: 0 0.75rem !important;
-    }
-    
+
     .users-pagination-info {
       font-size: 0.875rem !important;
       text-align: center !important;
@@ -153,16 +133,21 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       backgroundColor: adminTheme.bg,
       padding: stylesPublic.spacing.scale[8],
     },
+    // Lienzo abierto sobre el fondo crema, como Productos/Eventos.
+    // (Antes todo vivía dentro de una tarjeta blanca gigante con una tabla
+    // HTML clásica: por eso esta vista se sentía de otro sistema.)
     mainContainer: {
-      ...stylesPublic.components.card.base,
-      maxWidth: stylesPublic.utils.container.maxWidth.xl,
+      maxWidth: stylesPublic.utils.container.maxWidth.lg,
       margin: stylesPublic.spacing.margins.auto,
-      padding: stylesPublic.spacing.scale[8],
+      padding: stylesPublic.spacing.scale[4],
     },
     header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      flexWrap: "wrap",
+      gap: stylesPublic.spacing.gaps.md,
       marginBottom: stylesPublic.spacing.scale[8],
-      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
-      paddingBottom: stylesPublic.spacing.scale[4],
     },
     title: {
       fontFamily: stylesPublic.typography.families.display,
@@ -177,59 +162,86 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
       ...stylesPublic.typography.body.small,
       marginTop: stylesPublic.spacing.scale[2],
     },
-    content: {
-      padding: stylesPublic.spacing.scale[8],
-    },
-    tableContainer: {
-      overflowX: "auto",
-      borderRadius: stylesPublic.borders.radius.md,
-      boxShadow: stylesPublic.shadows.base,
-      backgroundColor: stylesPublic.colors.surface.primary,
-    },
-    table: {
-      width: "100%",
-      borderCollapse: "collapse",
-    },
-    tableHeader: {
-      backgroundColor: stylesPublic.colors.surface.secondary,
-    },
-    tableHeaderCell: {
-      padding: stylesPublic.spacing.scale[3],
-      textAlign: "left",
-      fontSize: stylesPublic.typography.scale.sm,
+    // --- Lista de usuarios como filas-tarjeta (mismo lenguaje que Productos/Eventos) ---
+    thead: {
+      display: "grid",
+      gridTemplateColumns: "2.4fr 1.2fr 1.1fr 1.2fr auto",
+      gap: stylesPublic.spacing.scale[4],
+      padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[5]}`,
+      color: stylesPublic.colors.text.tertiary,
+      fontSize: stylesPublic.typography.scale.xs,
       fontWeight: stylesPublic.typography.weights.semibold,
-      color: stylesPublic.colors.text.secondary,
-      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.default}`,
-      cursor: "pointer",
+      textTransform: "uppercase",
+      letterSpacing: stylesPublic.typography.tracking.wide,
     },
-    tableRow: {
-      transition: "all 0.2s ease",
-    },
-    tableCell: {
-      padding: stylesPublic.spacing.scale[3],
-      fontSize: stylesPublic.typography.scale.sm,
-      color: stylesPublic.colors.text.primary,
-      borderBottom: `${stylesPublic.borders.width[1]} solid ${stylesPublic.borders.colors.muted}`,
-    },
-    actionsContainer: {
+    theadLabel: {
       display: "flex",
-      gap: stylesPublic.spacing.gaps.xs,
-      justifyContent: "flex-end",
+      alignItems: "center",
+      gap: stylesPublic.spacing.scale[2],
+      cursor: "pointer",
+      userSelect: "none",
     },
-    actionButton: {
-      ...stylesPublic.components.button.variants.ghost,
-      ...stylesPublic.components.button.sizes.xs,
-      padding: stylesPublic.spacing.scale[2],
+    fila: {
+      display: "grid",
+      gridTemplateColumns: "2.4fr 1.2fr 1.1fr 1.2fr auto",
+      gap: stylesPublic.spacing.scale[4],
+      alignItems: "center",
+      backgroundColor: stylesPublic.colors.surface.primary,
+      border: `1px solid ${stylesPublic.colors.neutral[200]}`,
+      borderRadius: stylesPublic.borders.radius.lg,
+      padding: `${stylesPublic.spacing.scale[3]} ${stylesPublic.spacing.scale[5]}`,
+      marginBottom: stylesPublic.spacing.scale[3],
+      boxShadow: stylesPublic.shadows.sm,
+    },
+    celdaUsuario: { display: "flex", alignItems: "center", gap: stylesPublic.spacing.scale[4], minWidth: 0 },
+    avatar: {
+      width: "44px",
+      height: "44px",
+      borderRadius: stylesPublic.borders.radius.full,
+      background: stylesPublic.colors.gradients.primary,
+      color: stylesPublic.colors.text.inverse,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      fontFamily: adminTheme.serif,
+      fontWeight: 700,
+      fontSize: "17px",
+      flexShrink: 0,
     },
-    editAction: {
-      color: stylesPublic.colors.secondary[500],
+    nombreUsuario: {
+      fontWeight: stylesPublic.typography.weights.semibold,
+      color: stylesPublic.colors.text.primary,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     },
-    deleteAction: {
-      color: stylesPublic.colors.primary[500],
+    correoUsuario: {
+      fontSize: stylesPublic.typography.scale.sm,
+      color: stylesPublic.colors.text.tertiary,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     },
+    textoCelda: {
+      color: stylesPublic.colors.text.secondary,
+      fontSize: stylesPublic.typography.scale.sm,
+      minWidth: 0,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    acciones: { display: "flex", gap: stylesPublic.spacing.scale[2], justifyContent: "flex-end" },
+    iconoBtn: {
+      width: "36px",
+      height: "36px",
+      borderRadius: stylesPublic.borders.radius.md,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "none",
+      cursor: "pointer",
+    },
+    iconoEditar: { backgroundColor: stylesPublic.colors.accent[50], color: stylesPublic.colors.accent[600] },
+    iconoBorrar: { backgroundColor: stylesPublic.colors.primary[50], color: stylesPublic.colors.primary[500] },
     badge: {
       display: "inline-flex",
       alignItems: "center",
@@ -647,9 +659,23 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             </h1>
             <p style={styles.subtitle}>Administra y supervisa todos los usuarios del sistema</p>
           </div>
+          <button
+            style={{
+              ...stylesPublic.components.button.variants.primary,
+              ...stylesPublic.components.button.sizes.base,
+              display: "flex",
+              alignItems: "center",
+              gap: stylesPublic.spacing.gaps.xs,
+            }}
+            onClick={abrirNuevoUsuario}
+            aria-label="Nuevo usuario"
+          >
+            <FaPlus size={14} />
+            Nuevo Usuario
+          </button>
         </div>
 
-        <div style={styles.content}>
+        <div>
           {/* Sistema de notificaciones centralizado */}
           <NotificationContainer
             notifications={notifications}
@@ -716,19 +742,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                 <FaFilter size={14} />
                 Filtros
               </button>
-              <button
-                style={{
-                  ...stylesPublic.components.button.variants.primary,
-                  ...stylesPublic.components.button.sizes.sm,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: stylesPublic.spacing.scale[2],
-                }}
-                onClick={abrirNuevoUsuario}
-              >
-                <FaPlus size={14} />
-                Nuevo Usuario
-              </button>
             </div>
           </div>
 
@@ -792,9 +805,8 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             </div>
           )}
 
-          <div style={styles.tableContainer} className="users-table-container">
-            {/* TODO: Could extract to a UsersTable component */}
-            <div style={{ overflowX: "auto" }}>
+          <div>
+            <div>
               {noUsers ? (
                 <div style={styles.emptyState}>
                   <FaUsers size={40} style={{ opacity: 0.3, marginBottom: stylesPublic.spacing.scale[4] }} />
@@ -804,164 +816,82 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
                   </p>
                 </div>
               ) : (
-                <table style={styles.table} className="users-table">
-                  <thead style={styles.tableHeader}>
-                    <tr>
-                      {/* Columna de selección eliminada */}
-                      <th style={styles.tableHeaderCell} onClick={() => handleSort("name")}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: stylesPublic.spacing.scale[2],
-                          }}
-                        >
-                          Nombre
-                          {renderSortIcon("name")}
+                <div>
+                  <div style={styles.thead} className="users-thead">
+                    <div
+                      style={styles.theadLabel}
+                      onClick={() => handleSort("name")}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && handleSort("name")}
+                    >
+                      Usuario {renderSortIcon("name")}
+                    </div>
+                    <div
+                      style={styles.theadLabel}
+                      onClick={() => handleSort("phone")}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && handleSort("phone")}
+                    >
+                      Teléfono {renderSortIcon("phone")}
+                    </div>
+                    <div
+                      style={styles.theadLabel}
+                      onClick={() => handleSort("role")}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && handleSort("role")}
+                    >
+                      Rol {renderSortIcon("role")}
+                    </div>
+                    <div
+                      style={styles.theadLabel}
+                      onClick={() => handleSort("createdAt")}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === "Enter" && handleSort("createdAt")}
+                    >
+                      Registro {renderSortIcon("createdAt")}
+                    </div>
+                    <div style={{ textAlign: "right" }}>Acciones</div>
+                  </div>
+
+                  {paginatedUsers.map((user) => (
+                    <div key={user._id} style={styles.fila} className="users-fila">
+                      <div style={styles.celdaUsuario}>
+                        <div style={styles.avatar}>{(user.name || user.email || "?")[0].toUpperCase()}</div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={styles.nombreUsuario}>{user.name || "Sin nombre"}</div>
+                          <div style={styles.correoUsuario}>{user.email}</div>
                         </div>
-                      </th>
-                      <th style={styles.tableHeaderCell} onClick={() => handleSort("email")}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: stylesPublic.spacing.scale[2],
-                          }}
+                      </div>
+                      <div style={styles.textoCelda}>{user.phone || "—"}</div>
+                      <div>{renderRoleBadge(user.role)}</div>
+                      <div style={styles.textoCelda}>{formatDate(user.createdAt)}</div>
+                      <div style={styles.acciones} className="users-acciones">
+                        <button
+                          style={{ ...styles.iconoBtn, ...styles.iconoEditar }}
+                          className="users-action-btn"
+                          onClick={() => handleEditUser(user._id)}
+                          title="Editar usuario"
+                          aria-label={`Editar usuario ${user.name || "Sin nombre"}`}
                         >
-                          Email
-                          {renderSortIcon("email")}
-                        </div>
-                      </th>
-                      <th style={styles.tableHeaderCell} onClick={() => handleSort("phone")}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: stylesPublic.spacing.scale[2],
-                          }}
+                          <FaEdit size={15} />
+                        </button>
+                        <button
+                          style={{ ...styles.iconoBtn, ...styles.iconoBorrar }}
+                          className="users-action-btn"
+                          onClick={() => setConfirmacion({ id: user._id, nombre: user.name || user.email })}
+                          title="Eliminar usuario"
+                          aria-label={`Eliminar usuario ${user.name || "Sin nombre"}`}
                         >
-                          Teléfono
-                          {renderSortIcon("phone")}
-                        </div>
-                      </th>
-                      <th style={styles.tableHeaderCell} onClick={() => handleSort("role")}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: stylesPublic.spacing.scale[2],
-                          }}
-                        >
-                          Rol
-                          {renderSortIcon("role")}
-                        </div>
-                      </th>
-                      <th style={styles.tableHeaderCell} onClick={() => handleSort("createdAt")}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: stylesPublic.spacing.scale[2],
-                          }}
-                        >
-                          Fecha de Registro
-                          {renderSortIcon("createdAt")}
-                        </div>
-                      </th>
-                      <th style={styles.tableHeaderCell}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedUsers.map((user, index) => (
-                      <tr
-                        key={user._id}
-                        className="users-row"
-                        style={{
-                          ...styles.tableRow,
-                          ...(index === paginatedUsers.length - 1 ? { borderBottom: "none" } : {}),
-                        }}
-                      >
-                        {/* Celda de selección eliminada */}
-                        <td style={styles.tableCell}>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: stylesPublic.spacing.scale[2],
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: stylesPublic.spacing.scale[8],
-                                height: stylesPublic.spacing.scale[8],
-                                borderRadius: stylesPublic.borders.radius.full,
-                                backgroundColor: stylesPublic.colors.primary[50],
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: stylesPublic.typography.scale.sm,
-                                fontWeight: stylesPublic.typography.weights.semibold,
-                                color: stylesPublic.colors.primary[500],
-                              }}
-                            >
-                              {user.name ? user.name[0].toUpperCase() : "-"}
-                            </div>
-                            <div>
-                              <div
-                                style={{
-                                  fontWeight: stylesPublic.typography.weights.semibold,
-                                  color: stylesPublic.colors.text.primary,
-                                }}
-                              >
-                                {user.name || "Sin nombre"}
-                              </div>
-                              <div
-                                style={{
-                                  ...stylesPublic.typography.body.small,
-                                  color: stylesPublic.colors.text.secondary,
-                                }}
-                              >
-                                {user.email}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td style={styles.tableCell}>{user.email}</td>
-                        <td style={styles.tableCell}>{user.phone || "-"}</td>
-                        <td style={styles.tableCell}>{renderRoleBadge(user.role)}</td>
-                        <td style={styles.tableCell}>{formatDate(user.createdAt)}</td>
-                        <td style={styles.tableCell}>
-                          <div style={styles.actionsContainer} className="users-actions">
-                            <button
-                              style={{
-                                ...styles.actionButton,
-                                ...styles.editAction,
-                              }}
-                              className="users-action-btn"
-                              onClick={() => handleEditUser(user._id)}
-                              title="Editar usuario"
-                              aria-label={`Editar usuario ${user.name || "Sin nombre"}`}
-                            >
-                              <FaEdit size={14} />
-                            </button>
-                            <button
-                              style={{
-                                ...styles.actionButton,
-                                ...styles.deleteAction,
-                              }}
-                              className="users-action-btn"
-                              onClick={() => setConfirmacion({ id: user._id, nombre: user.name || user.email })}
-                              title="Eliminar usuario"
-                              aria-label={`Eliminar usuario ${user.name || "Sin nombre"}`}
-                            >
-                              <FaTrash size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          <FaTrash size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
@@ -1410,8 +1340,11 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
             transform: scale(1.05);
             opacity: 0.9;
           }
-          .users-row:hover {
-            background-color: ${stylesPublic.colors.neutral[50]};
+          .users-fila {
+            transition: box-shadow 0.15s ease;
+          }
+          .users-fila:hover {
+            box-shadow: 0 4px 18px rgba(45, 40, 35, 0.1);
           }
           button:disabled {
             background-color: ${stylesPublic.colors.neutral[300]};
