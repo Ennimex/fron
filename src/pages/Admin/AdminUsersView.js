@@ -1400,11 +1400,6 @@ const UsersAdminView = ({ sidebarCollapsed = false }) => {
           .users-row:hover {
             background-color: ${stylesPublic.colors.neutral[50]};
           }
-          select:focus, input:focus {
-            outline: none;
-            border-color: ${stylesPublic.colors.secondary[500]};
-            box-shadow: 0 0 0 3px rgba(107, 155, 107, 0.1);
-          }
           button:disabled {
             background-color: ${stylesPublic.colors.neutral[300]};
             color: ${stylesPublic.colors.text.muted};

@@ -1155,26 +1155,31 @@ const stylesGlobal = {
           padding: "6px 12px",
           fontSize: "0.75rem",
           borderRadius: "6px",
+          fontWeight: 600,
         },
         sm: {
           padding: "8px 16px",
           fontSize: "0.875rem",
           borderRadius: "8px",
+          fontWeight: 600,
         },
         base: {
           padding: "12px 24px",
           fontSize: "1rem",
           borderRadius: "10px",
+          fontWeight: 600,
         },
         lg: {
           padding: "16px 32px",
           fontSize: "1.125rem",
           borderRadius: "12px",
+          fontWeight: 600,
         },
         xl: {
           padding: "20px 40px",
           fontSize: "1.25rem",
           borderRadius: "16px",
+          fontWeight: 600,
         },
       },
 
@@ -1264,14 +1269,15 @@ const stylesGlobal = {
         lineHeight: "1.5",
         color: "#2a241f",
         backgroundColor: "#ffffff",
-        border: "1px solid #ddd6d1",
+        border: "1.5px solid #e8e2d8", // borde cálido, a juego con la base crema del panel
         borderRadius: "10px",
-        transition: "all 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        transition: "border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease",
+        // OJO: el foco real vive en src/index.css (input:focus, rosa de marca);
+        // React ignora las claves '&:focus' de los estilos inline.
         "&:focus": {
           outline: "none",
-          borderColor: "#6b9b6b",
-          boxShadow: "0 0 0 3px rgba(107, 155, 107, 0.1)",
-          backgroundColor: "#fafaf9",
+          borderColor: "#d63384",
+          boxShadow: "0 0 0 3px rgba(214, 51, 132, 0.12)",
         },
       },
       luxury: {

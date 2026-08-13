@@ -20,3 +20,25 @@ code {
     transform: rotate(360deg);
   }
 }
+
+/* ── Lenguaje de formularios del sitio (estilo del boceto aprobado) ──────
+   Los estilos inline de React no aplican las claves '&:focus' / '&:hover'
+   de los tokens, así que el foco y el hover reales viven aquí, uniformes
+   para todos los formularios del sitio y del panel.
+   El !important es necesario porque el borde base viene inline. */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #d63384 !important;
+  box-shadow: 0 0 0 3px rgba(214, 51, 132, 0.12) !important;
+}
+
+button:not(:disabled) {
+  transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(0.96);
+}
