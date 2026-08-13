@@ -42,3 +42,14 @@ button:not(:disabled) {
 button:not(:disabled):hover {
   filter: brightness(0.96);
 }
+
+/* Foco de botones con el anillo de marca (el outline negro por defecto
+   del navegador rompía el diseño, p. ej. en "Nueva Talla") */
+button:focus-visible {
+  outline: 2px solid #d63384;
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible) {
+  outline: none;
+}

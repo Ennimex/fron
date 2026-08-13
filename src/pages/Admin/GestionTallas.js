@@ -1,51 +1,40 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  FaEdit,
-  FaTrash,
-  FaSave,
-  FaPlus,
-  FaTimes,
-  FaSpinner,
-  FaSearch,
-  FaLock
-} from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSpinner, FaSearch, FaLock, FaRulerCombined } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
 import adminTheme from "../../styles/adminTheme";
 
-// Importar los nuevos servicios
 import { tallaService, categoriaService } from "../../services";
 import { useAdminNotifications } from "../../services/adminHooks";
 import NotificationContainer from "../../components/admin/NotificationContainer";
 
-// Estilos CSS responsivos para GestionTallas
-const responsiveStyles = `
-  @media (max-width: 768px) {
-    .cards-thead { display: none !important; }
-    .cards-row { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
-    .cards-actions { justify-content: flex-start !important; }
-  }
-`;
+// Kit de UI compartido del panel: garantiza que esta vista se vea igual
+// que las demás (encabezado, filas-tarjeta, modal, confirmación, campos).
+import AdminHeader from "../../components/admin/ui/AdminHeader";
+import AdminModal from "../../components/admin/ui/AdminModal";
+import ConfirmDialog from "../../components/admin/ui/ConfirmDialog";
+import Campo from "../../components/admin/ui/Campo";
+import { BotonPrimario, BotonSecundario, BotonIcono } from "../../components/admin/ui/Botones";
+import { Thead, Fila, Miniatura, TextoCelda } from "../../components/admin/ui/ListaFilas";
 
-// Inyectar estilos CSS
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = responsiveStyles;
-  if (!document.head.querySelector('style[data-tallas-styles]')) {
-    styleElement.setAttribute('data-tallas-styles', 'true');
-    document.head.appendChild(styleElement);
-  }
-}
+const COLUMNAS = "2fr 1.4fr 1.6fr auto";
+
+const TALLA_VACIA = {
+  _id: "",
+  categoriaId: "",
+  genero: "Unisex",
+  talla: "",
+  rangoEdad: "",
+  medida: "",
+};
 
 const GestionTallas = () => {
   const { user, isAuthenticated } = useAuth();
   const { notifications, addNotification, removeNotification, clearAllNotifications } = useAdminNotifications();
 
-  // Mapeo de estilos globales
   const styles = {
     pageContainer: {
-      ...stylesGlobal.utils.container,
       padding: stylesGlobal.spacing.sections.md,
       backgroundColor: adminTheme.bg,
       minHeight: "100vh",
@@ -55,31 +44,6 @@ const GestionTallas = () => {
       margin: stylesGlobal.spacing.margins.auto,
       padding: stylesGlobal.spacing.scale[4],
     },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: stylesGlobal.spacing.scale[8],
-      flexWrap: 'wrap',
-      gap: stylesGlobal.spacing.gaps.md,
-    },
-    title: {
-      fontFamily: stylesGlobal.typography.families.display,
-      fontSize: "1.9rem",
-      fontWeight: 700,
-      color: stylesGlobal.colors.text.primary,
-    },
-    subtitle: {
-      ...stylesGlobal.typography.body.base,
-      color: stylesGlobal.colors.text.secondary,
-    },
-    addButton: {
-      ...stylesGlobal.components.button.variants.primary,
-      ...stylesGlobal.components.button.sizes.base,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.xs,
-    },
     error: {
       ...stylesGlobal.typography.body.base,
       color: stylesGlobal.colors.semantic.error.main,
@@ -88,167 +52,59 @@ const GestionTallas = () => {
       borderRadius: stylesGlobal.borders.radius.sm,
       marginBottom: stylesGlobal.spacing.scale[4],
     },
-    filtersContainer: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    filtros: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
       gap: stylesGlobal.spacing.gaps.lg,
-      alignItems: 'end',
-      padding: stylesGlobal.spacing.scale[4],
+      alignItems: "end",
+      marginBottom: stylesGlobal.spacing.scale[6],
     },
-    searchContainer: {
-      position: 'relative',
-    },
+    searchContainer: { position: "relative" },
     searchIcon: {
-      position: 'absolute',
+      position: "absolute",
       left: stylesGlobal.spacing.scale[3],
-      top: '50%',
-      transform: 'translateY(-50%)',
+      top: "50%",
+      transform: "translateY(-50%)",
       color: stylesGlobal.colors.text.muted,
     },
-    searchInput: {
-      ...stylesGlobal.components.input.base,
-      paddingLeft: stylesGlobal.spacing.scale[10],
-    },
-    filterSelect: stylesGlobal.components.input.base,
+    input: { ...stylesGlobal.components.input.base, width: "100%" },
+    select: { ...stylesGlobal.components.input.base, width: "100%", cursor: "pointer" },
     totalCounter: {
       ...stylesGlobal.typography.body.small,
       fontWeight: stylesGlobal.typography.weights.medium,
       color: stylesGlobal.colors.text.muted,
-      textAlign: 'right',
-    },
-    // --- Lista de tallas como tarjetas por fila (look de GestionProductos) ---
-    cardThead: { display: "grid", gridTemplateColumns: "2fr 1.4fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, color: stylesGlobal.colors.text.tertiary, fontSize: stylesGlobal.typography.scale.xs, fontWeight: stylesGlobal.typography.weights.semibold, textTransform: "uppercase", letterSpacing: stylesGlobal.typography.tracking.wide },
-    cardRow: { display: "grid", gridTemplateColumns: "2fr 1.4fr 1.6fr 1fr", gap: stylesGlobal.spacing.scale[4], alignItems: "center", backgroundColor: stylesGlobal.colors.surface.primary, border: `1px solid ${stylesGlobal.colors.neutral[200]}`, borderRadius: stylesGlobal.borders.radius.lg, padding: `${stylesGlobal.spacing.scale[3]} ${stylesGlobal.spacing.scale[5]}`, marginBottom: stylesGlobal.spacing.scale[3], boxShadow: stylesGlobal.shadows.sm },
-    cardCell: { display: "flex", alignItems: "center", gap: stylesGlobal.spacing.scale[4], minWidth: 0 },
-    cardThumb: { width: "52px", height: "52px", borderRadius: stylesGlobal.borders.radius.md, background: stylesGlobal.colors.gradients.primary, color: stylesGlobal.colors.text.inverse, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: adminTheme.serif, fontWeight: 700, fontSize: "18px", flexShrink: 0 },
-    cardName: { fontWeight: stylesGlobal.typography.weights.semibold, color: stylesGlobal.colors.text.primary, fontSize: stylesGlobal.typography.scale.base },
-    cardText: { color: stylesGlobal.colors.text.secondary, fontSize: stylesGlobal.typography.scale.sm },
-    cardActions: { display: "flex", gap: stylesGlobal.spacing.scale[2], justifyContent: "flex-end" },
-    cardAct: { width: "36px", height: "36px", borderRadius: stylesGlobal.borders.radius.md, display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", transition: stylesGlobal.animations.transitions.base },
-    cardActEdit: { backgroundColor: stylesGlobal.colors.accent[50], color: stylesGlobal.colors.accent[600] },
-    cardActDel: { backgroundColor: stylesGlobal.colors.primary[50], color: stylesGlobal.colors.primary[500] },
-    modalHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: stylesGlobal.spacing.scale[6],
-    },
-    modalTitle: stylesGlobal.typography.headings.h2,
-    modalCloseButton: {
-      ...stylesGlobal.components.button.variants.ghost,
-      ...stylesGlobal.components.button.sizes.xs,
-    },
-    modalBody: {
-      padding: stylesGlobal.spacing.scale[6],
-    },
-    modalActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: stylesGlobal.spacing.gaps.md,
-      marginTop: stylesGlobal.spacing.scale[6],
-      paddingTop: stylesGlobal.spacing.scale[4],
-      borderTop: `1px solid ${stylesGlobal.borders.colors.default}`,
-    },
-    formContainer: {
-      width: '100%',
-    },
-    formGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: stylesGlobal.spacing.gaps.lg,
-      marginBottom: stylesGlobal.spacing.scale[6],
-    },
-    formGroup: {
-      marginBottom: stylesGlobal.spacing.scale[6],
-      width: '100%',
-    },
-    label: {
-      ...stylesGlobal.typography.body.base,
-      fontWeight: stylesGlobal.typography.weights.medium,
-      color: stylesGlobal.colors.text.primary,
-      marginBottom: stylesGlobal.spacing.scale[2],
-      display: 'block',
-    },
-    requiredField: {
-      color: stylesGlobal.colors.semantic.error.main,
-      marginLeft: stylesGlobal.spacing.scale[1],
-    },
-    charCount: {
-      ...stylesGlobal.typography.body.caption,
-      color: stylesGlobal.colors.text.muted,
-      marginLeft: stylesGlobal.spacing.scale[2],
-    },
-    input: stylesGlobal.components.input.base,
-    select: {
-      ...stylesGlobal.components.input.base,
-      cursor: 'pointer',
-    },
-    outlineButton: {
-      ...stylesGlobal.components.button.variants.secondary,
-      ...stylesGlobal.components.button.sizes.base,
-    },
-    primaryButton: {
-      ...stylesGlobal.components.button.variants.primary,
-      ...stylesGlobal.components.button.sizes.base,
-      display: 'flex',
-      alignItems: 'center',
-      gap: stylesGlobal.spacing.gaps.xs,
-    },
-    disabledButton: {
-      opacity: 0.5,
-      cursor: 'not-allowed',
+      textAlign: "right",
+      paddingBottom: stylesGlobal.spacing.scale[3],
     },
     emptyState: {
       padding: stylesGlobal.spacing.scale[8],
-      textAlign: 'center',
+      textAlign: "center",
       backgroundColor: stylesGlobal.colors.surface.secondary,
       borderRadius: stylesGlobal.borders.radius.md,
     },
-    emptyStateText: stylesGlobal.typography.headings.h3,
-    loadingContainer: {
-      padding: stylesGlobal.spacing.scale[8],
-      textAlign: 'center',
-    },
-    loadingSpinner: {
-      animation: 'spin 1s linear infinite',
-      marginRight: stylesGlobal.spacing.scale[2],
-    },
-    textCenter: {
-      textAlign: 'center',
-    },
-    flexCenter: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+    loadingContainer: { padding: stylesGlobal.spacing.scale[8], textAlign: "center" },
+    formGrid: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: `0 ${stylesGlobal.spacing.gaps.lg}`,
     },
   };
 
-  // Main states
+  // Estado principal
   const [tallas, setTallas] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [tallaActual, setTallaActual] = useState({
-    _id: "",
-    categoriaId: "",
-    genero: "Unisex",
-    talla: "",
-    rangoEdad: "",
-    medida: "",
-  });
+  const [tallaActual, setTallaActual] = useState(TALLA_VACIA);
   const [modoEdicion, setModoEdicion] = useState(false);
-  const [loading, setLoading] = useState({
-    table: true,
-    form: false,
-    categorias: true,
-  });
+  const [loading, setLoading] = useState({ table: true, form: false, categorias: true });
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [filters, setFilters] = useState({
-    genero: "",
-    categoria: "",
-  });
+  const [filters, setFilters] = useState({ genero: "", categoria: "" });
+  // Confirmación de borrado: { id, nombre }
+  const [confirmacion, setConfirmacion] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
-  // Fetch data
+  // Carga inicial
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -261,108 +117,91 @@ const GestionTallas = () => {
       } catch (err) {
         const errorMsg = err.error || err.message || "Error al cargar datos";
         setError(errorMsg);
-        addNotification(errorMsg, 'error');
+        addNotification(errorMsg, "error");
       } finally {
-        setLoading({
-          table: false,
-          form: false,
-          categorias: false,
-        });
+        setLoading({ table: false, form: false, categorias: false });
       }
     };
 
     fetchData();
   }, [addNotification]);
 
-  // Reset form
   const resetForm = useCallback(() => {
-    setTallaActual({
-      _id: "",
-      categoriaId: "",
-      genero: "Unisex",
-      talla: "",
-      rangoEdad: "",
-      medida: "",
-    });
+    setTallaActual(TALLA_VACIA);
     setModoEdicion(false);
     setError(null);
   }, []);
 
-  // Modal controls
   const closeModal = useCallback(() => {
     setModalVisible(false);
     resetForm();
-    
+
     // Retornar el foco al botón que abrió el modal
     setTimeout(() => {
       const addButton = document.querySelector('button[aria-label="Nueva talla"]');
-      if (addButton) {
-        addButton.focus();
-      }
+      if (addButton) addButton.focus();
     }, 100);
   }, [resetForm]);
 
-  // Manejo de tecla Escape para cerrar modal
+  // Escape cierra el modal y se bloquea el scroll del body mientras esté abierto
   useEffect(() => {
     const handleEscape = (event) => {
-      if (event.key === 'Escape' && modalVisible) {
+      if (event.key === "Escape" && modalVisible) {
         closeModal();
       }
     };
 
     if (modalVisible) {
-      document.addEventListener('keydown', handleEscape);
-      // Bloquear scroll del body cuando el modal está abierto
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [modalVisible, closeModal]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setTallaActual((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setTallaActual((prev) => ({ ...prev, [name]: value }));
   };
 
-
-
-  // Save or update size
+  // Guardar o actualizar talla
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validar con el nuevo servicio
+
     const validation = tallaService.validate(tallaActual);
     if (!validation.isValid) {
-      setError(validation.errors.join(', '));
+      setError(validation.errors.join(", "));
       return;
     }
 
     try {
-      setLoading({ ...loading, form: true });
+      setLoading((prev) => ({ ...prev, form: true }));
+      // Payload limpio: solo los campos editables (antes se enviaba el
+      // documento completo con _id/__v y la categoría poblada)
       const tallaData = {
-        ...tallaActual,
         categoriaId: tallaActual.categoriaId?._id || tallaActual.categoriaId,
+        genero: tallaActual.genero,
+        talla: tallaActual.talla.trim(),
+        rangoEdad: tallaActual.rangoEdad || "",
+        medida: tallaActual.medida || "",
       };
+      const categoria = categorias.find((c) => c._id === tallaData.categoriaId);
 
       if (modoEdicion) {
-        await tallaService.update(tallaData._id, tallaData);
-        // Agregar notificación de éxito para actualización
-        const categoria = categorias.find(c => c._id === tallaData.categoriaId);
-        const msg = `Talla "${tallaData.talla}" de la categoría "${categoria?.nombre || 'N/A'}" actualizada exitosamente`;
-        addNotification(msg, 'success');
+        await tallaService.update(tallaActual._id, tallaData);
+        addNotification(
+          `Talla "${tallaData.talla}" de la categoría "${categoria?.nombre || "N/A"}" actualizada exitosamente`,
+          "success"
+        );
       } else {
         await tallaService.create(tallaData);
-        // Agregar notificación de éxito para creación
-        const categoria = categorias.find(c => c._id === tallaData.categoriaId);
-        const msg = `Nueva talla "${tallaData.talla}" creada en la categoría "${categoria?.nombre || 'N/A'}"`;
-        addNotification(msg, 'success');
+        addNotification(
+          `Nueva talla "${tallaData.talla}" creada en la categoría "${categoria?.nombre || "N/A"}"`,
+          "success"
+        );
       }
 
       await fetchTallas();
@@ -371,29 +210,26 @@ const GestionTallas = () => {
     } catch (err) {
       const errorMsg = err.error || err.message || `Error al ${modoEdicion ? "actualizar" : "crear"} la talla`;
       setError(errorMsg);
-      // Agregar notificación de error
-      addNotification(errorMsg, 'error');
+      addNotification(errorMsg, "error");
     } finally {
-      setLoading({ ...loading, form: false });
+      setLoading((prev) => ({ ...prev, form: false }));
     }
   };
 
-  // Reload sizes
   const fetchTallas = async () => {
     try {
-      setLoading({ ...loading, table: true });
+      setLoading((prev) => ({ ...prev, table: true }));
       const response = await tallaService.getAll();
       setTallas(response);
     } catch (err) {
       const errorMsg = err.error || err.message || "Error al cargar tallas";
       setError(errorMsg);
-      addNotification(errorMsg, 'error');
+      addNotification(errorMsg, "error");
     } finally {
-      setLoading({ ...loading, table: false });
+      setLoading((prev) => ({ ...prev, table: false }));
     }
   };
 
-  // Modal controls
   const openModal = (talla = null) => {
     if (talla) {
       setTallaActual(talla);
@@ -402,93 +238,73 @@ const GestionTallas = () => {
       resetForm();
       setModoEdicion(false);
     }
-    
+
     setModalVisible(true);
-    setError(null); // Limpiar errores previos
-    
-    // Enfocar el primer campo del formulario después de que se abra el modal
+    setError(null);
+
+    // Enfocar el primer campo del formulario al abrir
     setTimeout(() => {
       const firstInput = document.querySelector('select[name="categoriaId"]');
-      if (firstInput) {
-        firstInput.focus();
-      }
+      if (firstInput) firstInput.focus();
     }, 100);
   };
 
-  // Edit and delete
-  const handleEdit = (talla) => {
-    openModal(talla);
-  };
-
-  const handleDelete = async (id) => {
-    // Encontrar la talla que se va a eliminar para mostrar información en la notificación
-    const tallaAEliminar = tallas.find(t => t._id === id);
-    const confirmMessage = tallaAEliminar 
-      ? `¿Está seguro de eliminar la talla "${tallaAEliminar.talla}" de la categoría "${getCategoriaNombre(tallaAEliminar.categoriaId)}"?`
-      : "¿Está seguro de eliminar esta talla?";
-    
-    if (!window.confirm(confirmMessage)) return;
-
+  // Eliminar (la confirmación la pide el ConfirmDialog)
+  const ejecutarEliminacion = async () => {
+    if (!confirmacion) return;
+    setConfirmLoading(true);
     try {
-      setLoading({ ...loading, table: true });
-      await tallaService.delete(id);
-      
-      // Agregar notificación de éxito
-      if (tallaAEliminar) {
-        const msg = `Talla "${tallaAEliminar.talla}" eliminada exitosamente`;
-        addNotification(msg, 'success');
-      }
-      
+      await tallaService.delete(confirmacion.id);
+      addNotification(`Talla "${confirmacion.nombre}" eliminada exitosamente`, "success");
+      setConfirmacion(null);
       await fetchTallas();
       setError(null);
     } catch (err) {
       const errorMsg = err.error || err.message || "Error al eliminar la talla";
       setError(errorMsg);
-      // Agregar notificación de error
-      addNotification(errorMsg, 'error');
+      addNotification(errorMsg, "error");
     } finally {
-      setLoading({ ...loading, table: false });
+      setConfirmLoading(false);
     }
   };
 
-  // Filter sizes using new service
   const filteredTallas = tallaService.filter(tallas, {
     search: searchTerm,
     genero: filters.genero,
-    categoria: filters.categoria
+    categoria: filters.categoria,
   });
 
-  // Get category name
   const getCategoriaNombre = (id) => {
     const categoryId = typeof id === "object" && id !== null ? id._id : id;
     const categoria = categorias.find((c) => c._id === categoryId);
     return categoria ? categoria.nombre : "Sin categoría";
   };
 
-  // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Check if user is authenticated and has admin role
+  // Guardias de acceso
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  if (user?.role !== 'admin') {
+  if (user?.role !== "admin") {
     return (
-      <div style={{
-        ...styles.pageContainer,
-        ...styles.flexCenter,
-        height: '80vh',
-        textAlign: 'center',
-      }}>
+      <div
+        style={{
+          ...styles.pageContainer,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+          textAlign: "center",
+        }}
+      >
         <FaLock size={50} style={{ color: stylesGlobal.colors.semantic.error.main }} />
-        <h2 style={styles.title}>Acceso Denegado</h2>
-        <p style={styles.subtitle}>
+        <h2 style={stylesGlobal.typography.headings.h2}>Acceso Denegado</h2>
+        <p style={{ ...stylesGlobal.typography.body.base, color: stylesGlobal.colors.text.secondary }}>
           No tienes permisos para acceder a esta sección. Esta área está reservada para administradores.
         </p>
       </div>
@@ -498,57 +314,42 @@ const GestionTallas = () => {
   return (
     <div style={styles.pageContainer}>
       <div style={styles.mainContainer}>
-        {/* Header */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>
-              Gestión de Tallas
-            </h1>
-            <p style={styles.subtitle}>
-              Administra y supervisa todas las tallas del sistema
-            </p>
-          </div>
-          <button
-            style={styles.addButton}
-            onClick={() => openModal()}
-            aria-label="Nueva talla"
-            type="button"
-          >
-            <FaPlus size={14} style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
-            Nueva Talla
-          </button>
-        </div>
+        <AdminHeader
+          icon={FaRulerCombined}
+          titulo="Gestión de Tallas"
+          subtitulo="Administra y supervisa todas las tallas del sistema"
+          accion={
+            <BotonPrimario icono={FaPlus} onClick={() => openModal()} aria-label="Nueva talla">
+              Nueva Talla
+            </BotonPrimario>
+          }
+        />
 
-        {/* Error message */}
-        {error && (
-          <div style={styles.error}>
-            {error}
-          </div>
-        )}
+        {error && !modalVisible && <div style={styles.error}>{error}</div>}
 
-        {/* Filter Container */}
-        <div style={styles.filtersContainer}>
-          <div>
-            <label style={styles.label}>Buscar</label>
+        {/* Filtros */}
+        <div style={styles.filtros}>
+          <Campo etiqueta="Buscar" htmlFor="tallas-buscar" style={{ marginBottom: 0 }}>
             <div style={styles.searchContainer}>
               <FaSearch style={styles.searchIcon} />
               <input
+                id="tallas-buscar"
                 type="text"
                 placeholder="Buscar tallas..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={styles.searchInput}
+                style={{ ...styles.input, paddingLeft: stylesGlobal.spacing.scale[10] }}
               />
             </div>
-          </div>
+          </Campo>
 
-          <div>
-            <label style={styles.label}>Género</label>
+          <Campo etiqueta="Género" htmlFor="tallas-genero" style={{ marginBottom: 0 }}>
             <select
+              id="tallas-genero"
               name="genero"
               value={filters.genero}
               onChange={handleFilterChange}
-              style={styles.filterSelect}
+              style={styles.select}
             >
               <option value="">Todos</option>
               <option value="Unisex">Unisex</option>
@@ -557,15 +358,15 @@ const GestionTallas = () => {
               <option value="Dama">Dama</option>
               <option value="Caballero">Caballero</option>
             </select>
-          </div>
+          </Campo>
 
-          <div>
-            <label style={styles.label}>Categoría</label>
+          <Campo etiqueta="Categoría" htmlFor="tallas-categoria" style={{ marginBottom: 0 }}>
             <select
+              id="tallas-categoria"
               name="categoria"
               value={filters.categoria}
               onChange={handleFilterChange}
-              style={styles.filterSelect}
+              style={styles.select}
             >
               <option value="">Todas</option>
               {categorias.map((categoria) => (
@@ -574,24 +375,22 @@ const GestionTallas = () => {
                 </option>
               ))}
             </select>
-          </div>
+          </Campo>
 
           <div style={styles.totalCounter}>
-            Total: {filteredTallas.length} tallas
+            Total: {filteredTallas.length} {filteredTallas.length === 1 ? "talla" : "tallas"}
           </div>
         </div>
 
-        {/* Table Container */}
+        {/* Lista */}
         {loading.table || loading.categorias ? (
           <div style={styles.loadingContainer}>
-            <FaSpinner style={styles.loadingSpinner} />
-            <div style={styles.textCenter}>
-              <h3 style={stylesGlobal.typography.headings.h3}>Cargando tallas...</h3>
-            </div>
+            <FaSpinner style={{ animation: "spin 1s linear infinite", marginRight: stylesGlobal.spacing.scale[2] }} />
+            <h3 style={stylesGlobal.typography.headings.h3}>Cargando tallas...</h3>
           </div>
         ) : filteredTallas.length === 0 ? (
           <div style={styles.emptyState}>
-            <h3 style={styles.emptyStateText}>
+            <h3 style={stylesGlobal.typography.headings.h3}>
               {searchTerm ? "No se encontraron tallas" : "No hay tallas registradas"}
             </h3>
             <p style={stylesGlobal.typography.body.base}>
@@ -600,258 +399,189 @@ const GestionTallas = () => {
           </div>
         ) : (
           <div>
-            <div style={styles.cardThead} className="cards-thead">
+            <Thead columnas={COLUMNAS}>
               <div>Talla</div>
               <div>Género</div>
-              <div>Rango / Medida</div>
+              <div>Categoría · Rango / Medida</div>
               <div style={{ textAlign: "right" }}>Acciones</div>
-            </div>
+            </Thead>
 
             {filteredTallas.map((talla) => (
-              <div key={talla._id} style={styles.cardRow} className="cards-row">
-                <div style={styles.cardCell}>
-                  <div style={styles.cardThumb}>{(talla.talla || "?")[0].toUpperCase()}</div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={styles.cardName}>{talla.talla}</div>
+              <Fila key={talla._id} columnas={COLUMNAS}>
+                <div style={{ display: "flex", alignItems: "center", gap: stylesGlobal.spacing.scale[4], minWidth: 0 }}>
+                  <Miniatura>{(talla.talla || "?")[0].toUpperCase()}</Miniatura>
+                  <div
+                    style={{
+                      fontWeight: stylesGlobal.typography.weights.semibold,
+                      color: stylesGlobal.colors.text.primary,
+                    }}
+                  >
+                    {talla.talla}
                   </div>
                 </div>
-                <div style={styles.cardText}>{talla.genero || "—"}</div>
-                <div style={styles.cardText}>
-                  {[talla.rangoEdad, talla.medida].filter(Boolean).join(" · ") || "—"}
-                </div>
-                <div style={styles.cardActions} className="cards-actions">
-                  <button
-                    onClick={() => handleEdit(talla)}
-                    style={{ ...styles.cardAct, ...styles.cardActEdit }}
+                <TextoCelda>{talla.genero || "—"}</TextoCelda>
+                <TextoCelda>
+                  {[getCategoriaNombre(talla.categoriaId), [talla.rangoEdad, talla.medida].filter(Boolean).join(" / ")]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </TextoCelda>
+                <div
+                  className="admin-acciones"
+                  style={{ display: "flex", gap: stylesGlobal.spacing.scale[2], justifyContent: "flex-end" }}
+                >
+                  <BotonIcono
+                    variante="editar"
+                    onClick={() => openModal(talla)}
                     title="Editar talla"
-                    disabled={loading.form}
                     aria-label={`Editar talla ${talla.talla}`}
                   >
                     <FaEdit size={15} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(talla._id)}
-                    style={{ ...styles.cardAct, ...styles.cardActDel }}
+                  </BotonIcono>
+                  <BotonIcono
+                    variante="eliminar"
+                    onClick={() => setConfirmacion({ id: talla._id, nombre: talla.talla })}
                     title="Eliminar talla"
-                    disabled={loading.table}
                     aria-label={`Eliminar talla ${talla.talla}`}
                   >
                     <FaTrash size={15} />
-                  </button>
+                  </BotonIcono>
                 </div>
-              </div>
+              </Fila>
             ))}
           </div>
         )}
 
-        {/* Modal */}
-        {modalVisible && (
-          <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.75)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1400,
-            }}
-            className="modal-overlay"
-            onClick={(e) => {
-              // Cerrar modal al hacer click en el overlay, pero no en el contenido
-              if (e.target === e.currentTarget) {
-                closeModal();
-              }
-            }}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-          >
-            <div style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '18px',
-              border: 'none',
-              boxShadow: '0 24px 70px rgba(45, 40, 35, 0.3)',
-              padding: '20px',
-              maxWidth: '700px',
-              width: '90%',
-              maxHeight: '90vh',
-              overflow: 'auto',
-              position: 'relative',
-            }}>
-              <div style={styles.modalBody}>
-                <div style={styles.modalHeader}>
-                  <h3 id="modal-title" style={styles.modalTitle}>
-                    {modoEdicion ? "Editar Talla" : "Nueva Talla"}
-                  </h3>
-                  <button
-                    onClick={closeModal}
-                    style={styles.modalCloseButton}
-                    aria-label="Cerrar modal"
-                    type="button"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
+        {/* Modal de alta/edición */}
+        <AdminModal
+          abierto={modalVisible}
+          onCerrar={closeModal}
+          titulo={modoEdicion ? "Editar Talla" : "Nueva Talla"}
+          maxWidth="640px"
+          bloqueado={loading.form}
+          pie={
+            <>
+              <BotonSecundario onClick={closeModal} disabled={loading.form}>
+                Cancelar
+              </BotonSecundario>
+              <BotonPrimario
+                type="submit"
+                form="form-talla"
+                disabled={loading.form}
+                aria-label={modoEdicion ? "Actualizar talla" : "Crear talla"}
+              >
+                {loading.form ? (
+                  <>
+                    <FaSpinner style={{ animation: "spin 1s linear infinite" }} />
+                    {modoEdicion ? "Actualizando..." : "Guardando..."}
+                  </>
+                ) : modoEdicion ? (
+                  "Actualizar"
+                ) : (
+                  "Guardar"
+                )}
+              </BotonPrimario>
+            </>
+          }
+        >
+          <form id="form-talla" onSubmit={handleSubmit} noValidate>
+            {error && <div style={styles.error}>{error}</div>}
 
-                <form onSubmit={handleSubmit} style={styles.formContainer}>
-                  {error && (
-                    <div style={styles.error}>
-                      {error}
-                    </div>
-                  )}
+            <div style={styles.formGrid}>
+              <Campo etiqueta="Categoría" htmlFor="talla-categoria" requerido>
+                <select
+                  id="talla-categoria"
+                  name="categoriaId"
+                  value={tallaActual.categoriaId?._id || tallaActual.categoriaId || ""}
+                  onChange={handleChange}
+                  style={styles.select}
+                  disabled={loading.categorias || loading.form}
+                >
+                  <option value="">Seleccione una categoría</option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria._id} value={categoria._id}>
+                      {categoria.nombre}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
 
-                  <div style={styles.formGrid}>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>
-                        Categoría
-                        <span style={styles.requiredField}>*</span>
-                      </label>
-                      <select
-                        name="categoriaId"
-                        value={tallaActual.categoriaId?._id || tallaActual.categoriaId || ""}
-                        onChange={handleChange}
-                        style={styles.select}
-                        required
-                        disabled={loading.categorias}
-                      >
-                        <option value="">Seleccione una categoría</option>
-                        {categorias.map((categoria) => (
-                          <option key={categoria._id} value={categoria._id}>
-                            {categoria.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+              <Campo etiqueta="Talla" htmlFor="talla-talla" requerido pista={`${tallaActual.talla.length}/20 caracteres`}>
+                <input
+                  id="talla-talla"
+                  type="text"
+                  name="talla"
+                  value={tallaActual.talla}
+                  onChange={handleChange}
+                  style={styles.input}
+                  disabled={loading.form}
+                  maxLength={20}
+                  placeholder="Ej: S, M, L, XL, 38, 40..."
+                />
+              </Campo>
 
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>
-                        Talla
-                        <span style={styles.requiredField}>*</span>
-                        <span style={styles.charCount}>
-                          ({tallaActual.talla.length}/20)
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        name="talla"
-                        value={tallaActual.talla}
-                        onChange={handleChange}
-                        style={styles.input}
-                        required
-                        disabled={loading.form}
-                        maxLength={20}
-                        minLength={1}
-                        placeholder="Ej: S, M, L, XL, 38, 40..."
-                      />
-                    </div>
+              <Campo etiqueta="Género" htmlFor="talla-genero" requerido>
+                <select
+                  id="talla-genero"
+                  name="genero"
+                  value={tallaActual.genero}
+                  onChange={handleChange}
+                  style={styles.select}
+                  disabled={loading.form}
+                >
+                  <option value="Unisex">Unisex</option>
+                  <option value="Niño">Niño</option>
+                  <option value="Niña">Niña</option>
+                  <option value="Dama">Dama</option>
+                  <option value="Caballero">Caballero</option>
+                </select>
+              </Campo>
 
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>
-                        Género
-                        <span style={styles.requiredField}>*</span>
-                      </label>
-                      <select
-                        name="genero"
-                        value={tallaActual.genero}
-                        onChange={handleChange}
-                        style={styles.select}
-                        required
-                        disabled={loading.form}
-                      >
-                        <option value="Unisex">Unisex</option>
-                        <option value="Niño">Niño</option>
-                        <option value="Niña">Niña</option>
-                        <option value="Dama">Dama</option>
-                        <option value="Caballero">Caballero</option>
-                      </select>
-                    </div>
+              <Campo
+                etiqueta="Rango de edad"
+                htmlFor="talla-rango"
+                opcional
+                pista="Rango recomendado para esta talla."
+              >
+                <input
+                  id="talla-rango"
+                  type="text"
+                  name="rangoEdad"
+                  value={tallaActual.rangoEdad}
+                  onChange={handleChange}
+                  style={styles.input}
+                  disabled={loading.form}
+                  maxLength={30}
+                  placeholder="Ej: 2-4 años"
+                />
+              </Campo>
 
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>
-                        Rango de edad
-                        <span style={styles.charCount}>
-                          ({tallaActual.rangoEdad?.length || 0}/30)
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        name="rangoEdad"
-                        value={tallaActual.rangoEdad}
-                        onChange={handleChange}
-                        style={styles.input}
-                        disabled={loading.form}
-                        maxLength={30}
-                        placeholder="Ej: 2-4 años"
-                      />
-                      <small style={stylesGlobal.typography.body.caption}>
-                        Opcional: Especifica el rango de edad recomendado para esta talla.
-                      </small>
-                    </div>
-
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>
-                        Medida
-                        <span style={styles.charCount}>
-                          ({tallaActual.medida?.length || 0}/30)
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        name="medida"
-                        value={tallaActual.medida}
-                        onChange={handleChange}
-                        style={styles.input}
-                        disabled={loading.form}
-                        maxLength={30}
-                        placeholder="Ej: 90cm, 32 pulgadas"
-                      />
-                      <small style={stylesGlobal.typography.body.caption}>
-                        Opcional: Proporciona medidas específicas para esta talla.
-                      </small>
-                    </div>
-                  </div>
-
-                  <div style={styles.modalActions}>
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      style={styles.outlineButton}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      style={{
-                        ...styles.primaryButton,
-                        ...(loading.form ? styles.disabledButton : {}),
-                      }}
-                      disabled={loading.form}
-                      aria-label={modoEdicion ? "Actualizar talla" : "Crear talla"}
-                    >
-                      {loading.form ? (
-                        <>
-                          <FaSpinner style={styles.loadingSpinner} />
-                          {modoEdicion ? "Actualizando..." : "Guardando..."}
-                        </>
-                      ) : (
-                        <>
-                          <FaSave style={{ marginRight: stylesGlobal.spacing.scale[1] }} />
-                          {modoEdicion ? "Actualizar" : "Guardar"}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
+              <Campo etiqueta="Medida" htmlFor="talla-medida" opcional pista="Medidas específicas de esta talla.">
+                <input
+                  id="talla-medida"
+                  type="text"
+                  name="medida"
+                  value={tallaActual.medida}
+                  onChange={handleChange}
+                  style={styles.input}
+                  disabled={loading.form}
+                  maxLength={30}
+                  placeholder="Ej: 90cm, 32 pulgadas"
+                />
+              </Campo>
             </div>
-          </div>
-        )}
+          </form>
+        </AdminModal>
 
-        {/* Contenedor de notificaciones */}
+        {/* Confirmación de borrado */}
+        <ConfirmDialog
+          abierto={Boolean(confirmacion)}
+          titulo="¿Eliminar talla?"
+          nombre={confirmacion ? `${confirmacion.nombre} · ${getCategoriaNombre(tallas.find((t) => t._id === confirmacion.id)?.categoriaId)}` : ""}
+          cargando={confirmLoading}
+          onCancelar={() => setConfirmacion(null)}
+          onConfirmar={ejecutarEliminacion}
+        />
+
         <NotificationContainer
           notifications={notifications}
           onRemoveNotification={removeNotification}
