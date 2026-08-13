@@ -420,41 +420,6 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
       width: effectiveCollapsed ? 0 : "auto",
       overflow: "hidden",
     },
-    userInfo: {
-      padding: effectiveCollapsed ? "16px 0" : "16px 18px",
-      borderBottom: `1px solid ${adminTheme.border}`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: effectiveCollapsed ? "center" : "flex-start",
-      backgroundColor: adminTheme.surface,
-      gap: "12px",
-      flexShrink: 0,
-    },
-    userName: {
-      fontSize: effectiveCollapsed ? "0" : "0.9rem",
-      color: adminTheme.text,
-      opacity: effectiveCollapsed ? 0 : 1,
-      visibility: effectiveCollapsed ? "hidden" : "visible",
-      transition: stylesGlobal.animations.transitions.base,
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      maxWidth: "150px",
-      fontWeight: 600,
-    },
-    userAvatar: {
-      width: "38px",
-      height: "38px",
-      borderRadius: "50%",
-      background: stylesGlobal.colors.gradients.luxury,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "0.9rem",
-      fontWeight: 700,
-      flexShrink: 0,
-      color: stylesGlobal.colors.text.inverse,
-    },
     submenuIcon: {
       transition: stylesGlobal.animations.transitions.base,
       fontSize: "0.75rem",
@@ -520,16 +485,6 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
               </button>
             )}
           </>
-        )}
-      </div>
-
-      {/* Información del usuario */}
-      <div style={styles.userInfo}>
-        <div style={styles.userAvatar}>
-          {user?.name ? user.name[0].toUpperCase() : "A"}
-        </div>
-        {!effectiveCollapsed && (
-          <span style={styles.userName}>{user?.name || "Admin"}</span>
         )}
       </div>
 
