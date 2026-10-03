@@ -6,6 +6,7 @@ import stylesPublic from "../../styles/stylesGlobal"
 import Modal from "../../components/shared/Modal"
 import { publicAPI } from "../../services/api"
 import { useConfig } from "../../context/ConfigContext"
+import { urlWhatsApp } from "../../utils/whatsapp"
 
 const Destacados = () => {
   const { config } = useConfig()
@@ -43,11 +44,8 @@ const Destacados = () => {
     cargar()
   }, [])
 
-  // --- WhatsApp ---
-  const waRaw = config?.redesSociales?.whatsapp?.trim()
-  const waUrl = waRaw
-    ? (waRaw.startsWith("http") ? waRaw : `https://wa.me/${waRaw.replace(/\D/g, "")}`)
-    : "https://wa.me/527715563522"
+  // --- WhatsApp (null si la clienta no ha capturado su número) ---
+  const waUrl = urlWhatsApp(config)
 
   // --- Helpers ---
   const idDe = (ref) => (ref && typeof ref === "object" ? ref._id : ref) || null
@@ -189,9 +187,11 @@ const Destacados = () => {
                   <p style={{ fontSize: stylesPublic.typography.scale.sm, color: stylesPublic.colors.text.secondary, lineHeight: stylesPublic.typography.leading.relaxed, margin: `0 0 ${stylesPublic.spacing.scale[4]} 0` }}>
                     {evento.descripcion || "Un evento especial para celebrar la artesanía huasteca."}
                   </p>
-                  <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ color: stylesPublic.colors.primary[500], fontSize: stylesPublic.typography.scale.sm, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: stylesPublic.spacing.scale[1] }}>
-                    Escríbenos para asistir →
-                  </a>
+                  {waUrl && (
+                    <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ color: stylesPublic.colors.primary[500], fontSize: stylesPublic.typography.scale.sm, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: stylesPublic.spacing.scale[1] }}>
+                      Escríbenos para asistir
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
@@ -292,9 +292,11 @@ const Destacados = () => {
             <p style={{ ...stylesPublic.typography.body.base, color: "rgba(255,255,255,0.92)", maxWidth: "520px", margin: `0 auto ${stylesPublic.spacing.scale[6]}` }}>
               Llevamos nuestra artesanía a ferias, festivales y celebraciones. Escríbenos y lo organizamos.
             </p>
-            <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: "#fff", color: stylesPublic.colors.primary[600] }}>
-              <MessageCircle size={16} /> Escríbenos por WhatsApp
-            </a>
+            {waUrl && (
+              <a href={waUrl} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: "#fff", color: stylesPublic.colors.primary[600] }}>
+                <MessageCircle size={16} /> Escríbenos por WhatsApp
+              </a>
+            )}
           </div>
         </section>
       </div>

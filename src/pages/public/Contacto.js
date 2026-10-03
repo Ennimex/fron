@@ -64,10 +64,11 @@ const Contacto = () => {
     }
   }
 
-  const telefono = config?.telefono || "+52 771 123 4567"
-  const email = config?.email || "ventas@laaterciopelada.com"
-  const horarios = config?.horarios || "Lunes a Viernes: 9:00 AM - 7:00 PM\nSábados: 10:00 AM - 4:00 PM\nDomingos: Cerrado"
-  const direccion = config?.direccion || "Región Huasteca\nSan Luis Potosí, México"
+  // Sin datos de respaldo inventados: si la clienta no ha capturado algo, no se muestra
+  const telefono = config?.telefono || ""
+  const email = config?.email || ""
+  const horarios = config?.horarios || ""
+  const direccion = config?.direccion || ""
 
   const contactInfo = [
     {
@@ -289,7 +290,7 @@ const Contacto = () => {
               gap: stylesPublic.spacing.scale[6],
             }}
           >
-            {contactInfo.map((info, index) => {
+            {contactInfo.filter((info) => info.content).map((info, index) => {
               const IconComponent = info.icon
               return (
                 <div

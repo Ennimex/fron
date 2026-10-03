@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Check, MessageCircle } from "lucide-react"
 import { useConfig } from "../../context/ConfigContext"
+import { numeroWhatsApp, urlWhatsApp } from "../../utils/whatsapp"
 import solicitudService from "../../services/solicitudService"
 import stylesPublic from "../../styles/stylesGlobal"
 import Modal from "./Modal"
@@ -46,20 +47,16 @@ const SolicitudModal = ({ productos = [], onClose }) => {
     }
   }
 
+  // Sin número en la configuración no hay botón de WhatsApp: nunca un número fijo
+  const hayWhatsApp = Boolean(numeroWhatsApp(config))
+
   const enviarPorWhatsApp = () => {
     const lista = items.map((p) => `• ${p.nombre || "Producto"}`).join("\n")
     const texto = `¡Hola! Me interesa cotizar estas prendas de La Aterciopelada:\n\n${lista}\n${
       mensaje ? `\n${mensaje}\n` : ""
     }\n¿Me podrían dar más información sobre disponibilidad y precios? ¡Gracias!`
-
-    // Número/URL de WhatsApp desde la configuración del sitio; si no hay, fallback
-    const waConfig = config?.redesSociales?.whatsapp || ""
-    let base
-    if (waConfig.startsWith("http")) base = waConfig
-    else if (waConfig) base = `https://wa.me/${waConfig.replace(/\D/g, "")}`
-    else base = "https://wa.me/527715563522"
-
-    const url = `${base}${base.includes("?") ? "&" : "?"}text=${encodeURIComponent(texto)}`
+    const url = urlWhatsApp(config, texto)
+    if (!url) return
     window.open(url, "_blank")
   }
 
@@ -267,17 +264,19 @@ const SolicitudModal = ({ productos = [], onClose }) => {
             {enviando ? "Enviando..." : "Enviar solicitud"}
           </button>
 
-          <button
-            type="button"
-            onClick={enviarPorWhatsApp}
-            style={{
-              ...botonBase,
-              background: "linear-gradient(135deg, #25D366, #128C7E)",
-              color: "#ffffff",
-            }}
-          >
-            <MessageCircle size={18} aria-hidden="true" /> Enviar por WhatsApp
-          </button>
+          {hayWhatsApp && (
+            <button
+              type="button"
+              onClick={enviarPorWhatsApp}
+              style={{
+                ...botonBase,
+                background: "linear-gradient(135deg, #25D366, #128C7E)",
+                color: "#ffffff",
+              }}
+            >
+              <MessageCircle size={18} aria-hidden="true" /> Enviar por WhatsApp
+            </button>
+          )}
 
           <p
             style={{

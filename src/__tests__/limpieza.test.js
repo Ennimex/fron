@@ -41,3 +41,19 @@ describe("limpieza del front", () => {
     expect(culpables).toEqual([]);
   });
 });
+
+// Un solo WhatsApp, leído de la configuración: ningún teléfono ni correo fijo en código.
+// (Los placeholder="+521234567890" de Login y Perfil no están aquí: son ejemplos de formato.)
+const fragmentosProhibidos = [
+  "527715563522", "527711234567", "7715563522", "7711234567", "7711875194", "wa.me/5",
+  "+52 771 123 4567", "ventas@laaterciopelada.com", "info@laaterciopelada.com",
+];
+
+describe("datos de contacto", () => {
+  it("ningún archivo de src contiene un número de teléfono o correo fijo", () => {
+    const culpables = leerTodo(src)
+      .filter((a) => fragmentosProhibidos.some((f) => a.texto.includes(f)))
+      .map((a) => a.ruta);
+    expect(culpables).toEqual([]);
+  });
+});

@@ -127,7 +127,7 @@ const Footer = () => {
                             )}
                             <div style={stylesGlobal.components.footer.contactItem}>
                                 <span style={stylesGlobal.components.footer.contactIcon}>📧</span>
-                                <span>{config?.email || "info@laaterciopelada.com"}</span>
+                                <span>{config?.email || ""}</span>
                             </div>
                         </div>
                     </Col>

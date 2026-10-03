@@ -381,7 +381,7 @@ const GestionConfiguracion = () => {
               {activeTab === "redes" && (
                 <>
                   <h2 style={s.sectionLabel}>Redes sociales (URLs)</h2>
-                  {field("whatsapp", "WhatsApp", "Enlace wa.me usado en los botones de contacto", "https://wa.me/52...")}
+                  {field("whatsapp", "WhatsApp", "Número o enlace wa.me para los botones de contacto; se acepta con o sin lada, con espacios o guiones", "Número de WhatsApp del negocio")}
                   {field("facebook", "Facebook", "URL de tu página", "https://facebook.com/...")}
                   {field("instagram", "Instagram", "URL de tu perfil", "https://instagram.com/...")}
                   {field("twitter", "Twitter / X", "URL de tu perfil", "https://x.com/...")}

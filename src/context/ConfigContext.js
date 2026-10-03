@@ -7,7 +7,11 @@ export const useConfig = () => useContext(ConfigContext);
 // Valores por defecto mientras carga (o si falla la API), para que la UI nunca quede vacía
 const defaultConfig = {
   nombre: "La Aterciopelada",
+  nombreCorto: "La Aterciopelada",
+  lema: "Boutique Huasteca",
   descripcion: "",
+  terminosCondiciones: "",
+  avisoPrivacidad: "",
   logoUrl: "",
   direccion: "",
   telefono: "",

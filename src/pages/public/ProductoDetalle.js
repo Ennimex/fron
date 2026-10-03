@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeft, MapPin, Palette, Ruler, Tag, MessageCircle, Heart } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
 import { useFavoritos } from "../../context/FavoritosContext"
+import { useConfig } from "../../context/ConfigContext"
+import { numeroWhatsApp, urlWhatsApp } from "../../utils/whatsapp"
 import { publicAPI } from "../../services/api"
 import SolicitudModal from "../../components/shared/SolicitudModal"
 import stylesPublic from "../../styles/stylesGlobal"
@@ -283,6 +285,7 @@ const ProductoDetalleEnhanced = () => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const { esFavorito, toggleFavorito } = useFavoritos()
+  const { config } = useConfig()
   const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
   const [producto, setProducto] = useState(null)
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -334,25 +337,23 @@ const ProductoDetalleEnhanced = () => {
     }
   }, [id, navigate])
 
+  // Sin número en la configuración no hay botón de WhatsApp: nunca un número fijo
+  const hayWhatsApp = Boolean(numeroWhatsApp(config))
+
   const handleWhatsAppContact = () => {
-    const phoneNumber = "527715563522"
-    const message = `¡Hola! Me interesa este producto de La Aterciopelada:
-
-📋 *${producto?.nombre || "Producto"}*
-
-${producto?.descripcion ? `📝 Descripción: ${producto.descripcion}` : ""}
-
-${producto?.localidadId?.nombre ? `📍 Localidad: ${producto.localidadId.nombre}` : ""}
-
-${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tallasDisponibles.length}` : ""}
-
-¿Podrían proporcionarme más información sobre disponibilidad, precios y formas de pago?
-
-¡Gracias! 😊`
-
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
-    window.open(whatsappURL, "_blank")
+    const lineas = [
+      "Hola, me interesa esta prenda de La Aterciopelada:",
+      "",
+      `*${producto?.nombre || "Producto"}*`,
+      producto?.descripcion ? `Descripción: ${producto.descripcion}` : "",
+      producto?.localidadId?.nombre ? `Región: ${producto.localidadId.nombre}` : "",
+      "",
+      "¿Me podrían dar información sobre disponibilidad, precio y formas de pago? Gracias.",
+    ]
+    const message = lineas.filter((l, i, arr) => l !== "" || arr[i - 1] !== "").join("\n")
+    const url = urlWhatsApp(config, message)
+    if (!url) return
+    window.open(url, "_blank")
   }
 
   // Estilos responsivos mejorados
@@ -882,14 +883,16 @@ ${producto?.tallasDisponibles?.length ? `👗 Tallas disponibles: ${producto.tal
                   Volver a Productos
                 </button>
 
-                <button
-                  className="producto-button hover-lift"
-                  style={whatsappButtonStyle}
-                  onClick={handleWhatsAppContact}
-                >
-                  <MessageCircle size={16} />
-                  Contactar por WhatsApp
-                </button>
+                {hayWhatsApp && (
+                  <button
+                    className="producto-button hover-lift"
+                    style={whatsappButtonStyle}
+                    onClick={handleWhatsAppContact}
+                  >
+                    <MessageCircle size={16} />
+                    Contactar por WhatsApp
+                  </button>
+                )}
 
                 <button
                   type="button"
