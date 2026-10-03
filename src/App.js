@@ -20,6 +20,7 @@ import ProductoDetalle from "./pages/public/ProductoDetalle";
 import GaleriaCompleta from "./pages/public/GaleriaCompleta";
 import RecuperarContrasena from "./pages/public/RecuperarContrasena";
 import ResetPassword from "./pages/public/ResetPassword";
+import Politicas from "./pages/public/Politicas";
 
 // Importación de componentes privados
 import Perfil from "./pages/Private/PerfilNuevo";
@@ -78,6 +79,7 @@ function App() {
               <Route path="/catalogofotos" element={<GaleriaCompleta />} />
               <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
+              <Route path="/politicas" element={<Politicas />} />
             </Route>
 
             {/* Rutas Privadas usando PrivateLayout */}

@@ -1019,13 +1019,13 @@ const Login = () => {
                       </div>
 
                       <div className="login-terms-text">
-                        Al iniciar sesión, aceptas nuestras{" "}
-                        <Link to="/politicas#cliente" className="login-highlight">
-                          Políticas de Cliente
+                        Al iniciar sesión, aceptas nuestros{" "}
+                        <Link to="/politicas#terminos" className="login-highlight">
+                          Términos y Condiciones
                         </Link>{" "}
-                        y{" "}
+                        y nuestro{" "}
                         <Link to="/politicas#privacidad" className="login-highlight">
-                          Políticas de Privacidad
+                          Aviso de Privacidad
                         </Link>
                       </div>
                     </div>
