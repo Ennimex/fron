@@ -4,7 +4,6 @@ import { Navbar, Container, Button, Dropdown } from "react-bootstrap";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import stylesGlobal from "../../styles/stylesGlobal";
 import { PersonCircle, BoxArrowRight, Gear, List, X, Heart, ClipboardCheck } from "react-bootstrap-icons";
-import { useGitHubPagesNavigation } from "../../hooks/useGitHubPagesNavigation";
 
 const NavbarBase = ({ 
   isAuthenticated, 
@@ -15,7 +14,6 @@ const NavbarBase = ({
   navLinks = []
 }) => {
   const navigate = useNavigate();
-  const { handleLogoutRedirect, redirectToLogin } = useGitHubPagesNavigation();
   const [expanded, setExpanded] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 375);
@@ -67,13 +65,13 @@ const NavbarBase = ({
       
       // Luego manejar la redirección específica para GitHub Pages
       setTimeout(() => {
-        handleLogoutRedirect();
+        navigate("/", { replace: true });
       }, 50); // Pequeño delay para asegurar que el logout se procese
     } catch (error) {
       console.error('Error durante logout:', error);
       setExpanded(false);
       // Fallback: redirigir de todas formas
-      handleLogoutRedirect();
+      navigate("/", { replace: true });
     }
   };
 
@@ -97,7 +95,7 @@ const NavbarBase = ({
   const performNavigation = () => {
     try {
       console.log('Performing navigation to login...'); // Debug log
-      redirectToLogin();
+      navigate("/login", { replace: true });
     } catch (error) {
       console.error('Error navigating to login with GitHub Pages hook:', error);
       // Fallback: usar navigate estándar
