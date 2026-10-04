@@ -25,6 +25,8 @@ import {
   FaBook,
   FaUserFriends,
   FaClipboardList,
+  FaInbox,
+  FaQuestionCircle,
 } from "react-icons/fa"
 import stylesGlobal from "../../styles/stylesGlobal"
 import adminTheme from "../../styles/adminTheme"
@@ -534,6 +536,15 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
             </li>
 
             <li style={styles.menuItem}>
+              <MenuLink to="/admin/buzon" style={styles.menuLink} activeStyle={styles.menuLinkActive}>
+                <span style={styles.menuIcon}>
+                  <FaInbox size={20} />
+                </span>
+                <span style={styles.menuText}>Buzón</span>
+              </MenuLink>
+            </li>
+
+            <li style={styles.menuItem}>
               <div
                 style={{
                   ...styles.menuLink,
@@ -768,6 +779,12 @@ const SidebarAdmin = ({ collapsed, onToggle, isMobile = false, mobileMenuOpen = 
                   >
                     <FaUserFriends size={14} />
                     <span style={styles.submenuText}>Colaboradores</span>
+                  </MenuLink>
+                </div>
+                <div style={styles.submenuItem}>
+                  <MenuLink to="/admin/informacion/preguntas" style={styles.submenuLink} activeStyle={styles.submenuLinkActive}>
+                    <FaQuestionCircle size={14} />
+                    <span style={styles.submenuText}>Preguntas frecuentes</span>
                   </MenuLink>
                 </div>
                 <div style={styles.submenuItem}>

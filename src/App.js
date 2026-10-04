@@ -21,6 +21,8 @@ import GaleriaCompleta from "./pages/public/GaleriaCompleta";
 import RecuperarContrasena from "./pages/public/RecuperarContrasena";
 import ResetPassword from "./pages/public/ResetPassword";
 import Politicas from "./pages/public/Politicas";
+import PreguntasFrecuentes from "./pages/public/PreguntasFrecuentes";
+import Buzon from "./pages/public/Buzon";
 
 // Importación de componentes privados
 import Perfil from "./pages/Private/PerfilNuevo";
@@ -48,6 +50,8 @@ import GestionConfiguracion from "./pages/Admin/GestionConfiguracion";
 import GestionNosotros from "./pages/Admin/GestionNosotros";
 import GestionColaboradores from "./pages/Admin/GestionColaboradores";
 import GestionSolicitudes from "./pages/Admin/GestionSolicitudes";
+import GestionPreguntas from "./pages/Admin/GestionPreguntas";
+import GestionBuzon from "./pages/Admin/GestionBuzon";
 
 // import AdminProductosView from "./pages/Admin/AdminProductosView";
 // import AdminProductoCreate from "./pages/Admin/AdminProductoCreate";
@@ -80,6 +84,8 @@ function App() {
               <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/politicas" element={<Politicas />} />
+              <Route path="/preguntas-frecuentes" element={<PreguntasFrecuentes />} />
+              <Route path="/buzon" element={<Buzon />} />
             </Route>
 
             {/* Rutas Privadas usando PrivateLayout */}
@@ -96,6 +102,8 @@ function App() {
               <Route path="/admin/perfil" element={<PrivateRoute allowedRoles={["admin"]}><AdminPerfil /></PrivateRoute>} />
               <Route path="/admin/usuarios" element={<PrivateRoute allowedRoles={["admin"]}><AdminUsersView /></PrivateRoute>} />
               <Route path="/admin/solicitudes" element={<PrivateRoute allowedRoles={["admin"]}><GestionSolicitudes /></PrivateRoute>} />
+              <Route path="/admin/buzon" element={<PrivateRoute allowedRoles={["admin"]}><GestionBuzon /></PrivateRoute>} />
+              <Route path="/admin/informacion/preguntas" element={<PrivateRoute allowedRoles={["admin"]}><GestionPreguntas /></PrivateRoute>} />
               <Route path="/admin/productos/nuevo" element={<PrivateRoute allowedRoles={["admin"]}><AdminNuevoProducto /></PrivateRoute>} />
               <Route path="/admin/productos/tallas" element={<PrivateRoute allowedRoles={["admin"]}><GestionTallas /></PrivateRoute>} />
               <Route path="/admin/productos/categorias" element={<PrivateRoute allowedRoles={["admin"]}><GestionCategorias /></PrivateRoute>} />

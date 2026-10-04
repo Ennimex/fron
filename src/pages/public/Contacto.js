@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { Mail, Phone, Clock, MapPin, Send, MessageCircle } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
 import { useConfig } from "../../context/ConfigContext"
@@ -762,6 +763,14 @@ const Contacto = () => {
               </div>
             </div>
           </div>
+        </section>
+
+        <section style={{ maxWidth: "1280px", margin: "0 auto", padding: `${stylesPublic.spacing.scale[8]} ${stylesPublic.spacing.scale[4]}`, textAlign: "center" }}>
+          <p style={stylesPublic.typography.body.large}>
+            <Link to="/preguntas-frecuentes">Preguntas frecuentes</Link>
+            {" · "}
+            <Link to="/buzon">Quejas y sugerencias</Link>
+          </p>
         </section>
       </div>
     </div>

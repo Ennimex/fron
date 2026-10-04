@@ -267,6 +267,24 @@ export const publicAPI = {
     }
   },
 
+  // Preguntas frecuentes publicadas
+  getPreguntasFrecuentes: async () => {
+    try {
+      return await api.get('/preguntas-frecuentes');
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Buzón de quejas y sugerencias
+  enviarBuzon: async (data) => {
+    try {
+      return await api.post('/buzon', data);
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Valores de la empresa
   getValores: async () => {
     try {
@@ -713,6 +731,17 @@ export const adminAPI = {
       throw error;
     }
   },
+
+  // Preguntas frecuentes
+  getPreguntasTodas: async () => api.get('/preguntas-frecuentes/todas'),
+  createPregunta: async (data) => api.post('/preguntas-frecuentes', data),
+  updatePregunta: async (id, data) => api.put(`/preguntas-frecuentes/${id}`, data),
+  deletePregunta: async (id) => api.delete(`/preguntas-frecuentes/${id}`),
+
+  // Buzón de quejas y sugerencias
+  getBuzon: async (params = {}) => api.get('/buzon', { params }),
+  updateBuzon: async (id, data) => api.patch(`/buzon/${id}`, data),
+  deleteBuzon: async (id) => api.delete(`/buzon/${id}`),
 
   // Valores de la empresa (CRUD)
   getValores: async () => {
