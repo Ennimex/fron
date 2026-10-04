@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaSave, FaSpinner, FaImage, FaInfoCircle, FaAddressCard, FaShareAlt } from "react-icons/fa";
+import { FaSave, FaSpinner, FaImage, FaInfoCircle, FaAddressCard, FaShareAlt, FaFileAlt } from "react-icons/fa";
 import { adminAPI } from "../../services/api";
 import { useConfig } from "../../context/ConfigContext";
 import stylesGlobal from "../../styles/stylesGlobal";
@@ -24,6 +24,7 @@ const TABS = [
   { id: "identidad", label: "Identidad", icon: FaInfoCircle },
   { id: "contacto", label: "Contacto", icon: FaAddressCard },
   { id: "redes", label: "Redes sociales", icon: FaShareAlt },
+  { id: "legales", label: "Legales", icon: FaFileAlt },
 ];
 
 const GestionConfiguracion = () => {
@@ -32,7 +33,11 @@ const GestionConfiguracion = () => {
   const [activeTab, setActiveTab] = useState("identidad");
   const [form, setForm] = useState({
     nombre: "",
+    nombreCorto: "",
+    lema: "",
     descripcion: "",
+    terminosCondiciones: "",
+    avisoPrivacidad: "",
     direccion: "",
     telefono: "",
     email: "",
@@ -55,7 +60,11 @@ const GestionConfiguracion = () => {
       const redes = data?.redesSociales || {};
       setForm({
         nombre: data?.nombre || "",
+        nombreCorto: data?.nombreCorto || "",
+        lema: data?.lema || "",
         descripcion: data?.descripcion || "",
+        terminosCondiciones: data?.terminosCondiciones || "",
+        avisoPrivacidad: data?.avisoPrivacidad || "",
         direccion: data?.direccion || "",
         telefono: data?.telefono || "",
         email: data?.email || "",
@@ -103,6 +112,10 @@ const GestionConfiguracion = () => {
       const fd = new FormData();
       fd.append("nombre", form.nombre);
       fd.append("descripcion", form.descripcion);
+      fd.append("nombreCorto", form.nombreCorto);
+      fd.append("lema", form.lema);
+      fd.append("terminosCondiciones", form.terminosCondiciones);
+      fd.append("avisoPrivacidad", form.avisoPrivacidad);
       fd.append("direccion", form.direccion);
       fd.append("telefono", form.telefono);
       fd.append("email", form.email);
@@ -347,6 +360,8 @@ const GestionConfiguracion = () => {
                 <>
                   <h2 style={s.sectionLabel}>Información básica</h2>
                   {field("nombre", "Nombre del sitio", "Aparece en el navbar, el footer y las cotizaciones", "La Aterciopelada")}
+                  {field("nombreCorto", "Nombre corto", "Se usa en el encabezado y en la app", "La Aterciopelada")}
+                  {field("lema", "Lema", "Frase corta debajo del nombre. Ejemplo: Boutique Huasteca", "Boutique Huasteca")}
                   {field("descripcion", "Descripción / eslogan", "Breve texto que aparece en el footer", "Breve descripción de tu tienda", true)}
                   <div style={s.settingCard}>
                     <div style={s.settingTitle}>Logo</div>
@@ -386,6 +401,17 @@ const GestionConfiguracion = () => {
                   {field("instagram", "Instagram", "URL de tu perfil", "https://instagram.com/...")}
                   {field("twitter", "Twitter / X", "URL de tu perfil", "https://x.com/...")}
                   {field("tiktok", "TikTok", "URL de tu perfil", "https://tiktok.com/@...")}
+                </>
+              )}
+
+              {activeTab === "legales" && (
+                <>
+                  <h2 style={s.sectionLabel}>Textos legales</h2>
+                  <div style={s.settingHelp}>
+                    Se muestran en la página Políticas del sitio y en los enlaces del registro. Hay borradores listos para revisar en la carpeta docs/legales del proyecto.
+                  </div>
+                  {field("terminosCondiciones", "Términos y Condiciones", "Cómo se pide, se cotiza, se entrega y se cancela", "Pega aquí los términos", true)}
+                  {field("avisoPrivacidad", "Aviso de Privacidad", "Qué datos se recaban y cómo ejercer derechos ARCO", "Pega aquí el aviso", true)}
                 </>
               )}
             </div>
