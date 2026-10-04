@@ -159,7 +159,7 @@ const GestionNosotros = () => {
             </div>
             <div>
               <label style={s.label}>Título</label>
-              <input style={s.input} value={valorForm.titulo} onChange={(e) => setValorForm({ ...valorForm, titulo: e.target.value })} placeholder="Ej. Comercio Justo" />
+              <input style={s.input} value={valorForm.titulo} onChange={(e) => setValorForm({ ...valorForm, titulo: e.target.value })} placeholder="Ej. Hecho a mano" />
             </div>
           </div>
           <label style={s.label}>Descripción</label>

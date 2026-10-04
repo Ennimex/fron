@@ -522,7 +522,7 @@ const RecuperarContrasena = () => {
                 </p>
 
                 <div className="rp-tip">
-                  <strong>💡 Tip:</strong> Revisa también tu carpeta de spam si no encuentras el correo en tu bandeja de entrada.
+                  <strong>Tip:</strong> Revisa también tu carpeta de spam si no encuentras el correo en tu bandeja de entrada.
                 </div>
 
                 <div role="alert" aria-live="assertive">
@@ -547,7 +547,7 @@ const RecuperarContrasena = () => {
                       <IonIcon icon={mailOutline} />
                     </span>
                     {emailError && (
-                      <p className="rp-error-text">⚠️ Por favor ingresa un correo válido</p>
+                      <p className="rp-error-text">Por favor ingresa un correo válido</p>
                     )}
                   </div>
 

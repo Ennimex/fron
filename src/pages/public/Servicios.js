@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { Sparkles } from "lucide-react"
 import { servicioService } from "../../services/servicioService"
 import stylesPublic from "../../styles/stylesGlobal"
 
@@ -29,75 +30,7 @@ const ServiciosEnhanced = () => {
     cargarServicios()
   }, [])
 
-  // Servicios predeterminados si no hay datos de la API
-  const serviciosPredeterminados = useMemo(
-    () => [
-      {
-        _id: "confeccion",
-        titulo: "Confección Artesanal",
-        descripcion:
-          "Creamos prendas únicas utilizando técnicas tradicionales huastecas transmitidas por generaciones. Cada pieza cuenta una historia de tradición y maestría artesanal.",
-        icono: "🧵",
-      },
-      {
-        _id: "bordado",
-        titulo: "Bordado Tradicional",
-        descripcion:
-          "Bordados elaborados a mano con técnicas ancestrales que reflejan la rica simbología y colorido de la cultura huasteca.",
-        icono: "�",
-      },
-      {
-        _id: "accesorios",
-        titulo: "Accesorios Exclusivos",
-        descripcion:
-          "Diseñamos complementos únicos como rebozos, bolsos y joyería textil que realzan tu estilo personal con la elegancia de la artesanía huasteca.",
-        icono: "💎",
-      },
-      {
-        _id: "talleres",
-        titulo: "Talleres Educativos",
-        descripcion:
-          "Compartimos nuestro conocimiento a través de talleres donde enseñamos las técnicas tradicionales de confección y bordado huasteco.",
-        icono: "�‍🏫",
-      },
-    ],
-    []
-  )
 
-  // Beneficios de nuestros servicios
-  const beneficiosData = useMemo(
-    () => [
-      {
-        id: "calidad",
-        titulo: "Excelencia Artesanal",
-        descripcion:
-          "Cada pieza es meticulosamente elaborada por maestras artesanas con décadas de experiencia, garantizando la más alta calidad.",
-        icono: "⭐",
-      },
-      {
-        id: "autenticidad",
-        titulo: "Herencia Cultural",
-        descripcion:
-          "Preservamos técnicas ancestrales huastecas, manteniendo viva la tradición textil de nuestros pueblos originarios.",
-        icono: "🌿",
-      },
-      {
-        id: "artesanos",
-        titulo: "Comercio Justo",
-        descripcion:
-          "Trabajamos directamente con comunidades artesanales, asegurando condiciones dignas y precios justos.",
-        icono: "👐",
-      },
-      {
-        id: "exclusividad",
-        titulo: "Piezas Únicas",
-        descripcion:
-          "Cada creación es irrepetible, diseñada especialmente para quienes valoran la autenticidad y la exclusividad.",
-        icono: "💎",
-      },
-    ],
-    []
-  )
 
   const buttonStyle = {
     fontFamily: stylesPublic.typography.families.body,
@@ -245,7 +178,7 @@ const ServiciosEnhanced = () => {
                 fontSize: stylesPublic.typography.scale["2xl"],
               }}
             >
-              ✨
+              <Sparkles size={20} aria-hidden="true" />
             </span>
             <span
               style={{
@@ -349,7 +282,12 @@ const ServiciosEnhanced = () => {
             marginBottom: stylesPublic.spacing.scale[16],
           }}
         >
-          {(servicios.length > 0 ? servicios : serviciosPredeterminados).map((servicio, idx) => (
+          {servicios.length === 0 && (
+            <p style={{ ...stylesPublic.typography.body.large, textAlign: "center" }}>
+              Aún no hay servicios publicados.
+            </p>
+          )}
+          {servicios.map((servicio, idx) => (
             <div
               key={servicio._id}
               style={{
@@ -469,134 +407,6 @@ const ServiciosEnhanced = () => {
       </section>
 
       {/* Beneficios Section */}
-      <section
-        style={{
-          background: stylesPublic.colors.gradients.elegant,
-          padding: `${stylesPublic.spacing.scale[20]} 0`,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 60%)`,
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: `0 ${stylesPublic.spacing.scale[4]}`,
-            position: "relative",
-          }}
-        >
-          <div style={{ textAlign: "center", marginBottom: stylesPublic.spacing.scale[16] }}>
-            <h2
-              style={{
-                ...stylesPublic.typography.headings.h2,
-                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
-                color: stylesPublic.colors.text.inverse,
-              }}
-            >
-              Por Qué Elegirnos
-            </h2>
-            <div
-              style={{
-                width: stylesPublic.spacing.scale[24],
-                height: stylesPublic.spacing.scale[1],
-                background: `linear-gradient(90deg, transparent 0%, ${stylesPublic.colors.surface.primary} 50%, transparent 100%)`,
-                borderRadius: stylesPublic.borders.radius.full,
-                margin: `0 auto ${stylesPublic.spacing.scale[6]} auto`,
-              }}
-            />
-            <p
-              style={{
-                ...stylesPublic.typography.body.large,
-                maxWidth: "700px",
-                margin: "0 auto",
-                color: stylesPublic.colors.text.inverse,
-                opacity: 0.95,
-              }}
-            >
-              Cada detalle refleja nuestro compromiso con la excelencia y la tradición artesanal
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: stylesPublic.spacing.scale[6],
-            }}
-          >
-            {beneficiosData.map((beneficio, idx) => (
-              <div
-                key={beneficio.id}
-                style={{
-                  background: "rgba(255, 255, 255, 0.1)",
-                  borderRadius: stylesPublic.borders.radius.xl,
-                  padding: stylesPublic.spacing.scale[6],
-                  textAlign: "center",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
-                  backdropFilter: "blur(15px)",
-                  transition: stylesPublic.animations.transitions.elegant,
-                  animationDelay: `${0.15 * idx}s`,
-                  animation: "fadeInUp 0.6s ease-out forwards",
-                  opacity: 0,
-                  transform: "translateY(20px)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)"
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"
-                }}
-              >
-                <div
-                  style={{
-                    width: stylesPublic.spacing.scale[16],
-                    height: stylesPublic.spacing.scale[16],
-                    borderRadius: stylesPublic.borders.radius.full,
-                    background: "rgba(255, 255, 255, 0.2)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: stylesPublic.typography.scale["2xl"],
-                    margin: `0 auto ${stylesPublic.spacing.scale[4]} auto`,
-                    border: "2px solid rgba(255, 255, 255, 0.3)",
-                  }}
-                >
-                  {beneficio.icono}
-                </div>
-                <h3
-                  style={{
-                    ...stylesPublic.typography.headings.h5,
-                    marginBottom: stylesPublic.spacing.scale[3],
-                    color: stylesPublic.colors.text.inverse,
-                  }}
-                >
-                  {beneficio.titulo}
-                </h3>
-                <p
-                  style={{
-                    ...stylesPublic.typography.body.base,
-                    color: stylesPublic.colors.text.inverse,
-                    opacity: 0.9,
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {beneficio.descripcion}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section

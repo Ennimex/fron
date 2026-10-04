@@ -375,7 +375,7 @@ const GaleriaCompleta = () => {
                   opacity: 0.5,
                 }}
               >
-                🖼️
+                <Camera size={48} aria-hidden="true" />
               </div>
               <h3
                 style={{

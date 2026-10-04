@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft, MapPin, Palette, Ruler, Tag, MessageCircle, Heart } from "lucide-react"
+import { ArrowLeft, MapPin, Palette, Ruler, Tag, MessageCircle, Heart, Image as ImageIcon } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
 import { useFavoritos } from "../../context/FavoritosContext"
 import { useConfig } from "../../context/ConfigContext"
@@ -439,7 +439,7 @@ const ProductoDetalleEnhanced = () => {
                 color: stylesPublic.colors.text.inverse,
               }}
             >
-              🖼️
+              <ImageIcon size={48} aria-hidden="true" />
             </div>
           </div>
           <div style={{ textAlign: "center", maxWidth: "300px" }}>
@@ -532,7 +532,7 @@ const ProductoDetalleEnhanced = () => {
                 color: stylesPublic.colors.primary[600],
               }}
             >
-              🎨
+              <Palette size={20} aria-hidden="true" />
             </div>
             <span
               style={{
@@ -662,7 +662,7 @@ const ProductoDetalleEnhanced = () => {
                       color: stylesPublic.colors.neutral[400],
                     }}
                   >
-                    🖼️
+                    <ImageIcon size={48} aria-hidden="true" />
                   </div>
                 )}
                 <img

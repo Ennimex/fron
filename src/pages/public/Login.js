@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useContext, useRef } from "react";
 import { IonIcon } from "@ionic/react";
 import { eyeOffOutline, eyeOutline, mailOutline, callOutline, personOutline } from "ionicons/icons";
 import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { Shirt, Scissors, Palette, Sparkles } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import stylesPublic from "../../styles/stylesGlobal";
 
@@ -895,10 +896,10 @@ const Login = () => {
               </div>
 
               {[
-                { icon: "👗", text: "Prendas artesanales únicas" },
-                { icon: "🧵", text: "Técnicas de bordado tradicional" },
-                { icon: "🎨", text: "Diseños exclusivos huastecos" },
-                { icon: "✨", text: "Eventos culturales especiales" },
+                { icon: <Shirt size={22} aria-hidden="true" />, text: "Prendas artesanales únicas" },
+                { icon: <Scissors size={22} aria-hidden="true" />, text: "Técnicas de bordado tradicional" },
+                { icon: <Palette size={22} aria-hidden="true" />, text: "Diseños exclusivos huastecos" },
+                { icon: <Sparkles size={22} aria-hidden="true" />, text: "Eventos culturales especiales" },
               ].map((feature, index) => (
                 <div key={index} className="feature-item">
                   <div className="feature-icon">{feature.icon}</div>
@@ -960,7 +961,7 @@ const Login = () => {
                             <IonIcon icon={mailOutline} />
                           </span>
                           {fieldErrors.loginEmail && (
-                            <p className="login-error-text">⚠️ Por favor ingresa un correo válido</p>
+                            <p className="login-error-text">Por favor ingresa un correo válido</p>
                           )}
                         </div>
 
@@ -988,7 +989,7 @@ const Login = () => {
                           >
                             <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} aria-hidden="true" />
                           </button>
-                          {fieldErrors.loginPassword && <p className="login-error-text">⚠️ La contraseña es requerida</p>}
+                          {fieldErrors.loginPassword && <p className="login-error-text">La contraseña es requerida</p>}
                         </div>
 
                         <div className="login-checkbox-container">
@@ -1069,7 +1070,7 @@ const Login = () => {
                           <span className="login-icon">
                             <IonIcon icon={personOutline} />
                           </span>
-                          {fieldErrors.name && <p className="login-error-text">⚠️ El nombre es requerido</p>}
+                          {fieldErrors.name && <p className="login-error-text">El nombre es requerido</p>}
                         </div>
 
                         <div className="login-input-box">
@@ -1091,7 +1092,7 @@ const Login = () => {
                             <IonIcon icon={callOutline} />
                           </span>
                           {fieldErrors.phone && (
-                            <p className="login-error-text">⚠️ Por favor ingresa un teléfono válido</p>
+                            <p className="login-error-text">Por favor ingresa un teléfono válido</p>
                           )}
                         </div>
 
@@ -1113,7 +1114,7 @@ const Login = () => {
                           <span className="login-icon">
                             <IonIcon icon={mailOutline} />
                           </span>
-                          {fieldErrors.email && <p className="login-error-text">⚠️ Por favor ingresa un correo válido</p>}
+                          {fieldErrors.email && <p className="login-error-text">Por favor ingresa un correo válido</p>}
                         </div>
 
                         <div className="login-input-box">
@@ -1159,7 +1160,7 @@ const Login = () => {
                           )}
 
                           {fieldErrors.password && (
-                            <p className="login-error-text">⚠️ La contraseña debe tener al menos 8 caracteres</p>
+                            <p className="login-error-text">La contraseña debe tener al menos 8 caracteres</p>
                           )}
                         </div>
 
@@ -1188,7 +1189,7 @@ const Login = () => {
                             <IonIcon icon={showPassword ? eyeOutline : eyeOffOutline} aria-hidden="true" />
                           </button>
                           {fieldErrors.confirmPassword && (
-                            <p className="login-error-text">⚠️ Las contraseñas no coinciden</p>
+                            <p className="login-error-text">Las contraseñas no coinciden</p>
                           )}
                         </div>
 
@@ -1205,7 +1206,7 @@ const Login = () => {
                             />
                             Acepto los términos y condiciones
                           </label>
-                          {fieldErrors.acceptTerms && <p className="login-error-text">⚠️ Debes aceptar los términos</p>}
+                          {fieldErrors.acceptTerms && <p className="login-error-text">Debes aceptar los términos</p>}
                         </div>
 
                         <button type="submit" className="login-button" disabled={animating}>

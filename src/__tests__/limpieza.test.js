@@ -57,3 +57,30 @@ describe("datos de contacto", () => {
     expect(culpables).toEqual([]);
   });
 });
+
+// Textos de relleno que no describen al negocio real (ver spec, Fase 0).
+const frasesProhibidas = [
+  "maestras artesanas", "Comercio Justo", "Talleres Educativos", "San Luis Potosí",
+  "Boutique Huasteca Premium", "comunidades artesanales", "Comentarios de la Comunidad",
+];
+
+// Regla del autor: sin emojis en el front; iconos de lucide-react. En esta fase
+// aplica a lo público y compartido; el panel admin entra en la Fase 1.
+const regexEmoji = /[\u{1F300}-\u{1FAFF}]|✅|❌|⚠|✨|❤/u;
+const esPublicoOCompartido = (ruta) => /^src[\\/](pages[\\/]public|components[\\/]shared|layouts)[\\/]/.test(ruta);
+
+describe("textos del sitio", () => {
+  it("ningún archivo de src contiene textos de relleno que no describen al negocio", () => {
+    const culpables = leerTodo(src)
+      .filter((a) => frasesProhibidas.some((f) => a.texto.includes(f)))
+      .map((a) => `${a.ruta}: ${frasesProhibidas.filter((f) => a.texto.includes(f)).join(", ")}`);
+    expect(culpables).toEqual([]);
+  });
+
+  it("no hay emojis en páginas públicas, componentes compartidos ni layouts", () => {
+    const culpables = leerTodo(src)
+      .filter((a) => esPublicoOCompartido(a.ruta) && regexEmoji.test(a.texto))
+      .map((a) => a.ruta);
+    expect(culpables).toEqual([]);
+  });
+});

@@ -64,18 +64,8 @@ const Nosotros = () => {
     []
   )
 
-  // Valores por defecto (respaldo si aún no hay ninguno en la base de datos)
-  const valoresDefault = useMemo(
-    () => [
-      { icon: Heart, titulo: "Comercio Justo", descripcion: "Garantizamos precios equitativos y condiciones dignas para nuestras artesanas, construyendo relaciones duraderas basadas en el respeto mutuo.", color: stylesPublic.colors.gradients.primary },
-      { icon: Leaf, titulo: "Sostenibilidad", descripcion: "Utilizamos materiales naturales y procesos eco-amigables, preservando el medio ambiente para las futuras generaciones.", color: stylesPublic.colors.gradients.secondary },
-      { icon: Palette, titulo: "Autenticidad", descripcion: "Cada pieza conserva las técnicas tradicionales de la cultura huasteca, manteniendo viva nuestra herencia ancestral.", color: stylesPublic.colors.gradients.luxury },
-    ],
-    []
-  )
-
   // Valores desde la API (icono por nombre -> componente, color alternado).
-  // Si no hay ninguno aún, se usan los valores por defecto.
+  // Sin valores de respaldo inventados: si la clienta no ha cargado ninguno, la sección no se muestra.
   const valores = useMemo(
     () =>
       valoresData.length > 0
@@ -85,8 +75,8 @@ const Nosotros = () => {
             descripcion: v.descripcion,
             color: coloresValores[idx % coloresValores.length],
           }))
-        : valoresDefault,
-    [valoresData, coloresValores, valoresDefault]
+        : [],
+    [valoresData, coloresValores]
   )
 
   const historiaTextoDefault =

@@ -97,7 +97,7 @@ export const WakeMessage = ({ active, light = false }) => {
   if (!active || level === 0) return null;
   const msg =
     level >= 2
-      ? "Estamos despertando el servidor, puede tardar hasta 1 min. Gracias por tu paciencia 🙏"
+      ? "Estamos despertando el servidor, puede tardar hasta 1 min. Gracias por tu paciencia."
       : "Esto está tardando un poco más de lo normal…";
   return (
     <p

@@ -2,6 +2,7 @@ import React from "react";
 import { Row, Col } from "react-bootstrap";
 import stylesGlobal from "../../styles/stylesGlobal";
 import { useConfig } from "../../context/ConfigContext";
+import { Facebook, Instagram, MessageCircle, Twitter, Music2, MapPin, Phone, Mail } from "lucide-react";
 
 const Footer = () => {
     const { config } = useConfig();
@@ -50,11 +51,11 @@ const Footer = () => {
     };
 
     const socialLinks = [
-        { name: "Facebook", url: redes.facebook, icon: "📘" },
-        { name: "Instagram", url: redes.instagram, icon: "📷" },
-        { name: "WhatsApp", url: redes.whatsapp, icon: "💬" },
-        { name: "Twitter", url: redes.twitter, icon: "🐦" },
-        { name: "TikTok", url: redes.tiktok, icon: "🎵" },
+        { name: "Facebook", url: redes.facebook, icon: <Facebook size={18} aria-hidden="true" /> },
+        { name: "Instagram", url: redes.instagram, icon: <Instagram size={18} aria-hidden="true" /> },
+        { name: "WhatsApp", url: redes.whatsapp, icon: <MessageCircle size={18} aria-hidden="true" /> },
+        { name: "Twitter", url: redes.twitter, icon: <Twitter size={18} aria-hidden="true" /> },
+        { name: "TikTok", url: redes.tiktok, icon: <Music2 size={18} aria-hidden="true" /> },
     ].filter((s) => s.url);
 
     return (
@@ -116,17 +117,17 @@ const Footer = () => {
                         </h5>
                         <div style={stylesGlobal.components.footer.contact}>
                             <div style={stylesGlobal.components.footer.contactItem}>
-                                <span style={stylesGlobal.components.footer.contactIcon}>📍</span>
+                                <span style={stylesGlobal.components.footer.contactIcon}><MapPin size={16} aria-hidden="true" /></span>
                                 <span>{config?.direccion || "México"}</span>
                             </div>
                             {config?.telefono && (
                                 <div style={stylesGlobal.components.footer.contactItem}>
-                                    <span style={stylesGlobal.components.footer.contactIcon}>📞</span>
+                                    <span style={stylesGlobal.components.footer.contactIcon}><Phone size={16} aria-hidden="true" /></span>
                                     <span>{config.telefono}</span>
                                 </div>
                             )}
                             <div style={stylesGlobal.components.footer.contactItem}>
-                                <span style={stylesGlobal.components.footer.contactIcon}>📧</span>
+                                <span style={stylesGlobal.components.footer.contactIcon}><Mail size={16} aria-hidden="true" /></span>
                                 <span>{config?.email || ""}</span>
                             </div>
                         </div>

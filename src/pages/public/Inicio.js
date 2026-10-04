@@ -16,11 +16,9 @@ import {
   FaSeedling,
   FaLandmark,
   FaMapMarkedAlt,
-  FaHeart,
-  FaShieldAlt,
-  FaAward,
   FaStar,
 } from "react-icons/fa"
+import { Palette } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
 import { SkeletonGrid, WakeMessage } from "../../components/shared/Skeleton"
 
@@ -29,8 +27,6 @@ const InicioEnhanced = () => {
   const { config } = useConfig()
   const [categorias, setCategorias] = useState([])
   const [localidades, setLocalidades] = useState([])
-  const [comentarios, setComentarios] = useState([])
-  const [comentarioTexto, setComentarioTexto] = useState("")
   const { user } = useAuth()
   const isAuthenticated = user && user.isAuthenticated
   const [isLoading, setIsLoading] = useState(true)
@@ -54,26 +50,6 @@ const InicioEnhanced = () => {
   }
 
   useEffect(() => {
-    const regions = [
-      {
-        nombre: "Huasteca Potosina",
-        descripcion:
-          "Cuna de técnicas ancestrales donde cada puntada cuenta la historia de generaciones de maestras artesanas.",
-      },
-      {
-        nombre: "Huasteca Veracruzana",
-        descripcion: "Paleta cromática rica en matices naturales que captura la esencia tropical de la región.",
-      },
-      {
-        nombre: "Huasteca Hidalguense",
-        descripcion: "Precisión geométrica en patrones que reflejan la arquitectura cultural de pueblos originarios.",
-      },
-      {
-        nombre: "Huasteca Tamaulipas",
-        descripcion: "Convergencia de influencias que enriquecen nuestra identidad textil contemporánea.",
-      },
-    ]
-
     const cargarCategorias = async () => {
       try {
         setIsLoading(true)
@@ -105,11 +81,11 @@ const InicioEnhanced = () => {
         if (localidadesData && localidadesData.length > 0) {
           setLocalidades(localidadesData)
         } else {
-          setLocalidades(regions)
+          setLocalidades([])
         }
       } catch (error) {
         console.error("Error al cargar localidades:", error)
-        setLocalidades(regions)
+        setLocalidades([])
       } finally {
         setIsLoadingLocalidades(false)
       }
@@ -119,20 +95,6 @@ const InicioEnhanced = () => {
     cargarLocalidades()
   }, [])
 
-  const handleSubmitComentario = (e) => {
-    e.preventDefault()
-    if (!comentarioTexto.trim()) return
-
-    const nuevoComentario = {
-      id: Date.now(),
-      texto: comentarioTexto,
-      fecha: new Date(),
-      usuario: "Usuario actual",
-    }
-
-    setComentarios([nuevoComentario, ...comentarios])
-    setComentarioTexto("")
-  }
 
   const buttonStyle = {
     fontFamily: stylesPublic.typography.families.body,
@@ -239,38 +201,17 @@ const InicioEnhanced = () => {
                       color: stylesPublic.colors.primary[800],
                     }}
                   >
-                    Boutique Huasteca Premium
+                    {config.lema || "Boutique Huasteca"}
                   </span>
                 </div>
-                <h1
-                  style={{
-                    ...stylesPublic.typography.headings.h1,
-                    margin: 0,
-                  }}
-                >
-                  La Aterciopelada
-                  <span
-                    style={{
-                      display: "block",
-                      background: stylesPublic.colors.gradients.elegant,
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                    }}
-                  >
-                    Tradición Artesanal
-                  </span>
+                <h1 style={{ ...stylesPublic.typography.headings.h1, margin: 0 }}>
+                  {config.nombre || "La Aterciopelada"}
                 </h1>
-                <p
-                  style={{
-                    ...stylesPublic.typography.body.large,
-                    maxWidth: "500px",
-                    margin: 0,
-                  }}
-                >
-                  Descubre piezas únicas tejidas con la esencia de la tradición huasteca. Cada creación celebra siglos
-                  de historia y artesanía refinada.
-                </p>
+                {config.descripcion ? (
+                  <p style={{ ...stylesPublic.typography.body.large, maxWidth: "500px", margin: 0 }}>
+                    {config.descripcion}
+                  </p>
+                ) : null}
               </div>
 
               <div
@@ -281,10 +222,10 @@ const InicioEnhanced = () => {
                 }}
               >
                 <button style={primaryButtonStyle} onClick={() => navigate("/productos")}>
-                  Explorar Colección
+                  Ver catálogo
                 </button>
                 <button style={secondaryButtonStyle} onClick={() => navigate("/contacto")}>
-                  Agendar Consulta
+                  Contáctanos
                 </button>
               </div>
             </div>
@@ -350,7 +291,7 @@ const InicioEnhanced = () => {
                           box-shadow: ${stylesPublic.shadows.lg};
                         `;
                         placeholder.innerHTML = `
-                          <div style="font-size: 4rem; margin-bottom: 1rem;">👜</div>
+                          <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">La Aterciopelada</div>
                           <h3 style="font-size: 1.5rem; font-weight: bold; margin: 0 0 0.5rem 0;">La Aterciopelada</h3>
                           <p style="font-size: 1rem; margin: 0;">Boutique Huasteca</p>
                           <small style="font-size: 0.8rem; opacity: 0.8; margin-top: 1rem;">Logo de la boutique</small>
@@ -366,7 +307,7 @@ const InicioEnhanced = () => {
                     tryNextPath();
                   }}
                   onLoad={(e) => {
-                    console.log("✅ Logo de La Aterciopelada cargado correctamente desde:", e.target.src);
+                    console.log("Logo cargado correctamente desde:", e.target.src);
                   }}
                 />
               </div>
@@ -375,139 +316,8 @@ const InicioEnhanced = () => {
         </div>
       </section>
 
-      {/* Features Section - Why Choose Us */}
-      <section
-        style={{
-          padding: `${stylesPublic.spacing.scale[20]} 0`,
-          backgroundColor: stylesPublic.colors.surface.glass,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: `0 ${stylesPublic.spacing.scale[4]}`,
-          }}
-        >
-          <div
-            style={{
-              textAlign: "center",
-              marginBottom: stylesPublic.spacing.scale[16],
-            }}
-          >
-            <h2
-              style={{
-                ...stylesPublic.typography.headings.h2,
-                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
-              }}
-            >
-              ¿Por qué elegir La Aterciopelada?
-            </h2>
-            <p
-              style={{
-                ...stylesPublic.typography.body.large,
-                maxWidth: "600px",
-                margin: "0 auto",
-              }}
-            >
-              Sumérgete en la pasión y el arte de la artesanía huasteca con productos que respetan la tradición
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: stylesPublic.spacing.scale[8],
-            }}
-          >
-            {[
-              {
-                icon: (
-                  <FaHeart style={{ width: stylesPublic.spacing.scale[8], height: stylesPublic.spacing.scale[8] }} />
-                ),
-                title: "Calidad Artesanal",
-                description:
-                  "Cada pieza es elaborada a mano por maestras artesanas, garantizando una calidad excepcional y atención al detalle.",
-                color: "primary",
-              },
-              {
-                icon: (
-                  <FaShieldAlt style={{ width: stylesPublic.spacing.scale[8], height: stylesPublic.spacing.scale[8] }} />
-                ),
-                title: "Tradición Auténtica",
-                description:
-                  "Preservamos técnicas ancestrales transmitidas de generación en generación en la región huasteca.",
-                color: "secondary",
-              },
-              {
-                icon: (
-                  <FaAward style={{ width: stylesPublic.spacing.scale[8], height: stylesPublic.spacing.scale[8] }} />
-                ),
-                title: "Exclusividad Premium",
-                description:
-                  "Diseños únicos que combinan tradición y modernidad, perfectos para quienes buscan piezas irrepetibles.",
-                color: "accent",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                style={{
-                  ...cardStyle,
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-8px)"
-                  e.currentTarget.style.boxShadow = stylesPublic.shadows.lg
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.boxShadow = stylesPublic.shadows.base
-                }}
-              >
-                <div
-                  style={{
-                    display: "inline-flex",
-                    padding: stylesPublic.spacing.scale[3],
-                    borderRadius: stylesPublic.borders.radius["2xl"],
-                    background:
-                      feature.color === "primary"
-                        ? stylesPublic.colors.gradients.primary
-                        : feature.color === "secondary"
-                          ? stylesPublic.colors.gradients.secondary
-                          : stylesPublic.colors.gradients.luxury,
-                    color: stylesPublic.colors.surface.primary,
-                    marginBottom: stylesPublic.spacing.scale[4],
-                  }}
-                >
-                  {feature.icon}
-                </div>
-                <h3
-                  style={{
-                    fontSize: stylesPublic.typography.scale.xl,
-                    fontWeight: 600,
-                    color: stylesPublic.colors.text.primary,
-                    margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
-                  }}
-                >
-                  {feature.title}
-                </h3>
-                <p
-                  style={{
-                    ...stylesPublic.typography.body.base,
-                    color: stylesPublic.colors.text.tertiary,
-                    margin: 0,
-                  }}
-                >
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Regions Section */}
+      {localidades.length > 0 && (
       <section
         style={{
           padding: `${stylesPublic.spacing.scale[20]} 0`,
@@ -630,6 +440,8 @@ const InicioEnhanced = () => {
         </div>
       </section>
 
+      )}
+
       {/* Categories Section */}
       <section
         style={{
@@ -751,7 +563,7 @@ const InicioEnhanced = () => {
                   opacity: 0.5,
                 }}
               >
-                🎨
+                <Palette size={48} aria-hidden="true" />
               </div>
               <h3
                 style={{
@@ -763,225 +575,6 @@ const InicioEnhanced = () => {
                 Próximamente nuevas categorías
               </h3>
               <p>Estamos trabajando para agregar nuevas categorías pronto.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Comments Section */}
-      <section
-        style={{
-          padding: `${stylesPublic.spacing.scale[20]} 0`,
-          backgroundColor: stylesPublic.colors.surface.glass,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: `0 ${stylesPublic.spacing.scale[4]}`,
-          }}
-        >
-          <div
-            style={{
-              textAlign: "center",
-              marginBottom: stylesPublic.spacing.scale[16],
-            }}
-          >
-            <h2
-              style={{
-                ...stylesPublic.typography.headings.h2,
-                margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
-              }}
-            >
-              Comentarios de la Comunidad
-            </h2>
-            <p
-              style={{
-                ...stylesPublic.typography.body.large,
-                maxWidth: "600px",
-                margin: "0 auto",
-              }}
-            >
-              Comparte tu experiencia con nuestra comunidad artesanal
-            </p>
-          </div>
-
-          {isAuthenticated ? (
-            <div
-              style={{
-                ...cardStyle,
-                marginBottom: stylesPublic.spacing.scale[12],
-              }}
-            >
-              <form onSubmit={handleSubmitComentario}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: stylesPublic.spacing.scale[3],
-                    marginBottom: stylesPublic.spacing.scale[4],
-                  }}
-                >
-                  <div
-                    style={{
-                      width: stylesPublic.spacing.scale[12],
-                      height: stylesPublic.spacing.scale[12],
-                      borderRadius: stylesPublic.borders.radius.full,
-                      background: stylesPublic.colors.primary[500],
-                      color: stylesPublic.colors.primary.contrast,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    👤
-                  </div>
-                  <textarea
-                    rows="3"
-                    placeholder="¿Qué te pareció tu experiencia con nosotros?"
-                    value={comentarioTexto}
-                    onChange={(e) => setComentarioTexto(e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: stylesPublic.spacing.scale[4],
-                      border: `1px solid ${stylesPublic.colors.neutral[300]}`,
-                      borderRadius: stylesPublic.borders.radius.lg,
-                      background: stylesPublic.colors.surface.primary,
-                      fontFamily: stylesPublic.typography.families.body,
-                      fontSize: stylesPublic.typography.scale.base,
-                      resize: "none",
-                      transition: stylesPublic.animations.transitions.base,
-                    }}
-                  />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div
-                    style={{
-                      fontSize: stylesPublic.typography.scale.sm,
-                      color: stylesPublic.colors.text.secondary,
-                    }}
-                  >
-                    ℹ️ Tu comentario será visible para toda la comunidad
-                  </div>
-                  <button type="submit" style={primaryButtonStyle}>
-                    Publicar comentario
-                  </button>
-                </div>
-              </form>
-            </div>
-          ) : (
-            <div
-              style={{
-                ...cardStyle,
-                textAlign: "center",
-                marginBottom: stylesPublic.spacing.scale[12],
-              }}
-            >
-              <div style={{ marginBottom: stylesPublic.spacing.scale[6] }}>
-                <div
-                  style={{
-                    fontSize: stylesPublic.typography.scale["4xl"],
-                    color: stylesPublic.colors.primary[500],
-                  }}
-                >
-                  💬
-                </div>
-              </div>
-              <h3
-                style={{
-                  fontSize: stylesPublic.typography.scale.xl,
-                  fontWeight: 600,
-                  color: stylesPublic.colors.text.primary,
-                  margin: `0 0 ${stylesPublic.spacing.scale[4]} 0`,
-                }}
-              >
-                ¡Únete a la conversación!
-              </h3>
-              <p
-                style={{
-                  ...stylesPublic.typography.body.base,
-                  color: stylesPublic.colors.text.secondary,
-                  marginBottom: stylesPublic.spacing.scale[6],
-                }}
-              >
-                Inicia sesión para compartir tu experiencia con la comunidad artesanal
-              </p>
-              <button style={primaryButtonStyle} onClick={() => navigate("/login")}>
-                Iniciar Sesión
-              </button>
-            </div>
-          )}
-
-          {comentarios.length > 0 && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                gap: stylesPublic.spacing.scale[6],
-              }}
-            >
-              {comentarios.map((comentario) => (
-                <div key={comentario.id} style={cardStyle}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: stylesPublic.spacing.scale[3],
-                      marginBottom: stylesPublic.spacing.scale[3],
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: stylesPublic.spacing.scale[10],
-                        height: stylesPublic.spacing.scale[10],
-                        borderRadius: stylesPublic.borders.radius.full,
-                        background: stylesPublic.colors.primary[500],
-                        color: stylesPublic.colors.primary.contrast,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      👤
-                    </div>
-                    <div>
-                      <h6
-                        style={{
-                          fontSize: stylesPublic.typography.scale.base,
-                          fontWeight: 600,
-                          color: stylesPublic.colors.text.primary,
-                          margin: 0,
-                        }}
-                      >
-                        {comentario.usuario}
-                      </h6>
-                      <small
-                        style={{
-                          fontSize: stylesPublic.typography.scale.xs,
-                          color: stylesPublic.colors.text.secondary,
-                        }}
-                      >
-                        {new Date(comentario.fecha).toLocaleDateString("es-MX", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </small>
-                    </div>
-                  </div>
-                  <p
-                    style={{
-                      ...stylesPublic.typography.body.base,
-                      color: stylesPublic.colors.text.secondary,
-                      margin: 0,
-                    }}
-                  >
-                    {comentario.texto}
-                  </p>
-                </div>
-              ))}
             </div>
           )}
         </div>
@@ -1074,7 +667,7 @@ const InicioEnhanced = () => {
                   color: "rgba(255, 255, 255, 0.8)",
                 }}
               >
-                🛡️ Tu información está segura con nosotros
+                Tu información está segura con nosotros
               </p>
             </div>
           </div>

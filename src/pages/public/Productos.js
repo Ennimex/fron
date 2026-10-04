@@ -941,7 +941,7 @@ const Productos = () => {
                 opacity: 0.5,
               }}
             >
-              🔍
+              <Search size={48} aria-hidden="true" />
             </div>
             <h3
               style={{
