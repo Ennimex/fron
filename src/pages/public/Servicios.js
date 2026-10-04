@@ -308,9 +308,9 @@ const ServiciosEnhanced = () => {
                 e.currentTarget.style.borderColor = stylesPublic.colors.neutral[200]
               }}
             >
-              {servicio.imagen && (
+              {servicio.imagenURL && (
                 <img
-                  src={servicio.imagen}
+                  src={servicio.imagenURL}
                   alt={servicio.titulo || servicio.nombre}
                   style={{
                     width: "80px",

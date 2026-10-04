@@ -215,7 +215,7 @@ const GestionServicio = () => {
         descripcion: editServicio.descripcion || '',
         imagen: null,
       });
-      setImagePreview(editServicio.imagen || null);
+      setImagePreview(editServicio.imagenURL || null);
     } else {
       setIsEditMode(false);
       setSelectedServicio(null);
@@ -388,9 +388,9 @@ const GestionServicio = () => {
             {filteredServicios.map((servicio) => (
               <Fila key={servicio._id} columnas={COLUMNAS}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: stylesGlobal.spacing.scale[4], minWidth: 0 }}>
-                  {servicio.imagen ? (
+                  {servicio.imagenURL ? (
                     <img
-                      src={servicio.imagen}
+                      src={servicio.imagenURL}
                       alt={servicio.nombre}
                       style={{
                         width: '48px',

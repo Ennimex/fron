@@ -41,7 +41,7 @@ const GestionColaboradores = () => {
 
   const editar = (c) => {
     setForm({ nombre: c.nombre || "", rol: c.rol || "", descripcion: c.descripcion || "" });
-    setFotoPreview(c.imagen || "");
+    setFotoPreview(c.imagenURL || "");
     setFotoFile(null);
     setEditId(c._id);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -189,7 +189,7 @@ const GestionColaboradores = () => {
         {colaboradores.map((c) => (
           <div key={c._id} style={s.item}>
             <img
-              src={c.imagen || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.nombre || "?")}&background=random&color=fff&size=80`}
+              src={c.imagenURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.nombre || "?")}&background=random&color=fff&size=80`}
               alt={c.nombre}
               style={s.avatar}
             />

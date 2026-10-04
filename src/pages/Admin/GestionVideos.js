@@ -511,7 +511,7 @@ const GestionVideos = () => {
       eventoId: video.eventoId?._id || video.eventoId || '',
       video: null,
       imagen: null,
-      imagenPreview: video.miniatura || null,
+      imagenPreview: video.miniaturaURL || null,
       videoPreview: null,
     });
     setModalOpen(true);
@@ -692,10 +692,10 @@ const GestionVideos = () => {
             {videos.map((video) => (
               <div key={video._id} style={styles.mediaCard}>
                 <div style={styles.mediaThumbWrap}>
-                  {video.miniatura ? (
+                  {video.miniaturaURL ? (
                     <>
                       <img
-                        src={video.miniatura}
+                        src={video.miniaturaURL}
                         alt={video.titulo || 'Video'}
                         style={styles.mediaThumbImg}
                         loading="lazy"

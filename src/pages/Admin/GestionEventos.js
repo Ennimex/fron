@@ -1227,7 +1227,7 @@ const GestionEventos = () => {
                       {galeriaVideos.map((v) => (
                         <div key={v._id} style={styles.celdaMedia} className="evt-celda-media">
                           <img
-                            src={v.miniatura || "/placeholder.svg"}
+                            src={v.miniaturaURL || "/placeholder.svg"}
                             alt={v.titulo || "Video"}
                             loading="lazy"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}

@@ -549,7 +549,7 @@ const Nosotros = () => {
                 >
                   <img
                     src={
-                      colaborador.imagen ||
+                      colaborador.imagenURL ||
                       `https://ui-avatars.com/api/?name=${encodeURIComponent(
                         colaborador.nombre
                       )}&background=random&color=fff&size=150`
