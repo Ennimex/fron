@@ -1,0 +1,96 @@
+/* Carrusel del hero del inicio (react-bootstrap Carousel) */
+.hero-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.hero-carousel .carousel-inner {
+  border-radius: inherit;
+}
+
+.hero-carousel__slide {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.hero-carousel__slide:focus-visible {
+  outline: 3px solid #d63384;
+  outline-offset: -3px;
+}
+
+.hero-carousel__img {
+  display: block;
+  width: 100%;
+  height: 460px;
+  object-fit: cover;
+  object-position: center top;
+}
+
+@media (max-width: 767px) {
+  .hero-carousel__img {
+    height: 320px;
+  }
+}
+
+/* Pie de foto sobre degradado oscuro; no captura clics para que la foto siga siendo el enlace */
+.hero-carousel .carousel-caption {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3rem 1.5rem 2.5rem;
+  text-align: left;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(42, 36, 31, 0.78), rgba(42, 36, 31, 0));
+}
+
+.hero-carousel .carousel-caption h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.hero-carousel .carousel-caption p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Indicadores redondos con el rosa de la marca */
+.hero-carousel .carousel-indicators {
+  margin-bottom: 0.75rem;
+}
+
+.hero-carousel .carousel-indicators [data-bs-target] {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 0;
+  background-color: #ffffff;
+  opacity: 0.6;
+}
+
+.hero-carousel .carousel-indicators .active {
+  background-color: #d63384;
+  opacity: 1;
+}
+
+/* Flechas dentro de un círculo rosa */
+.hero-carousel .carousel-control-prev,
+.hero-carousel .carousel-control-next {
+  width: 15%;
+  opacity: 0.9;
+}
+
+.hero-carousel .carousel-control-prev-icon,
+.hero-carousel .carousel-control-next-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: rgba(214, 51, 132, 0.85);
+  background-size: 50%;
+}

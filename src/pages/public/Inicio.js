@@ -21,6 +21,7 @@ import {
 import { Palette } from "lucide-react"
 import stylesPublic from "../../styles/stylesGlobal"
 import { SkeletonGrid, WakeMessage } from "../../components/shared/Skeleton"
+import HeroCarousel from "../../components/shared/HeroCarousel"
 
 const InicioEnhanced = () => {
   const navigate = useNavigate()
@@ -31,6 +32,7 @@ const InicioEnhanced = () => {
   const isAuthenticated = user && user.isAuthenticated
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingLocalidades, setIsLoadingLocalidades] = useState(true)
+  const [fotosHero, setFotosHero] = useState([])
 
   const getLocalidadIcon = (nombre) => {
     const hash = nombre.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -91,8 +93,21 @@ const InicioEnhanced = () => {
       }
     }
 
+    const cargarFotos = async () => {
+      try {
+        const fotosData = await publicAPI.getFotos()
+        // Solo fotos generales (sin evento), las más recientes primero
+        const generales = Array.isArray(fotosData) ? fotosData.filter((foto) => foto.url && !foto.eventoId) : []
+        setFotosHero(generales.slice(0, 6))
+      } catch (error) {
+        console.error("Error al cargar fotos del inicio:", error)
+        setFotosHero([])
+      }
+    }
+
     cargarCategorias()
     cargarLocalidades()
+    cargarFotos()
   }, [])
 
 
@@ -230,7 +245,7 @@ const InicioEnhanced = () => {
               </div>
             </div>
 
-            {/* Hero Image */}
+            {/* Hero Image: carrusel de la galería, o el logo si aún no hay fotos */}
             <div style={{ position: "relative" }}>
               <div
                 style={{
@@ -242,74 +257,30 @@ const InicioEnhanced = () => {
                   boxShadow: stylesPublic.shadows.xl,
                 }}
               >
-                <img
-                  src={config?.logoUrl || `${process.env.PUBLIC_URL}/images/logo-aterciopelada.jpeg`}
-                  alt={`${config?.nombre || "La Aterciopelada"} - Boutique Huasteca`}
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    borderRadius: stylesPublic.borders.radius["2xl"],
-                    objectFit: "cover",
-                    maxHeight: "500px",
-                    minHeight: "300px",
-                    boxShadow: stylesPublic.shadows.lg,
-                    transition: stylesPublic.animations.transitions.base,
-                  }}
-                  onError={(e) => {
-                    console.error("Error loading image:", e.target.src);
-                    console.log("Attempting alternative paths...");
-                    
-                    // Intentar rutas alternativas
-                    const alternativePaths = [
-                      "/images/logo-aterciopelada.jpeg",
-                      "./images/logo-aterciopelada.jpeg",
-                      `${window.location.origin}/images/logo-aterciopelada.jpeg`
-                    ];
-                    
-                    let currentIndex = 0;
-                    const tryNextPath = () => {
-                      if (currentIndex < alternativePaths.length) {
-                        console.log(`Trying path: ${alternativePaths[currentIndex]}`);
-                        e.target.src = alternativePaths[currentIndex];
-                        currentIndex++;
-                      } else {
-                        // Si todas las rutas fallan, mostrar placeholder
-                        e.target.style.display = "none";
-                        const placeholder = document.createElement("div");
-                        placeholder.style.cssText = `
-                          width: 100%;
-                          height: 400px;
-                          border-radius: ${stylesPublic.borders.radius["2xl"]};
-                          background: linear-gradient(135deg, #f9a8d4 0%, #ec4899 50%, #be185d 100%);
-                          display: flex;
-                          flex-direction: column;
-                          align-items: center;
-                          justify-content: center;
-                          color: white;
-                          text-align: center;
-                          font-family: ${stylesPublic.typography.families.body};
-                          box-shadow: ${stylesPublic.shadows.lg};
-                        `;
-                        placeholder.innerHTML = `
-                          <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">La Aterciopelada</div>
-                          <h3 style="font-size: 1.5rem; font-weight: bold; margin: 0 0 0.5rem 0;">La Aterciopelada</h3>
-                          <p style="font-size: 1rem; margin: 0;">Boutique Huasteca</p>
-                          <small style="font-size: 0.8rem; opacity: 0.8; margin-top: 1rem;">Logo de la boutique</small>
-                        `;
-                        if (e.target.parentNode) {
-                          e.target.parentNode.appendChild(placeholder);
-                        }
-                      }
-                    };
-                    
-                    // Remover el evento onError temporalmente para evitar bucle infinito
-                    e.target.onError = tryNextPath;
-                    tryNextPath();
-                  }}
-                  onLoad={(e) => {
-                    console.log("Logo cargado correctamente desde:", e.target.src);
-                  }}
-                />
+                {fotosHero.length > 0 ? (
+                  <HeroCarousel fotos={fotosHero} style={{ boxShadow: stylesPublic.shadows.lg }} />
+                ) : (
+                  <img
+                    src={config?.logoUrl || `${process.env.PUBLIC_URL}/images/logo-aterciopelada.jpeg`}
+                    alt={`${config?.nombre || "La Aterciopelada"} - Boutique Huasteca`}
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      borderRadius: stylesPublic.borders.radius["2xl"],
+                      objectFit: "cover",
+                      maxHeight: "500px",
+                      minHeight: "300px",
+                      boxShadow: stylesPublic.shadows.lg,
+                      transition: stylesPublic.animations.transitions.base,
+                    }}
+                    onError={(e) => {
+                      // Si falla el logo de la configuración, usar el local una sola vez
+                      if (e.target.dataset.fallback) return
+                      e.target.dataset.fallback = "1"
+                      e.target.src = `${process.env.PUBLIC_URL}/images/logo-aterciopelada.jpeg`
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>
